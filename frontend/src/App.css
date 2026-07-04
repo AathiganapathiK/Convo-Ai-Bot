@@ -1,0 +1,51 @@
+/* Chat History Sidebar Item Hover styling */
+.history-chat-item:hover {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+.history-chat-item .history-actions {
+  opacity: 1;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.history-chat-item:hover .history-actions {
+  opacity: 1;
+}
+
+/* Make headers or action buttons within history transparent & clean */
+.history-chat-item .ant-btn-text:hover {
+  background-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+/* Custom Profile dropdown hover styling */
+.profile-dropdown-trigger:hover {
+  background-color: #f1f5f9;
+}
+
+/* Custom scrollbar configurations for a sleeker dashboard feel */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Sidebar scrollbar styles */
+.ant-layout-sider-children::-webkit-scrollbar-thumb {
+  background: #334155;
+}
+
+.ant-layout-sider-children::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}

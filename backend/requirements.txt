@@ -1,0 +1,12 @@
+fastapi
+uvicorn
+sqlalchemy
+pyodbc           # For SQL Server
+pymysql          # For MySQL
+psycopg2-binary  # For PostgreSQL
+python-dotenv
+python-jose[cryptography]
+passlib[bcrypt]==3.2.2
+requests
+groq
+openpyxl
