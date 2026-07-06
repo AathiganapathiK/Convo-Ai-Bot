@@ -57,22 +57,41 @@ fi
 # Add Microsoft Repository (needed for ODBC driver + sqlcmd either way)
 ###############################################################################
 
-if [[ ! -f /etc/apt/sources.list.d/mssql-release.list ]]; then
+REPO_LIST="/etc/apt/sources.list.d/mssql-release.list"
+REPO_KEY="/usr/share/keyrings/microsoft-prod.gpg"
 
-    info "Adding Microsoft package repository..."
-
-    curl https://packages.microsoft.com/keys/microsoft.asc \
-        | gpg --dearmor \
-        -o /usr/share/keyrings/microsoft-prod.gpg
-
-    curl https://packages.microsoft.com/config/ubuntu/${UBUNTU_VERSION}/prod.list \
-        | sed 's#deb #deb [signed-by=/usr/share/keyrings/microsoft-prod.gpg] #' \
-        > /etc/apt/sources.list.d/mssql-release.list
-
-    success "Repository added."
-
+# Step 1: Add GPG key only if it doesn't already exist
+if [[ ! -f "$REPO_KEY" ]]; then
+    info "Downloading Microsoft GPG key..."
+    
+    TMPKEY=$(mktemp)
+    curl -fsSL https://packages.microsoft.com/keys/microsoft.asc \
+        | gpg --dearmor -o "$TMPKEY"
+    
+    # Move atomically to avoid corruption if download fails
+    mv "$TMPKEY" "$REPO_KEY"
+    success "Microsoft GPG key installed."
 else
-    success "Microsoft repository already exists."
+    success "Microsoft GPG key already present."
+fi
+
+# Step 2: Add repository list only if it doesn't already exist
+if [[ ! -f "$REPO_LIST" ]]; then
+    info "Adding Microsoft package repository list..."
+    
+    TMPLIST=$(mktemp)
+    curl -fsSL https://packages.microsoft.com/config/ubuntu/${UBUNTU_VERSION}/prod.list \
+        > "$TMPLIST"
+    
+    # Update repository entry to use the GPG key we just installed
+    sed "s#deb #deb [signed-by=${REPO_KEY}] #" "$TMPLIST" > "${TMPLIST}.signed"
+    
+    # Move atomically
+    mv "${TMPLIST}.signed" "$REPO_LIST"
+    rm -f "$TMPLIST"
+    success "Repository list added."
+else
+    success "Microsoft repository already configured."
 fi
 
 update_packages
