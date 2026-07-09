@@ -6,6 +6,7 @@ from pydantic import BaseModel
 class MetricRequest(BaseModel):
     metric_name: str
     business_name: str
+    synonyms: Optional[str] = None
     description: Optional[str] = None
     table_name: str
     column_name: str
@@ -16,6 +17,7 @@ class MetricRequest(BaseModel):
 class DimensionRequest(BaseModel):
     dimension_name: str
     business_name: str
+    synonyms: Optional[str] = None
     description: Optional[str] = None
     table_name: str
     column_name: str

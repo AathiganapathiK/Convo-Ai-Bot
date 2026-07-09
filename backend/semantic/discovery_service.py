@@ -1,4 +1,5 @@
 from ai.insights import followup_generator
+from ai.insights import followup_generator
 import uuid, re
 from sqlalchemy import text
 from database import engine
@@ -81,11 +82,8 @@ class SemanticDiscoveryService:
                 # Filter out technical and audit columns
                 if SemanticDiscoveryService.is_technical_column(column_name):
                     continue
-                
-                # Ignore unwanted columns
-                if not SemanticDiscoveryService.is_metric_column(column_name,data_type):
-                    pass
-                else:
+                # Generate metrics only for valid numeric business columns
+                if SemanticDiscoveryService.is_metric_column(column_name, data_type):
 
                     metric_key = (
                         table_name.lower(),
@@ -98,13 +96,10 @@ class SemanticDiscoveryService:
 
                         metric_id = str(uuid.uuid4())
 
-                        metric_name = (
-                            lower.replace(" ", "_")
-                        )
+                        metric_name = lower.replace(" ", "_")
 
                         business_name = (
-                            SemanticDiscoveryService
-                            .generate_business_name(
+                            SemanticDiscoveryService.generate_business_name(
                                 table_name,
                                 column_name
                             )
@@ -115,38 +110,37 @@ class SemanticDiscoveryService:
                         )
 
                         aggregation_type = (
-                            SemanticDiscoveryService
-                            .detect_aggregation_type(
+                            SemanticDiscoveryService.detect_aggregation_type(
                                 column_name
                             )
                         )
 
                         conn.execute(
                             text("""
-                            INSERT INTO semantic_metrics
-                            (
-                                metric_id,
-                                connection_id,
-                                metric_name,
-                                business_name,
-                                description,
-                                table_name,
-                                column_name,
-                                aggregation_type,
-                                source
-                            )
-                            VALUES
-                            (
-                                :metric_id,
-                                :connection_id,
-                                :metric_name,
-                                :business_name,
-                                :description,
-                                :table_name,
-                                :column_name,
-                                :aggregation_type,
-                                'AUTO'
-                            )
+                                INSERT INTO semantic_metrics
+                                (
+                                    metric_id,
+                                    connection_id,
+                                    metric_name,
+                                    business_name,
+                                    description,
+                                    table_name,
+                                    column_name,
+                                    aggregation_type,
+                                    source
+                                )
+                                VALUES
+                                (
+                                    :metric_id,
+                                    :connection_id,
+                                    :metric_name,
+                                    :business_name,
+                                    :description,
+                                    :table_name,
+                                    :column_name,
+                                    :aggregation_type,
+                                    'AUTO'
+                                )
                             """),
                             {
                                 "metric_id": metric_id,
@@ -160,40 +154,6 @@ class SemanticDiscoveryService:
                             }
                         )
 
-                # Generate metrics
-                metric_key = (table_name.lower(), lower)
-                if metric_key not in seen_metrics:
-                    seen_metrics.add(metric_key)
-                    
-                    metric_id = str(uuid.uuid4())
-                    metric_name = column_name.lower().replace(" ", "_")
-                    business_name = (
-                        SemanticDiscoveryService
-                        .generate_business_name(
-                            table_name,
-                            column_name
-                        )
-                    )
-                    description = f"Semantic metric for {column_name} in {table_name}"
-                        
-                    conn.execute(
-                        text("""
-                            INSERT INTO semantic_metrics 
-                            (metric_id, connection_id, metric_name, business_name, description, table_name, column_name, aggregation_type,source)
-                            VALUES 
-                            (:metric_id, :connection_id, :metric_name, :business_name, :description, :table_name, :column_name, :aggregation_type,'AUTO')
-                            """),
-                        {
-                            "metric_id": metric_id,
-                            "connection_id": connection_id,
-                            "metric_name": metric_name,
-                            "business_name": business_name,
-                            "description": description,
-                            "table_name": table_name,
-                            "column_name": column_name,
-                            "aggregation_type": "SUM"
-                        }
-                    )
 
                 # Generate dimensions
                 dimension_key = (table_name.lower(), lower)

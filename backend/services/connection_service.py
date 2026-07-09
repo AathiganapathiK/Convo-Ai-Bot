@@ -127,7 +127,6 @@ class ConnectionService:
                     "connection_id": connection_id
                 }
             )
-
         return True
 
     @staticmethod

@@ -1,3 +1,4 @@
+import traceback
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import text
 from database import engine
@@ -6,6 +7,10 @@ from security.rbac_service import require_permission
 
 from admin.connection_schema import (
     CreateConnectionRequest
+)
+
+from services.datasource_lifecycle_service import (
+    DatasourceLifecycleService
 )
 
 from services.connection_service import (
@@ -73,7 +78,7 @@ def create_connection(
             connection_id=connection["connection_id"]
         )
 
-    return {
+    return { 
         "message":
         "Connection created and synchronized"
     }
@@ -105,43 +110,10 @@ def enable_connection(
     user=Depends(require_permission("admin:connections:manage"))
 ):
 
-    ConnectionService.enable_connection(
-        connection_id,
-        user["company_id"]
-    )
-
-    connection = ConnectionService.get_active_connection(
-        user["company_id"]
-    )
-
-    SchemaSyncService.sync_schema(
-        connection
-    )
-
-    relationship_result = (
-        RelationshipDiscoveryService
-        .discover_relationships(
-            company_id=user["company_id"],
-            connection_id=connection["connection_id"]
-        )
-    )
-
-    DriftDetectionService.detect_drift(
-        company_id=user["company_id"],
-        connection_id=connection["connection_id"]
-    )
-
-    return {
-    "message":
-    "Connection enabled",
-
-    "relationships_found":
-        relationship_result[
-            "relationships_found"
-        ]
-
-    }
-
+    return DatasourceLifecycleService.enable(
+        connection_id=connection_id,
+        company_id=user["company_id"]
+)
 
 @router.post(
     "/connections/test"
@@ -356,26 +328,27 @@ def get_table_schema_details(
     # Query row count from source database
     row_count = 0
     db_type = active_conn.get("database_type", "").lower()
-    table_esc = f"[{schema_name}].[{table_name}]" if db_type == "sqlserver" else f"{schema_name}.{table_name}"
+    table_esc = f"[{schema_name}].[{table_name}]" if db_type in ("sqlserver", "mssql") else f"{schema_name}.{table_name}"
     
     try:
         source_engine = DatabaseConnectionFactory.create_engine_for_connection(active_conn)
         with source_engine.connect() as source_conn:
             count_res = source_conn.execute(text(f"SELECT COUNT(*) AS total FROM {table_esc}")).fetchone()
             row_count = count_res._mapping["total"] if count_res else 0
-    except Exception as e:
-        print(f"Error getting row count: {e}")
+    except Exception:
+        traceback.print_exc()
         
     # Query sample data (top 5 rows)
     sample_data = []
     try:
         source_engine = DatabaseConnectionFactory.create_engine_for_connection(active_conn)
-        limit_sql = f"SELECT TOP 5 * FROM {table_esc}" if db_type == "sqlserver" else f"SELECT * FROM {table_esc} LIMIT 5"
+        limit_sql = f"SELECT TOP 5 * FROM {table_esc}" if db_type in ("sqlserver", "mssql") else f"SELECT * FROM {table_esc} LIMIT 5"
         with source_engine.connect() as source_conn:
             sample_res = source_conn.execute(text(limit_sql)).fetchall()
             sample_data = [dict(row._mapping) for row in sample_res]
-    except Exception as e:
-        print(f"Error getting sample data: {e}")
+
+    except Exception:
+        traceback.print_exc()
         
     return {
         "table_id": table_id,

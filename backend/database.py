@@ -5,24 +5,44 @@ from urllib.parse import quote_plus
 
 load_dotenv()
 
-DB_TYPE = os.getenv("DB_TYPE", "mssql")  # mssql, mysql, postgres, sqlite
+DB_TYPE = (
+    os.getenv("DB_TYPE", "sqlserver")
+    .strip()
+    .lower()
+)
+
+DATABASE_TYPE_MAP = {
+    
+    "mssql": "sqlserver",
+    "sqlserver": "sqlserver",
+
+    "postgres": "postgresql",
+    "postgresql": "postgresql",
+
+    "mysql": "mysql",
+    "sqlite": "sqlite"
+}
+
+DB_TYPE = DATABASE_TYPE_MAP.get(DB_TYPE, DB_TYPE)
+
 _host = os.getenv("DB_HOST", "localhost")
 _port = os.getenv("DB_PORT", "1433")
 _name = os.getenv("DB_NAME", "adv_works")
-_user = os.getenv("DB_USER", "")
-_password = os.getenv("DB_PASSWORD", "")
-_driver = os.getenv("DB_DRIVER", "ODBC+Driver+17+for+SQL+Server")
+_user = os.getenv("DB_USER", "sa")
+_password = os.getenv("DB_PASSWORD", "12345")
+_driver = os.getenv("DB_DRIVER", "ODBC Driver 17 for SQL Server")
 
 
-if DB_TYPE == "mssql":
+if DB_TYPE == "sqlserver":
     DATABASE_URL = (
-        f"mssql+pyodbc://{quote_plus(_user)}:{quote_plus(_password)}"
-        f"@{_host}:{_port}/{_name}"
-        f"?driver={quote_plus(_driver)}&TrustServerCertificate=yes"
+        f"mssql+pyodbc://@{_host}/{_name}"
+        f"?driver={quote_plus(_driver)}"
+        f"&trusted_connection=yes"
+        f"&TrustServerCertificate=yes"
     )
 elif DB_TYPE == "mysql":
     DATABASE_URL = f"mysql+pymysql://{_user}:{_password}@{_host}/{_name}"
-elif DB_TYPE == "postgres":
+elif DB_TYPE == "postgresql":
     DATABASE_URL = f"postgresql+psycopg2://{_user}:{_password}@{_host}/{_name}"
 elif DB_TYPE == "sqlite":
     DATABASE_URL = f"sqlite:///{_name}.db"
@@ -37,6 +57,7 @@ engine = create_engine(
     max_overflow=10
 )
 
+print("DATABASE_url", DATABASE_URL)
 
 """
 

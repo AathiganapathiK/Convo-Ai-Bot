@@ -73,6 +73,12 @@ from admin.provider_management import router as provider_router
 from admin.provider_credentials import router as provider_credentials_router
 from admin.connection_management import router as connection_router
 
+from core.exceptions import DatasourceLifecycleException
+
+from core.exception_handlers import (
+    datasource_exception_handler,
+    generic_exception_handler
+)
 
 from chat.chat_sessions import router as chat_router
 
@@ -166,6 +172,16 @@ app = FastAPI(
     title="Enterprise Conversational AI API",
     description="Auth0-authenticated, RBAC/CLS/RLS-enforced analytics backend.",
     version="2.0.0",
+)
+
+app.add_exception_handler(
+    DatasourceLifecycleException,
+    datasource_exception_handler
+)
+
+app.add_exception_handler(
+    Exception,
+    generic_exception_handler
 )
 
 _frontend_origin = os.getenv("FRONTEND_ORIGIN", "http://localhost:3000")
@@ -981,8 +997,8 @@ def test_semantic():
     
 
 
-@app.get("/test-resolver")
-def test_resolver():
+@app.get("/test-resolver/{question}")
+def test_resolver(question: str):
 
     active_connection = get_active_conn_or_raise()
 
@@ -990,7 +1006,7 @@ def test_resolver():
         SemanticResolver
         .resolve(
             active_connection["connection_id"],
-            "Show sales by region"
+            question
         )
     )
 

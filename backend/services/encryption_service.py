@@ -14,7 +14,7 @@ class EncryptionService:
 
         key = os.getenv(
             "ENCRYPTION_KEY"
-        )
+        )       
 
         if not key:
 

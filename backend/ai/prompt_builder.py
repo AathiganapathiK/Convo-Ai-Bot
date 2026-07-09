@@ -196,27 +196,71 @@ def build_sql_prompt(question: str, history = None, company_id = None):
     )
 
     # === Pipeline Logging: SEMANTIC ===
-    print("\n========== SEMANTIC ==========")
-    print("Metrics:")
-    if semantic_result["metrics"]:
-        for metric in semantic_result["metrics"]:
-            print(f"- {metric}")
+    print("\n========== SEMANTIC RESOLVER ==========")
+
+    print("\nMatched Metrics:")
+
+    metric_debug = semantic_result.get("debug", {}).get("metrics", [])
+
+    if metric_debug:
+
+        for metric in metric_debug:
+
+            print(f"\n• {metric['business_name']}")
+            print(f"  Technical Name : {metric['technical_name']}")
+            print(f"  Matched By     : {metric['matched_by']}")
+            print(f"  Matched Text   : {metric['matched_text']}")
+            print(f"  Mapping        : {metric['table_name']}.{metric['column_name']}")
+            print(f"  Aggregation    : {metric['aggregation']}")
+
     else:
+
         print("- (None)")
-    print("Dimensions:")
-    if semantic_result["dimensions"]:
-        for dim in semantic_result["dimensions"]:
-            print(f"- {dim}")
+
+
+    print("\nMatched Dimensions:")
+
+    dimension_debug = semantic_result.get("debug", {}).get("dimensions", [])
+
+    if dimension_debug:
+
+        for dimension in dimension_debug:
+
+            print(f"\n• {dimension['business_name']}")
+            print(f"  Technical Name : {dimension['technical_name']}")
+            print(f"  Matched By     : {dimension['matched_by']}")
+            print(f"  Matched Text   : {dimension['matched_text']}")
+            print(f"  Mapping        : {dimension['table_name']}.{dimension['column_name']}")
+
     else:
+
         print("- (None)")
 
     # === Pipeline Logging: TABLES ===
-    print("\n========== TABLES ==========")
-    print("Relevant Tables:")
+    print("\n========== RELEVANT TABLES ==========")
+
     if tables:
+
         for table in tables:
-            print(f"- {table}")
+
+            reasons = []
+
+            for metric in semantic_result["metric_objects"]:
+                if metric["table_name"] == table:
+                    reasons.append(f"Metric ({metric['business_name']})")
+
+            for dimension in semantic_result["dimension_objects"]:
+                if dimension["table_name"] == table:
+                    reasons.append(f"Dimension ({dimension['business_name']})")
+
+            if not reasons:
+                reasons.append("Relationship Expansion")
+
+            print(f"\n• {table}")
+            print(f"  Selected By : {', '.join(reasons)}")
+
     else:
+
         print("- (None)")
 
     # === Pipeline Logging: RELATIONSHIPS ===
@@ -238,7 +282,7 @@ def build_sql_prompt(question: str, history = None, company_id = None):
     if examples:
 
         examples_text = (
-            "\nPrevious Successful Queries:\n"
+            "\n"
         )
 
         for example in examples:
@@ -329,7 +373,7 @@ Relevant Metrics:
 Relevant Dimensions:
 {semantic_result["dimensions"]}
 
-Previous Successful Queries
+Previous Successful Queries:
 {examples_text}
 
 Rules:

@@ -47,7 +47,7 @@ def _spans_overlap(span1, span2):
     return max(span1[0], span2[0]) < min(span1[1], span2[1])
 
 
-def _get_match_info(technical_name: str, business_name: str, question: str):
+def _get_match_info(technical_name: str, business_name: str,synonyms:str, question: str):
     """
     Computes a match score, matched length, and spans based on deterministic ranking.
     
@@ -59,7 +59,7 @@ def _get_match_info(technical_name: str, business_name: str, question: str):
     5. Whole-word business name match
     """
     if not question:
-        return 0, 0, []
+        return 0, 0, [], None, None
         
     q_norm = _normalize_string(question)
     tech_norm = _normalize_string(technical_name)
@@ -67,33 +67,72 @@ def _get_match_info(technical_name: str, business_name: str, question: str):
     
     # Priority 1: Exact technical name equals complete user phrase
     if tech_norm and q_norm == tech_norm:
-        return 50000, len(q_norm), [(0, len(q_norm))]
+        return (
+            50000,
+            len(q_norm),
+            [(0, len(q_norm))],
+            "Technical Name",
+            technical_name
+        )
         
     # Priority 2: Exact business name equals complete user phrase
     if bus_norm and q_norm == bus_norm:
-        return 40000, len(q_norm), [(0, len(q_norm))]
+        return (
+            40000,
+            len(q_norm),
+            [(0, len(q_norm))],
+            "Business Name",
+            business_name
+        )
         
     # Priority 3: Exact business phrase contained in the question
     bus_phrase_spans = _find_phrase_spans(bus_norm, q_norm)
     if bus_phrase_spans:
-        return 30000, len(bus_norm), bus_phrase_spans
+        return 30000, len(bus_norm), bus_phrase_spans, "Business Name",business_name
         
     # Priority 4: Whole-word technical name match
     # Try consecutive phrase match first, then non-consecutive word match
     tech_phrase_spans = _find_phrase_spans(tech_norm, q_norm)
     if tech_phrase_spans:
-        return 20000, len(tech_norm), tech_phrase_spans
+        return 20000, len(tech_norm), tech_phrase_spans, "Business Name",business_name
         
     tech_word_spans = _find_whole_word_match_spans(technical_name, q_norm)
     if tech_word_spans:
-        return 20000, len(tech_norm), tech_word_spans
+        return 20000, len(tech_norm), tech_word_spans, "Business Name",business_name
         
     # Priority 5: Whole-word business name match
     bus_word_spans = _find_whole_word_match_spans(business_name, q_norm)
     if bus_word_spans:
-        return 10000, len(bus_norm), bus_word_spans
+        return 10000, len(bus_norm), bus_word_spans, "Business Name",business_name
+
+
+    # Priority 6: Synonym match
+    if synonyms:
+
+        synonym_list = [
+            s.strip().lower()
+            for s in synonyms.split(",")
+            if s.strip()
+        ]
+
+        for synonym in synonym_list:
+
+            synonym_spans = _find_phrase_spans(
+                synonym,
+                q_norm
+            )
+
+            if synonym_spans:
+
+                return (
+                    9000,
+                    len(synonym),
+                    synonym_spans,
+                    "Synonym",
+                    synonym
+                )
         
-    return 0, 0, []
+    return (0, 0, [],None, None)
 
 
 class SemanticResolver:
@@ -109,7 +148,8 @@ class SemanticResolver:
             business_name,
             table_name,
             column_name,
-            aggregation_type
+            aggregation_type,
+            synonyms
         FROM semantic_metrics
         WHERE connection_id = :connection_id
           AND is_active = 1
@@ -120,7 +160,8 @@ class SemanticResolver:
             dimension_name,
             business_name,
             table_name,
-            column_name
+            column_name,
+            synonyms
         FROM semantic_dimensions
         WHERE connection_id = :connection_id
           AND is_active = 1
@@ -150,7 +191,7 @@ class SemanticResolver:
         for row in metric_rows:
             metric_name = row[0]
             business_name = row[1]
-            score, matched_len, spans = _get_match_info(metric_name, business_name, question)
+            score, matched_len, spans, matched_by, matched_text = _get_match_info(metric_name, business_name,row[5], question)
             if score > 0:
                 candidates.append({
                     "score": score,
@@ -161,6 +202,8 @@ class SemanticResolver:
                     "table_name": row[2],
                     "column_name": row[3],
                     "aggregation_type": row[4],
+                    "matched_by": matched_by,
+                    "matched_text": matched_text,
                     "spans": spans
                 })
 
@@ -168,7 +211,7 @@ class SemanticResolver:
         for row in dimension_rows:
             dimension_name = row[0]
             business_name = row[1]
-            score, matched_len, spans = _get_match_info(dimension_name, business_name, question)
+            score, matched_len, spans, matched_by, matched_text = _get_match_info(dimension_name, business_name, row[4], question)
             if score > 0:
                 candidates.append({
                     "score": score,
@@ -178,6 +221,8 @@ class SemanticResolver:
                     "business_name": business_name,
                     "table_name": row[2],
                     "column_name": row[3],
+                    "matched_by": matched_by,
+                    "matched_text": matched_text,
                     "spans": spans
                 })
 
@@ -229,16 +274,35 @@ class SemanticResolver:
         seen_metrics = set()
         dimensions = []
         seen_dimensions = set()
+        metric_debug = []
+        dimension_debug = []
 
         for candidate in selected_candidates:
             bname = candidate["business_name"]
             if candidate["type"] == "metric":
                 if bname not in seen_metrics:
                     metrics.append(bname)
+                    metric_debug.append({
+                        "business_name": candidate["business_name"],
+                        "technical_name": candidate["metric_name"],
+                        "matched_by": candidate["matched_by"],
+                        "matched_text": candidate["matched_text"],
+                        "table_name": candidate["table_name"],
+                        "column_name": candidate["column_name"],
+                        "aggregation": candidate["aggregation_type"]
+                    })
                     seen_metrics.add(bname)
             else:
                 if bname not in seen_dimensions:
                     dimensions.append(bname)
+                    dimension_debug.append({
+                        "business_name": candidate["business_name"],
+                        "technical_name": candidate["dimension_name"],
+                        "matched_by": candidate["matched_by"],
+                        "matched_text": candidate["matched_text"],
+                        "table_name": candidate["table_name"],
+                        "column_name": candidate["column_name"]
+                    })
                     seen_dimensions.add(bname)
 
 
@@ -277,5 +341,10 @@ class SemanticResolver:
             "metrics": metrics,
             "dimensions": dimensions,
             "metric_objects": metric_objects,
-            "dimension_objects": dimension_objects
+            "dimension_objects": dimension_objects,
+
+            "debug": {
+                "metrics": metric_debug,
+                "dimensions": dimension_debug
+            }
         }

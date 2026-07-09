@@ -1,17 +1,21 @@
+from pydantic import model_validator
 from pydantic import BaseModel
 from typing import Optional
 from typing import Literal
 
-
-class CreateConnectionRequest(BaseModel):
-
-    connection_name: str
+class BaseConnectionRequest(BaseModel):
 
     database_type: Literal[
         "sqlserver",
         "postgresql",
-        "mysql"
+        "mysql",
+        "sqlite"
     ]
+
+    authentication_type: Literal[
+        "SQL",
+        "WINDOWS"
+    ] = "SQL"
 
     host: str
 
@@ -23,27 +27,28 @@ class CreateConnectionRequest(BaseModel):
 
     password: Optional[str] = None
 
+    @model_validator(mode="after")
+    def validate_authentication(self):
+
+        if (
+            self.authentication_type == "SQL"
+            and (
+                not self.username
+                or not self.password
+            )
+        ):
+            raise ValueError(
+                "Username and Password are required for SQL Authentication."
+            )
+
+        return self
+
+
+class CreateConnectionRequest(BaseConnectionRequest):
+
+    connection_name: str
     connection_string: Optional[str] = None
 
-class TestConnectionRequest(
-    BaseModel
-):  
 
-    use_windows_auth: bool = True
-
-
-    database_type: Literal[
-        "sqlserver",
-        "postgresql",
-        "mysql"
-    ]
-
-    host: str
-
-    port: int | None = None
-
-    database_name: str
-
-    username: str | None = None
-
-    password: str | None = None
+class TestConnectionRequest(BaseConnectionRequest):
+    pass

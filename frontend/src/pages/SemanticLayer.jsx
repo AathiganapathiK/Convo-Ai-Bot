@@ -43,9 +43,17 @@ export default function SemanticLayer({ API, token, userInfo }) {
         })
       ]);
 
+      if (metricsRes.status === 400 || dimsRes.status === 400) {
+        setMetrics([]);
+        setDimensions([]);
+        message.warning("Please select a database to view semantic definitions.");
+        return;
+      }
+
       if (!metricsRes.ok) {
         throw new Error(`Metrics API returned status ${metricsRes.status}`);
       }
+
       if (!dimsRes.ok) {
         throw new Error(`Dimensions API returned status ${dimsRes.status}`);
       }
@@ -61,6 +69,7 @@ export default function SemanticLayer({ API, token, userInfo }) {
         business_name: m.business_name,
         table_name: m.table_name,
         column_name: m.column_name,
+        synonyms: m.synonyms,
         aggregation_type: m.aggregation_type || "SUM",
         description: m.description,
         source: m.source,
@@ -75,6 +84,7 @@ export default function SemanticLayer({ API, token, userInfo }) {
         business_name: d.business_name,
         table_name: d.table_name,
         column_name: d.column_name,
+        synonyms: d.synonyms,
         description: d.description,
         source: d.source,
         is_active: d.is_active
@@ -131,6 +141,7 @@ export default function SemanticLayer({ API, token, userInfo }) {
         metric_name: record.metric_name,
         table_name: record.table_name,
         column_name: record.column_name,
+        synonyms: record.synonyms,
         aggregation_type: record.aggregation_type || "SUM",
         description: record.description,
         is_active: record.is_active !== undefined ? record.is_active : true
@@ -141,6 +152,7 @@ export default function SemanticLayer({ API, token, userInfo }) {
         dimension_name: record.dimension_name,
         table_name: record.table_name,
         column_name: record.column_name,
+        synonyms: record.synonyms,
         description: record.description,
         is_active: record.is_active !== undefined ? record.is_active : true
       });
@@ -165,6 +177,7 @@ export default function SemanticLayer({ API, token, userInfo }) {
           description: values.description || "",
           table_name: values.table_name,
           column_name: values.column_name,
+          synonyms: values.synonyms,
           aggregation_type: values.aggregation_type,
           is_active: values.is_active !== undefined ? values.is_active : true
         };
@@ -203,6 +216,7 @@ export default function SemanticLayer({ API, token, userInfo }) {
           description: values.description || "",
           table_name: values.table_name,
           column_name: values.column_name,
+          synonyms: values.synonyms,
           is_active: values.is_active !== undefined ? values.is_active : true
         };
 
@@ -298,6 +312,13 @@ export default function SemanticLayer({ API, token, userInfo }) {
       sorter: (a, b) => (a.business_name || "").localeCompare(b.business_name || "")
     },
     {
+      title: "Synonyms",
+      dataIndex: "synonyms",
+      key: "synonyms",
+      render: (value) =>
+        value || "-"
+    },
+    {
       title: "Table",
       dataIndex: "table_name",
       key: "table_name",
@@ -387,6 +408,13 @@ export default function SemanticLayer({ API, token, userInfo }) {
       dataIndex: "business_name",
       key: "business_name",
       sorter: (a, b) => (a.business_name || "").localeCompare(b.business_name || "")
+    },
+    {
+      title: "Synonyms",
+      dataIndex: "synonyms",
+      key: "synonyms",
+      render: (value) =>
+        value || "-"
     },
     {
       title: "Table",
@@ -619,6 +647,16 @@ export default function SemanticLayer({ API, token, userInfo }) {
               </Form.Item>
 
               <Form.Item
+                  name="synonyms"
+                  label="Synonyms"
+              >
+                  <Input.TextArea
+                      rows={2}
+                      placeholder="Customer, Buyer, Dealer, Client"
+                  />
+              </Form.Item>
+
+              <Form.Item
                 name="metric_name"
                 label={<span style={{ color: "var(--text-secondary)" }}>Technical Name</span>}
                 rules={[{ required: true, message: "Please input the technical name!" }]}
@@ -694,6 +732,16 @@ export default function SemanticLayer({ API, token, userInfo }) {
                 rules={[{ required: true, message: "Please input the business name!" }]}
               >
                 <Input placeholder="e.g. Sales Channel" />
+              </Form.Item>
+
+              <Form.Item
+                  name="synonyms"
+                  label="Synonyms"
+              >
+                  <Input.TextArea
+                      rows={2}
+                      placeholder="party,customer,buyer"
+                  />
               </Form.Item>
 
               <Form.Item

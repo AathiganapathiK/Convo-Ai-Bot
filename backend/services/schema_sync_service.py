@@ -1,3 +1,5 @@
+from services.relationship_discovery_service import RelationshipDiscoveryService
+from semantic.discovery_service import SemanticDiscoveryService
 import uuid
 
 from sqlalchemy import text
@@ -209,7 +211,8 @@ class SchemaSyncService:
 
     @staticmethod
     def sync_schema(
-        connection_record
+        connection_record,
+        db_connection = None
     ):
         company_id = connection_record["company_id"]
         connection_id = connection_record["connection_id"]
