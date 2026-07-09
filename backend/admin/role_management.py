@@ -9,7 +9,8 @@ from services.role_service import RoleService
 from services.permission_service import PermissionService
 
 from admin.role_schema import (
-    CreateRoleRequest
+    CreateRoleRequest,
+    UpdateRoleRequest
 )
 
 router = APIRouter(
@@ -49,6 +50,34 @@ def create_role(
     return {
         "message":
             "Role created successfully"
+    }
+
+@router.put("/roles/{role_id}")
+def update_role(
+    role_id: int,
+    request: UpdateRoleRequest,
+    user=Depends(
+        require_permission(
+            "admin:users:write"
+        )
+    )
+):
+
+    updated = RoleService.update_role(
+        role_id=role_id,
+        role_name=request.role_name,
+        description=request.description,
+        is_active=request.is_active
+    )
+
+    if not updated:
+        raise HTTPException(
+            status_code=400,
+            detail="Role not found or system role cannot be modified."
+        )
+
+    return {
+        "message": "Role updated successfully"
     }
 
 @router.delete("/roles/{role_id}")

@@ -120,3 +120,42 @@ class RoleService:
             )
 
         return result.rowcount > 0
+
+
+#     Purpose
+# Updates an existing custom role.
+# Prevents modification of system roles (is_system_role = 0).
+# Returns True if the update succeeded, otherwise False.    
+
+    @staticmethod
+    def update_role(
+        role_id: int,
+        role_name: str,
+        description: str,
+        is_active: bool
+    ):
+
+        query = """
+        UPDATE roles
+        SET
+            role_name = :role_name,
+            description = :description,
+            is_active = :is_active
+        WHERE
+            id = :role_id
+            AND is_system_role = 0
+        """
+
+        with engine.begin() as connection:
+
+            result = connection.execute(
+                text(query),
+                {
+                    "role_id": role_id,
+                    "role_name": role_name,
+                    "description": description,
+                    "is_active": is_active
+                }
+            )
+
+        return result.rowcount > 0

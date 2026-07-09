@@ -1,10 +1,8 @@
 node_modules/
-build/
 .DS_Store
 /archive
 __pycache__
 venv
-/public
 /venv
 /.agents/
 /.vscode/
@@ -20,7 +18,7 @@ venv
 /coverage
 
 # production
-/build
+
 
 # misc
 .DS_Store
