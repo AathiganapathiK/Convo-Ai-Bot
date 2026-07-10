@@ -4,7 +4,7 @@ from typing import Optional
 
 class CreateUserRequest(BaseModel):
 
-    username: str
+    #username: str
 
     password: str
 

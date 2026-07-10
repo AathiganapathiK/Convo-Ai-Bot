@@ -33,7 +33,7 @@ if [[ ! -f "$BACKEND_ENV_FILE" ]]; then
         info "Creating backend .env from template..."
         cp "$SCRIPT_DIR/backend.env.example" "$BACKEND_ENV_FILE"
         warning "Edit $BACKEND_ENV_FILE now with real values (DB_HOST, DB_USER, DB_PASSWORD,"
-        warning "GROQ_API_KEY, AUTH0_DOMAIN, AUTH0_AUDIENCE, ENCRYPTION_KEY) then re-run this script."
+        warning "GROQ_API_KEY, JWT_SECRET, ENCRYPTION_KEY) then re-run this script."
         error "Stopping so you can fill in $BACKEND_ENV_FILE before continuing."
     else
         error "backend.env.example not found."
@@ -57,8 +57,7 @@ REQUIRED_VARS=(
     DB_USER
     DB_PASSWORD
     DB_DRIVER
-    AUTH0_DOMAIN
-    AUTH0_AUDIENCE
+    JWT_SECRET
 )
 
 MISSING=0

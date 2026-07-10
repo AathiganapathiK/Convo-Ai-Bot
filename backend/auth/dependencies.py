@@ -19,7 +19,8 @@ from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy import text
 from database import engine
-from auth.auth0_auth import verify_auth0_token
+# from auth.auth0_auth import verify_auth0_token
+from auth.jwt_utils import verify_local_token
 from services.auth_service import AuthService 
 from services.user_role_service import UserRoleService
 
@@ -44,7 +45,8 @@ def get_current_user(
     token = credentials.credentials
 
     # --- Step 1: Verify Auth0 JWT ---
-    payload = verify_auth0_token(token)
+    # payload = verify_auth0_token(token)
+    payload = verify_local_token(token)
 
     if payload is None:
         raise HTTPException(
@@ -54,19 +56,26 @@ def get_current_user(
         )
 
     # --- Step 2: Extract email claim ---
-    email: str | None = payload.get("https://rr-convo-ai-api/email")
+    # email: str | None = payload.get("https://rr-convo-ai-api/email")
+    email: str | None = payload.get("email")
 
     if not email:
+        # logger.warning(
+        #     "Auth0 token for sub='%s' has no email claim. "
+        #     "Ensure the Auth0 Action 'Add Email to Access Token' is active in the Login Flow.",
+        #     payload.get("sub"),
+        # )
+
         logger.warning(
-            "Auth0 token for sub='%s' has no email claim. "
-            "Ensure the Auth0 Action 'Add Email to Access Token' is active in the Login Flow.",
-            payload.get("sub"),
+            "JWT token is missing the email claim."
         )
+
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Token is missing the email claim. "
-                   "Contact your administrator to verify Auth0 token configuration.",
-        )
+        #     detail="Token is missing the email claim. "
+        #            "Contact your administrator to verify Auth0 token configuration.",
+        # )
+                detail="Token is missing the email claim.")
 
     # --- Step 3: Look up user in SQL Server by official_email ---
     with engine.connect() as connection:

@@ -4,6 +4,7 @@ from database import engine
 from security.rbac_service import require_permission
 from security.audit_service import audit_log, AuditAction
 from admin.user_schema import CreateUserRequest, UpdateUserRequest, UserStatusRequest
+from auth.password_utils import hash_password
 
 router = APIRouter()
 
@@ -132,10 +133,9 @@ def create_user(
             )
 
     check_query = """
-    SELECT username, official_email, employee_id
+    SELECT official_email, employee_id
     FROM users
-    WHERE username = :username
-       OR official_email = :official_email
+    WHERE official_email = :official_email
        OR employee_id = :employee_id
     """
 
@@ -144,7 +144,6 @@ def create_user(
         existing_user = connection.execute(
             text(check_query),
             {
-                "username": request.username,
                 "official_email": request.official_email,
                 "employee_id": request.employee_id
             }
@@ -152,8 +151,6 @@ def create_user(
 
         if existing_user:
             existing_user = dict(existing_user._mapping)
-            if existing_user["username"] == request.username:
-                raise HTTPException(status_code=400, detail="Username already exists")
             if existing_user["official_email"] == request.official_email:
                 raise HTTPException(status_code=400, detail="Official email already exists")
             if existing_user["employee_id"] == request.employee_id:
@@ -168,13 +165,14 @@ def create_user(
         if not company_id:
             raise HTTPException(status_code=400, detail="Could not resolve company_id for the user.")
 
+        hashed_password = hash_password(request.password)
         # Insert user
         insert_query = """
         INSERT INTO users (
             username, password, employee_id, full_name, official_email,
             department, role, company, is_active, company_id, created_at
         ) VALUES (
-            :username, '', :employee_id, :full_name, :official_email,
+            :username, :password, :employee_id, :full_name, :official_email,
             :department, :role, :company, 1, :company_id, GETDATE()
         )
         """
@@ -182,13 +180,15 @@ def create_user(
             text(insert_query),
             {
                 "username":       request.official_email,
+                "password":       hashed_password,
                 "employee_id":    request.employee_id,
                 "full_name":      request.full_name,
                 "official_email": request.official_email,
                 "department":     request.department,
                 "role":           request.role,
                 "company":        request.company,
-                "company_id":     company_id
+                "company_id":     company_id,
+
             }
         )
 

@@ -26,6 +26,7 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from sqlalchemy import text
 
+from auth.auth_router import router as auth_router
 from auth.dependencies import get_current_user
 from database import engine
 
@@ -960,7 +961,7 @@ def get_audit_logs_endpoint(
 # ---------------------------------------------------------------------------
 # Routers
 # ---------------------------------------------------------------------------
-
+app.include_router(auth_router)
 app.include_router(admin_router)
 app.include_router(chat_router)
 app.include_router(config_router)
@@ -969,6 +970,7 @@ app.include_router(user_role_router)
 app.include_router(provider_router)
 app.include_router(provider_credentials_router)
 app.include_router(connection_router)
+
 
 
 def get_active_conn_or_raise() -> dict:

@@ -1,10 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { BrowserRouter, Routes, Route, Link, useLocation, useNavigate } from "react-router-dom";
-import { useAuth0 } from "@auth0/auth0-react";
-import { 
-  Layout, Dropdown, Avatar, Space, Typography, Badge, 
-  Select, Spin, Card, Button, Tag, ConfigProvider, theme, Tooltip
+// import { useAuth0 } from "@auth0/auth0-react";
+import {
+  login,
+  saveToken,
+  getToken,
+  logout as logoutUser
+} from "./services/authService";
+
+import { Layout, Dropdown, Avatar, Space, Typography, Badge, Select, Spin, Card, Button, Tag,
+  ConfigProvider, theme, Tooltip, Input, Form, message
 } from "antd";
+
 import { 
   SettingOutlined, UserOutlined, BellOutlined, DownOutlined, 
   LockOutlined, SunOutlined, MoonOutlined, DesktopOutlined, CheckOutlined,
@@ -126,8 +133,12 @@ const SIDEBAR_SECTIONS = [
   }
 ];
 
-function MainAppLayout({ token, userInfo }) {
-  const { logout } = useAuth0();
+function MainAppLayout({
+    token,
+    userInfo,
+    onLogout
+}) {
+  // const { logout } = useAuth0();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -141,8 +152,17 @@ function MainAppLayout({ token, userInfo }) {
   const [isPinned, setIsPinned] = useState(false);
   const isExpanded = isPinned || isHovered;
 
+  // const handleLogout = () => {
+  //     logoutUser();
+
+  //     setToken("");
+  //     setUserInfo(null);
+  //     setIsAuthenticated(false);
+  //     setBackendStatus("idle");
+  // };
+
   const handleLogout = () => {
-    logout({ logoutParams: { returnTo: window.location.origin } });
+      onLogout();
   };
 
   const role = userInfo?.role?.toUpperCase() || "";
@@ -424,16 +444,40 @@ function MainAppLayout({ token, userInfo }) {
 
 export default function App() {
   const { resolvedTheme } = useTheme();
-  const {
-    loginWithRedirect,
-    isAuthenticated,
-    getAccessTokenSilently,
-    isLoading: auth0Loading
-  } = useAuth0();
 
-  const [token, setToken] = useState("");
+  const [token, setToken] = useState(getToken() || "");
+  const [isAuthenticated, setIsAuthenticated] = useState(!!getToken());
+  const [authLoading, setAuthLoading] = useState(true);
+
   const [userInfo, setUserInfo] = useState(null);
   const [backendStatus, setBackendStatus] = useState("idle");
+  const [loginLoading, setLoginLoading] = useState(false);
+  const [loginForm] = Form.useForm();
+
+  const handleLogin = async (values) => {
+      try {
+          setLoginLoading(true);
+
+          const result = await login(
+              values.email,
+              values.password
+          );
+
+          saveToken(result.access_token);
+
+          setToken(result.access_token);
+          setIsAuthenticated(true);
+
+          await fetchUserInfo(result.access_token);
+
+          message.success("Login successful");
+
+      } catch (err) {
+          message.error(err.message || "Login failed");
+      } finally {
+          setLoginLoading(false);
+      }
+  };  
 
   const fetchUserInfo = async (authToken) => {
     setBackendStatus("loading");
@@ -476,23 +520,42 @@ export default function App() {
     }
   };
 
-  useEffect(() => {
-    const initAuth = async () => {
-      if (isAuthenticated) {
+  // useEffect(() => {
+  //   const initAuth = async () => {
+  //     if (isAuthenticated) {
         
-        try {
-          const auth0Token = await getAccessTokenSilently();
-          setToken(auth0Token);
-          window.appState = { token: auth0Token, userInfo: null }; // Set globally for subcomponents
-          await fetchUserInfo(auth0Token);
-        } catch (err) {
-          console.error("Auth0 token error:", err);
-          setBackendStatus("error");
-        }
+  //       try {
+  //         const auth0Token = await getAccessTokenSilently();
+  //         setToken(auth0Token);
+  //         window.appState = { token: auth0Token, userInfo: null }; // Set globally for subcomponents
+  //         await fetchUserInfo(auth0Token);
+  //       } catch (err) {
+  //         console.error("Auth0 token error:", err);
+  //         setBackendStatus("error");
+  //       }
+  //     }
+  //   };
+  //   initAuth();
+  // }, [isAuthenticated, getAccessTokenSilently]); // eslint-disable-line
+
+  useEffect(() => {
+
+      const existingToken = getToken();
+
+      if (!existingToken) {
+          setAuthLoading(false);
+          return;
       }
-    };
-    initAuth();
-  }, [isAuthenticated, getAccessTokenSilently]); // eslint-disable-line
+
+      setToken(existingToken);
+
+      fetchUserInfo(existingToken)
+          .finally(() => {
+              setAuthLoading(false);
+              setIsAuthenticated(true);
+          });
+
+  }, []);
 
   useEffect(() => {
     if (userInfo) {
@@ -500,7 +563,7 @@ export default function App() {
     }
   }, [userInfo, token]);
 
-  if (auth0Loading || (isAuthenticated && backendStatus === "loading") || (isAuthenticated && backendStatus === "idle")) {
+  if (authLoading || (isAuthenticated && backendStatus === "loading") || (isAuthenticated && backendStatus === "idle")) {
     return (
       <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "var(--bg-layout)" }}>
         <Spin size="large" />
@@ -554,6 +617,18 @@ export default function App() {
     fontFamily: "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
   };
 
+const handleLogout = () => {
+    logoutUser();
+
+    setToken("");
+    setUserInfo(null);
+    setIsAuthenticated(false);
+    setBackendStatus("idle");
+
+    window.appState = null;
+};
+
+
   return (
     <ConfigProvider
       theme={{
@@ -590,19 +665,19 @@ export default function App() {
                   style={{ backgroundColor: "#4f46e5", marginBottom: "12px" }}
                 />
                 <Title level={3} style={{ color: "var(--text-main)", margin: 0, fontWeight: 700 }}>
-                  Enterprise AI Portal
+                  RR-AI BOT LOGIN
                 </Title>
                 <Text style={{ color: "var(--text-muted)", fontSize: "14px" }}>
-                  Executive Business Intelligence & Analytics
+                  Retail Executive Business Intelligence & Analytics
                 </Text>
               </div>
 
-              <Button
+              {/* <Button
                 type="primary"
                 size="large"
                 block
                 icon={<LockOutlined />}
-                onClick={() => loginWithRedirect()}
+                disabled
                 style={{
                   height: "48px",
                   fontWeight: 600,
@@ -611,17 +686,82 @@ export default function App() {
                   fontSize: "15px"
                 }}
               >
-                Sign In with Company SSO
-              </Button>
+                Login Screen Coming Next...
+              </Button> */}
+
+              <Form
+                  form={loginForm}
+                  layout="vertical"
+                  onFinish={handleLogin}
+              >
+
+                  <Form.Item
+                      label="Official Email"
+                      name="email"
+                      rules={[
+                          {
+                              required: true,
+                              message: "Please enter your email"
+                          }
+                      ]}
+                  >
+                      <Input
+                          placeholder="admin@company.com"
+                          size="large"
+                      />
+                  </Form.Item>
+
+                  <Form.Item
+                      label="Password"
+                      name="password"
+                      rules={[
+                          {
+                              required: true,
+                              message: "Please enter your password"
+                          }
+                      ]}
+                  >
+                      <Input.Password
+                          size="large"
+                          placeholder="Password"
+                      />
+                  </Form.Item>
+
+                  <Button
+                      htmlType="submit"
+                      type="primary"
+                      block
+                      size="large"
+                      loading={loginLoading}
+                      icon={<LockOutlined />}
+                      style={{
+                          marginTop: 8,
+                          height: "48px",
+                          fontWeight: 600,
+                          borderRadius: "8px",
+                          background: "#4f46e5",
+                          fontSize: "15px"
+                        }}
+                  >
+                      Sign In
+                  </Button>
+
+              </Form>
 
               <div style={{ textAlign: "center", marginTop: "24px" }}>
-                <Tag color="purple">Auth0 · MFA · RLS + CLS Protected</Tag>
+                <Tag color="blue">
+                  JWT · RBAC · RLS · CLS Protected
+                </Tag>
               </div>
             </Card>
           </div>
         ) : (
           <BrowserRouter>
-            <MainAppLayout token={token} userInfo={userInfo} />
+            <MainAppLayout
+                token={token}
+                userInfo={userInfo}
+                onLogout={handleLogout}
+            />
           </BrowserRouter>
         )}
       </div>
