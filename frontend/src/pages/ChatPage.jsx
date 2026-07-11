@@ -928,7 +928,7 @@ export default function ChatPage({ API, token, userInfo }) {
               <DatabaseOutlined style={{ color: "#6366f1", fontSize: "20px" }} />
               <div>
                 <div style={{ color: "var(--text-muted)", fontSize: "11px", fontWeight: 600, textTransform: "uppercase" }}>Dataset</div>
-                <div style={{ color: "var(--text-main)", fontSize: "14.5px", fontWeight: 700 }}>Online Retail</div>
+                <div style={{ color: "var(--text-main)", fontSize: "14.5px", fontWeight: 700 }}>Custom</div>
               </div>
             </div>
           </Col>
