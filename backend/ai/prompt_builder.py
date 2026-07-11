@@ -219,37 +219,70 @@ def build_sql_prompt(question: str, history = None, company_id = None):
             "\n"
             "--------------------------------\n"
             "Metadata Rules\n\n"
-            "Technical columns should not be selected unless the user explicitly\n"
-            "requests them.\n\n"
+            "Technical key columns are relationship columns.\n"
+            "Use them ONLY for JOIN conditions.\n"
+            "Never return them in SELECT unless explicitly requested.\n\n"
         )
         formatted_rules = []
         for rule in rules:
             if rule.startswith("Use ") and " instead of " in rule:
                 parts = rule.split(" instead of ")
                 bus_col = parts[0][4:]
-                tech_col = parts[1]
-                formatted_rules.append(f"Use\n{bus_col}\ninstead of\n{tech_col}")
+                remainder = parts[1]
+                
+                if " for SELECT, GROUP BY, ORDER BY. Continue using " in remainder:
+                    parts2 = remainder.split(" for SELECT, GROUP BY, ORDER BY. Continue using ")
+                    tech_col = parts2[0]
+                    join_cond = parts2[1].replace(" inside JOIN.", "")
+                    
+                    formatted_rules.append(
+                        f"Use\n{bus_col}\ninstead of\n{tech_col}\nfor\nSELECT\nGROUP BY\nORDER BY\n\n"
+                        f"Continue using\n{join_cond}\ninside JOIN."
+                    )
+                else:
+                    tech_col = remainder.replace(" for SELECT, GROUP BY, ORDER BY", "")
+                    formatted_rules.append(
+                        f"Use\n{bus_col}\ninstead of\n{tech_col}\nfor\nSELECT\nGROUP BY\nORDER BY"
+                    )
+            elif rule.startswith("Keep ") and " because user explicitly requested it. Include both " in rule:
+                parts = rule.split(" because user explicitly requested it. Include both ")
+                tech_col = parts[0][5:]
+                remainder = parts[1]
+                
+                parts2 = remainder.split(" and ")
+                remainder2 = parts2[1]
+                
+                if " in SELECT. Continue using " in remainder2:
+                    parts3 = remainder2.split(" in SELECT. Continue using ")
+                    bus_col = parts3[0]
+                    join_cond = parts3[1].replace(" inside JOIN.", "")
+                    
+                    formatted_rules.append(
+                        f"Keep {tech_col} because user explicitly requested it.\n"
+                        f"Include both\n{tech_col}\n+\n{bus_col}\nin SELECT.\n\n"
+                        f"Continue using\n{join_cond}\ninside JOIN."
+                    )
+                else:
+                    bus_col = remainder2.replace(" in SELECT.", "")
+                    formatted_rules.append(
+                        f"Keep {tech_col} because user explicitly requested it.\n"
+                        f"Include both\n{tech_col}\n+\n{bus_col}\nin SELECT."
+                    )
             else:
                 formatted_rules.append(rule)
         
         metadata_rules_text += "\n\n".join(formatted_rules) + "\n\n"
         metadata_rules_text += (
-            "If the user explicitly asks for\n"
-            "ID\n"
-            "Key\n"
-            "Code\n"
-            "Identifier\n"
-            "Number\n"
-            "Reference\n"
-            "return BOTH\n"
-            "technical column\n"
-            "+\n"
-            "business column.\n\n"
-            "Never use technical key columns in\n"
-            "SELECT\n"
-            "GROUP BY\n"
-            "ORDER BY\n"
-            "unless explicitly requested.\n"
+            "LLM SQL Rules:\n"
+            "Rule 1: JOINs always use technical keys.\n"
+            "        Example: ON Sales.ProductKey = Products.ProductKey\n"
+            "Rule 2: SELECT always uses descriptive columns.\n"
+            "        Example: Products.Product\n"
+            "Rule 3: GROUP BY uses descriptive columns.\n"
+            "        Example: GROUP BY Products.Product\n"
+            "Rule 4: ORDER BY uses aliases or descriptive columns.\n"
+            "Rule 5: If user explicitly requests Key, ID, Code, Identifier, Number, Reference,\n"
+            "        then include BOTH technical key and descriptive column.\n"
             "--------------------------------\n"
         )
 

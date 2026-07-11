@@ -20,24 +20,7 @@ class MetadataResolver:
             if not c.get("is_visible")
         ]
         
-        # 2. Load all tables and columns from the database connection
-        all_tables_query = """
-        SELECT
-            st.table_name,
-            sc.column_name
-        FROM schema_columns sc
-        JOIN schema_tables st ON sc.table_id = st.table_id
-        WHERE st.connection_id = :connection_id
-        """
-        all_tables = {}
-        with engine.connect() as conn:
-            rows = conn.execute(text(all_tables_query), {"connection_id": connection_id}).fetchall()
-            for r_table, r_col in rows:
-                if r_table not in all_tables:
-                    all_tables[r_table] = []
-                all_tables[r_table].append(r_col)
-                
-        # 3. Load all relationships for finding related tables
+        # 2. Load all relationships for finding related tables and keys
         relationships = SemanticRelationshipService.build_relationships(connection_id)
         
         display_columns = []
@@ -86,55 +69,14 @@ class MetadataResolver:
                     return True
             return False
 
-        # Helper to search for descriptive column in a table T with stem S
-        def search_table_for_desc_col(T: str, S: str, is_related: bool) -> str:
-            cols = []
-            normalized_T = T
-            for t_name, t_cols in all_tables.items():
-                if t_name.lower() == T.lower():
-                    normalized_T = t_name
-                    cols = t_cols
-                    break
-            if not cols:
-                return None
-                
-            # Heuristic 1: Same stem
-            for col in cols:
-                if col.lower() == S.lower():
-                    return f"{normalized_T}.{col}"
-                    
-            # Heuristic 2: Stem + Name
-            for col in cols:
-                if col.lower() in (S.lower() + "name", S.lower() + "_name"):
-                    return f"{normalized_T}.{col}"
-                    
-            # Heuristics 2b and 3 are only allowed if is_related is True
-            if is_related:
-                # Heuristic 2b: Table Name as stem, or Table Name + Name
-                t_stem = normalized_T.lower()
-                if t_stem.endswith("s"):
-                    t_stem = t_stem[:-1]
-                for col in cols:
-                    if col.lower() == normalized_T.lower() or col.lower() == t_stem:
-                        return f"{normalized_T}.{col}"
-                    if col.lower() in (normalized_T.lower() + "name", normalized_T.lower() + "_name", t_stem + "name", t_stem + "_name"):
-                        return f"{normalized_T}.{col}"
-                        
-                # Heuristic 3: Generic (Name, Description, Title, Desc)
-                for gen in ["name", "description", "title", "desc"]:
-                    for col in cols:
-                        if col.lower() == gen:
-                            return f"{normalized_T}.{col}"
-            return None
-
-        # Helper to find related table
-        def find_related_table(T: str, C: str):
+        # Helper to find related key
+        def find_related_key(T: str, C: str, R_T: str):
             for rel in relationships:
                 left_table, left_column, right_table, right_column = rel[0], rel[1], rel[2], rel[3]
-                if left_table.lower() == T.lower() and left_column.lower() == C.lower():
-                    return right_table
-                if right_table.lower() == T.lower() and right_column.lower() == C.lower():
-                    return left_table
+                if left_table.lower() == T.lower() and left_column.lower() == C.lower() and right_table.lower() == R_T.lower():
+                    return right_column
+                if right_table.lower() == T.lower() and right_column.lower() == C.lower() and left_table.lower() == R_T.lower():
+                    return left_column
             return None
 
         # Set of selected tables (lowercased for matching)
@@ -144,60 +86,68 @@ class MetadataResolver:
         for tech in technical_columns:
             t_name = tech["table_name"]
             c_name = tech["column_name"]
+            disp_t = tech.get("display_table")
+            disp_c = tech.get("display_column")
             
             if selected_tables and t_name.lower() not in sel_tables_lower:
                 continue
                 
             stem, suffix = get_column_stem_and_suffix(c_name)
-            
-            # Check if user explicitly requested this key
             is_explicit = is_key_explicitly_requested(question, c_name, stem)
             
-            # Check if source table name matches the stem
-            source_matches_stem = (t_name.lower() == stem.lower() or t_name.lower().rstrip("s") == stem.lower())
-            
-            # Find descriptive column
-            desc_col = search_table_for_desc_col(t_name, stem, is_related=source_matches_stem)
-            if not desc_col:
-                # Try related table
-                related_t = find_related_table(t_name, c_name)
-                if related_t:
-                    desc_col = search_table_for_desc_col(related_t, stem, is_related=True)
-            
-            if is_explicit:
-                if c_name not in requested_keys:
-                    requested_keys.append(c_name)
-                metadata_rules.append(f"Keep {c_name} because user explicitly requested it")
+            if disp_t and disp_c:
+                dest_key = find_related_key(t_name, c_name, disp_t)
+                qualified_key = f"{t_name}.{c_name}"
+                qualified_desc = f"{disp_t}.{disp_c}"
                 
-                # Still add the descriptive column if found
-                if desc_col:
-                    if desc_col not in display_columns:
-                        display_columns.append(desc_col)
-                    dt_name = desc_col.split(".")[0]
-                    # Find correct case for table name
-                    for t_orig in all_tables:
-                        if t_orig.lower() == dt_name.lower():
-                            dt_name = t_orig
-                            break
-                    if dt_name.lower() != t_name.lower() and dt_name not in required_tables:
-                        required_tables.append(dt_name)
-            else:
-                if c_name not in hidden_keys:
-                    hidden_keys.append(c_name)
+                # Check if this is not a join key (same table mapping)
+                is_join_key = (disp_t.lower() != t_name.lower() and dest_key is not None)
                 
-                if desc_col:
-                    if desc_col not in display_columns:
-                        display_columns.append(desc_col)
-                    dt_name = desc_col.split(".")[0]
-                    # Find correct case for table name
-                    for t_orig in all_tables:
-                        if t_orig.lower() == dt_name.lower():
-                            dt_name = t_orig
-                            break
-                    if dt_name.lower() != t_name.lower() and dt_name not in required_tables:
-                        required_tables.append(dt_name)
-                    metadata_rules.append(f"Use {desc_col} instead of {t_name}.{c_name}")
+                if is_explicit:
+                    if qualified_key not in requested_keys:
+                        requested_keys.append(qualified_key)
+                    if qualified_desc not in display_columns:
+                        display_columns.append(qualified_desc)
+                    if disp_t.lower() != t_name.lower() and disp_t not in required_tables:
+                        required_tables.append(disp_t)
+                        
+                    if is_join_key:
+                        metadata_rules.append(
+                            f"Keep {t_name}.{c_name} because user explicitly requested it. "
+                            f"Include both {t_name}.{c_name} and {disp_t}.{disp_c} in SELECT. "
+                            f"Continue using {t_name}.{c_name} = {disp_t}.{dest_key} inside JOIN."
+                        )
+                    else:
+                        metadata_rules.append(
+                            f"Keep {t_name}.{c_name} because user explicitly requested it. "
+                            f"Include both {t_name}.{c_name} and {disp_t}.{disp_c} in SELECT."
+                        )
                 else:
+                    if qualified_key not in hidden_keys:
+                        hidden_keys.append(qualified_key)
+                    if qualified_desc not in display_columns:
+                        display_columns.append(qualified_desc)
+                    if disp_t.lower() != t_name.lower() and disp_t not in required_tables:
+                        required_tables.append(disp_t)
+                        
+                    if is_join_key:
+                        metadata_rules.append(
+                            f"Use {disp_t}.{disp_c} instead of {t_name}.{c_name} for SELECT, GROUP BY, ORDER BY. "
+                            f"Continue using {t_name}.{c_name} = {disp_t}.{dest_key} inside JOIN."
+                        )
+                    else:
+                        metadata_rules.append(
+                            f"Use {disp_t}.{disp_c} instead of {t_name}.{c_name} for SELECT, GROUP BY, ORDER BY"
+                        )
+            else:
+                qualified_key = f"{t_name}.{c_name}"
+                if is_explicit:
+                    if qualified_key not in requested_keys:
+                        requested_keys.append(qualified_key)
+                    metadata_rules.append(f"Keep {t_name}.{c_name} because user explicitly requested it")
+                else:
+                    if qualified_key not in hidden_keys:
+                        hidden_keys.append(qualified_key)
                     metadata_rules.append(f"Hide {t_name}.{c_name} from outputs")
                     
         return {

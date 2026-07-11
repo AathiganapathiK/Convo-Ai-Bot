@@ -15,6 +15,10 @@ CREATE TABLE column_display_config
 
     column_type NVARCHAR(30) NOT NULL DEFAULT 'dimension',
 
+    display_table NVARCHAR(128) NULL,
+
+    display_column NVARCHAR(128) NULL,
+
     created_at DATETIME2 DEFAULT GETDATE(),
 
     CONSTRAINT uq_column_display
