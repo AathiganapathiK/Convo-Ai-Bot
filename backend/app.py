@@ -48,6 +48,7 @@ from services.schema_monitor_service import SchemaMonitorService
 from services.connection_manager import (ConnectionManager)
 from services.connection_service import ConnectionService
 from services.qdrant_service import QdrantService
+from services.column_display_service import ColumnDisplayService
 
 
 from semantic.discovery_service import SemanticDiscoveryService
@@ -487,8 +488,15 @@ def ask_question(
                         row_dict[col_name] = r[idx]
                 rows.append(row_dict)
 
-        # CLS column filtering (post-execution)
+        # Column Display Configuration (Metadata Layer)
+        rows = ColumnDisplayService.apply_display_config(
+            rows=rows,
+            connection_id=active_connection["connection_id"]
+        )
+
+        # CLS column filtering (Security Layer)
         rows = pipeline.filter_columns(rows)
+
         execution_time = round(time.time() - start_time, 2)
 
         print("\n========== EXECUTION ==========")
@@ -982,6 +990,26 @@ def get_active_conn_or_raise() -> dict:
         )
     return conn
 
+@app.get("/test-column-filter")
+def test_column_filter():
+
+    from services.column_display_service import ColumnDisplayService
+
+    rows = [
+        {
+            "ProductKey": 101,
+            "Product": "Shirt",
+            "Sales": 25000,
+            "EmployeeKey": 10
+        }
+    ]
+
+    rows = ColumnDisplayService.apply_display_config(
+        rows,
+        "6692FD9B-A032-43CA-A39E-F13AE1CAA208"   # use one of your real connection IDs
+    )
+
+    return rows
 
 @app.get("/test-semantic")
 def test_semantic():

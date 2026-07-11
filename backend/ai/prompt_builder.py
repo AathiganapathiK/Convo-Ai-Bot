@@ -166,10 +166,33 @@ def build_sql_prompt(question: str, history = None, company_id = None):
     except Exception as e:
         print(f"Error printing DB semantic metadata: {e}")
 
+    semantic_result = (
+        SemanticResolver.resolve(
+            active_connection["connection_id"],
+            question
+        )
+    )
+
+    selected_tables = list({
+        obj["table_name"] 
+        for obj in (semantic_result.get("metric_objects", []) + semantic_result.get("dimension_objects", []))
+    })
+
+    from semantic.metadata_resolver import MetadataResolver
+    metadata_result = MetadataResolver.resolve(
+        question=question,
+        connection_id=active_connection["connection_id"],
+        semantic_result=semantic_result,
+        selected_tables=selected_tables
+    )
+
     tables = RelevantTableResolver.resolve(
         active_connection["connection_id"],
         question
     )
+    
+    # Merge with required tables from metadata resolver
+    tables = list(set(tables + metadata_result.get("required_tables", [])))
 
     tables = RelationshipExpander.expand(
         active_connection["connection_id"],
@@ -181,19 +204,64 @@ def build_sql_prompt(question: str, history = None, company_id = None):
         tables
     )
 
-    semantic_result = (
-        SemanticResolver.resolve(
-            active_connection["connection_id"],
-            question
-        )
-    )
-
     relationship_context = (
         RelationshipContextService.build_context(
             active_connection["connection_id"],
             tables
         )
     )
+
+    # Format Metadata Rules
+    metadata_rules_text = ""
+    rules = metadata_result.get("metadata_rules", [])
+    if rules:
+        metadata_rules_text = (
+            "\n"
+            "--------------------------------\n"
+            "Metadata Rules\n\n"
+            "Technical columns should not be selected unless the user explicitly\n"
+            "requests them.\n\n"
+        )
+        formatted_rules = []
+        for rule in rules:
+            if rule.startswith("Use ") and " instead of " in rule:
+                parts = rule.split(" instead of ")
+                bus_col = parts[0][4:]
+                tech_col = parts[1]
+                formatted_rules.append(f"Use\n{bus_col}\ninstead of\n{tech_col}")
+            else:
+                formatted_rules.append(rule)
+        
+        metadata_rules_text += "\n\n".join(formatted_rules) + "\n\n"
+        metadata_rules_text += (
+            "If the user explicitly asks for\n"
+            "ID\n"
+            "Key\n"
+            "Code\n"
+            "Identifier\n"
+            "Number\n"
+            "Reference\n"
+            "return BOTH\n"
+            "technical column\n"
+            "+\n"
+            "business column.\n\n"
+            "Never use technical key columns in\n"
+            "SELECT\n"
+            "GROUP BY\n"
+            "ORDER BY\n"
+            "unless explicitly requested.\n"
+            "--------------------------------\n"
+        )
+
+    # === Pipeline Logging: METADATA ===
+    print("\n========== METADATA RESOLVER ==========")
+    print(f"Display Columns: {metadata_result.get('display_columns')}")
+    print(f"Hidden Keys: {metadata_result.get('hidden_keys')}")
+    print(f"Requested Keys: {metadata_result.get('requested_keys')}")
+    print(f"Required Tables: {metadata_result.get('required_tables')}")
+    print("Metadata Rules:")
+    for r in metadata_result.get("metadata_rules", []):
+        print(f"  - {r}")
 
     # === Pipeline Logging: SEMANTIC ===
     print("\n========== SEMANTIC RESOLVER ==========")
@@ -375,7 +443,7 @@ Relevant Dimensions:
 
 Previous Successful Queries:
 {examples_text}
-
+{metadata_rules_text}
 Rules:
 - Schema above is the only source of truth.
 - Use only tables and columns in schema.

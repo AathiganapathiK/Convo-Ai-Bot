@@ -9,6 +9,7 @@ from database import engine
 from services.database_connection_factory import (
     DatabaseConnectionFactory
 )
+from services.column_display_service import ColumnDisplayService
 
 PLATFORM_TABLES = {
     'companies',
@@ -522,6 +523,9 @@ class SchemaSyncService:
               f"{inserted_tables} inserted, {updated_tables} updated, "
               f"{skipped_tables} skipped, {removed_tables} removed.")
 
+        # 6. Auto-populate column display config
+        ColumnDisplayService.auto_populate_display_config(connection_id)
+
         return {
             "success": True,
             "message": f"Schema sync completed. {inserted_tables} tables inserted, {updated_tables} updated, {skipped_tables} skipped, {removed_tables} removed.",
@@ -532,3 +536,5 @@ class SchemaSyncService:
                 "removed": removed_tables
             }
         }
+
+    
