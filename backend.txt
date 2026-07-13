@@ -1,0 +1,11 @@
+backend/
+    Dockerfile
+    startup.sh
+
+frontend/
+    Dockerfile
+    nginx.conf
+
+docker-compose.yml
+
+.env.example
