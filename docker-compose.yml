@@ -1,0 +1,109 @@
+services:
+  # ==========================================
+  # Backend FastAPI Service
+  # ==========================================
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: retail-ai-backend
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+
+    # Bind to host gateway to access the external SQL Server database
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+    env_file:
+      - .env
+
+    environment:
+      - APP_ENV=production
+      - HOST=0.0.0.0
+      - PORT=8000
+
+    # Keep ports private: Nginx acts as the single point of entry.
+    # Uncomment only for local API testing.
+    # ports:
+    #   - "8000:8000"
+
+    networks:
+      - retail_ai_network
+
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2048M
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "3"
+
+  # ==========================================
+  # Frontend React (Served via Nginx)
+  # ==========================================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        - REACT_APP_API_BASE_URL=/api
+
+    container_name: retail-ai-frontend
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+
+    ports:
+      - "80:80"
+
+    depends_on:
+      backend:
+        condition: service_healthy
+
+    networks:
+      - retail_ai_network
+
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://127.0.0.1 || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "3"
+
+# ==========================================
+# Network Topology
+# ==========================================
+networks:
+  retail_ai_network:
+    driver: bridge
+    name: retail_ai_network

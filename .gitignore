@@ -62,3 +62,7 @@ dist/
 *.bak
 *.log
 .idea/+
+.husky/*
+
+# Docker overrides
+docker-compose.override.yml

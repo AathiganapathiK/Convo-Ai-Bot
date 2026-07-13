@@ -6,7 +6,7 @@ pymysql          # For MySQL
 psycopg2-binary  # For PostgreSQL
 python-dotenv
 python-jose[cryptography]
-passlib[bcrypt]==3.2.2
+passlib[bcrypt]
 requests
 groq
 openpyxl
