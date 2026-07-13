@@ -6,12 +6,15 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
+
     container_name: retail-ai-backend
+
     restart: unless-stopped
+
     security_opt:
       - no-new-privileges:true
 
-    # Bind to host gateway to access the external SQL Server database
+    # Access host SQL Server
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
@@ -22,9 +25,9 @@ services:
       - APP_ENV=production
       - HOST=0.0.0.0
       - PORT=8000
+      - SKIP_DB_WAIT=false
 
-    # Keep ports private: Nginx acts as the single point of entry.
-    # Uncomment only for local API testing.
+    # Uncomment only for local backend testing
     # ports:
     #   - "8000:8000"
 
@@ -34,10 +37,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '2.0'
+          cpus: "2.0"
           memory: 2048M
         reservations:
-          cpus: '0.5'
+          cpus: "0.5"
           memory: 512M
 
     healthcheck:
@@ -54,17 +57,19 @@ services:
         max-file: "3"
 
   # ==========================================
-  # Frontend React (Served via Nginx)
+  # Frontend React + Nginx
   # ==========================================
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        - REACT_APP_API_BASE_URL=/api
+        REACT_APP_API_BASE_URL: /api
 
     container_name: retail-ai-frontend
+
     restart: unless-stopped
+
     security_opt:
       - no-new-privileges:true
 
@@ -81,10 +86,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '1.0'
+          cpus: "1.0"
           memory: 512M
         reservations:
-          cpus: '0.25'
+          cpus: "0.25"
           memory: 128M
 
     healthcheck:
@@ -101,7 +106,7 @@ services:
         max-file: "3"
 
 # ==========================================
-# Network Topology
+# Network
 # ==========================================
 networks:
   retail_ai_network:
