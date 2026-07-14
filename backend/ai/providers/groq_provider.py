@@ -16,8 +16,12 @@ from dotenv import load_dotenv
 from ai.providers.base_provider import (
     BaseProvider
 )
+from pathlib import Path
 
-load_dotenv()
+BASE_DIR = Path(__file__).resolve().parent
+
+if not os.getenv("APP_ENV"):
+    load_dotenv(BASE_DIR / ".env")
 
 class GroqProvider(
     BaseProvider

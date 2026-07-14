@@ -16,6 +16,7 @@ import os
 import json
 import time
 import logging
+from pathlib import Path
 from typing import Optional
 
 from dotenv import load_dotenv
@@ -86,7 +87,11 @@ from chat.chat_sessions import router as chat_router
 
 from configuration.config_routes import (router as config_router)
 
-load_dotenv()
+
+BASE_DIR = Path(__file__).resolve().parent
+
+if not os.getenv("APP_ENV"):
+    load_dotenv(BASE_DIR / ".env")
 QdrantService.initialize()
 
 logger = logging.getLogger(__name__)

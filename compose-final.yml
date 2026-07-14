@@ -1,0 +1,109 @@
+name: ramraj-ai-chatbot
+services:
+  backend:
+    build:
+      context: /mnt/d/projects/Ramraj-AI-Chatbot/backend
+      dockerfile: Dockerfile
+    container_name: retail-ai-backend
+    deploy:
+      resources:
+        limits:
+          cpus: 2
+          memory: "2147483648"
+        reservations:
+          cpus: 0.5
+          memory: "536870912"
+    environment:
+      ALLOWED_TABLES: dbo.Sales,dbo.Products,dbo.Region,dbo.Reseller,dbo.Salesperson,dbo.Targets,dbo.SalespersonRegion
+      APP_ENV: production
+      DB_DRIVER: ODBC Driver 18 for SQL Server
+      DB_HOST: host.docker.internal
+      DB_NAME: RR_platform
+      DB_PASSWORD: "12345"
+      DB_PORT: "1433"
+      DB_TYPE: sqlserver
+      DB_USER: sa
+      DB_WAIT_TIMEOUT: "60"
+      DEFAULT_MODEL: llama-3.3-70b-versatile
+      DEFAULT_PROVIDER: groq
+      ENABLE_QDRANT: "false"
+      ENCRYPTION_KEY: YOUR_SECURE_FERNET_KEY_HERE
+      FRONTEND_ORIGIN: http://localhost
+      GROQ_API_KEY: YOUR_GROQ_API_KEY_HERE
+      HOST: 0.0.0.0
+      JWT_ALGORITHM: HS256
+      JWT_EXPIRE_MINUTES: "480"
+      JWT_SECRET: YOUR_PRODUCTION_JWT_SECRET_KEY_CHANGE_ME
+      LOG_LEVEL: INFO
+      PORT: "8000"
+      QDRANT_HOST: host.docker.internal
+      QDRANT_PORT: "6333"
+      SKIP_DB_WAIT: "true"
+    extra_hosts:
+      - host.docker.internal=host-gateway
+    healthcheck:
+      test:
+        - CMD
+        - curl
+        - -f
+        - http://localhost:8000/
+      timeout: 5s
+      interval: 30s
+      retries: 3
+      start_period: 15s
+    logging:
+      driver: json-file
+      options:
+        max-file: "3"
+        max-size: 50m
+    networks:
+      retail_ai_network: null
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+  frontend:
+    build:
+      context: /mnt/d/projects/Ramraj-AI-Chatbot/frontend
+      dockerfile: Dockerfile
+      args:
+        REACT_APP_API_BASE_URL: /api
+    container_name: retail-ai-frontend
+    depends_on:
+      backend:
+        condition: service_healthy
+        required: true
+    deploy:
+      resources:
+        limits:
+          cpus: 1
+          memory: "536870912"
+        reservations:
+          cpus: 0.25
+          memory: "134217728"
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - wget -q --spider http://127.0.0.1 || exit 1
+      timeout: 5s
+      interval: 30s
+      retries: 3
+      start_period: 10s
+    logging:
+      driver: json-file
+      options:
+        max-file: "3"
+        max-size: 50m
+    networks:
+      retail_ai_network: null
+    ports:
+      - mode: ingress
+        target: 80
+        published: "80"
+        protocol: tcp
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+networks:
+  retail_ai_network:
+    name: retail_ai_network
+    driver: bridge

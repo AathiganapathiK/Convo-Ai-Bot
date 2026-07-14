@@ -3,7 +3,13 @@ import os
 from dotenv import load_dotenv
 from urllib.parse import quote_plus
 
-load_dotenv()
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent
+
+# Load backend/.env only if running outside Docker
+if not os.getenv("APP_ENV"):
+    load_dotenv(BASE_DIR / ".env")
 
 DB_TYPE = (
     os.getenv("DB_TYPE", "sqlserver")
@@ -34,19 +40,21 @@ _driver = os.getenv("DB_DRIVER", "ODBC Driver 17 for SQL Server")
 
 
 if DB_TYPE == "sqlserver":
-    if _user and _password:
-        DATABASE_URL = (
-            f"mssql+pyodbc://{quote_plus(_user)}:{quote_plus(_password)}@{_host}:{_port}/{_name}"
-            f"?driver={quote_plus(_driver)}"
-            f"&TrustServerCertificate=yes"
-        )
-    else:
-        DATABASE_URL = (
-            f"mssql+pyodbc://@{_host}/{_name}"
-            f"?driver={quote_plus(_driver)}"
-            f"&trusted_connection=yes"
-            f"&TrustServerCertificate=yes"
-        )
+
+    connection_string = (
+        f"DRIVER={{{_driver}}};"
+        f"SERVER={_host},{_port};"
+        f"DATABASE={_name};"
+        f"UID={_user};"
+        f"PWD={_password};"
+        f"TrustServerCertificate=yes;"
+    )
+
+    DATABASE_URL = (
+        "mssql+pyodbc:///?odbc_connect="
+        + quote_plus(connection_string)
+    )
+    
 elif DB_TYPE == "mysql":
     DATABASE_URL = f"mysql+pymysql://{_user}:{_password}@{_host}/{_name}"
 elif DB_TYPE == "postgresql":

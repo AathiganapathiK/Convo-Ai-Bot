@@ -12,7 +12,12 @@ import requests
 from jose import jwt, JWTError
 from dotenv import load_dotenv
 
-load_dotenv()
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent
+
+if not os.getenv("APP_ENV"):
+    load_dotenv(BASE_DIR / ".env")
 
 logger = logging.getLogger(__name__)
 

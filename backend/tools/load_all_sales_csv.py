@@ -3,6 +3,13 @@ from sqlalchemy import create_engine
 import urllib
 import os
 
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent
+
+if not os.getenv("APP_ENV"):
+    load_dotenv(BASE_DIR / ".env")
+
 SERVER_NAME = "localhost"
 DATABASE_NAME = "adv_works"
 

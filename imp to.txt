@@ -1,0 +1,53 @@
+For local Windows Docker you can temporarily use:
+
+DB_HOST=172.25.144.1
+
+For the Ubuntu server you will use:
+
+DB_HOST=localhost
+
+No code changes required—just change .env.
+
+I strongly suspect one of these two will happen
+Case 1
+Login failed for user 'sa'
+
+Then we know credentials are wrong.
+
+Case 2
+Encryption not supported
+
+Then Driver 18 needs
+
+Encrypt=no
+
+or
+
+Encrypt=optional
+Case 3
+CONNECTED
+
+Then your SQLAlchemy connection string is the problem.
+
+I also noticed something important
+
+Your backend log showed
+
+DATABASE_url
+mssql+pyodbc://sa:12345@host.docker.internal...
+
+If your root .env currently contains
+
+DB_HOST=172.25.144.1
+
+but the log still shows
+
+host.docker.internal
+
+then the backend may not be reading the value you think it is.
+
+Before running the pyodbc tests, also run this inside the backend container:
+
+env | grep DB_HOST
+
+I want to confirm the backend container is actually using 172.25.144.1 and not an old cached value.

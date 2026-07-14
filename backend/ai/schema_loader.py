@@ -3,7 +3,12 @@ from sqlalchemy import text
 from database import engine
 from dotenv import load_dotenv
 
-load_dotenv()
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent
+
+if not os.getenv("APP_ENV"):
+    load_dotenv(BASE_DIR / ".env")
 
 # Tables exposed to the AI SQL generator.
 # Configurable via ALLOWED_TABLES env var (comma-separated: "dbo.Sales,dbo.Products")
