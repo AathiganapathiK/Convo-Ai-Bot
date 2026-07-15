@@ -19,7 +19,14 @@ output.txt
 /coverage
 
 # production
+.env
+.env.*
+backend/.env
+frontend/.env
+frontend/src/.env
 
+!.env.example
+!deployment/*.env.example
 
 # misc
 .DS_Store
