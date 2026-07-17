@@ -1,7 +1,9 @@
+import core.config
 import os
 import sys
 import socket
 import time
+import core.config
 
 def wait_for_db():
     host = os.getenv("DB_HOST", "localhost")

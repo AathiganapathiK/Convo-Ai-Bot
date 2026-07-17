@@ -12,23 +12,29 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
     && rm -rf /var/lib/apt/lists/*
 
-# Create virtual environment to isolate dependencies
+# Create virtual environment
 RUN python -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
-# Install dependencies
-COPY requirements.txt .
+# Copy requirements from backend folder
+COPY backend/requirements.txt .
+
+# Install Python dependencies
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
 # ==========================================
-# STAGE 2: Runtime Runner
+# STAGE 2: Runtime
 # ==========================================
 FROM python:3.11-slim AS runner
 
 WORKDIR /app
 
-# Install runtime dependencies: curl (for healthcheck), gnupg2 (for keys), and unixodbc
+# Allow imports like:
+# import core.config
+ENV PYTHONPATH=/app
+
+# Install runtime packages
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     gnupg2 \
@@ -37,39 +43,49 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     unixodbc \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Microsoft ODBC Drivers 17 and 18 for SQL Server
-# Note: Adding both driver versions ensures full compatibility regardless of connection configurations
-RUN curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor -o /usr/share/keyrings/microsoft-prod.gpg && \
-    echo "deb [arch=amd64,arm64 signed-by=/usr/share/keyrings/microsoft-prod.gpg] https://packages.microsoft.com/debian/12/prod bookworm main" > /etc/apt/sources.list.d/mssql-release.list && \
+# Install Microsoft SQL Server ODBC Drivers
+RUN curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | \
+    gpg --dearmor -o /usr/share/keyrings/microsoft-prod.gpg && \
+    echo "deb [arch=amd64,arm64 signed-by=/usr/share/keyrings/microsoft-prod.gpg] https://packages.microsoft.com/debian/12/prod bookworm main" \
+    > /etc/apt/sources.list.d/mssql-release.list && \
     apt-get update && \
     ACCEPT_EULA=Y apt-get install -y --no-install-recommends \
-    msodbcsql17 \
-    msodbcsql18 \
-    && rm -rf /var/lib/apt/lists/*
+        msodbcsql17 \
+        msodbcsql18 && \
+    rm -rf /var/lib/apt/lists/*
 
-# Copy python virtual environment from the builder
+# Copy Python virtual environment
 COPY --from=builder /opt/venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
-# Create a non-root system user and group
+# Create non-root user
 RUN groupadd -g 10001 appgroup && \
     useradd -u 10001 -g appgroup -m -s /bin/bash appuser
 
-# Copy application source code
-COPY --chown=appuser:appgroup . /app
+# ==========================================
+# Copy Backend Application
+# ==========================================
 
-# Ensure entrypoint script is executable
+# Copy backend source code
+COPY --chown=appuser:appgroup backend/ /app/
+
+# Copy centralized environment files
+COPY --chown=appuser:appgroup .local.env /app/
+COPY --chown=appuser:appgroup .docker.env /app/
+COPY --chown=appuser:appgroup .server.env /app/
+
+# Ensure startup script is executable
 RUN chmod +x /app/startup.sh
 
-# Use the non-root user
+# Switch to non-root user
 USER appuser
 
-# Expose backend service port
+# Expose FastAPI port
 EXPOSE 8000
 
-# Perform health check against the home route
+# Health check
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-  CMD curl -f http://localhost:8000/ || exit 1
+    CMD curl -f http://localhost:8000/ || exit 1
 
-# Launch using startup script
+# Start application
 ENTRYPOINT ["/app/startup.sh"]

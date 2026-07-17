@@ -1,22 +1,68 @@
 #!/usr/bin/env bash
 set -e
 
+echo "============================================================"
 echo "Starting backend boot sequence..."
+echo "============================================================"
 
-# 1. Wait for Database availability (unless explicitly skipped)
+echo ""
+echo "===== Runtime Environment ====="
+echo "APP_RUNTIME=${APP_RUNTIME}"
+echo "HOST=${HOST}"
+echo "PORT=${PORT}"
+echo "PWD=$(pwd)"
+echo ""
+
+echo "===== Application Directory ====="
+ls -la
+echo ""
+
+echo "===== Environment Files ====="
+find . -maxdepth 2 -name "*.env" -o -name ".*.env"
+echo ""
+
+echo "===== Python Environment ====="
+python --version
+echo ""
+
+echo "===== Loading Config Test ====="
+python - <<'EOF'
+import os
+
+print("APP_RUNTIME before imports:", os.getenv("APP_RUNTIME"))
+
+try:
+    from core.config import runtime
+    print("Runtime selected:", runtime)
+    print("DB_HOST:", os.getenv("DB_HOST"))
+    print("DB_PORT:", os.getenv("DB_PORT"))
+    print("DB_NAME:", os.getenv("DB_NAME"))
+except Exception as e:
+    print("CONFIG LOAD FAILED:")
+    import traceback
+    traceback.print_exc()
+    raise
+EOF
+
+echo ""
+echo "===== Waiting for Database ====="
+
 if [ "$SKIP_DB_WAIT" = "true" ]; then
-    echo "SKIP_DB_WAIT=true -> Skipping database availability check."
+    echo "Skipping database wait."
 else
-    python tools/wait_for_db.py
+    python -m tools.wait_for_db
 fi
 
-# 2. Run Database Migrations
+echo ""
+echo "===== Running Migrations ====="
+
 if [ "$SKIP_DB_WAIT" = "true" ]; then
-    echo "Skipping database migrations."
+    echo "Skipping migrations."
 else
-    python tools/run_migrations.py
+    python -m tools.run_migrations
 fi
 
-# 3. Start FastAPI application
-echo "Starting FastAPI application with Uvicorn..."
+echo ""
+echo "===== Starting FastAPI ====="
+
 exec uvicorn app:app --host 0.0.0.0 --port 8000

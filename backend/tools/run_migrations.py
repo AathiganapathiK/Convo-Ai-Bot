@@ -1,3 +1,4 @@
+import core.config
 import os
 import re
 import sys

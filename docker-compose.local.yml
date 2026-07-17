@@ -1,4 +1,4 @@
 services:
   backend:
     environment:
-      APP_RUNTIME: docker
+      - APP_RUNTIME=docker

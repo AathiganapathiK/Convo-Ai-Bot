@@ -3,7 +3,7 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-ROOT_DIR = Path(__file__).resolve().parents[2]
+ROOT_DIR = Path(__file__).resolve().parents[1]
 
 ENV_FILES = {
     "local": ".local.env",
@@ -31,4 +31,5 @@ load_dotenv(env_path, override=True)
 print("=" * 60)
 print(f"Runtime          : {runtime}")
 print(f"Configuration    : {env_path.name}")
+print(f"DB_HOST       : {os.getenv('DB_HOST')}")
 print("=" * 60)
