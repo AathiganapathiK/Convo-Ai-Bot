@@ -2,6 +2,7 @@
 
 import os
 
+import core.config
 from services.provider_credential_service import (
     ProviderCredentialService
 )
@@ -18,7 +19,6 @@ from ai.providers.base_provider import (
 )
 
 
-import core.config
 
 class GroqProvider(
     BaseProvider

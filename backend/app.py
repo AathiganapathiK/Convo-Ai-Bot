@@ -18,7 +18,7 @@ import json
 import time
 import logging
 from typing import Optional
-import core.config
+
 from fastapi import FastAPI, Depends, HTTPException, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBearer

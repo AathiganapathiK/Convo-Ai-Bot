@@ -5,4 +5,30 @@ from dotenv import load_dotenv
 
 ROOT_DIR = Path(__file__).resolve().parents[2]
 
-load_dotenv(ROOT_DIR / ".env")
+ENV_FILES = {
+    "local": ".local.env",
+    "docker": ".docker.env",
+    "server": ".server.env",
+}
+
+runtime = os.getenv("APP_RUNTIME", "local").lower()
+
+if runtime not in ENV_FILES:
+    raise RuntimeError(
+        f"Invalid APP_RUNTIME '{runtime}'. "
+        f"Expected one of: {', '.join(ENV_FILES.keys())}"
+    )
+
+env_path = ROOT_DIR / ENV_FILES[runtime]
+
+if not env_path.exists():
+    raise FileNotFoundError(
+        f"Configuration file not found: {env_path}"
+    )
+
+load_dotenv(env_path, override=True)
+
+print("=" * 60)
+print(f"Runtime          : {runtime}")
+print(f"Configuration    : {env_path.name}")
+print("=" * 60)
