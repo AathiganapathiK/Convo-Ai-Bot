@@ -1,4 +1,5 @@
 import sys
+import core.config
 if sys.stdout is not None and hasattr(sys.stdout, 'reconfigure'):
     try:
         sys.stdout.reconfigure(encoding='utf-8')
@@ -16,10 +17,8 @@ import os
 import json
 import time
 import logging
-from pathlib import Path
 from typing import Optional
-
-from dotenv import load_dotenv
+import core.config
 from fastapi import FastAPI, Depends, HTTPException, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBearer
@@ -87,11 +86,6 @@ from chat.chat_sessions import router as chat_router
 
 from configuration.config_routes import (router as config_router)
 
-
-BASE_DIR = Path(__file__).resolve().parent
-
-if not os.getenv("APP_ENV"):
-    load_dotenv(BASE_DIR / ".env")
 QdrantService.initialize()
 
 logger = logging.getLogger(__name__)
@@ -192,6 +186,12 @@ app.add_exception_handler(
 )
 
 _frontend_origin = os.getenv("FRONTEND_ORIGIN", "http://localhost:3000")
+print("FRONTEND_ORIGIN =", _frontend_origin)
+
+
+print("APP_ENV =", os.getenv("APP_ENV"))
+print("FRONTEND_ORIGIN =", os.getenv("FRONTEND_ORIGIN"))
+
 
 app.add_middleware(
     CORSMiddleware,

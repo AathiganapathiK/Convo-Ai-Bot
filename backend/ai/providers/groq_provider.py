@@ -11,17 +11,14 @@ logger = logging.getLogger(__name__)
 
 from groq import Groq
 
-from dotenv import load_dotenv
+
 
 from ai.providers.base_provider import (
     BaseProvider
 )
-from pathlib import Path
 
-BASE_DIR = Path(__file__).resolve().parent
 
-if not os.getenv("APP_ENV"):
-    load_dotenv(BASE_DIR / ".env")
+import core.config
 
 class GroqProvider(
     BaseProvider
@@ -38,17 +35,10 @@ class GroqProvider(
         )
 
         if api_key:
-
-            logger.info(
-                "Groq API key loaded from database."
-            )
-
+            logger.info("Groq API key loaded from database.")
         else:
-
-            logger.warning(
-                "Using fallback .env Groq key."
-            )
-
+            logger.warning("Using fallback .env Groq key.")
+            
             api_key = os.getenv(
                 "GROQ_API_KEY"
             )

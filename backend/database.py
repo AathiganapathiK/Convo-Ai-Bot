@@ -1,17 +1,11 @@
 from sqlalchemy import create_engine
+import core.config
 import os
-from dotenv import load_dotenv
+
 from urllib.parse import quote_plus
 
-from pathlib import Path
 
-BASE_DIR = Path(__file__).resolve().parent
-
-# Load backend/.env only if running outside Docker
-if not os.getenv("APP_ENV"):
-    load_dotenv(BASE_DIR / ".env")
-
-DB_TYPE = (
+DB_TYPE = ( 
     os.getenv("DB_TYPE", "sqlserver")
     .strip()
     .lower()

@@ -4,20 +4,15 @@ auth/auth0_auth.py
 Auth0 RS256 JWT verification with JWKS caching and automatic key rotation.
 All config is read from environment variables — no hardcoded values.
 """
-
+import core.config
 import os
 import time
 import logging
+# pyrefly: ignore [untyped-import]
 import requests
+# pyrefly: ignore [untyped-import]
 from jose import jwt, JWTError
-from dotenv import load_dotenv
 
-from pathlib import Path
-
-BASE_DIR = Path(__file__).resolve().parent
-
-if not os.getenv("APP_ENV"):
-    load_dotenv(BASE_DIR / ".env")
 
 logger = logging.getLogger(__name__)
 

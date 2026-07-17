@@ -1,15 +1,9 @@
 import os
+import core.config
 from datetime import datetime, timedelta, timezone
 
-from dotenv import load_dotenv
+# pyrefly: ignore [untyped-import]
 from jose import JWTError, jwt
-
-from pathlib import Path
-
-BASE_DIR = Path(__file__).resolve().parent
-
-if not os.getenv("APP_ENV"):
-    load_dotenv(BASE_DIR / ".env")
 
 JWT_SECRET = os.getenv("JWT_SECRET")
 JWT_ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")

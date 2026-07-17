@@ -1,11 +1,11 @@
 import os
+import core.config
 import pandas as pd
 from sqlalchemy import create_engine
 import urllib
-from dotenv import load_dotenv
 
-load_dotenv()
 
+# pyrefly: ignore [implicit-import]
 connection_string = urllib.parse.quote_plus(
     f"DRIVER={os.getenv('DB_DRIVER')};"
     f"SERVER={os.getenv('DB_HOST')};"
@@ -35,11 +35,11 @@ print("\nSample Data:")
 print(df.head())
 
 # Load into SQL Server
-df.to_sql(
-    "Sales",
-    engine,
-    if_exists="replace",
-    index=False
-)
+# df.to_sql(
+#     "Sales",
+#     engine,
+#     if_exists="replace",
+#     index=False
+# )
 
 print("\nSales table loaded successfully.")

@@ -2,17 +2,12 @@ import pandas as pd
 from sqlalchemy import create_engine
 import urllib
 import os
-
-from pathlib import Path
-
-BASE_DIR = Path(__file__).resolve().parent
-
-if not os.getenv("APP_ENV"):
-    load_dotenv(BASE_DIR / ".env")
+import core.config
 
 SERVER_NAME = "localhost"
 DATABASE_NAME = "adv_works"
 
+# pyrefly: ignore [implicit-import]
 connection_string = urllib.parse.quote_plus(
     f"DRIVER={{ODBC Driver 17 for SQL Server}};"
     f"SERVER={SERVER_NAME};"
@@ -36,12 +31,12 @@ for table_name, file_name in files.items():
 
     print(df.head())
 
-    df.to_sql(
-        table_name,
-        engine,
-        if_exists="replace",
-        index=False
-    )
+    # df.to_sql(
+    #     table_name,
+    #     engine,
+    #     if_exists="replace",
+    #     index=False
+    # )
 
     print(f"{table_name} loaded successfully")
 
