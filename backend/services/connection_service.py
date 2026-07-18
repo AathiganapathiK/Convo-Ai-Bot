@@ -2,7 +2,7 @@ from sqlalchemy import text
 
 from database import engine
 from services.encryption_service import EncryptionService
-
+from services.datasource_event_service import DatasourceEventService
 
 class ConnectionService:
 
@@ -69,6 +69,7 @@ class ConnectionService:
             connection_string,
             is_active
         )
+        OUTPUT INSERTED.connection_id
         VALUES
         (
             :company_id,
@@ -86,7 +87,7 @@ class ConnectionService:
 
         with engine.begin() as connection:
 
-            connection.execute(
+            result = connection.execute(
                 text(query),
                 {
                     "company_id": company_id,
@@ -101,7 +102,18 @@ class ConnectionService:
                 }
             )
 
-        return True
+            connection_id = str(result.scalar())
+                
+        DatasourceEventService.log(
+                company_id=company_id,
+                connection_id=connection_id,
+                lifecycle_type="REGISTER",
+                stage="CREATE_CONNECTION",
+                status="SUCCESS",
+                message="Datasource connection registered successfully."
+            )
+
+        return connection_id
 
 
     @staticmethod

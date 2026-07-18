@@ -1,3 +1,4 @@
+import core.config
 import sys
 import core.config
 if sys.stdout is not None and hasattr(sys.stdout, 'reconfigure'):

@@ -58,7 +58,7 @@ def create_connection(
     user=Depends(require_permission("admin:connections:manage"))
 ):
 
-    ConnectionService.create_connection(
+    connection_id = ConnectionService.create_connection(
         user["company_id"],
         request
     )
@@ -92,15 +92,10 @@ def disable_connection(
     user=Depends(require_permission("admin:connections:manage"))
 ):
 
-    ConnectionService.disable_connection(
-        connection_id,
-        user["company_id"]
+    return DatasourceLifecycleService.disable(
+        connection_id=connection_id,
+        company_id=user["company_id"]
     )
-
-    return {
-        "message":
-        "Connection disabled"
-    }
 
 @router.put(
     "/connections/{connection_id}/enable"
@@ -137,20 +132,11 @@ def sync_connection_schema(
     connection_id: str,
     user=Depends(require_permission("admin:connections:manage"))
 ):
-    connection = ConnectionService.get_active_connection(user["company_id"])
-    if not connection:
-        return {
-            "success": False,
-            "message":
-                "No active database connection found"
-        }
+    return DatasourceLifecycleService.sync(
+    connection_id=connection_id,
+    company_id=user["company_id"]
+)
 
-    return (
-        SchemaSyncService
-        .sync_schema(
-            connection
-        )
-    )
 
 @router.post(
     "/connections/{connection_id}/discover-relationships"
@@ -159,18 +145,10 @@ def discover_relationships(
     connection_id: str,
     current_user=Depends(require_permission("admin:connections:manage"))
 ):
-    connection = ConnectionService.get_active_connection(current_user["company_id"])
-    if not connection:
-        return {
-            "success": False,
-            "message":
-                "No active database connection found"
-        }
-
-    return RelationshipDiscoveryService.discover_relationships(
-        company_id=current_user["company_id"],
-        connection_id=connection["connection_id"]
-    )   
+    return DatasourceLifecycleService.discover_relationships(
+        connection_id=connection_id,
+        company_id=current_user["company_id"]
+    )
 
 
 @router.post(
@@ -180,17 +158,9 @@ def detect_drift(
     connection_id: str,
     current_user=Depends(require_permission("admin:connections:manage"))
 ):
-    connection = ConnectionService.get_active_connection(current_user["company_id"])
-    if not connection:
-        return {
-            "success": False,
-            "message":
-                "No active database connection found"
-        }
-
-    return DriftDetectionService.detect_drift(
-        company_id=current_user["company_id"],
-        connection_id=connection["connection_id"]
+    return DatasourceLifecycleService.detect_drift(
+        connection_id=connection_id,
+        company_id=current_user["company_id"]
     )
 
 @router.get("/schema/active")
@@ -361,3 +331,14 @@ def get_table_schema_details(
         "relationships": relationships,
         "sampleData": sample_data
     }
+
+
+@router.post("/connections/{connection_id}/test")
+def test_saved_connection(
+    connection_id: str,
+    user=Depends(require_permission("admin:connections:manage"))
+):
+    return ConnectionTestService.test_connection(
+        connection_id,
+        user["company_id"]
+    )

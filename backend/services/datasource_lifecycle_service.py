@@ -1,3 +1,4 @@
+from admin import connection_management
 from services.connection_service import ConnectionService
 from services.schema_sync_service import SchemaSyncService
 from services.relationship_discovery_service import RelationshipDiscoveryService
@@ -232,3 +233,243 @@ class DatasourceLifecycleService:
                 retryable=False
 
             )
+
+    @staticmethod
+    def disable(
+        connection_id: str,
+        company_id: str
+    ):
+        DatasourceEventService.log(
+            company_id=company_id,
+            connection_id=connection_id,
+            lifecycle_type="DISABLE",
+            stage="START",
+            status="STARTED",
+            message="Datasource disable process started."
+        )
+
+        ConnectionService.disable_connection(
+            connection_id=connection_id,
+            company_id=company_id
+        )
+
+        DatasourceEventService.log(
+            company_id=company_id,
+            connection_id=connection_id,
+            lifecycle_type="DISABLE",
+            stage="CONNECTION",
+            status="SUCCESS",
+            message="Datasource disabled successfully."
+        )
+
+        DatasourceEventService.log(
+            company_id=company_id,
+            connection_id=connection_id,
+            lifecycle_type="DISABLE",
+            stage="COMPLETE",
+            status="SUCCESS",
+            message="Datasource disable completed successfully."
+        )
+
+        return {
+            "success": True,
+            "message": "Connection disabled."
+        }
+
+    @staticmethod
+    def sync(
+        connection_id: str,
+        company_id: str
+    ):
+        connection = ConnectionService.get_active_connection(company_id)
+
+        if not connection:
+            return {
+                "success": False,
+                "message": "No active database connection found"
+            }
+
+        DatasourceEventService.log(
+            company_id=company_id,
+            connection_id=connection["connection_id"],
+            lifecycle_type="SYNC",
+            stage="START",
+            status="STARTED",
+            message="Schema synchronization started."
+        )
+
+        try:
+            result = SchemaSyncService.sync_schema(connection)
+
+            DatasourceEventService.log(
+                company_id=company_id,
+                connection_id=connection["connection_id"],
+                lifecycle_type="SYNC",
+                stage="SCHEMA_SYNC",
+                status="SUCCESS",
+                message="Schema synchronization completed successfully."
+            )
+
+            DatasourceEventService.log(
+                company_id=company_id,
+                connection_id=connection["connection_id"],
+                lifecycle_type="SYNC",
+                stage="COMPLETE",
+                status="SUCCESS",
+                message="Schema sync lifecycle completed successfully."
+            )
+
+            return result
+        except Exception as e:
+            DatasourceEventService.log(
+                company_id=company_id,
+                connection_id=connection["connection_id"],
+                lifecycle_type="SYNC",
+                stage="SCHEMA_SYNC",
+                status="FAILED",
+                message=str(e)
+            )
+
+            DatasourceEventService.log(
+                company_id=company_id,
+                connection_id=connection["connection_id"],
+                lifecycle_type="SYNC",
+                stage="COMPLETE",
+                status="FAILED",
+                message="Schema sync lifecycle failed."
+            )
+            raise
+
+    @staticmethod
+    def discover_relationships(
+        connection_id: str,
+        company_id: str
+    ):
+        connection = ConnectionService.get_active_connection(company_id)
+
+        if not connection:
+            return {
+                "success": False,
+                "message": "No active database connection found"
+            }
+
+        DatasourceEventService.log(
+            company_id=company_id,
+            connection_id=connection["connection_id"],
+            lifecycle_type="RELATIONSHIP_DISCOVERY",
+            stage="START",
+            status="STARTED",
+            message="Relationship discovery started."
+        )
+
+        try:
+            result = RelationshipDiscoveryService.discover_relationships(
+                company_id=company_id,
+                connection_id=connection["connection_id"]
+            )
+
+            DatasourceEventService.log(
+                company_id=company_id,
+                connection_id=connection["connection_id"],
+                lifecycle_type="RELATIONSHIP_DISCOVERY",
+                stage="DISCOVERY",
+                status="SUCCESS",
+                message="Relationship discovery completed successfully."
+            )
+
+            DatasourceEventService.log(
+                company_id=company_id,
+                connection_id=connection["connection_id"],
+                lifecycle_type="RELATIONSHIP_DISCOVERY",
+                stage="COMPLETE",
+                status="SUCCESS",
+                message="Relationship discovery lifecycle completed successfully."
+            )
+
+            return result
+        except Exception as e:
+            DatasourceEventService.log(
+                company_id=company_id,
+                connection_id=connection["connection_id"],
+                lifecycle_type="RELATIONSHIP_DISCOVERY",
+                stage="DISCOVERY",
+                status="FAILED",
+                message=str(e)
+            )
+
+            DatasourceEventService.log(
+                company_id=company_id,
+                connection_id=connection["connection_id"],
+                lifecycle_type="RELATIONSHIP_DISCOVERY",
+                stage="COMPLETE",
+                status="FAILED",
+                message="Relationship discovery lifecycle failed."
+            )
+            raise
+
+    @staticmethod
+    def detect_drift(
+        connection_id: str,
+        company_id: str
+    ):
+        connection = ConnectionService.get_active_connection(company_id)
+
+        if not connection:
+            return {
+                "success": False,
+                "message": "No active database connection found"
+            }
+
+        DatasourceEventService.log(
+            company_id=company_id,
+            connection_id=connection["connection_id"],
+            lifecycle_type="DRIFT_DETECTION",
+            stage="START",
+            status="STARTED",
+            message="Drift detection started."
+        )
+
+        try:
+            result = DriftDetectionService.detect_drift(
+                company_id=company_id,
+                connection_id=connection["connection_id"]
+            )
+
+            DatasourceEventService.log(
+                company_id=company_id,
+                connection_id=connection["connection_id"],
+                lifecycle_type="DRIFT_DETECTION",
+                stage="ANALYSIS",
+                status="SUCCESS",
+                message="Drift detection completed successfully."
+            )
+
+            DatasourceEventService.log(
+                company_id=company_id,
+                connection_id=connection["connection_id"],
+                lifecycle_type="DRIFT_DETECTION",
+                stage="COMPLETE",
+                status="SUCCESS",
+                message="Drift detection lifecycle completed successfully."
+            )
+
+            return result
+        except Exception as e:
+            DatasourceEventService.log(
+                company_id=company_id,
+                connection_id=connection["connection_id"],
+                lifecycle_type="DRIFT_DETECTION",
+                stage="ANALYSIS",
+                status="FAILED",
+                message=str(e)
+            )
+
+            DatasourceEventService.log(
+                company_id=company_id,
+                connection_id=connection["connection_id"],
+                lifecycle_type="DRIFT_DETECTION",
+                stage="COMPLETE",
+                status="FAILED",
+                message="Drift detection lifecycle failed."
+            )
+            raise

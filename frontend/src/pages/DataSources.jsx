@@ -60,21 +60,52 @@ export default function DataSources({ API, token }) {
   }, [token, API]); // eslint-disable-line
 
   const handleTestConnection = async (record) => {
+    console.log(record);
     const connId = record.connection_id;
-    setTestLoading(prev => ({ ...prev, [connId]: true }));
-    
-    // Simulate testing connection delay
-    setTimeout(() => {
-      setTestLoading(prev => ({ ...prev, [connId]: false }));
-      message.success(`Connection to "${record.connection_name}" is active and healthy!`);
-      
-      // Update local state tested timestamp
-      setConnections(prev => prev.map(c => 
-        c.connection_id === connId 
-          ? { ...c, last_tested_at: new Date().toISOString() } 
-          : c
-      ));
-    }, 1500);
+
+    setTestLoading(prev => ({
+      ...prev,
+      [connId]: true
+    }));
+
+    try {
+      const response = await fetch(
+        `${API}/connections/${record.connection_id}/test`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+
+      const result = await response.json();
+
+      if (response.ok && result.success) {
+        message.success(result.message);
+
+        setConnections(prev =>
+          prev.map(c =>
+            c.connection_id === connId
+              ? {
+                  ...c,
+                  last_tested_at: new Date().toISOString()
+                }
+              : c
+          )
+        );
+      } else {
+        message.error(result.message || "Connection test failed");
+      }
+    } catch (err) {
+      console.error(err);
+      message.error("Unable to connect to the server");
+    } finally {
+      setTestLoading(prev => ({
+        ...prev,
+        [connId]: false
+      }));
+    }
   };
 
   const handleDisableConnection = async (record) => {
