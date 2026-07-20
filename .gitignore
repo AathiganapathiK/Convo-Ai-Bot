@@ -7,11 +7,12 @@ venv
 /.agents/
 /.vscode/
 output.txt
-.server.env
-.local.env
-.docker.env
 .husky/
 
+.env
+.local.env
+.docker.env
+.server.env
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies

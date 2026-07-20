@@ -33,7 +33,7 @@ class DatasourceLifecycleService:
                 lifecycle_type="ENABLE",
                 stage="START",
                 status="STARTED",
-                message="Datasourc  e enable process started."
+                message="Datasource enable process started."
             )
 
             # -----------------------------
