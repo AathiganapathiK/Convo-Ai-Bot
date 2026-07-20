@@ -1,3 +1,5 @@
+from database import engine
+from services.datasource_cleanup_service import DatasourceCleanupService
 from admin import connection_management
 from services.connection_service import ConnectionService
 from services.schema_sync_service import SchemaSyncService
@@ -473,3 +475,150 @@ class DatasourceLifecycleService:
                 message="Drift detection lifecycle failed."
             )
             raise
+
+    @staticmethod
+    def delete(
+        connection_id: str,
+        company_id: str
+    ):
+        datasource = ConnectionService.get_connection(
+            connection_id=connection_id,
+            company_id=company_id
+        )
+
+        if not datasource:
+            return {
+                "success": False,
+                "message": "Datasource connection not found."
+            }
+
+        DatasourceEventService.log(
+            company_id=company_id,
+            connection_id=connection_id,
+            lifecycle_type="DELETE",
+            stage="START",
+            status="STARTED",
+            message="Datasource deletion started."
+        )
+
+        try:
+
+            with engine.begin() as db_connection:
+
+                DatasourceEventService.log(
+                    company_id=company_id,
+                    connection_id=connection_id,
+                    lifecycle_type="DELETE",
+                    stage="METADATA_CLEANUP",
+                    status="STARTED",
+                    message="Datasource metadata cleanup started."
+                )
+
+                cleanup_summary = DatasourceCleanupService.cleanup(
+                    connection=db_connection,
+                    connection_id=connection_id,
+                    company_id=company_id
+                )
+
+                DatasourceEventService.log(
+                    company_id=company_id,
+                    connection_id=connection_id,
+                    lifecycle_type="DELETE",
+                    stage="METADATA_CLEANUP",
+                    status="SUCCESS",
+                    message=(
+                        "Datasource metadata cleanup completed successfully. "
+                        f"Summary: {cleanup_summary}"
+                    )
+                )
+
+                deleted = ConnectionService.delete_connection(
+                    connection=db_connection,
+                    connection_id=connection_id,
+                    company_id=company_id
+                )
+
+                if not deleted:
+                    raise Exception("Failed to delete datasource connection.")
+
+            DatasourceEventService.log(
+                company_id=company_id,
+                connection_id=connection_id,
+                lifecycle_type="DELETE",
+                stage="CONNECTION_DELETE",
+                status="SUCCESS",
+                message="Datasource connection deleted successfully."
+            )
+
+            DatasourceEventService.log(
+                company_id=company_id,
+                connection_id=connection_id,
+                lifecycle_type="DELETE",
+                stage="COMPLETE",
+                status="SUCCESS",
+                message="Datasource deletion completed successfully."
+            )
+
+            return {
+                "success": True,
+                "message": "Datasource deleted successfully."
+            }
+
+        except Exception as e:
+
+            DatasourceEventService.log(
+                company_id=company_id,
+                connection_id=connection_id,
+                lifecycle_type="DELETE",
+                stage="CONNECTION_DELETE",
+                status="FAILED",
+                message=str(e)
+            )
+
+            DatasourceEventService.log(
+                company_id=company_id,
+                connection_id=connection_id,
+                lifecycle_type="DELETE",
+                stage="COMPLETE",
+                status="FAILED",
+                message="Datasource deletion failed."
+            )
+
+            raise
+
+    
+    @staticmethod
+    def get_delete_summary(
+        connection_id: str,
+        company_id: str
+    ):
+        datasource = ConnectionService.get_connection(
+            connection_id=connection_id,
+            company_id=company_id
+        )
+
+        print("DATA SOURCE:",datasource)
+
+        if not datasource:
+            return {
+                "success": False,
+                "message": "Datasource connection not found."
+            }
+
+        summary = DatasourceCleanupService.get_delete_summary(
+            connection_id=connection_id,
+            company_id=company_id
+        )
+
+        return {
+            "success": True,
+            "connection": {
+            "connection_id": datasource["connection_id"],
+            "connection_name": datasource["connection_name"],
+            "database_type": datasource["database_type"],
+            "connection_status": datasource["connection_status"],
+            "host": datasource["host"],
+            "database_name": datasource["database_name"]
+        },
+            "summary": summary
+        }

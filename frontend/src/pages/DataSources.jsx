@@ -8,6 +8,7 @@ import {
   PlusOutlined, DatabaseOutlined, PlayCircleOutlined, DeleteOutlined, 
   CheckCircleOutlined, ExclamationCircleOutlined, SyncOutlined 
 } from "@ant-design/icons";
+import DeleteDatasourceModal from "../components/DeleteDatasourceModal";
 
 const { Title, Text, Paragraph } = Typography;
 const { Option } = Select;
@@ -18,6 +19,14 @@ export default function DataSources({ API, token }) {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [testLoading, setTestLoading] = useState({});
   const [form] = Form.useForm();
+
+  // Delete Datasource Workflow State
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [selectedDatasourceId, setSelectedDatasourceId] = useState(null);
+  const [deleteSummary, setDeleteSummary] = useState(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [summaryError, setSummaryError] = useState(null);
+  const [confirmText, setConfirmText] = useState("");
 
   const fetchConnections = async () => {
     if (!token) return;
@@ -58,6 +67,57 @@ export default function DataSources({ API, token }) {
   useEffect(() => {
     fetchConnections();
   }, [token, API]); // eslint-disable-line
+
+  const openDeleteModal = async (record) => {
+    setSelectedDatasourceId(record.connection_id);
+    setDeleteSummary(null);
+    setConfirmText("");
+    setSummaryError(null);
+    setDeleteModalOpen(true);
+
+    try {
+      const res = await fetch(`${API}/connections/${record.connection_id}/delete-summary`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setDeleteSummary(data);
+      } else {
+        const errorData = await res.json().catch(() => ({}));
+        setSummaryError(errorData.message || "Failed to load delete summary. Please try again.");
+      }
+    } catch (err) {
+      console.error(err);
+      setSummaryError("Network error while loading summary.");
+    }
+  };
+
+  const handleDeleteDatasource = async () => {
+    if (!selectedDatasourceId) return;
+    setDeleteLoading(true);
+    try {
+      const res = await fetch(`${API}/connections/${selectedDatasourceId}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.ok) {
+        message.success("Datasource deleted successfully.");
+        setDeleteModalOpen(false);
+        setConfirmText("");
+        setDeleteSummary(null);
+        setSelectedDatasourceId(null);
+        fetchConnections();
+      } else {
+        const errData = await res.json().catch(() => ({}));
+        message.error(errData.message || "Failed to delete datasource.");
+      }
+    } catch (err) {
+      console.error(err);
+      message.error("Error connecting to server to delete datasource.");
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
 
   const handleTestConnection = async (record) => {
     console.log(record);
@@ -277,6 +337,15 @@ export default function DataSources({ API, token }) {
               Enable
             </Button>
           )}
+          <Divider type="vertical" style={{ borderColor: "var(--border-light)" }} />
+          <Button 
+            type="text" 
+            danger 
+            icon={<DeleteOutlined />} 
+            onClick={() => openDeleteModal(record)}
+          >
+            Delete
+          </Button>
         </Space>
       )
     }
@@ -423,6 +492,21 @@ export default function DataSources({ API, token }) {
           </Form.Item>
         </Form>
       </Modal>
+
+      {/* Enterprise Delete Datasource Modal */}
+      <DeleteDatasourceModal
+        open={deleteModalOpen}
+        loading={deleteLoading}
+        deleteSummary={deleteSummary}
+        summaryError={summaryError}
+        confirmText={confirmText}
+        setConfirmText={setConfirmText}
+        onDelete={handleDeleteDatasource}
+        onCancel={() => {
+          setDeleteModalOpen(false);
+          setConfirmText("");
+        }}
+      />
     </div>
   );
 }

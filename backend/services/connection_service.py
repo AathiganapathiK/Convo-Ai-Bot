@@ -229,3 +229,21 @@ class ConnectionService:
             return None
 
         return dict(result._mapping)
+    
+    @staticmethod
+    def delete_connection(
+        connection,
+        connection_id: str,
+        company_id: str = None
+    ):
+        result = connection.execute(
+            text("""
+                DELETE FROM database_connections
+                WHERE connection_id = :connection_id
+            """),
+            {
+                "connection_id": connection_id
+            }
+        )
+
+        return result.rowcount > 0

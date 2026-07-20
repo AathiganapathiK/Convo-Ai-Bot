@@ -1,3 +1,5 @@
+
+from auth.dependencies import get_current_user
 import traceback
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import text
@@ -36,6 +38,8 @@ from services.relationship_discovery_service import (
 from services.drift_detection_service import (
     DriftDetectionService
 )
+
+
 
 router = APIRouter(
     tags=["Data Sources"]
@@ -342,3 +346,24 @@ def test_saved_connection(
         connection_id,
         user["company_id"]
     )
+
+@router.delete("/connections/{connection_id}")
+def delete_connection(
+    connection_id: str,
+    user=Depends(get_current_user)
+):
+    return DatasourceLifecycleService.delete(
+        connection_id=connection_id,
+        company_id=user["company_id"]
+    )
+
+@router.get("/connections/{connection_id}/delete-summary")
+def get_delete_summary(
+    connection_id: str,
+    user=Depends(require_permission("admin:connections:manage"))
+):
+    return DatasourceLifecycleService.get_delete_summary(
+        connection_id=connection_id,
+        company_id=user["company_id"]
+    )
+
