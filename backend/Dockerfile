@@ -71,7 +71,6 @@ COPY --chown=appuser:appgroup backend/ /app/
 
 # Copy centralized environment files
 COPY --chown=appuser:appgroup .local.env /app/
-COPY --chown=appuser:appgroup .docker.env /app/
 COPY --chown=appuser:appgroup .server.env /app/
 
 # Ensure startup script is executable

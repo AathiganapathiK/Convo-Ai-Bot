@@ -28,7 +28,7 @@ class SemanticDiscoveryService:
             'role_permissions',
             'user_roles',
             'chat_sessions',
-            'chat_messages',    
+            'chat_messages',
             'schema_tables',
             'schema_columns',
             'schema_relationships',
@@ -158,15 +158,14 @@ class SemanticDiscoveryService:
                 # Generate dimensions
                 dimension_key = (table_name.lower(), lower)
                 if SemanticDiscoveryService.is_dimension_column(
-                    column_name,
-                    data_type
+                     column_name,
+                     data_type
                     ):
 
                     dimension_name = lower.replace(" ", "_")
 
-                    # One semantic dimension per business concept (per connection),
-                    # regardless of how many tables contain the same column.
-                    dimension_key = dimension_name.lower()
+                    # One semantic dimension per connection
+                    dimension_key = dimension_name
 
                     print(
                         f"[DISCOVERY] table={table_name}, "
@@ -175,7 +174,6 @@ class SemanticDiscoveryService:
                         f"key={dimension_key!r}, "
                         f"already_seen={dimension_key in seen_dimensions}"
                     )
-
                     if dimension_key not in seen_dimensions:
 
                         seen_dimensions.add(dimension_key)
@@ -190,7 +188,7 @@ class SemanticDiscoveryService:
                         )
 
                         description = (
-                            f"Semantic dimension for {column_name} in {table_name}"
+                           f"Semantic dimension for {column_name} in {table_name}"
                         )
 
                         conn.execute(
@@ -230,7 +228,7 @@ class SemanticDiscoveryService:
                         )
 
         return rows
-    
+
     @staticmethod
     def is_technical_column(
         column_name

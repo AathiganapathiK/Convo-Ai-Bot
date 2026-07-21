@@ -11,7 +11,9 @@ ENV_FILES = {
     "server": ".server.env",
 }
 
-runtime = os.getenv("APP_RUNTIME", "local").lower()
+raw_runtime = os.getenv("APP_RUNTIME")
+
+runtime = (raw_runtime or "local").lower()
 
 if runtime not in ENV_FILES:
     raise RuntimeError(
@@ -29,7 +31,8 @@ if not env_path.exists():
 load_dotenv(env_path, override=True)
 
 print("=" * 60)
-print(f"Runtime          : {runtime}")
-print(f"Configuration    : {env_path.name}")
-print(f"DB_HOST       : {os.getenv('DB_HOST')}")
+print(f"APP_RUNTIME (raw): {raw_runtime}")
+print(f"Runtime selected : {runtime}")
+print(f"Configuration    : {env_path}")
+print(f"DB_HOST          : {os.getenv('DB_HOST')}")
 print("=" * 60)

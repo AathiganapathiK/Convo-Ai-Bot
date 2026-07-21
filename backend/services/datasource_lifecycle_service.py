@@ -586,7 +586,7 @@ class DatasourceLifecycleService:
 
             raise
 
-    
+
     @staticmethod
     def get_delete_summary(
         connection_id: str,
@@ -616,7 +616,7 @@ class DatasourceLifecycleService:
             "connection_id": datasource["connection_id"],
             "connection_name": datasource["connection_name"],
             "database_type": datasource["database_type"],
-            "connection_status": datasource["connection_status"],
+            "connection_status": "Active" if datasource["is_active"] else "Inactive",
             "host": datasource["host"],
             "database_name": datasource["database_name"]
         },
