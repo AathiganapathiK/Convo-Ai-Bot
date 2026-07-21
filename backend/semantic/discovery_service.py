@@ -162,26 +162,28 @@ class SemanticDiscoveryService:
                     data_type
                     ):
 
-                    dimension_key = (
-                        table_name.lower(),
-                        lower
+                    dimension_name = lower.replace(" ", "_")
+
+                    # One semantic dimension per business concept (per connection),
+                    # regardless of how many tables contain the same column.
+                    dimension_key = dimension_name.lower()
+
+                    print(
+                        f"[DISCOVERY] table={table_name}, "
+                        f"column={column_name}, "
+                        f"dimension_name={dimension_name!r}, "
+                        f"key={dimension_key!r}, "
+                        f"already_seen={dimension_key in seen_dimensions}"
                     )
 
                     if dimension_key not in seen_dimensions:
 
-                        seen_dimensions.add(
-                            dimension_key
-                        )
+                        seen_dimensions.add(dimension_key)
 
                         dimension_id = str(uuid.uuid4())
 
-                        dimension_name = (
-                            lower.replace(" ", "_")
-                        )
-
                         business_name = (
-                            SemanticDiscoveryService
-                            .generate_business_name(
+                            SemanticDiscoveryService.generate_business_name(
                                 table_name,
                                 column_name
                             )

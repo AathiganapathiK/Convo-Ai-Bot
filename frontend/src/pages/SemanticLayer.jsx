@@ -667,16 +667,9 @@ export default function SemanticLayer({ API, token, userInfo }) {
               <Form.Item
                 name="table_name"
                 label={<span style={{ color: "var(--text-secondary)" }}>Table</span>}
-                rules={[{ required: true, message: "Please select a target table!" }]}
+                rules={[{ required: true, message: "Please enter the table name!" }]}
               >
-                <Select placeholder="Select a table">
-                  <Option value="Sales">Sales</Option>
-                  <Option value="Products">Products</Option>
-                  <Option value="Region">Region</Option>
-                  <Option value="Reseller">Reseller</Option>
-                  <Option value="Salesperson">Salesperson</Option>
-                  <Option value="Targets">Targets</Option>
-                </Select>
+                <Input placeholder="e.g. Sales" />
               </Form.Item>
 
               <Form.Item
@@ -747,16 +740,9 @@ export default function SemanticLayer({ API, token, userInfo }) {
               <Form.Item
                 name="table_name"
                 label={<span style={{ color: "var(--text-secondary)" }}>Table</span>}
-                rules={[{ required: true, message: "Please select a target table!" }]}
+                rules={[{ required: true, message: "Please enter the table name!" }]}
               >
-                <Select placeholder="Select a table">
-                  <Option value="Sales">Sales</Option>
-                  <Option value="Products">Products</Option>
-                  <Option value="Region">Region</Option>
-                  <Option value="Reseller">Reseller</Option>
-                  <Option value="Salesperson">Salesperson</Option>
-                  <Option value="Targets">Targets</Option>
-                </Select>
+                <Input placeholder="e.g. Sales" />
               </Form.Item>
 
               <Form.Item
