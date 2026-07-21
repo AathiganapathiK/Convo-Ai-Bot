@@ -173,31 +173,30 @@ def build_sql_prompt(question: str, history = None, company_id = None):
         )
     )
 
-    selected_tables = list({
-        obj["table_name"] 
-        for obj in (semantic_result.get("metric_objects", []) + semantic_result.get("dimension_objects", []))
-    })
+    # Resolve initial relevant tables from matched semantic objects and keyword fallback
+    tables = RelevantTableResolver.resolve(
+        active_connection["connection_id"],
+        question
+    )
+
+    # Expand relationship bridge tables
+    tables = RelationshipExpander.expand(
+        active_connection["connection_id"],
+        tables
+    )
 
     from semantic.metadata_resolver import MetadataResolver
     metadata_result = MetadataResolver.resolve(
         question=question,
         connection_id=active_connection["connection_id"],
         semantic_result=semantic_result,
-        selected_tables=selected_tables
+        selected_tables=tables
     )
 
-    tables = RelevantTableResolver.resolve(
-        active_connection["connection_id"],
-        question
-    )
-    
-    # Merge with required tables from metadata resolver
-    tables = list(set(tables + metadata_result.get("required_tables", [])))
-
-    tables = RelationshipExpander.expand(
-        active_connection["connection_id"],
-        tables
-    )
+    # Add required tables from metadata resolver if any extra display tables were needed
+    extra_req = metadata_result.get("required_tables", [])
+    if extra_req:
+        tables = sorted(list(set(tables + extra_req)))
 
     schema_text = RelevantSchemaService.get_schema(
         active_connection["connection_id"],
@@ -286,95 +285,21 @@ def build_sql_prompt(question: str, history = None, company_id = None):
             "--------------------------------\n"
         )
 
-    # === Pipeline Logging: METADATA ===
-    print("\n========== METADATA RESOLVER ==========")
-    print(f"Display Columns: {metadata_result.get('display_columns')}")
-    print(f"Hidden Keys: {metadata_result.get('hidden_keys')}")
-    print(f"Requested Keys: {metadata_result.get('requested_keys')}")
-    print(f"Required Tables: {metadata_result.get('required_tables')}")
-    print("Metadata Rules:")
-    for r in metadata_result.get("metadata_rules", []):
-        print(f"  - {r}")
-
-    # === Pipeline Logging: SEMANTIC ===
-    print("\n========== SEMANTIC RESOLVER ==========")
-
-    print("\nMatched Metrics:")
-
-    metric_debug = semantic_result.get("debug", {}).get("metrics", [])
-
-    if metric_debug:
-
-        for metric in metric_debug:
-
-            print(f"\n• {metric['business_name']}")
-            print(f"  Technical Name : {metric['technical_name']}")
-            print(f"  Matched By     : {metric['matched_by']}")
-            print(f"  Matched Text   : {metric['matched_text']}")
-            print(f"  Mapping        : {metric['table_name']}.{metric['column_name']}")
-            print(f"  Aggregation    : {metric['aggregation']}")
-
-    else:
-
-        print("- (None)")
-
-
-    print("\nMatched Dimensions:")
-
-    dimension_debug = semantic_result.get("debug", {}).get("dimensions", [])
-
-    if dimension_debug:
-
-        for dimension in dimension_debug:
-
-            print(f"\n• {dimension['business_name']}")
-            print(f"  Technical Name : {dimension['technical_name']}")
-            print(f"  Matched By     : {dimension['matched_by']}")
-            print(f"  Matched Text   : {dimension['matched_text']}")
-            print(f"  Mapping        : {dimension['table_name']}.{dimension['column_name']}")
-
-    else:
-
-        print("- (None)")
-
-    # === Pipeline Logging: TABLES ===
-    print("\n========== RELEVANT TABLES ==========")
-
-    if tables:
-
-        for table in tables:
-
-            reasons = []
-
-            for metric in semantic_result["metric_objects"]:
-                if metric["table_name"] == table:
-                    reasons.append(f"Metric ({metric['business_name']})")
-
-            for dimension in semantic_result["dimension_objects"]:
-                if dimension["table_name"] == table:
-                    reasons.append(f"Dimension ({dimension['business_name']})")
-
-            if not reasons:
-                reasons.append("Relationship Expansion")
-
-            print(f"\n• {table}")
-            print(f"  Selected By : {', '.join(reasons)}")
-
-    else:
-
-        print("- (None)")
-
-    # === Pipeline Logging: RELATIONSHIPS ===
-    print("\n========== RELATIONSHIPS ==========")
-    if relationship_context:
-        rel_lines = [line for line in relationship_context.strip().split("\n") if line.startswith("- ")]
-        for line in rel_lines:
-            print(line)
+    # === Pipeline Logging: STAGE RETRIEVAL DEBUG LOGS ===
+    print("\n========== STAGE RETRIEVAL DEBUG LOGS ==========")
+    print(f"Question                : {question}")
+    print(f"Retrieved Tables        : {tables}")
+    print(f"Retrieved Metrics       : {semantic_result.get('metrics', [])}")
+    print(f"Retrieved Dimensions    : {semantic_result.get('dimensions', [])}")
+    print(f"Retrieved Metadata Rules: {rules}")
+    print(f"Retrieved Relationships :\n{relationship_context.strip() if relationship_context else '(None)'}")
+    print("================================================\n")
 
     examples = (
         QueryExamplesService
         .retrieve(
-            active_connection["connection_id"]
+            active_connection["connection_id"],
+            relevant_tables=tables
         )
     )
 
@@ -527,6 +452,12 @@ Follow-up Rules:
     print("="*80)
     print(prompt)
     print("="*80)
+
+    print("\n========== FINAL PROMPT STATS ==========")
+    print(f"Expanded Schema Size : {len(schema_text)} chars")
+    print(f"Final Prompt Size    : {len(prompt)} chars")
+    print(f"Estimated Token Count: ~{len(prompt) // 4} tokens")
+    print("========================================\n")
 
     return prompt
 

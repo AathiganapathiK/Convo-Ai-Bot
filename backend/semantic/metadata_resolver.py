@@ -89,7 +89,7 @@ class MetadataResolver:
             disp_t = tech.get("display_table")
             disp_c = tech.get("display_column")
             
-            if selected_tables and t_name.lower() not in sel_tables_lower:
+            if selected_tables is not None and t_name.lower() not in sel_tables_lower:
                 continue
                 
             stem, suffix = get_column_stem_and_suffix(c_name)

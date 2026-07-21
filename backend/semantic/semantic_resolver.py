@@ -47,16 +47,31 @@ def _spans_overlap(span1, span2):
     return max(span1[0], span2[0]) < min(span1[1], span2[1])
 
 
-def _get_match_info(technical_name: str, business_name: str,synonyms:str, question: str):
+def _stem_word(w: str) -> str:
+    w = w.lower()
+    if w.endswith("ies"):
+        return w[:-3] + "y"
+    if w.endswith("es") and len(w) > 3:
+        return w[:-2]
+    if w.endswith("s") and not w.endswith("ss") and len(w) > 3:
+        return w[:-1]
+    if w.endswith("ing") and len(w) > 4:
+        return w[:-3]
+    return w
+
+
+def _get_match_info(technical_name: str, business_name: str, synonyms: str, question: str):
     """
     Computes a match score, matched length, and spans based on deterministic ranking.
     
     Priority Rules:
     1. Exact technical name equals complete user phrase
     2. Exact business name equals complete user phrase
-    3. Exact business phrase contained in the question (prefer longest phrase)
+    3. Exact business phrase contained in the question
     4. Whole-word technical name match
-    5. Whole-word business name match
+    5. Whole-word business name match (ignoring noise words like English/Name)
+    6. Synonym match
+    7. Stemmed/Domain synonym token overlap match
     """
     if not question:
         return 0, 0, [], None, None
@@ -67,72 +82,75 @@ def _get_match_info(technical_name: str, business_name: str,synonyms:str, questi
     
     # Priority 1: Exact technical name equals complete user phrase
     if tech_norm and q_norm == tech_norm:
-        return (
-            50000,
-            len(q_norm),
-            [(0, len(q_norm))],
-            "Technical Name",
-            technical_name
-        )
+        return 50000, len(q_norm), [(0, len(q_norm))], "Technical Name", technical_name
         
     # Priority 2: Exact business name equals complete user phrase
     if bus_norm and q_norm == bus_norm:
-        return (
-            40000,
-            len(q_norm),
-            [(0, len(q_norm))],
-            "Business Name",
-            business_name
-        )
+        return 40000, len(q_norm), [(0, len(q_norm))], "Business Name", business_name
         
     # Priority 3: Exact business phrase contained in the question
     bus_phrase_spans = _find_phrase_spans(bus_norm, q_norm)
     if bus_phrase_spans:
-        return 30000, len(bus_norm), bus_phrase_spans, "Business Name",business_name
+        return 30000, len(bus_norm), bus_phrase_spans, "Business Name", business_name
         
     # Priority 4: Whole-word technical name match
-    # Try consecutive phrase match first, then non-consecutive word match
     tech_phrase_spans = _find_phrase_spans(tech_norm, q_norm)
     if tech_phrase_spans:
-        return 20000, len(tech_norm), tech_phrase_spans, "Business Name",business_name
+        return 20000, len(tech_norm), tech_phrase_spans, "Technical Name", technical_name
         
     tech_word_spans = _find_whole_word_match_spans(technical_name, q_norm)
     if tech_word_spans:
-        return 20000, len(tech_norm), tech_word_spans, "Business Name",business_name
+        return 20000, len(tech_norm), tech_word_spans, "Technical Name", technical_name
         
-    # Priority 5: Whole-word business name match
+    # Priority 5: Whole-word business name match (with noise word filtering)
+    bus_words = _get_words(business_name)
+    noise_words = {"english", "spanish", "french", "name", "description", "desc", "type", "number", "key", "id", "flag", "code"}
+    core_bus_words = [w for w in bus_words if w.lower() not in noise_words]
+    
+    if core_bus_words:
+        core_bus_name = " ".join(core_bus_words)
+        core_spans = _find_whole_word_match_spans(core_bus_name, q_norm)
+        if core_spans:
+            return 15000, len(core_bus_name), core_spans, "Business Name", business_name
+
     bus_word_spans = _find_whole_word_match_spans(business_name, q_norm)
     if bus_word_spans:
-        return 10000, len(bus_norm), bus_word_spans, "Business Name",business_name
+        return 10000, len(bus_norm), bus_word_spans, "Business Name", business_name
 
-
-    # Priority 6: Synonym match
+    # Priority 6: Database Synonym match
     if synonyms:
-
-        synonym_list = [
-            s.strip().lower()
-            for s in synonyms.split(",")
-            if s.strip()
-        ]
-
+        synonym_list = [s.strip().lower() for s in synonyms.split(",") if s.strip()]
         for synonym in synonym_list:
+            synonym_spans = _find_phrase_spans(synonym, q_norm)
+            if synonym_spans:
+                return 9000, len(synonym), synonym_spans, "Synonym", synonym
+                
+    # Priority 7: Stemmed & Domain Synonym Overlap Match
+    q_tokens = _get_words(question)
+    q_stems = {_stem_word(t) for t in q_tokens}
+    
+    candidate_tokens = _get_words(business_name) + _get_words(technical_name)
+    cand_stems = [_stem_word(t) for t in candidate_tokens if t.lower() not in noise_words]
+    
+    matched_stems = [
+        s for s in cand_stems
+        if s in q_stems
+    ]
 
-            synonym_spans = _find_phrase_spans(
-                synonym,
-                q_norm
+    match_ratio = len(set(matched_stems)) / max(len(set(cand_stems)), 1)
+
+
+    if match_ratio >= 0.5:
+        score = int(match_ratio * 8000)
+        return (
+                score,
+                len(matched_stems),
+                [(0, len(q_norm))],
+                "Stem Overlap",
+                business_name,
             )
 
-            if synonym_spans:
-
-                return (
-                    9000,
-                    len(synonym),
-                    synonym_spans,
-                    "Synonym",
-                    synonym
-                )
-        
-    return (0, 0, [],None, None)
+    return 0, 0, [], None, None
 
 
 class SemanticResolver:

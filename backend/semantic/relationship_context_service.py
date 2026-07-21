@@ -1,4 +1,3 @@
-import webbrowser
 from semantic.relationship_service import (
     SemanticRelationshipService
 )

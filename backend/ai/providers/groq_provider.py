@@ -22,7 +22,7 @@ class GroqProvider(
     BaseProvider
 ):
 
-    def _init_(self, company_id=None):
+    def __init__(self, company_id=None):
 
         api_key = (
             ProviderCredentialService
