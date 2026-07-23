@@ -11,8 +11,13 @@ class MetadataResolver:
         question,
         connection_id,
         semantic_result,
-        selected_tables
+        expanded_tables
     ):
+
+        selected_tables = [
+            table["table_name"]
+            for table in expanded_tables
+        ]
         # 1. Fetch column display config for the active connection where is_visible = 0
         configs = ColumnDisplayService.load_display_config(connection_id)
         technical_columns = [
@@ -50,7 +55,7 @@ class MetadataResolver:
                 return False
             q_clean = " ".join(q.lower().split())
             stem_clean = stem.lower()
-            
+
             # Check exact column name or column name with underscore replaced
             col_clean = col_name.lower()
             col_clean_no_underscore = col_clean.replace("_", "")
@@ -81,6 +86,18 @@ class MetadataResolver:
 
         # Set of selected tables (lowercased for matching)
         sel_tables_lower = {t.lower() for t in selected_tables} if selected_tables else set()
+
+        table_metadata = MetadataResolver.load_column_metadata(
+            connection_id,
+            expanded_tables
+        )
+
+        # Load relationship metadata
+        relationship_metadata = MetadataResolver.load_relationship_metadata(
+            connection_id,
+            expanded_tables
+        )
+                
 
         # Iterate over technical columns that belong to the selected tables
         for tech in technical_columns:
@@ -151,9 +168,329 @@ class MetadataResolver:
                     metadata_rules.append(f"Hide {t_name}.{c_name} from outputs")
                     
         return {
+
+            "tables": table_metadata,
+
+            "relationships": relationship_metadata,
+
             "display_columns": display_columns,
+
             "hidden_keys": hidden_keys,
+
             "requested_keys": requested_keys,
+
             "required_tables": required_tables,
+
             "metadata_rules": metadata_rules
+
         }
+
+
+    @staticmethod
+    def load_table_metadata(
+        connection_id,
+        expanded_tables
+    ):
+        """
+        Load metadata only for the tables selected by the semantic pipeline.
+        """
+
+        if not expanded_tables:
+            return []
+
+        table_names = [
+            table["table_name"]
+            for table in expanded_tables
+        ]
+
+        placeholders = ", ".join(
+            f":table_{i}"
+            for i in range(len(table_names))
+        )
+
+        query = f"""
+        SELECT
+            table_name,
+            business_name,
+            description
+        FROM schema_tables
+        WHERE
+            connection_id = :connection_id
+            AND table_name IN ({placeholders})
+        """
+
+        params = {
+            "connection_id": connection_id
+        }
+
+        for i, table_name in enumerate(table_names):
+            params[f"table_{i}"] = table_name
+
+        with engine.connect() as conn:
+
+            rows = conn.execute(
+                text(query),
+                params
+            ).mappings().all()
+
+        metadata_lookup = {
+            row["table_name"]: dict(row)
+            for row in rows
+        }
+
+        results = []
+
+        for table in expanded_tables:
+
+            metadata = metadata_lookup.get(
+                table["table_name"],
+                {}
+            )
+
+            results.append(
+                {
+                    "table_name": table["table_name"],
+                    "business_name": metadata.get("business_name"),
+                    "description": metadata.get("description"),
+                    "score": table["score"],
+                    "is_bridge": table["is_bridge"]
+                }
+            )
+
+        return results
+
+
+    @staticmethod
+    def load_column_metadata(
+        connection_id,
+        expanded_tables
+    ):
+        """
+        Load physical column metadata for the tables selected by
+        the semantic pipeline.
+        """
+
+        if not expanded_tables:
+            return []
+
+        table_names = [
+            table["table_name"]
+            for table in expanded_tables
+        ]
+
+        placeholders = ", ".join(
+            f":table_{i}"
+            for i in range(len(table_names))
+        )
+
+        query = f"""
+        SELECT
+            st.table_name,
+
+            sc.column_name,
+            sc.data_type,
+            sc.max_length,
+            sc.numeric_precision,
+            sc.numeric_scale,
+
+            sc.is_nullable,
+            sc.is_primary_key,
+            sc.is_foreign_key,
+
+            sc.column_description
+
+        FROM schema_columns sc
+
+        INNER JOIN schema_tables st
+            ON st.table_id = sc.table_id
+
+        WHERE
+            st.connection_id = :connection_id
+            AND st.table_name IN ({placeholders})
+
+        ORDER BY
+            st.table_name,
+            sc.column_name
+        """
+
+        params = {
+            "connection_id": connection_id
+        }
+
+        for i, table_name in enumerate(table_names):
+            params[f"table_{i}"] = table_name
+
+        with engine.connect() as conn:
+
+            rows = conn.execute(
+                text(query),
+                params
+            ).mappings().all()
+
+        # -----------------------------------------
+        # Group columns by table
+        # -----------------------------------------
+        columns_lookup = {}
+
+        for row in rows:
+
+            table_name = row["table_name"]
+
+            if table_name not in columns_lookup:
+                columns_lookup[table_name] = {
+                    "columns": [],
+                    "primary_keys": [],
+                    "foreign_keys": []
+                }
+
+            column = {
+                "column_name": row["column_name"],
+                "data_type": row["data_type"],
+                "max_length": row["max_length"],
+                "numeric_precision": row["numeric_precision"],
+                "numeric_scale": row["numeric_scale"],
+                "is_nullable": row["is_nullable"],
+                "is_primary_key": row["is_primary_key"],
+                "is_foreign_key": row["is_foreign_key"],
+                "description": row["column_description"]
+            }
+
+            columns_lookup[table_name]["columns"].append(column)
+
+            if row["is_primary_key"]:
+                columns_lookup[table_name]["primary_keys"].append(
+                    row["column_name"]
+                )
+
+            if row["is_foreign_key"]:
+                columns_lookup[table_name]["foreign_keys"].append(
+                    {
+                        "column_name": row["column_name"]
+                    }
+                )
+
+        results = []
+
+        for table in expanded_tables:
+
+            metadata = columns_lookup.get(
+                table["table_name"],
+                {
+                    "columns": [],
+                    "primary_keys": [],
+                    "foreign_keys": []
+                }
+            )
+
+            results.append(
+                {
+                    "table_name": table["table_name"],
+                    "score": table["score"],
+                    "is_bridge": table.get("is_bridge", False),
+
+                    "columns": metadata["columns"],
+                    "primary_keys": metadata["primary_keys"],
+                    "foreign_keys": metadata["foreign_keys"]
+                }
+            )
+
+        return results
+
+
+
+    @staticmethod
+    def load_relationship_metadata(
+        connection_id,
+        expanded_tables
+    ):
+        """
+        Load relationship metadata for the selected tables.
+        """
+
+        if not expanded_tables:
+            return []
+
+        table_names = [
+            table["table_name"]
+            for table in expanded_tables
+        ]
+
+        placeholders = ", ".join(
+            f":table_{i}"
+            for i in range(len(table_names))
+        )
+
+        query = f"""
+        SELECT
+
+            src_table.table_name AS source_table,
+            src_col.column_name AS source_column,
+
+            tgt_table.table_name AS target_table,
+            tgt_col.column_name AS target_column,
+
+            sr.relationship_type,
+            sr.confidence_score,
+            sr.is_confirmed
+
+        FROM schema_relationships sr
+
+        INNER JOIN schema_tables src_table
+            ON src_table.table_id = sr.source_table_id
+
+        INNER JOIN schema_columns src_col
+            ON src_col.column_id = sr.source_column_id
+
+        INNER JOIN schema_tables tgt_table
+            ON tgt_table.table_id = sr.target_table_id
+
+        INNER JOIN schema_columns tgt_col
+            ON tgt_col.column_id = sr.target_column_id
+
+        WHERE
+            sr.connection_id = :connection_id
+
+            AND src_table.table_name IN ({placeholders})
+
+            AND tgt_table.table_name IN ({placeholders})
+
+        ORDER BY
+            src_table.table_name,
+            tgt_table.table_name
+        """
+
+        params = {
+            "connection_id": connection_id
+        }
+
+        for i, table_name in enumerate(table_names):
+            params[f"table_{i}"] = table_name
+
+        with engine.connect() as conn:
+
+            rows = conn.execute(
+                text(query),
+                params
+            ).mappings().all()
+
+        relationships = []
+
+        for row in rows:
+
+            relationships.append({
+
+                "source_table": row["source_table"],
+                "source_column": row["source_column"],
+
+                "target_table": row["target_table"],
+                "target_column": row["target_column"],
+
+                "relationship_type": row["relationship_type"],
+
+                "confidence_score": row["confidence_score"],
+
+                "is_confirmed": row["is_confirmed"]
+
+            })
+
+        return relationships

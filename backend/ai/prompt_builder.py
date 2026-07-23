@@ -12,6 +12,7 @@ from semantic.relationship_context_service import RelationshipContextService
 from semantic.relevant_table_resolver import RelevantTableResolver
 from semantic.relevant_schema_service import RelevantSchemaService
 from semantic.relationship_expander import RelationshipExpander
+from semantic.runtime_context_builder import RuntimeContextBuilder
 
 def get_dynamic_business_context(connection_id: str, company_id: str) -> str:
     query = """
@@ -172,43 +173,81 @@ def build_sql_prompt(question: str, history = None, company_id = None):
             question
         )
     )
+    print("\n========== SEMANTIC RESULT ==========")
+    from pprint import pprint
+    pprint(semantic_result)
 
     # Resolve initial relevant tables from matched semantic objects and keyword fallback
-    tables = RelevantTableResolver.resolve(
+    relevant_tables = RelevantTableResolver.resolve(
         active_connection["connection_id"],
         question
     )
+    print("\n========== RELEVANT TABLES ==========")
+    pprint(relevant_tables)
 
     # Expand relationship bridge tables
-    tables = RelationshipExpander.expand(
+    expanded_tables = RelationshipExpander.expand(
         active_connection["connection_id"],
-        tables
+        relevant_tables
     )
 
-    from semantic.metadata_resolver import MetadataResolver
-    metadata_result = MetadataResolver.resolve(
-        question=question,
-        connection_id=active_connection["connection_id"],
-        semantic_result=semantic_result,
-        selected_tables=tables
-    )
-
-    # Add required tables from metadata resolver if any extra display tables were needed
-    extra_req = metadata_result.get("required_tables", [])
-    if extra_req:
-        tables = sorted(list(set(tables + extra_req)))
-
-    schema_text = RelevantSchemaService.get_schema(
-        active_connection["connection_id"],
-        tables
-    )
+    
+    table_names = [
+        t["table_name"]
+        for t in expanded_tables
+    ]
 
     relationship_context = (
         RelationshipContextService.build_context(
             active_connection["connection_id"],
-            tables
+            table_names
         )
     )
+
+
+    print("\n========== EXPANDED TABLES ==========")
+    pprint(expanded_tables)
+
+    from semantic.metadata_resolver import MetadataResolver
+    
+    metadata_result = MetadataResolver.resolve(
+        question=question,
+        connection_id=active_connection["connection_id"],
+        semantic_result=semantic_result,
+        expanded_tables=expanded_tables
+    )
+
+    
+
+
+    print("\n========== METADATA RESULT ==========")
+    pprint(metadata_result)
+
+    runtime_context = RuntimeContextBuilder.build(
+        metadata_result
+    )
+
+    if relationship_context:
+
+        runtime_context += (
+            "\n\n"
+            "=== RELATIONSHIP CONTEXT ===\n\n"
+            f"{relationship_context}"
+        )
+
+
+    # Add required tables from metadata resolver if any extra display tables were needed
+    extra_req = metadata_result.get("required_tables", [])
+    if extra_req:
+        table_names = sorted(
+            set(table_names + extra_req)
+        )
+
+    schema_text = RelevantSchemaService.get_schema(
+        active_connection["connection_id"],
+        table_names
+    )
+
 
     # Format Metadata Rules
     metadata_rules_text = ""
@@ -288,7 +327,7 @@ def build_sql_prompt(question: str, history = None, company_id = None):
     # === Pipeline Logging: STAGE RETRIEVAL DEBUG LOGS ===
     print("\n========== STAGE RETRIEVAL DEBUG LOGS ==========")
     print(f"Question                : {question}")
-    print(f"Retrieved Tables        : {tables}")
+    print(f"Retrieved Tables        : {table_names}")
     print(f"Retrieved Metrics       : {semantic_result.get('metrics', [])}")
     print(f"Retrieved Dimensions    : {semantic_result.get('dimensions', [])}")
     print(f"Retrieved Metadata Rules: {rules}")
@@ -299,7 +338,7 @@ def build_sql_prompt(question: str, history = None, company_id = None):
         QueryExamplesService
         .retrieve(
             active_connection["connection_id"],
-            relevant_tables=tables
+            relevant_tables=table_names
         )
     )
 
@@ -382,61 +421,142 @@ Follow-up Rules:
 """
 
     prompt = f"""
-You are an expert Microsoft SQL Server SQL generator.
+You are an expert Microsoft SQL Server SQL generator for an Enterprise Conversational Analytics Platform.
 
-Database Schema:
-{schema_text}
+Your objective is to generate ONE correct Microsoft SQL Server SELECT query.
 
-Semantic Context:
+===========================================================
+USER QUESTION
+===========================================================
+
+{question}
+
+===========================================================
+CONVERSATION HISTORY
+===========================================================
+
+{history_text}
+
+===========================================================
+SEMANTIC RUNTIME
+===========================================================
+
+{runtime_context}
+
+===========================================================
+SEMANTIC CONTEXT
+===========================================================
+
 {semantic_context}
 
-Relationships:
-{relationship_context}
+===========================================================
+RELEVANT METRICS
+===========================================================
 
-Relevant Metrics:
 {semantic_result["metrics"]}
 
-Relevant Dimensions:
+===========================================================
+RELEVANT DIMENSIONS
+===========================================================
+
 {semantic_result["dimensions"]}
 
-Previous Successful Queries:
-{examples_text}
-{metadata_rules_text}
-Rules:
-- Schema above is the only source of truth.
-- Use only tables and columns in schema.
-- Never invent tables or columns.
-- Generate Microsoft SQL Server SQL only.
-- SELECT queries only.
-- Use JOINs only when required.
-- Return exactly one executable SQL statement.
+===========================================================
+MATCHED DIMENSION VALUES
+===========================================================
 
-SQL Server Rules:
+{semantic_result.get("values", [])}
+
+===========================================================
+PREVIOUS SUCCESSFUL QUERIES
+===========================================================
+
+{examples_text}
+
+===========================================================
+METADATA RULES
+===========================================================
+
+{metadata_rules_text}
+
+===========================================================
+DATABASE SCHEMA
+===========================================================
+
+{schema_text}
+
+===========================================================
+SQL GENERATION RULES
+===========================================================
+
+1. Database Schema is the only physical source of truth.
+2. Never invent tables.
+3. Never invent columns.
+4. Generate Microsoft SQL Server SQL only.
+5. Generate exactly ONE executable SELECT statement.
+6. Never generate INSERT.
+7. Never generate UPDATE.
+8. Never generate DELETE.
+9. Never generate DROP.
+10. Never generate ALTER.
+11. Never generate CREATE.
+
+===========================================================
+SEMANTIC SQL RULES
+===========================================================
+
+1. Use the Semantic Runtime as the primary reasoning source.
+2. Use the Database Schema only for validation.
+3. Use only the Resolved Tables unless another table is absolutely required.
+4. Use only the Relationships provided in the Semantic Runtime.
+5. Never invent joins.
+6. Prefer descriptive business columns over technical columns.
+7. Technical keys must only be used in JOIN conditions unless the user explicitly requests them.
+8. Respect all Metadata Rules.
+9. Follow the style demonstrated by Previous Successful Queries whenever possible.
+
+===========================================================
+SQL SERVER RULES
+===========================================================
+
 - Never use ROW_NUMBER() inside GROUP BY.
 - Never add integers directly to DATE values.
 - Use DATEADD() for all date arithmetic.
 - Window functions are allowed only in SELECT or ORDER BY.
+- Always qualify ambiguous columns with table names.
+- Use aliases only when they improve readability.
 
-OUTPUT RULES:
+===========================================================
+FOLLOW-UP RULES
+===========================================================
+
+If conversation history exists:
+
+- Preserve previous analytical intent.
+- Understand references such as:
+    • show only
+    • those
+    • them
+    • previous result
+    • what about
+    • instead
+    • top
+    • filter
+    • sort
+
+Modify the previous SQL whenever appropriate instead of generating an entirely unrelated query.
+
+===========================================================
+OUTPUT RULES
+===========================================================
+
 - Return SQL only.
-- Never include : <think> or </think>
 - No explanation.
 - No markdown.
 - No code fences.
-- First character must be S in SELECT.
-
-Conversation History:
-{history_text}
-
-Current Question:
-{question}
-
-Follow-up Rules:
-- If history exists, preserve previous analytical intent
-- For phrases like:
-  show only, filter, sort, top, those, them,
-  previous result, what about, instead
-  modify previous SQL rather than creating a new analysis
+- Never output <think>.
+- Never output </think>.
+- First character must be SELECT.
 
 """
 

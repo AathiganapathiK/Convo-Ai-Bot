@@ -37,14 +37,22 @@ class RelationshipContextService:
         if not filtered_rows:
             return ""
 
-        context = "Relationships:\n"
+        context = (
+            "Relationship Context\n"
+            "--------------------\n\n"
+        )
 
         for row in filtered_rows:
 
+            left_table = row[0]
+            left_column = row[1]
+            right_table = row[2]
+            right_column = row[3]
+    
             context += (
-                f"- {row[0]}.{row[1]}"
-                f" -> "
-                f"{row[2]}.{row[3]}\n"
+                f"INNER JOIN {right_table}\n"
+                f"ON {left_table}.{left_column} = "
+                f"{right_table}.{right_column}\n\n"
             )
 
-        return context
+        return context.strip()

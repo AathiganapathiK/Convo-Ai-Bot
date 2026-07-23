@@ -4,7 +4,7 @@ import re
 from sqlalchemy import text
 
 from database import engine
-
+from semantic.dimension_value_resolver import DimensionValueResolver
 
 def _normalize_string(s: str) -> str:
     if not s:
@@ -355,11 +355,17 @@ class SemanticResolver:
                         "column_name": candidate["column_name"]
                     })
 
+        value_matches = DimensionValueResolver.resolve(
+            connection_id,
+            question
+        )
+
         return {
             "metrics": metrics,
             "dimensions": dimensions,
             "metric_objects": metric_objects,
             "dimension_objects": dimension_objects,
+            "value_matches": value_matches,
 
             "debug": {
                 "metrics": metric_debug,

@@ -12,7 +12,7 @@ Stage 2 — LLM fallback:
     between ANALYTICS and GENERAL.
 
 Returns: "ANALYTICS" or "GENERAL"
-""" 
+"""
 
 import logging
 import os

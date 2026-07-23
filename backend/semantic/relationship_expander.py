@@ -18,9 +18,21 @@ class RelationshipExpander:
             connection_id
         )
 
-        expanded = set(tables)
+        # Extract only table names
+        table_list = [
+            table["table_name"]
+            for table in tables
+        ]
 
-        table_list = list(tables)
+                # Track bridge tables
+        expanded = {}
+
+        for table in tables:
+
+            expanded[table["table_name"]] = {
+                "score": table["score"],
+                "is_bridge": False
+            }
 
         for i in range(len(table_list)):
 
@@ -42,9 +54,40 @@ class RelationshipExpander:
                     )
                 )
 
-                expanded.update(bridges)
+                for bridge in bridges:
 
-        return sorted(expanded)
+                    if bridge not in expanded:
+
+                        expanded[bridge] = {
+                                "score": 0,
+                                "is_bridge": True
+                            }
+        results = []
+
+        for table_name in sorted(expanded):
+
+            results.append(
+                {
+                    "table_name": table_name,
+                    "is_bridge": expanded[table_name]
+                }
+            )
+
+        return sorted(
+            [
+                {
+                    "table_name": table_name,
+                    "score": info["score"],
+                    "is_bridge": info["is_bridge"]
+                }
+                for table_name, info in expanded.items()
+            ],
+            key=lambda x: (
+                x["is_bridge"],      # Original tables first
+                -x["score"],         # Higher score first
+                x["table_name"]      # Stable alphabetical ordering
+            )
+        )
 
 
     @staticmethod

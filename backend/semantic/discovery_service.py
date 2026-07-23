@@ -4,7 +4,29 @@ import uuid, re
 from sqlalchemy import text
 from database import engine
 
+
+
 class SemanticDiscoveryService:
+
+    EXCLUDED_DIMENSION_TYPES = {
+        "text",
+        "ntext",
+        "xml",
+        "image",
+        "binary",
+        "varbinary",
+        "sql_variant"
+    }
+
+    EXCLUDED_DIMENSION_PATTERNS = {
+        "definition",
+        "script",
+        "sql",
+        "ddl",
+        "procedure",
+        "function",
+        "view_definition"
+    }
 
     @staticmethod
     def discover(connection_id):
@@ -504,6 +526,12 @@ class SemanticDiscoveryService:
         ):
             return False
 
+        if not SemanticDiscoveryService.should_index_as_dimension(
+            column_name,
+            data_type
+        ):
+            return False
+
         if (
             SemanticDiscoveryService.is_text_type(
                 data_type
@@ -513,7 +541,7 @@ class SemanticDiscoveryService:
                 data_type
             )
         ):
-            return True
+            return True 
 
         return False
 
@@ -522,6 +550,29 @@ class SemanticDiscoveryService:
 
         return data_type.lower() == "bit"
 
+    @staticmethod
+    def should_index_as_dimension(
+        column_name: str,
+        data_type: str
+    ):
+        """
+        Determine whether a column is suitable for
+        semantic dimension indexing.
+        """
+
+        if (
+            data_type.lower()
+            in SemanticDiscoveryService.EXCLUDED_DIMENSION_TYPES
+        ):
+            return False
+
+        lower = column_name.lower()
+
+        for pattern in SemanticDiscoveryService.EXCLUDED_DIMENSION_PATTERNS:
+            if pattern in lower:
+                return False
+
+        return True
 
     # METRIC_KEYWORDS = [
     #     "sales",
