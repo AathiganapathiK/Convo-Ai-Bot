@@ -1,3 +1,6 @@
+from security import row_security
+from security import row_security
+from tools.load_all_sales_csv import table_name
 from ai.insights import followup_generator
 from ai.insights import followup_generator
 import uuid, re
@@ -85,14 +88,16 @@ class SemanticDiscoveryService:
 
         with engine.begin() as conn:
             # Delete existing discovered metrics/dimensions for this connection to prevent duplicates
-            conn.execute(
-                text("DELETE FROM semantic_metrics WHERE connection_id = :connection_id AND source='AUTO'"),
-                {"connection_id": connection_id}
-            )
-            conn.execute(
-                text("DELETE FROM semantic_dimensions WHERE connection_id = :connection_id AND source='AUTO'"),
-                {"connection_id": connection_id}
-            )
+            # conn.execute(
+            #     text("DELETE FROM semantic_metrics WHERE connection_id = :connection_id AND source='AUTO'"),
+            #     {"connection_id": connection_id}
+            # )
+            # conn.execute(
+            #     text("DELETE FROM semantic_dimensions WHERE connection_id = :connection_id AND source='AUTO'"),
+            #     {"connection_id": connection_id}
+            # )
+            discovered_metrics = set()
+            discovered_dimensions = set()
 
             for row in rows:
                 # Access via index to support both SQLAlchemy 1.x and 2.x Row layouts
@@ -111,6 +116,7 @@ class SemanticDiscoveryService:
                         table_name.lower(),
                         lower
                     )
+                    discovered_metrics.add((table_name, column_name))
 
                     if metric_key not in seen_metrics:
 
@@ -120,63 +126,92 @@ class SemanticDiscoveryService:
 
                         metric_name = lower.replace(" ", "_")
 
-                        business_name = (
-                            SemanticDiscoveryService.generate_business_name(
-                                table_name,
-                                column_name
-                            )
+                        business_name = SemanticDiscoveryService.generate_business_name(
+                            table_name,
+                            column_name
                         )
 
                         description = (
                             f"Semantic metric for {column_name} in {table_name}"
                         )
 
-                        aggregation_type = (
-                            SemanticDiscoveryService.detect_aggregation_type(
-                                column_name
-                            )
+                        aggregation_type = SemanticDiscoveryService.detect_aggregation_type(
+                            column_name
                         )
 
-                        conn.execute(
+                        existing_metric = conn.execute(
                             text("""
-                                INSERT INTO semantic_metrics
-                                (
-                                    metric_id,
-                                    connection_id,
-                                    metric_name,
-                                    business_name,
-                                    description,
-                                    table_name,
-                                    column_name,
-                                    aggregation_type,
-                                    source
-                                )
-                                VALUES
-                                (
-                                    :metric_id,
-                                    :connection_id,
-                                    :metric_name,
-                                    :business_name,
-                                    :description,
-                                    :table_name,
-                                    :column_name,
-                                    :aggregation_type,
-                                    'AUTO'
-                                )
+                                SELECT metric_id
+                                FROM semantic_metrics
+                                WHERE connection_id = :connection_id
+                                AND table_name = :table_name
+                                AND column_name = :column_name
                             """),
                             {
-                                "metric_id": metric_id,
                                 "connection_id": connection_id,
-                                "metric_name": metric_name,
-                                "business_name": business_name,
-                                "description": description,
                                 "table_name": table_name,
-                                "column_name": column_name,
-                                "aggregation_type": aggregation_type
+                                "column_name": column_name
                             }
-                        )
+                        ).fetchone()
 
+                        if existing_metric:
 
+                            conn.execute(
+                                text("""
+                                    UPDATE semantic_metrics
+                                    SET
+                                        aggregation_type = :aggregation_type,
+                                        source = 'AUTO'
+                                    WHERE metric_id = :metric_id
+                                """),
+                                {
+                                    "aggregation_type": aggregation_type,
+                                    "metric_id": existing_metric.metric_id
+                                }
+                            )
+
+                        else:
+
+                            metric_id = str(uuid.uuid4())
+
+                            conn.execute(
+                                text("""
+                                    INSERT INTO semantic_metrics
+                                    (
+                                        metric_id,
+                                        connection_id,
+                                        metric_name,
+                                        business_name,
+                                        description,
+                                        table_name,
+                                        column_name,
+                                        aggregation_type,
+                                        source
+                                    )
+                                    VALUES
+                                    (
+                                        :metric_id,
+                                        :connection_id,
+                                        :metric_name,
+                                        :business_name,
+                                        :description,
+                                        :table_name,
+                                        :column_name,
+                                        :aggregation_type,
+                                        'AUTO'
+                                    )
+                                """),
+                                {
+                                    "metric_id": metric_id,
+                                    "connection_id": connection_id,
+                                    "metric_name": metric_name,
+                                    "business_name": business_name,
+                                    "description": description,
+                                    "table_name": table_name,
+                                    "column_name": column_name,
+                                    "aggregation_type": aggregation_type
+                                }
+                            )
                 # Generate dimensions
                 dimension_key = (table_name.lower(), lower)
                 if SemanticDiscoveryService.is_dimension_column(
@@ -188,6 +223,8 @@ class SemanticDiscoveryService:
 
                     # One semantic dimension per connection
                     dimension_key = dimension_name
+                    
+                    discovered_dimensions.add((table_name, column_name))
 
                     print(
                         f"[DISCOVERY] table={table_name}, "
@@ -210,45 +247,116 @@ class SemanticDiscoveryService:
                         )
 
                         description = (
-                           f"Semantic dimension for {column_name} in {table_name}"
+                            f"Semantic dimension for {column_name} in {table_name}"
                         )
 
-                        conn.execute(
+                        existing_dimension = conn.execute(
                             text("""
-                            INSERT INTO semantic_dimensions
-                            (
-                                dimension_id,
-                                connection_id,
-                                dimension_name,
-                                business_name,
-                                description,
-                                table_name,
-                                column_name,
-                                source
-                            )
-                            VALUES
-                            (
-                                :dimension_id,
-                                :connection_id,
-                                :dimension_name,
-                                :business_name,
-                                :description,
-                                :table_name,
-                                :column_name,
-                                'AUTO'
-                            )
+                                SELECT dimension_id
+                                FROM semantic_dimensions
+                                WHERE connection_id = :connection_id
+                                AND table_name = :table_name
+                                AND column_name = :column_name
                             """),
                             {
-                                "dimension_id": dimension_id,
                                 "connection_id": connection_id,
-                                "dimension_name": dimension_name,
-                                "business_name": business_name,
-                                "description": description,
                                 "table_name": table_name,
                                 "column_name": column_name
                             }
-                        )
+                        ).fetchone()
 
+                        if existing_dimension:
+
+                            conn.execute(
+                                text("""
+                                    UPDATE semantic_dimensions
+                                    SET
+                                        source = 'AUTO'
+                                    WHERE dimension_id = :dimension_id
+                                """),
+                                {
+                                    "dimension_id": existing_dimension.dimension_id
+                                }
+                            )
+
+                        else:
+
+                            dimension_id = str(uuid.uuid4())
+
+                            conn.execute(
+                                text("""
+                                    INSERT INTO semantic_dimensions
+                                    (
+                                        dimension_id,
+                                        connection_id,
+                                        dimension_name,
+                                        business_name,
+                                        description,
+                                        table_name,
+                                        column_name,
+                                        source
+                                    )
+                                    VALUES
+                                    (
+                                        :dimension_id,
+                                        :connection_id,
+                                        :dimension_name,
+                                        :business_name,
+                                        :description,
+                                        :table_name,
+                                        :column_name,
+                                        'AUTO'
+                                    )
+                                """),
+                                {
+                                    "dimension_id": dimension_id,
+                                    "connection_id": connection_id,
+                                    "dimension_name": dimension_name,
+                                    "business_name": business_name,
+                                    "description": description,
+                                    "table_name": table_name,
+                                    "column_name": column_name
+                                }
+                            )
+            existing_metrics = conn.execute(
+                text("""
+                    SELECT metric_id, table_name, column_name
+                    FROM semantic_metrics
+                    WHERE connection_id = :connection_id
+                    AND source = 'AUTO'
+                """),
+                {"connection_id": connection_id}
+            ).fetchall()
+
+            for metric in existing_metrics:
+                if (metric.table_name, metric.column_name) not in discovered_metrics:
+                    conn.execute(
+                        text("""
+                            DELETE FROM semantic_metrics
+                            WHERE metric_id = :metric_id
+                        """),
+                        {"metric_id": metric.metric_id}
+                    )
+
+            existing_dimensions = conn.execute(
+                text("""
+                    SELECT dimension_id, table_name, column_name
+                    FROM semantic_dimensions
+                    WHERE connection_id = :connection_id
+                    AND source = 'AUTO'
+                """),
+                {"connection_id": connection_id}
+            ).fetchall()
+
+            for dimension in existing_dimensions:
+                if (dimension.table_name, dimension.column_name) not in discovered_dimensions:
+                    conn.execute(
+                        text("""
+                            DELETE FROM semantic_dimensions
+                            WHERE dimension_id = :dimension_id
+                        """),
+                        {"dimension_id": dimension.dimension_id}
+                    )
         return rows
 
     @staticmethod
