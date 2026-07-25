@@ -465,7 +465,7 @@ RELEVANT DIMENSIONS
 MATCHED DIMENSION VALUES
 ===========================================================
 
-{semantic_result.get("values", [])}
+{semantic_result.get("value_matches", [])}
 
 ===========================================================
 PREVIOUS SUCCESSFUL QUERIES
