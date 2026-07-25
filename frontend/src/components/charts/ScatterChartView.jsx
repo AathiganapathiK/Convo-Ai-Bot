@@ -1,5 +1,5 @@
 import React from "react";
-import { getAxisLabel } from "../../utils/format";
+import { getAxisLabel, formatValue } from "../../utils/format";
 import {
   ResponsiveContainer,
   ScatterChart,
@@ -11,16 +11,6 @@ import {
   Legend
 } from "recharts";
 
-
-export const formatNumber = (value) =>
-  new Intl.NumberFormat(
-    "en-US",
-    {
-      notation: "compact",
-      maximumFractionDigits: 2
-    }
-  ).format(value);
-  
 const ScatterChartView = ({
   chart,
   data
@@ -55,6 +45,9 @@ const ScatterChartView = ({
           dataKey={chart.y_axis}
           name={chart.y_axis}
           stroke="var(--text-muted)"
+          tickFormatter={(value) =>
+            formatValue(value, chart.y_axis)
+          }
           tick={{ fontSize: 12, fill: "var(--text-muted)" }}
           label={{
             value: getAxisLabel(chart.y_axis_label || chart.y_axis, true),
@@ -65,7 +58,10 @@ const ScatterChartView = ({
         />
 
         <Tooltip
-          formatter={(value) => formatNumber(value)}
+          formatter={(value, name) => [
+            formatValue(value, name),
+            name
+          ]}
           contentStyle={{
             backgroundColor: "var(--bg-card)",
             borderColor: "var(--border-color)",

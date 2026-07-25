@@ -1,5 +1,5 @@
 import React from "react";
-import { getAxisLabel } from "../../utils/format";
+import { getAxisLabel, formatValue } from "../../utils/format";
 import {
   ResponsiveContainer,
   LineChart,
@@ -10,14 +10,6 @@ import {
   Tooltip
 } from "recharts";
 
-export const formatNumber = (value) =>
-  new Intl.NumberFormat(
-    "en-US",
-    {
-      notation: "compact",
-      maximumFractionDigits: 2
-    }
-  ).format(value);
 
 const LineChartView = ({ chart, data }) => {
   console.log("CHART:", chart);
@@ -43,6 +35,9 @@ const LineChartView = ({ chart, data }) => {
         />
         <YAxis
           stroke="var(--text-muted)"
+          tickFormatter={(value) =>
+            formatValue(value, chart.y_axis)
+          }
           tick={{ fontSize: 12, fill: "var(--text-muted)" }}
           label={{  
             value: getAxisLabel(chart.y_axis_label || chart.y_axis, true),
@@ -53,7 +48,10 @@ const LineChartView = ({ chart, data }) => {
         />
 
         <Tooltip
-          formatter={(value) => formatNumber(value)}
+          formatter={(value, name) => [
+            formatValue(value, name),
+            name
+          ]}
           contentStyle={{
             backgroundColor: "var(--bg-card)",
             borderColor: "var(--border-color)",

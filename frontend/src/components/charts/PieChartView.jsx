@@ -7,8 +7,9 @@ import {
   Tooltip
 } from "recharts";
 import { Cell } from "recharts";
+import { formatValue } from "../../utils/format";
 
-// --- COLORS ---
+
 const COLORS = [
   "#4f46e5", // Indigo
   "#06b6d4", // Cyan
@@ -21,16 +22,6 @@ const COLORS = [
   "#f97316", // Orange
   "#14b8a6"  // Teal
 ];
-
-
-export const formatNumber = (value) =>
-  new Intl.NumberFormat(
-    "en-US",
-    {
-      notation: "compact",
-      maximumFractionDigits: 2
-    }
-  ).format(value);
 
 const PieChartView = ({ chart, data }) => {
   return (
@@ -58,14 +49,10 @@ const PieChartView = ({ chart, data }) => {
         <Legend />
 
         <Tooltip
-          formatter={(value) =>
-            new Intl.NumberFormat(
-              "en-US",
-              {
-                notation: "compact"
-              }
-            ).format(value)
-          }
+          formatter={(value, name) => [
+            formatValue(value, name),
+            name
+          ]}
           contentStyle={{
             backgroundColor: "var(--bg-card)",
             borderColor: "var(--border-color)",

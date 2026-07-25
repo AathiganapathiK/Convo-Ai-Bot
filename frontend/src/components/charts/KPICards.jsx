@@ -1,51 +1,11 @@
 import React from "react";
 import { Row, Col, Typography } from "antd";
+import { formatValue } from "../../utils/format";
 
 const { Text } = Typography;
 
 const formatKPIValue = (value, label) => {
-  if (typeof value !== "number") return value;
-  
-  const labelLower = label.toLowerCase();
-  
-  if (labelLower.includes("margin") || labelLower.includes("percent") || labelLower.includes("rate") || labelLower.includes("ratio") || labelLower.includes("pct")) {
-    if (value > 0 && value < 1) {
-      return `${(value * 100).toFixed(1)}%`;
-    }
-    return `${value.toFixed(1)}%`;
-  }
-  
-  const isCurrency = labelLower.includes("sales") || 
-                     labelLower.includes("revenue") || 
-                     labelLower.includes("cost") || 
-                     labelLower.includes("profit") || 
-                     labelLower.includes("amount") ||
-                     labelLower.includes("price") ||
-                     labelLower.includes("value");
-                     
-  let formattedVal = value;
-  let suffix = "";
-  
-  if (Math.abs(value) >= 1_000_000) {
-    formattedVal = value / 1_000_000;
-    suffix = "M";
-  } else if (Math.abs(value) >= 1_000) {
-    formattedVal = value / 1_000;
-    suffix = "K";
-  }
-  
-  let valStr;
-  if (suffix !== "") {
-    valStr = formattedVal.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + suffix;
-  } else {
-    valStr = value.toLocaleString(undefined, { maximumFractionDigits: 0 });
-  }
-  
-  if (isCurrency) {
-    return `$${valStr}`;
-  }
-  
-  return valStr;
+  return formatValue(value, label);
 };
 
 const renderTrend = (label) => {

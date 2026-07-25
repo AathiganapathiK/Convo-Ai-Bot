@@ -10,16 +10,12 @@ import {
   Legend
 } from "recharts";
 
-import { getAxisLabel } from "../../utils/format";
+import {
+  getAxisLabel,
+  formatValue
+} from "../../utils/format";
 
-export const formatNumber = (value) =>
-  new Intl.NumberFormat(
-    "en-US",
-    {
-      notation: "compact",
-      maximumFractionDigits: 2
-    }
-  ).format(value);  
+
 
 const BarChartView = ({ chart, data }) => {
   console.log("BAR LAYOUT:", chart?.layout);
@@ -38,6 +34,9 @@ const BarChartView = ({ chart, data }) => {
             <XAxis 
               type="number"
               stroke="var(--text-muted)"
+              tickFormatter={(value) =>
+                formatValue(value, chart.y_axis)
+              }
               label={{
                 value: getAxisLabel(chart.y_axis_label || chart.y_axis, true),
                 position: "insideBottom",
@@ -74,6 +73,9 @@ const BarChartView = ({ chart, data }) => {
             />
             <YAxis
               stroke="var(--text-muted)"
+              tickFormatter={(value) =>
+                formatValue(value, chart.y_axis)
+              }
               label={{
                 value: getAxisLabel(chart.y_axis_label || chart.y_axis, true),
                 angle: -90,
@@ -85,7 +87,10 @@ const BarChartView = ({ chart, data }) => {
         )}
 
         <Tooltip
-          formatter={(value) => formatNumber(value)}
+          formatter={(value, name) => [
+            formatValue(value, name),
+            name
+          ]}
           contentStyle={{
             backgroundColor: "var(--bg-card)",
             borderColor: "var(--border-color)",

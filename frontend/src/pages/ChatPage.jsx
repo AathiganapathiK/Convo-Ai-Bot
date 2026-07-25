@@ -14,7 +14,7 @@ import {
 } from "@ant-design/icons";
 import KPICards from "../components/charts/KPICards";
 import ChartTabs from "../components/charts/ChartTabs";
-
+import { formatValue } from "../utils/format";
 const { Sider, Content } = Layout;
 const { Text, Title, Paragraph } = Typography;
 const { Panel } = Collapse;
@@ -447,11 +447,27 @@ export default function ChatPage({ API, token, userInfo }) {
   const [renameChatName, setRenameChatName] = useState("");
   const [isRenameModalOpen, setIsRenameModalOpen] = useState(false);
   const [isListening, setIsListening] = useState(false);
+  const [activeConnection, setActiveConnection] = useState(null);
   const recognitionRef = useRef(null);
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const fetchActiveConnection = async () => {
+    if (!token) return;
+    try {
+      const res = await fetch(`${API}/schema/active`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setActiveConnection(data.active_connection);
+      }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   useEffect(() => {
@@ -461,6 +477,7 @@ export default function ChatPage({ API, token, userInfo }) {
   useEffect(() => {
     if (token) {
       loadChatSessions(true);
+      fetchActiveConnection();
     }
   }, [token]); // eslint-disable-line
 
@@ -905,11 +922,11 @@ export default function ChatPage({ API, token, userInfo }) {
           />
           <div>
             <Title level={2} className="gradient-title" style={{ margin: 0, fontWeight: 800 }}>
-              Retail Intelligence Copilot
+              RR Convo AI Bot
             </Title>
           </div>
           <Paragraph style={{ fontSize: "15px", marginTop: "12px", color: "var(--text-muted)", lineHeight: "1.6" }}>
-            Query your sales and operations database in natural English. Ask questions about revenue, customer transactions, stock items, or performance stats.
+            Query your about database in natural English. Ask questions about sales, revenue, customer transactions, orders, pendings, outstandings or performance stats.
           </Paragraph>
         </div>
 
@@ -928,7 +945,9 @@ export default function ChatPage({ API, token, userInfo }) {
               <DatabaseOutlined style={{ color: "#6366f1", fontSize: "20px" }} />
               <div>
                 <div style={{ color: "var(--text-muted)", fontSize: "11px", fontWeight: 600, textTransform: "uppercase" }}>Dataset</div>
-                <div style={{ color: "var(--text-main)", fontSize: "14.5px", fontWeight: 700 }}>Custom</div>
+                <div style={{ color: "var(--text-main)", fontSize: "14.5px", fontWeight: 700 }}>
+                  {activeConnection?.connection_name || "Custom"}
+                </div>
               </div>
             </div>
           </Col>
@@ -1012,51 +1031,19 @@ export default function ChatPage({ API, token, userInfo }) {
   const formatTableCell = (val, key) => {
     if (val === null || val === undefined) return <span style={{ color: "var(--text-muted)" }}>-</span>;
     if (typeof val === "number") {
-      const keyLower = key.toLowerCase();
-      
-      // Percentage formatting
-      if (keyLower.includes("margin") || keyLower.includes("percent") || keyLower.includes("rate") || keyLower.includes("ratio") || keyLower.includes("pct")) {
-        const pctVal = (val > 0 && val < 1) ? val * 100 : val;
-        return <span style={{ fontFamily: "monospace", color: "var(--code-blue)" }}>{pctVal.toFixed(1)}%</span>;
-      }
-      
-      // Check currency
-      const isCurrency = keyLower.includes("sales") || 
-                         keyLower.includes("revenue") || 
-                         keyLower.includes("cost") || 
-                         keyLower.includes("profit") || 
-                         keyLower.includes("amount") ||
-                         keyLower.includes("price") ||
-                         keyLower.includes("value");
-                         
-      let formattedVal = val;
-      let suffix = "";
-      
-      if (Math.abs(val) >= 1_000_000_000) {
-        formattedVal = val / 1_000_000_000;
-        suffix = "B";
-      } else if (Math.abs(val) >= 1_000_000) {
-        formattedVal = val / 1_000_000;
-        suffix = "M";
-      } else if (Math.abs(val) >= 1_000) {
-        formattedVal = val / 1_000;
-        suffix = "K";
-      }
-      
-      let valStr;
-      if (suffix !== "") {
-        valStr = formattedVal.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + suffix;
-      } else {
-        valStr = val.toLocaleString(undefined, { maximumFractionDigits: 2 });
-      }
-      
       return (
-        <span style={{ fontFamily: "monospace", color: "var(--code-blue)", fontWeight: 600 }}>
-          {isCurrency ? `$${valStr}` : valStr}
+        <span
+          style={{
+            fontFamily: "monospace",
+            color: "var(--code-blue)",
+            fontWeight: 600
+          }}
+        >
+          {formatValue(val, key)}
         </span>
       );
     }
-    
+        
     // Text formatting
     return <span style={{ color: "var(--text-main)" }}>{String(val)}</span>;
   };

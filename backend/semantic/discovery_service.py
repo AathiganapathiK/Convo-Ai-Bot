@@ -1,7 +1,5 @@
 from security import row_security
-from security import row_security
 from tools.load_all_sales_csv import table_name
-from ai.insights import followup_generator
 from ai.insights import followup_generator
 import uuid, re
 from sqlalchemy import text

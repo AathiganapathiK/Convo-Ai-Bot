@@ -1,5 +1,5 @@
 from ai.insights.data_shape import DataShape
-
+from utils.value_formatter import format_value
 
 class SmartSerializer:
 
@@ -37,9 +37,8 @@ class SmartSerializer:
         output = []
 
         for key, value in row.items():
-
             output.append(
-                f"{key}: {value}"
+                f"{key}: {format_value(key, value)}"
             )
 
         return "\n".join(output)
@@ -68,7 +67,7 @@ class SmartSerializer:
 
             output.append(
                 " | ".join(
-                    str(row.get(col, ""))
+                    str(format_value(col, row.get(col)))
                     for col in headers
                 )
             )

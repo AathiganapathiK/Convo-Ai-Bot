@@ -250,8 +250,8 @@ function MainAppLayout({
             <LayoutDashboard size={22} />
           </div>
           <div className="sidebar-logo-text">
-            <span className="sidebar-logo-title">Retail Analytics</span>
-            <span className="sidebar-logo-subtitle">ENTERPRISE PLATFORM</span>
+            <span className="sidebar-logo-title">RR Convo AI Bot</span>
+            <span className="sidebar-logo-subtitle">Analytics Platform</span>
           </div>
         </div>
 
