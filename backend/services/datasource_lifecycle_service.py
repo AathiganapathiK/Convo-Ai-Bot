@@ -202,20 +202,21 @@ class DatasourceLifecycleService:
 
         except Exception as ex:
 
+            import traceback
+
+            print("\n" + "=" * 100)
+            print("DATASOURCE ENABLE FAILED")
+            print("=" * 100)
+            traceback.print_exc()
+            print("=" * 100 + "\n")
+
             DatasourceEventService.log(
-
                 company_id=company_id,
-
                 connection_id=connection_id,
-
                 lifecycle_type="ENABLE",
-
                 stage="FAILED",
-
                 status="FAILED",
-
                 message=str(ex)
-
             )
 
             ConnectionService.disable_connection(
@@ -223,17 +224,11 @@ class DatasourceLifecycleService:
             )
 
             raise DatasourceLifecycleException(
-
                 code=ErrorCode.UNKNOWN_ERROR,
-
                 stage="LIFECYCLE",
-
                 message="Datasource enable process failed.",
-
                 details=str(ex),
-
                 retryable=False
-
             )
 
     @staticmethod

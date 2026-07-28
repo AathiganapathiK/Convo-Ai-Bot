@@ -1,10 +1,11 @@
+from semantic import dimension_value_index_builder
 from security import row_security
 from tools.load_all_sales_csv import table_name
 from ai.insights import followup_generator
 import uuid, re
 from sqlalchemy import text
 from database import engine
-
+from semantic.dimension_value_index_builder import DimensionValueIndexBuilder
 
 
 class SemanticDiscoveryService:
@@ -27,6 +28,58 @@ class SemanticDiscoveryService:
         "procedure",
         "function",
         "view_definition"
+    }
+
+    EXCLUDED_DIMENSION_COLUMNS = {
+        # Authentication    
+        "password",
+        "passwd",
+        "pwd",
+        "username",
+        "user_name",
+        "login",
+        "email",
+        "phone",
+        "mobile",
+
+        # Security
+        "token",
+        "access_token",
+        "refresh_token",
+        "secret",
+        "api_key",
+        "apikey",
+        "jwt",
+        "hash",
+        "salt",
+
+        # System identifiers
+        "guid",
+        "uuid",
+        "sessionid",
+        "session_id",
+
+        # Audit
+        "createdby",
+        "modifiedby",
+        "created_by",
+        "modified_by"
+    }
+    EXCLUDED_TABLE_PATTERNS = {
+        "backup",
+        "_backup",
+        "copy_",
+        "_copy",
+        "temp",
+        "_temp",
+        "tmp",
+        "_tmp",
+        "archive",
+        "_archive",
+        "history",
+        "_history",
+        "test",
+        "_test"
     }
 
     @staticmethod
@@ -103,6 +156,8 @@ class SemanticDiscoveryService:
                 column_name = row[1]
                 data_type = row[2].lower()
                 lower = column_name.lower()
+                if not SemanticDiscoveryService.should_discover_table(table_name):
+                    continue
 
                 # Filter out technical and audit columns
                 if SemanticDiscoveryService.is_technical_column(column_name):
@@ -219,8 +274,11 @@ class SemanticDiscoveryService:
 
                     dimension_name = lower.replace(" ", "_")
 
-                    # One semantic dimension per connection
-                    dimension_key = dimension_name
+                    # One semantic dimension per table + column
+                    dimension_key = (
+                        table_name.lower(),
+                        dimension_name
+                    )
                     
                     discovered_dimensions.add((table_name, column_name))
 
@@ -243,6 +301,8 @@ class SemanticDiscoveryService:
                                 column_name
                             )
                         )
+
+                        semantic_category = SemanticDiscoveryService.detect_semantic_category(table_name, column_name, data_type)
 
                         description = (
                             f"Semantic dimension for {column_name} in {table_name}"
@@ -269,10 +329,12 @@ class SemanticDiscoveryService:
                                 text("""
                                     UPDATE semantic_dimensions
                                     SET
+                                        semantic_category = :semantic_category,
                                         source = 'AUTO'
                                     WHERE dimension_id = :dimension_id
                                 """),
                                 {
+                                    "semantic_category": semantic_category,
                                     "dimension_id": existing_dimension.dimension_id
                                 }
                             )
@@ -292,6 +354,7 @@ class SemanticDiscoveryService:
                                         description,
                                         table_name,
                                         column_name,
+                                        semantic_category,
                                         source
                                     )
                                     VALUES
@@ -303,6 +366,7 @@ class SemanticDiscoveryService:
                                         :description,
                                         :table_name,
                                         :column_name,
+                                        :semantic_category,
                                         'AUTO'
                                     )
                                 """),
@@ -313,9 +377,11 @@ class SemanticDiscoveryService:
                                     "business_name": business_name,
                                     "description": description,
                                     "table_name": table_name,
-                                    "column_name": column_name
+                                    "column_name": column_name,
+                                    "semantic_category": semantic_category
                                 }
                             )
+                            
             existing_metrics = conn.execute(
                 text("""
                     SELECT metric_id, table_name, column_name
@@ -348,6 +414,17 @@ class SemanticDiscoveryService:
 
             for dimension in existing_dimensions:
                 if (dimension.table_name, dimension.column_name) not in discovered_dimensions:
+
+                    # Delete indexed values first (child records)
+                    conn.execute(
+                        text("""
+                            DELETE FROM dimension_value_index
+                            WHERE semantic_dimension_id = :dimension_id
+                        """),
+                        {"dimension_id": dimension.dimension_id}
+                    )
+
+                    # Then delete the semantic dimension (parent record)
                     conn.execute(
                         text("""
                             DELETE FROM semantic_dimensions
@@ -355,6 +432,20 @@ class SemanticDiscoveryService:
                         """),
                         {"dimension_id": dimension.dimension_id}
                     )
+
+            print(f"Discovered {len(discovered_metrics)} metrics")
+            print(f"Discovered {len(discovered_dimensions)} dimensions")
+        
+        print("\n========== STARTING DIMENSION VALUE INDEX ==========")
+
+        result = DimensionValueIndexBuilder.build_all(connection_id)
+
+        print(f"Indexed: {result['dimensions_processed']}")
+        print(f"Failed : {result['failed']}")
+
+        for error in result["errors"]:
+            print(error)
+
         return rows
 
     @staticmethod
@@ -666,19 +757,159 @@ class SemanticDiscoveryService:
         semantic dimension indexing.
         """
 
+        data_type = data_type.lower()
+
         if (
-            data_type.lower()
+            data_type
             in SemanticDiscoveryService.EXCLUDED_DIMENSION_TYPES
         ):
             return False
 
         lower = column_name.lower()
 
+        # Exact column exclusions
+        if lower in SemanticDiscoveryService.EXCLUDED_DIMENSION_COLUMNS:
+            return False
+
+        # Pattern exclusions
         for pattern in SemanticDiscoveryService.EXCLUDED_DIMENSION_PATTERNS:
             if pattern in lower:
                 return False
 
         return True
+
+
+    @staticmethod
+    def build_dimension_value_index(connection_id):
+        """
+        Build the searchable index of all dimension values for a datasource.
+        """
+
+        print("\n========== DIMENSION VALUE INDEX BUILD ==========")
+        print("Clearing previous value index...")
+
+        try: 
+            with engine.begin() as conn:
+                conn.execute(
+                    text("""
+                        DELETE
+                        FROM dimension_value_index
+                        WHERE connection_id = :connection_id
+                    """),
+                    {
+                        "connection_id": connection_id
+                    }
+                )
+
+            with engine.connect() as conn:
+
+                dimensions = conn.execute(
+                    text("""
+                        SELECT
+                            dimension_id,
+                            table_name,
+                            column_name
+                        FROM semantic_dimensions
+                        WHERE connection_id = :connection_id
+                        AND is_active = 1
+                    """),
+                    {
+                        "connection_id": connection_id
+                    }
+                ).fetchall()
+        except Exception:
+            import traceback
+            traceback.print_exc()
+            raise
+
+        print(f"Dimensions Found : {len(dimensions)}")
+
+
+    @staticmethod
+    def should_discover_table(table_name: str):
+        """
+        Determine whether a table should participate
+        in semantic discovery.
+        """
+
+        lower = table_name.lower()
+
+        for pattern in SemanticDiscoveryService.EXCLUDED_TABLE_PATTERNS:
+            if pattern in lower:
+                return False
+
+        return True
+
+    @staticmethod
+    def detect_semantic_category(
+        table_name: str,
+        column_name: str,
+        data_type: str
+    ) -> str:
+        """
+        Detect semantic category based on table name, column name, and data type.
+        """
+        SEMANTIC_PATTERNS = {
+            "Geography": {
+                "region", "country", "state", "city", "territory", "postal", "address", "location"
+            },
+            "Time": {
+                "date", "time", "month", "year", "quarter", "day", "week", "calendar", "period"
+            },
+            "Organization": {
+                "company", "department", "division", "organization", "org", "store", "branch"
+            },
+            "Product": {
+                "product", "item", "sku", "category", "subcategory", "model", "brand", "color", "size"
+            },
+            "Finance": {
+                "sales", "revenue", "cost", "price", "amount", "profit", "tax", "margin", "budget", "finance"
+            },
+            "Document": {
+                "order", "invoice", "document", "receipt", "contract", "number", "code"
+            },
+            "Customer": {
+                "customer", "client", "buyer", "subscriber"
+            },
+            "Human Resources": {
+                "employee", "salesperson", "manager", "staff", "user", "role", "salary", "hire"
+            },
+            "Identifier": {
+                "id", "key", "code", "guid", "uuid"
+            }
+        }
+
+        table_lower = table_name.lower()
+        column_lower = column_name.lower()
+
+        # Tokenize camelCase, snake_case, and other non-alphanumeric formats
+        table_tokens = set()
+        if table_name:
+            t_toks = re.findall(r'[a-zA-Z0-9]+', table_name)
+            for t in t_toks:
+                parts = re.findall(r'[A-Z]?[a-z0-9]+|[A-Z]+(?=[A-Z][a-z0-9]|\b)', t)
+                table_tokens.update(p.lower() for p in parts)
+
+        column_tokens = set()
+        if column_name:
+            c_toks = re.findall(r'[a-zA-Z0-9]+', column_name)
+            for c in c_toks:
+                parts = re.findall(r'[A-Z]?[a-z0-9]+|[A-Z]+(?=[A-Z][a-z0-9]|\b)', c)
+                column_tokens.update(p.lower() for p in parts)
+
+        all_tokens = table_tokens.union(column_tokens)
+
+        for category, patterns in SEMANTIC_PATTERNS.items():
+            for pattern in patterns:
+                # Require exact match for short keywords to prevent false positives
+                if len(pattern) <= 3:
+                    if pattern in all_tokens:
+                        return category
+                else:
+                    if any(pattern in token for token in all_tokens):
+                        return category
+
+        return "Other"
 
     # METRIC_KEYWORDS = [
     #     "sales",
@@ -713,3 +944,6 @@ class SemanticDiscoveryService:
     #     "rowguid",
     #     "modifieddate"
     # ]
+
+
+

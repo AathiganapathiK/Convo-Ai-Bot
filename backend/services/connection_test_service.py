@@ -41,6 +41,8 @@ class ConnectionTestService:
         connection_id: str,
         company_id: str
     ):
+        print("Connection ID :", connection_id)
+        print(f"type: {type(connection_id)}")
 
         connection = ConnectionService.get_connection(
             connection_id,

@@ -526,6 +526,7 @@ class SchemaSyncService:
         # 6. Auto-populate column display config
         ColumnDisplayService.auto_populate_display_config(connection_id)
 
+
         return {
             "success": True,
             "message": f"Schema sync completed. {inserted_tables} tables inserted, {updated_tables} updated, {skipped_tables} skipped, {removed_tables} removed.",

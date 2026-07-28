@@ -1,12 +1,15 @@
+from sqlalchemy.engine import result
+from semantic import dimension_value_resolver
 from sqlalchemy import dialects
 from services.connection_service import ConnectionService
 from services.database_connection_factory import DatabaseConnectionFactory
 from sqlalchemy import text
 from database import engine
 import re
+import time
 
 class DimensionValueIndexBuilder:
-    MAX_INDEX_VALUES = 50000
+    MAX_INDEX_VALUES = 5000
 
     @staticmethod
     def _load_dimension(connection_id: str, dimension_id: str):
@@ -66,6 +69,9 @@ class DimensionValueIndexBuilder:
             connection_id,
             dimension_id
         )
+        print(
+            f"Building: {dimension['table_name']}.{dimension['column_name']}"
+        )
 
         # Load datasource metadata
         connection = ConnectionService.get_connection(
@@ -99,6 +105,44 @@ class DimensionValueIndexBuilder:
             )
         )
 
+        print(
+            f"Fetched {len(values)} distinct values from "
+            f"{dimension['table_name']}.{dimension['column_name']}"
+        )
+
+        if (
+            DimensionValueIndexBuilder.MAX_INDEX_VALUES is not None
+            and len(values) > DimensionValueIndexBuilder.MAX_INDEX_VALUES
+        ):
+
+            print(
+                f"[SKIPPED] High cardinality "
+                f"({len(values)} values, "
+                f"limit={DimensionValueIndexBuilder.MAX_INDEX_VALUES})"
+            )
+
+            return {
+                "dimension_id": dimension_id,
+                "business_name": dimension["business_name"],
+                "indexed_values": len(values),
+                "status": "SKIPPED_HIGH_CARDINALITY"
+            }
+
+        # Nothing to index
+        if not values:
+
+            print(
+                f"[SKIPPED] No values found for "
+                f"{dimension['table_name']}.{dimension['column_name']}"
+            )
+
+            return {
+                "dimension_id": dimension_id,
+                "business_name": dimension["business_name"],
+                "indexed_values": 0,
+                "status": "SKIPPED_EMPTY"
+            }
+
         # Replace index
         DimensionValueIndexBuilder._replace_dimension_values(
             connection_id,
@@ -106,10 +150,15 @@ class DimensionValueIndexBuilder:
             values
         )
 
+        print(
+            f"Inserted {len(values)} values into dimension_value_index"
+        )
+
         return {
             "dimension_id": dimension_id,
             "business_name": dimension["business_name"],
-            "indexed_values": len(values)
+            "indexed_values": len(values),
+            "status": "SUCCESS"
         }
 
     @staticmethod
@@ -128,6 +177,7 @@ class DimensionValueIndexBuilder:
             AND is_active = 1
         ORDER BY business_name
         """
+        
 
         with engine.connect() as conn:
 
@@ -143,28 +193,103 @@ class DimensionValueIndexBuilder:
                 for row in result.fetchall()
             ]
 
+            print(f"[DIMENSION VALUE INDEX] Found {len(dimensions)} dimensions")
+
         summary = []
         errors = []
+        skipped = []
 
-        for dimension_id in dimensions:
+        total = len(dimensions)
+
+        for index, dimension_id in enumerate(dimensions, start=1):
+
+            print("\n" + "=" * 80)
+            print(f"[{index}/{total}] Processing Dimension: {dimension_id}")
+
+            start = time.time()
+
             try:
+
                 result = DimensionValueIndexBuilder.build_dimension(
                     connection_id,
                     dimension_id
                 )
-                summary.append(result)
+
+                elapsed = time.time() - start
+
+                if result.get("status") in (
+                    "SKIPPED_EMPTY",
+                    "SKIPPED_HIGH_CARDINALITY"
+                ):
+
+                    if result["status"] == "SKIPPED_EMPTY":
+
+                        print(
+                            f"[SKIPPED] {result['business_name']} "
+                            f"(No values found)"
+                        )
+
+                    else:
+
+                        print(
+                            f"[SKIPPED] {result['business_name']} "
+                            f"-> {result['indexed_values']} values "
+                            f"(High Cardinality)"
+                        )
+
+                    skipped.append(result)
+
+                else:
+
+                    print(
+                        f"[SUCCESS] {result['business_name']} "
+                        f"-> {result['indexed_values']} values "
+                        f"({elapsed:.2f} sec)"
+                    )
+
+                    summary.append(result)
 
             except Exception as ex:
+
+                elapsed = time.time() - start
+
+                import traceback
+                traceback.print_exc()
+
+                print(
+                    f"[FAILED] Dimension: {dimension_id} "
+                    f"after {elapsed:.2f} sec"
+                )
+
+                print(f"[ERROR] {ex}")
+
                 errors.append({
                     "dimension_id": dimension_id,
                     "error": str(ex)
                 })
 
+        print("\n" + "=" * 80)
+        print("DIMENSION VALUE INDEX SUMMARY")
+        print("=" * 80)
+
+        print(f"Processed : {total}")
+        print(f"Indexed   : {len(summary)}")
+        print(f"Skipped   : {len(skipped)}")
+        print(f"Failed    : {len(errors)}")
+
+        if errors:
+            print("\nErrors:")
+            for err in errors:
+                print(err)
+
         return {
             "connection_id": connection_id,
-            "dimensions_processed": len(summary),
+            "dimensions_processed": total,
+            "indexed": len(summary),
+            "skipped": len(skipped),
             "failed": len(errors),
             "results": summary,
+            "skipped_results": skipped,
             "errors": errors
         }
 
@@ -214,7 +339,7 @@ class DimensionValueIndexBuilder:
             column = f"[{column_name}]"
 
             query = text(f"""
-                SELECT DISTINCT {column}
+                SELECT DISTINCT TOP ({DimensionValueIndexBuilder.MAX_INDEX_VALUES + 1}) {column}
                 FROM {table}
                 WHERE
                     {column} IS NOT NULL
@@ -236,6 +361,7 @@ class DimensionValueIndexBuilder:
                     AND BTRIM(CAST({column} AS TEXT)) <> ''
                     AND LENGTH(CAST({column} AS TEXT)) <= 500
                 ORDER BY {column}
+                LIMIT {DimensionValueIndexBuilder.MAX_INDEX_VALUES + 1}
             """)
 
         elif dialect == "mysql":
@@ -251,6 +377,7 @@ class DimensionValueIndexBuilder:
                     AND TRIM(CAST({column} AS CHAR)) <> ''
                     AND CHAR_LENGTH(CAST({column} AS CHAR)) <= 500
                 ORDER BY {column}
+                LIMIT {DimensionValueIndexBuilder.MAX_INDEX_VALUES + 1}
             """)
 
         else:
@@ -267,16 +394,6 @@ class DimensionValueIndexBuilder:
                 for row in result.fetchall()
                 if row[0] is not None
             ]
-        
-        if (
-            DimensionValueIndexBuilder.MAX_INDEX_VALUES is not None
-            and len(values) > DimensionValueIndexBuilder.MAX_INDEX_VALUES
-        ):
-            raise ValueError(
-                f"Dimension '{table_name}.{column_name}' contains "
-                f"{len(values)} distinct values, which exceeds the configured "
-                f"maximum of {DimensionValueIndexBuilder.MAX_INDEX_VALUES}."
-            )
 
 
         return values
