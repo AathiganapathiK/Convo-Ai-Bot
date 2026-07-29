@@ -1,4 +1,5 @@
 from semantic import test_metrics
+from semantic import test_metrics
 from semantic import discovery_service
 import re
 from sqlalchemy import text
@@ -359,16 +360,138 @@ class SemanticResolver:
             connection_id,
             question
         )
+        # --------------------------------------------------
+        # Retrieval Statistics
+        # --------------------------------------------------
+
+        resolved_tables = set()
+
+        for metric in metric_objects:
+            resolved_tables.add(metric["table_name"])
+
+        for dimension in dimension_objects:
+            resolved_tables.add(dimension["table_name"])
+
+        for value in value_matches:
+            resolved_tables.add(value["table_name"])
+
+        resolved_metric_count = len(metric_objects)
+
+        resolved_dimension_count = len(dimension_objects)
+
+        resolved_value_count = len(value_matches)
+
+        resolved_table_count = len(resolved_tables)
+
+
+        # --------------------------------------------------
+        # Retrieval Status
+        # --------------------------------------------------
+
+        # How many semantic components were resolved?
+        resolved_components = 0
+
+        if resolved_metric_count > 0:
+            resolved_components += 1
+
+        if resolved_dimension_count > 0:
+            resolved_components += 1
+
+        if resolved_value_count > 0:
+            resolved_components += 1
+
+
+        if resolved_components == 0:
+
+            retrieval_status = "INSUFFICIENT"
+
+            retrieval_reason = (
+                "No semantic metrics, dimensions or values could be resolved."
+            )
+
+        elif resolved_components == 1:
+
+            retrieval_status = "PARTIAL"
+
+            retrieval_reason = (
+                "Only partial semantic context could be resolved."
+            )
+
+        else:
+
+            retrieval_status = "COMPLETE"
+
+            retrieval_reason = None
+
+        # --------------------------------------------------
+        # Retrieval Confidence
+        # --------------------------------------------------
+
+        confidence = 0.0
+
+        confidence += min(
+            resolved_metric_count * 0.35,
+            0.35
+        )
+
+        confidence += min(
+            resolved_dimension_count * 0.25,
+            0.25
+        )
+
+        confidence += min(
+            resolved_value_count * 0.20,
+            0.20
+        )
+
+        confidence += min(
+            resolved_table_count * 0.20,
+            0.20
+        )
+
+        confidence = round(
+            min(confidence, 1.0),
+            2
+        )
 
         return {
+
             "metrics": metrics,
+
             "dimensions": dimensions,
+
             "metric_objects": metric_objects,
+
             "dimension_objects": dimension_objects,
+
             "value_matches": value_matches,
 
+            "retrieval": {
+
+                "status": retrieval_status,
+
+                "reason": retrieval_reason,
+
+                "resolved_components": resolved_components,
+
+                "resolved_metric_count": resolved_metric_count,
+
+                "resolved_dimension_count": resolved_dimension_count,
+
+                "resolved_value_count": resolved_value_count,
+
+                "resolved_table_count": resolved_table_count,
+
+                "confidence": confidence
+
+            },
+
             "debug": {
+
                 "metrics": metric_debug,
+
                 "dimensions": dimension_debug
+
             }
+
         }

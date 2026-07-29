@@ -42,11 +42,6 @@ class GroqProvider(
             api_key = os.getenv(
                 "GROQ_API_KEY"
             )
-        print("=" * 60)
-        print(f"Groq key source: {source}")
-        print(f"Groq key length: {len(api_key) if api_key else 0}")
-        print(f"Groq key prefix: {api_key[:10] if api_key else None}")
-        print("=" * 60)
 
         self.client = Groq(
             api_key=api_key

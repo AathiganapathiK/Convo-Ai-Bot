@@ -18,12 +18,13 @@ import os
 import json
 import time
 import logging
-from typing import Optional
+from typing import Optional, cast
+
 
 from fastapi import FastAPI, Depends, HTTPException, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBearer
-from fastapi.responses import StreamingResponse
+from fastapi.responses import StreamingResponse, JSONResponse
 from pydantic import BaseModel
 from sqlalchemy import text
 
@@ -77,11 +78,16 @@ from admin.provider_credentials import router as provider_credentials_router
 from admin.connection_management import router as connection_router
 
 
-from core.exceptions import DatasourceLifecycleException
+from core.exceptions import (
+    DatasourceLifecycleException,
+    EnterpriseException,
+    CLSException,
+    SQLValidationException,
+    InternalSystemException
+)
 
 from core.exception_handlers import (
-    datasource_exception_handler,
-    generic_exception_handler
+    datasource_exception_handler
 )
 
 from chat.chat_sessions import router as chat_router
@@ -182,10 +188,6 @@ app.add_exception_handler(
     datasource_exception_handler
 )
 
-app.add_exception_handler(
-    Exception,
-    generic_exception_handler
-)
 
 _frontend_origin = os.getenv("FRONTEND_ORIGIN", "http://localhost:3000")
 print("FRONTEND_ORIGIN =", _frontend_origin)
@@ -424,38 +426,92 @@ def ask_question(
     # Analytics path
     history = get_history(user["employee_id"], str(session_id))
 
-    sql_response = generate_sql_query(question, history, company_id=user["company_id"])
-    sql_query: str = sql_response.get("sql_query") or ""
-    sql_usage    = sql_response["usage"]
+    try:
 
-    sql_prompt_tokens = sql_usage.prompt_tokens if sql_usage is not None else 0
-    sql_completion_tokens = sql_usage.completion_tokens if sql_usage is not None else 0
-    sql_total_tokens = sql_usage.total_tokens if sql_usage is not None else 0
-    save_usage(
-        user["employee_id"], session_id, "SQL_GENERATION",
-        sql_prompt_tokens, sql_completion_tokens,
-        sql_total_tokens, 0, user["company_id"]
-    )
+        sql_response = generate_sql_query(question, history, company_id=user["company_id"])
+
+        if not sql_response.get("success", True):
+            error_info = sql_response.get("error", {})
+            error_message = "Error"
+            error_dict = {}
+            if isinstance(error_info, dict):
+                error_message = str(error_info.get("message", "Error"))
+                error_dict = error_info
+            elif isinstance(error_info, str):
+                error_message = error_info
+                error_dict = {"message": error_info}
+            else:
+                error_dict = {"message": str(error_info)} if error_info is not None else {}
+
+            _save_chat_message(
+                session_id=session_id,
+                role="ASSISTANT",
+                message_text=error_message,
+                result_data=json.dumps(error_dict)
+            )
+            return JSONResponse(
+                status_code=400,
+                content=sql_response
+            )
+
+        sql_query = cast(str,sql_response["sql_query"])
+        sql_usage = sql_response["usage"]
+
+        sql_prompt_tokens = getattr(sql_usage, "prompt_tokens", 0)
+        sql_completion_tokens = getattr(sql_usage, "completion_tokens", 0)
+        sql_total_tokens = getattr(sql_usage, "total_tokens", 0)
+
+        save_usage(
+            user["employee_id"], session_id, "SQL_GENERATION",
+            sql_prompt_tokens, sql_completion_tokens,
+            sql_total_tokens, 0, user["company_id"]
+        )
 
     # CLS validation (pre-execution)
-    is_allowed, cls_message = pipeline.validate_cls(sql_query)
 
-    if not is_allowed:
-        save_query_history(
-            user["employee_id"], session_id, question,
-            sql_query, "CLS_BLOCKED", 0, user["company_id"]
+        is_allowed, cls_message = pipeline.validate_cls(sql_query)
+
+        if not is_allowed:
+            save_query_history(
+                user["employee_id"], session_id, question,
+                sql_query, "CLS_BLOCKED", 0, user["company_id"]
+            )
+            raise CLSException(message=cls_message)
+
+        # SQL safety validation
+        is_valid, validation_message = validate_sql_query(sql_query)
+
+        if not is_valid:
+            save_query_history(
+                user["employee_id"], session_id, question,
+                sql_query, "SQL_VALIDATION_FAILED", 0, user["company_id"]
+            )
+            raise SQLValidationException(message=validation_message)
+
+    except EnterpriseException as ex:
+        _save_chat_message(
+            session_id=session_id,
+            role="ASSISTANT",
+            message_text=ex.message,
+            result_data=json.dumps(ex.to_dict()["error"])
         )
-        return {"error": cls_message}
-
-    # SQL safety validation
-    is_valid, validation_message = validate_sql_query(sql_query)
-
-    if not is_valid:
-        save_query_history(
-            user["employee_id"], session_id, question,
-            sql_query, "SQL_VALIDATION_FAILED", 0, user["company_id"]
+        return JSONResponse(
+            status_code=400,
+            content=ex.to_dict()
         )
-        return {"error": validation_message}
+
+    except Exception as ex:
+        err_exc = InternalSystemException(str(ex))
+        _save_chat_message(
+            session_id=session_id,
+            role="ASSISTANT",
+            message_text=err_exc.message,
+            result_data=json.dumps(err_exc.to_dict()["error"])
+        )
+        return JSONResponse(
+            status_code=500,
+            content=err_exc.to_dict()
+        )
 
     # Enforce row limit
     sql_query = enforce_row_limit(sql_query)

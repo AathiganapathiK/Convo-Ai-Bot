@@ -597,11 +597,14 @@ export default function ChatPage({ API, token, userInfo }) {
           });
         } else {
           let parsedData = null;
+          let errorObject = null;
           if (msg.result_data) {
             try {
-              parsedData = JSON.parse(msg.result_data);
-              if (Array.isArray(parsedData)) {
-                parsedData = parsedData.map(row => {
+              const parsed = JSON.parse(msg.result_data);
+              if (parsed && typeof parsed === 'object' && parsed.code && parsed.category) {
+                errorObject = parsed;
+              } else if (Array.isArray(parsed)) {
+                parsedData = parsed.map(row => {
                   const newRow = {};
                   let emptyColIdx = 1;
                   Object.keys(row).forEach(key => {
@@ -619,6 +622,8 @@ export default function ChatPage({ API, token, userInfo }) {
                   });
                   return newRow;
                 });
+              } else {
+                parsedData = parsed;
               }
             } catch (e) {
               console.error("Error parsing result_data", e);
@@ -640,19 +645,19 @@ export default function ChatPage({ API, token, userInfo }) {
               }));
           }
 
-              formattedMessages.push({
-                id: msg.id || Date.now().toString(),
-                role: "assistant",
-                type: msg.sql_query ? "ANALYTICS" : "GENERAL",
-                content: msg.message_text,
-                business_summary: msg.business_summary,
-                followup_questions:
-                msg.followup_questions || [],
-                sql_query: msg.sql_query,
-                data: parsedData,
-                chart: chartMetadata,
-                kpis: kpis
-              });
+          formattedMessages.push({
+            id: msg.id || Date.now().toString(),
+            role: "assistant",
+            type: msg.sql_query ? "ANALYTICS" : "GENERAL",
+            content: msg.message_text,
+            business_summary: msg.business_summary,
+            followup_questions: msg.followup_questions || [],
+            sql_query: msg.sql_query,
+            data: parsedData,
+            chart: chartMetadata,
+            kpis: kpis,
+            error: errorObject
+          });
         }
       });
 
@@ -721,7 +726,7 @@ export default function ChatPage({ API, token, userInfo }) {
         const errorMsg = {
           id: Date.now().toString(),
           role: "assistant",
-          content: data.error,
+          content: typeof data.error === 'object' && data.error !== null ? data.error.message : String(data.error),
           error: data.error,
           timestamp: new Date()
         };
@@ -1180,7 +1185,35 @@ export default function ChatPage({ API, token, userInfo }) {
                       </div>
                     ) : (
                       <div style={{ width: "100%", maxWidth: (msg.type === "GENERAL" || msg.error) ? "85%" : "100%" }}>
-                        {msg.error ? (
+                        {msg.error && typeof msg.error === 'object' ? (
+                          <div className="fade-in-message">
+                            <Alert
+                              message={<Text strong style={{ color: "var(--text-main)", fontSize: "14.5px" }}>{msg.error.title || "Error"}</Text>}
+                              description={
+                                <div style={{ marginTop: "4px" }}>
+                                  <Paragraph style={{ color: "var(--text-secondary)", margin: 0 }}>
+                                    {msg.error.message}
+                                  </Paragraph>
+                                  {msg.error.suggestion && (
+                                    <div style={{ marginTop: "8px", borderTop: "1px dashed var(--border-color)", paddingTop: "8px" }}>
+                                      <Text type="secondary" style={{ fontSize: "12px" }}>
+                                        <strong>Suggestion:</strong> {msg.error.suggestion}
+                                      </Text>
+                                    </div>
+                                  )}
+                                </div>
+                              }
+                              type="error"
+                              showIcon
+                              style={{
+                                borderRadius: "10px",
+                                border: "1px solid var(--border-color)",
+                                background: "var(--bg-card)",
+                                padding: "16px"
+                              }}
+                            />
+                          </div>
+                        ) : msg.error ? (
                           <div className="fade-in-message">
                             <Alert message="Security Policy Violation" description={msg.content} type="error" showIcon />
                           </div>

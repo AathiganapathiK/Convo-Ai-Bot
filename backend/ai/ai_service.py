@@ -1,3 +1,5 @@
+from core.exceptions import EnterpriseException
+from core.exceptions import SemanticRetrievalException
 from ai.providers.provider_factory import (
     ProviderFactory
 )
@@ -65,7 +67,17 @@ def get_llm_provider(
 
 def generate_sql_query(question: str, history = None, company_id = None):
 
-    prompt = build_sql_prompt(question, history, company_id)
+    try:
+
+        prompt = build_sql_prompt(
+            question,
+            history,
+            company_id
+        )
+
+    except EnterpriseException as ex:
+
+        return ex.to_dict()
     
     response = (    
         LLMExecutionService.execute(

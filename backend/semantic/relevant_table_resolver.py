@@ -1,6 +1,3 @@
-from semantic.semantic_resolver import SemanticResolver
-
-
 class RelevantTableResolver:
 
     METRIC_WEIGHT = 5
@@ -9,14 +6,8 @@ class RelevantTableResolver:
 
     @staticmethod
     def resolve(
-        connection_id,
-        question
+        semantic_result
     ):
-
-        semantic_result = SemanticResolver.resolve(
-            connection_id,
-            question
-        )
 
         table_scores = {}
 

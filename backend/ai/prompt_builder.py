@@ -1,3 +1,4 @@
+from core.exceptions import SemanticRetrievalException
 from database import engine
 from sqlalchemy import text
 
@@ -13,6 +14,7 @@ from semantic.relevant_table_resolver import RelevantTableResolver
 from semantic.relevant_schema_service import RelevantSchemaService
 from semantic.relationship_expander import RelationshipExpander
 from semantic.runtime_context_builder import RuntimeContextBuilder
+from semantic.semantic_gate import SemanticGate
 
 def get_dynamic_business_context(connection_id: str, company_id: str) -> str:
     query = """
@@ -173,14 +175,48 @@ def build_sql_prompt(question: str, history = None, company_id = None):
             question
         )
     )
+
     print("\n========== SEMANTIC RESULT ==========")
+
     from pprint import pprint
     pprint(semantic_result)
 
+
+    # --------------------------------------------------
+    # Semantic Retrieval Gate
+    # --------------------------------------------------
+
+    gate_result = SemanticGate.evaluate(semantic_result)
+
+    print("\n========== SEMANTIC GATE ==========")
+
+    from pprint import pprint
+    pprint(gate_result)
+    
+    # --------------------------------------------------
+    # Stop pipeline if semantic retrieval failed
+    # --------------------------------------------------
+
+    if not gate_result["allowed"]:
+
+        print("\n========== SEMANTIC GATE BLOCKED ==========")
+        print(gate_result["reason"])
+
+        raise SemanticRetrievalException(
+
+            details={
+
+                "question": question,
+
+                "retrieval": semantic_result["retrieval"]
+
+            }
+
+        )
+
     # Resolve initial relevant tables from matched semantic objects and keyword fallback
     relevant_tables = RelevantTableResolver.resolve(
-        active_connection["connection_id"],
-        question
+        semantic_result
     )
     print("\n========== RELEVANT TABLES ==========")
     pprint(relevant_tables)
