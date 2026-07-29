@@ -1,14 +1,10 @@
-from groq.types import file_info_response
-from groq.types import file_info_response
 from sqlalchemy import text
-
 from database import engine
-
 
 class SemanticContextService:
 
     @staticmethod
-    def build_context(metric_objects, dimension_objects):
+    def build_context(metric_objects, dimension_objects, dialect=None):
 
         metric_objects = metric_objects or []
         dimension_objects = dimension_objects or []
@@ -47,9 +43,23 @@ class SemanticContextService:
                 lines.append(
                     f"  Table: {dimension['table_name']}"
                 )
-                lines.append(
-                    f"  Column: {dimension['column_name']}"
-                )
+                
+                category = dimension.get("semantic_category")
+                col_name = dimension["column_name"]
+                
+                if category and category.startswith("TIME_") and dialect:
+                    from semantic.temporal_mapper import TemporalMapper
+                    sql_expr = TemporalMapper.get_sql_expression(dialect, category, col_name)
+                    lines.append(
+                        f"  Column: {col_name}"
+                    )
+                    lines.append(
+                        f"  SQL Expression: {sql_expr}"
+                    )
+                else:
+                    lines.append(
+                        f"  Column: {col_name}"
+                    )
                 lines.append("")
 
         return "\n".join(lines)

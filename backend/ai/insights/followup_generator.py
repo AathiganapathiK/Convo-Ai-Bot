@@ -1,32 +1,53 @@
+from admin import connection_management
 import json
 
 from services.llm_execution_service import (
 LLMExecutionService
 )
+from ai.insights.followup_validator import FollowupValidator
 
 from ai.insights.followup_templates import (
 FOLLOWUP_TEMPLATE
 )
+from core.logger import debug_print as print
 
 class FollowupGenerator:
 
     @staticmethod
     def generate(
-        question,
-        serialized_data,
-        company_id=None
+        question: str,
+        serialized_data: str,
+        semantic_result,
+        runtime_context,
+        history=None,
+        company_id=None,
+        connection_id=None
     ):
 
         prompt = f"""
+ORIGINAL QUESTION
+{question}
 
-    Original Question:
-    {question}
+CONVERSATION HISTORY
+{history or "None"}
 
-    Query Result:
-    {serialized_data}
+SEMANTIC RUNTIME
+{runtime_context}
 
-    {FOLLOWUP_TEMPLATE}
-    """
+RESOLVED METRICS
+{semantic_result.get("metrics", [])}
+
+RESOLVED DIMENSIONS
+{semantic_result.get("dimensions", [])}
+
+MATCHED DIMENSION VALUES
+{semantic_result.get("value_matches", [])}
+
+CURRENT QUERY RESULT
+{serialized_data}
+
+{FOLLOWUP_TEMPLATE}
+"""
 
         response = (
             LLMExecutionService.execute(
@@ -84,6 +105,16 @@ class FollowupGenerator:
         except Exception:
             questions = []
 
+        validated_questions = FollowupValidator.validate(
+            questions=questions,
+            original_question=question,
+            connection_id=connection_id
+        )
 
+        print("\n========== FOLLOWUPS ==========")
+        print(f"Generated: {len(questions)}")
+        print(f"Validated: {len(validated_questions)}")
+        print(f"Rejected: {len(questions) - len(validated_questions)}")
+        print("================================")
 
-        return questions
+        return validated_questions  

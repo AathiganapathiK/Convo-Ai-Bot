@@ -1,3 +1,4 @@
+from pprint import pprint
 from core.exceptions import SemanticRetrievalException
 from database import engine
 from sqlalchemy import text
@@ -15,6 +16,7 @@ from semantic.relevant_schema_service import RelevantSchemaService
 from semantic.relationship_expander import RelationshipExpander
 from semantic.runtime_context_builder import RuntimeContextBuilder
 from semantic.semantic_gate import SemanticGate
+from core.logger import debug_print as print
 
 def get_dynamic_business_context(connection_id: str, company_id: str) -> str:
     query = """
@@ -169,18 +171,111 @@ def build_sql_prompt(question: str, history = None, company_id = None):
     except Exception as e:
         print(f"Error printing DB semantic metadata: {e}")
 
+    import time
+    semantic_start_time = time.time()
     semantic_result = (
         SemanticResolver.resolve(
             active_connection["connection_id"],
             question
         )
     )
+    semantic_time = round(time.time() - semantic_start_time, 2)
+    if isinstance(semantic_result, dict):
+        ret_dict = semantic_result.setdefault("retrieval", {})
+        if isinstance(ret_dict, dict):
+            ret_dict["time"] = semantic_time
 
-    print("\n========== SEMANTIC RESULT ==========")
+    ret_confidence = 0.0
+    ret_status = "Unknown"
+    ret_reason = "None"
+    if isinstance(semantic_result, dict):
+        ret_data = semantic_result.get("retrieval")
+        if isinstance(ret_data, dict):
+            conf = ret_data.get("confidence")
+            if isinstance(conf, (int, float)):
+                ret_confidence = float(conf)
+            stat = ret_data.get("status")
+            if isinstance(stat, str):
+                ret_status = stat
+            reas = ret_data.get("reason")
+            if isinstance(reas, str):
+                ret_reason = reas
+    
+    metric_objs = semantic_result.get("metric_objects", []) if isinstance(semantic_result, dict) else []
+    dimension_objs = semantic_result.get("dimension_objects", []) if isinstance(semantic_result, dict) else []
+    value_matches = semantic_result.get("value_matches", []) if isinstance(semantic_result, dict) else []
+    
+    resolved_tables_set = set()
+    for obj in metric_objs:
+        if isinstance(obj, dict):
+            tname = obj.get("table_name")
+            if isinstance(tname, str):
+                resolved_tables_set.add(tname)
+    for obj in dimension_objs:
+        if isinstance(obj, dict):
+            tname = obj.get("table_name")
+            if isinstance(tname, str):
+                resolved_tables_set.add(tname)
+    for val in value_matches:
+        if isinstance(val, dict):
+            tname = val.get("table_name")
+            if isinstance(tname, str):
+                resolved_tables_set.add(tname)
+            
+    resolved_tables = sorted(list(resolved_tables_set))
+    
+    filters_list: list[str] = []
+    for v in value_matches:
+        if isinstance(v, dict):
+            col = v.get("column_name")
+            op = v.get("operator", "=")
+            val = v.get("value")
+            if isinstance(col, str) and isinstance(val, (str, int, float)):
+                op_str = str(op) if op is not None else "="
+                filters_list.append(f"{col} {op_str} {str(val)}")
+    resolved_filters_str = ', '.join(filters_list) or 'None'
+    
+    values_list: list[str] = []
+    for v in value_matches:
+        if isinstance(v, dict):
+            val = v.get("value")
+            if val is not None:
+                values_list.append(str(val))
+    resolved_values_str = ', '.join(values_list) or 'None'
 
-    from pprint import pprint
-    pprint(semantic_result)
+    metrics_list: list[str] = []
+    for m in metric_objs:
+        if isinstance(m, dict):
+            bname = m.get("business_name")
+            if isinstance(bname, str):
+                metrics_list.append(bname)
+    resolved_metrics_str = ', '.join(metrics_list) or 'None'
 
+    dims_list: list[str] = []
+    for d in dimension_objs:
+        if isinstance(d, dict):
+            bname = d.get("business_name")
+            if isinstance(bname, str):
+                dims_list.append(bname)
+    resolved_dims_str = ', '.join(dims_list) or 'None'
+
+    tables_list: list[str] = []
+    for t in resolved_tables:
+        if isinstance(t, str):
+            tables_list.append(t)
+    resolved_tables_str = ', '.join(tables_list) or 'None'
+
+    print("\n========== SEMANTIC RESOLUTION ==========")
+    print(f"Question: {question}")
+    print(f"Resolved Metrics: {resolved_metrics_str}")
+    print(f"Resolved Dimensions: {resolved_dims_str}")
+    print(f"Resolved Filters: {resolved_filters_str}")
+    print(f"Resolved Values: {resolved_values_str}")
+    print(f"Resolved Tables: {resolved_tables_str}")
+    print(f"Semantic Confidence: {ret_confidence}")
+    print(f"Retrieval Status: {ret_status}")
+    print(f"Reason: {ret_reason}")
+    print("=========================================")
 
     # --------------------------------------------------
     # Semantic Retrieval Gate
@@ -188,10 +283,21 @@ def build_sql_prompt(question: str, history = None, company_id = None):
 
     gate_result = SemanticGate.evaluate(semantic_result)
 
-    print("\n========== SEMANTIC GATE ==========")
+    print("\n========== RETRIEVAL GATE ==========")
 
-    from pprint import pprint
-    pprint(gate_result)
+    retrieval = semantic_result.get("retrieval")
+
+    if isinstance(retrieval, dict):
+        print(f"Retrieval Status: {retrieval.get('status', 'Unknown')}")
+        print(f"Confidence: {retrieval.get('confidence', 0.0)}")
+    else:
+        print("Retrieval Status: Unknown")
+        print("Confidence: 0.0")
+
+
+    print(f"Decision: {'ALLOW SQL' if gate_result['allowed'] else 'BLOCK SQL'}")
+    print(f"Reason: {gate_result.get('reason', 'None')}")
+    print("====================================")
     
     # --------------------------------------------------
     # Stop pipeline if semantic retrieval failed
@@ -228,10 +334,13 @@ def build_sql_prompt(question: str, history = None, company_id = None):
     )
 
     
-    table_names = [
-        t["table_name"]
-        for t in expanded_tables
-    ]
+    table_names: list[str] = []
+    if isinstance(expanded_tables, list):
+        for t in expanded_tables:
+            if isinstance(t, dict):
+                tname = t.get("table_name")
+                if isinstance(tname, str):
+                    table_names.append(tname)
 
     relationship_context = (
         RelationshipContextService.build_context(
@@ -273,11 +382,12 @@ def build_sql_prompt(question: str, history = None, company_id = None):
 
 
     # Add required tables from metadata resolver if any extra display tables were needed
-    extra_req = metadata_result.get("required_tables", [])
-    if extra_req:
-        table_names = sorted(
-            set(table_names + extra_req)
-        )
+    extra_req = metadata_result.get("required_tables", []) if isinstance(metadata_result, dict) else []
+    if isinstance(extra_req, list):
+        for req in extra_req:
+            if isinstance(req, str) and req not in table_names:
+                table_names.append(req)
+    table_names = sorted(table_names)
 
     schema_text = RelevantSchemaService.get_schema(
         active_connection["connection_id"],
@@ -287,8 +397,8 @@ def build_sql_prompt(question: str, history = None, company_id = None):
 
     # Format Metadata Rules
     metadata_rules_text = ""
-    rules = metadata_result.get("metadata_rules", [])
-    if rules:
+    rules = metadata_result.get("metadata_rules", []) if isinstance(metadata_result, dict) else []
+    if isinstance(rules, list) and rules:
         metadata_rules_text = (
             "\n"
             "--------------------------------\n"
@@ -297,8 +407,10 @@ def build_sql_prompt(question: str, history = None, company_id = None):
             "Use them ONLY for JOIN conditions.\n"
             "Never return them in SELECT unless explicitly requested.\n\n"
         )
-        formatted_rules = []
+        formatted_rules: list[str] = []
         for rule in rules:
+            if not isinstance(rule, str):
+                continue
             if rule.startswith("Use ") and " instead of " in rule:
                 parts = rule.split(" instead of ")
                 bus_col = parts[0][4:]
@@ -360,12 +472,32 @@ def build_sql_prompt(question: str, history = None, company_id = None):
             "--------------------------------\n"
         )
 
+    ret_metrics: list[str] = []
+    if isinstance(semantic_result, dict):
+        m_objects = semantic_result.get("metric_objects", [])
+        if isinstance(m_objects, list):
+            for m in m_objects:
+                if isinstance(m, dict):
+                    mname = m.get("metric_name")
+                    if isinstance(mname, str):
+                        ret_metrics.append(mname)
+
+    ret_dims: list[str] = []
+    if isinstance(semantic_result, dict):
+        d_objects = semantic_result.get("dimension_objects", [])
+        if isinstance(d_objects, list):
+            for d in d_objects:
+                if isinstance(d, dict):
+                    dname = d.get("dimension_name")
+                    if isinstance(dname, str):
+                        ret_dims.append(dname)
+
     # === Pipeline Logging: STAGE RETRIEVAL DEBUG LOGS ===
     print("\n========== STAGE RETRIEVAL DEBUG LOGS ==========")
     print(f"Question                : {question}")
     print(f"Retrieved Tables        : {table_names}")
-    print(f"Retrieved Metrics       : {semantic_result.get('metrics', [])}")
-    print(f"Retrieved Dimensions    : {semantic_result.get('dimensions', [])}")
+    print(f"Retrieved Metrics       : {ret_metrics}")
+    print(f"Retrieved Dimensions    : {ret_dims}")
     print(f"Retrieved Metadata Rules: {rules}")
     print(f"Retrieved Relationships :\n{relationship_context.strip() if relationship_context else '(None)'}")
     print("================================================\n")
@@ -395,10 +527,79 @@ def build_sql_prompt(question: str, history = None, company_id = None):
                 f"{example['sql_query']}\n"
             )
 
+    metric_objects_list = semantic_result.get("metric_objects", []) if isinstance(semantic_result, dict) else []
+    dimension_objects_list = semantic_result.get("dimension_objects", []) if isinstance(semantic_result, dict) else []
     semantic_context = SemanticContextService.build_context(
-        semantic_result["metric_objects"],
-        semantic_result["dimension_objects"]
+        metric_objects_list,
+        dimension_objects_list,
+        dialect=active_connection.get("database_type")
     )
+
+    print("\n========== SEMANTIC CONTEXT ==========")
+    print("Metrics:")
+    metric_objs_ctx = semantic_result.get("metric_objects") if isinstance(semantic_result, dict) else None
+    if isinstance(metric_objs_ctx, list) and metric_objs_ctx:
+        for m in metric_objs_ctx:
+            if isinstance(m, dict):
+                bname = m.get("business_name")
+                tname = m.get("table_name")
+                cname = m.get("column_name")
+                agg = m.get("aggregation_type")
+                if bname is not None and tname is not None and cname is not None and agg is not None:
+                    print(f"- {bname} ({tname}.{cname} as {agg})")
+    else:
+        print("- None")
+    
+    print("\nDimensions:")
+    dimension_objs_ctx = semantic_result.get("dimension_objects") if isinstance(semantic_result, dict) else None
+    if isinstance(dimension_objs_ctx, list) and dimension_objs_ctx:
+        for d in dimension_objs_ctx:
+            if isinstance(d, dict):
+                bname = d.get("business_name")
+                tname = d.get("table_name")
+                cname = d.get("column_name")
+                if bname is not None and tname is not None and cname is not None:
+                    print(f"- {bname} ({tname}.{cname})")
+    else:
+        print("- None")
+        
+    print("\nRelationships:")
+    if relationship_context:
+        print(relationship_context.strip())
+    else:
+        print("- None")
+        
+    print("\nValues:")
+    val_matches_ctx = semantic_result.get("value_matches") if isinstance(semantic_result, dict) else None
+    if isinstance(val_matches_ctx, list) and val_matches_ctx:
+        for v in val_matches_ctx:
+            if isinstance(v, dict):
+                val = v.get("value")
+                tname = v.get("table_name")
+                cname = v.get("column_name")
+                if val is not None and tname is not None and cname is not None:
+                    print(f"- {val} ({tname}.{cname})")
+    else:
+        print("- None")
+        
+    print("\nSQL Expressions:")
+    has_expr = False
+    dimension_objs_expr = semantic_result.get("dimension_objects") if isinstance(semantic_result, dict) else None
+    if isinstance(dimension_objs_expr, list) and dimension_objs_expr:
+        for d in dimension_objs_expr:
+            if isinstance(d, dict):
+                category = d.get("semantic_category")
+                dialect = active_connection.get("database_type")
+                col_name = d.get("column_name")
+                bname = d.get("business_name")
+                if isinstance(category, str) and category.startswith("TIME_") and isinstance(dialect, str) and isinstance(col_name, str) and bname is not None:
+                    from semantic.temporal_mapper import TemporalMapper
+                    expr = TemporalMapper.get_sql_expression(dialect, category, col_name)
+                    print(f"- {bname}: {expr}")
+                    has_expr = True
+    if not has_expr:
+        print("- None")
+    print("======================================")
 
     # === GENERAL/ALL-SCHEMA PROMPT GENERATION (FOR COMPARISON LOGGING) ===
     try:
@@ -550,6 +751,7 @@ SEMANTIC SQL RULES
 7. Technical keys must only be used in JOIN conditions unless the user explicitly requests them.
 8. Respect all Metadata Rules.
 9. Follow the style demonstrated by Previous Successful Queries whenever possible.
+10. If a dimension has a specified SQL Expression under SEMANTIC CONTEXT, you MUST use that SQL Expression in the SELECT, GROUP BY, WHERE, and ORDER BY clauses instead of the raw physical column name.
 
 ===========================================================
 SQL SERVER RULES
@@ -596,26 +798,19 @@ OUTPUT RULES
 
 """
 
-    # === COMPARISON LOGGING IN TERMINAL ===
-    print("\n" + "="*80)
-    print(" [COMPARISON] PROMPT A: GENERAL (ALL SCHEMA, NO TABLE PRUNING, NO SEMANTIC CONTEXT)")
-    print("="*80)
-    print(prompt_general)
-    print("="*80)
+    # Estimate tokens: roughly 1 token = 4 characters or word count
+    estimated_tokens = len(prompt) // 4
+    
+    print("\n========== PROMPT ==========")
+    print(f"Prompt Length: {len(prompt)}")
+    print(f"Prompt Tokens (estimated): {estimated_tokens}")
+    print(f"Database Type: {active_connection.get('database_type')}")
+    print(f"Schema Tables Used: {', '.join(table_names) if table_names else 'None'}")
+    print(f"Semantic Objects: {len(semantic_result.get('metric_objects', [])) + len(semantic_result.get('dimension_objects', []))}")
+    print(f"Conversation Messages: {len(history) if history else 0}")
+    print("================================\n")
 
-    print("\n" + "="*80)
-    print(" [COMPARISON] PROMPT B: SEMANTIC (RELEVANT SCHEMA ONLY + SEMANTIC LAYER CONTEXT)")
-    print("="*80)
-    print(prompt)
-    print("="*80)
-
-    print("\n========== FINAL PROMPT STATS ==========")
-    print(f"Expanded Schema Size : {len(schema_text)} chars")
-    print(f"Final Prompt Size    : {len(prompt)} chars")
-    print(f"Estimated Token Count: ~{len(prompt) // 4} tokens")
-    print("========================================\n")
-
-    return prompt
+    return prompt, semantic_result, runtime_context
 
 
 def build_summary_prompt(

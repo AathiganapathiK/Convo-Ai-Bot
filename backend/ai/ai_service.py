@@ -17,6 +17,7 @@ from ai.prompt_builder import (
 from services.llm_execution_service import (
     LLMExecutionService
 )
+from core.logger import debug_print as print
 
 from ai.insights.data_shape_classifier import (
     DataShapeClassifier
@@ -69,7 +70,7 @@ def generate_sql_query(question: str, history = None, company_id = None):
 
     try:
 
-        prompt = build_sql_prompt(
+        prompt, semantic_result, runtime_context = build_sql_prompt(
             question,
             history,
             company_id
@@ -79,6 +80,8 @@ def generate_sql_query(question: str, history = None, company_id = None):
 
         return ex.to_dict()
     
+    import time
+    start_time = time.time()
     response = (    
         LLMExecutionService.execute(
             purpose=
@@ -93,6 +96,7 @@ def generate_sql_query(question: str, history = None, company_id = None):
             company_id=company_id
         )
     )
+    gen_time = round(time.time() - start_time, 2)
 
     sql_query = ""
     if response and getattr(response, "choices", None):
@@ -107,16 +111,39 @@ def generate_sql_query(question: str, history = None, company_id = None):
         sql_query = sql_query.replace("```sql", "")
         sql_query = sql_query.replace("```", "")
         sql_query = sql_query.strip()
-    print("\n========== SQL ==========")
+
+    model_name = getattr(response, "model", "Unknown") if response else "Unknown"
+
+    print("\n========== SQL GENERATION ==========")
+    print(f"Model: {model_name}")
+    print(f"Temperature: 0.0")
+    print(f"Attempt: 1")
+    print(f"Generation Time: {gen_time}s")
+    print("====================================")
+
+    print("\n========== GENERATED SQL ==========")
     print(sql_query)
+    print("===================================")
 
     return {
         "sql_query": sql_query,
-        "usage": response.usage
+        "usage": response.usage if response else None,
+        "semantic_result": semantic_result,
+        "runtime_context": runtime_context,
+        "gen_time": gen_time
     }
 # ______________________________________________________________________________________________________________________________________________
 
-def generate_business_summary(question: str,sql_query: str,rows,company_id = None):
+def generate_business_summary(
+    question,
+    sql_query,
+    rows,
+    semantic_result,
+    runtime_context,
+    history=None,
+    company_id=None,
+    connection_id=None
+):
 
     data_shape = (
         DataShapeClassifier
@@ -140,17 +167,24 @@ def generate_business_summary(question: str,sql_query: str,rows,company_id = Non
         )
     )
 
-    print("\n========== SUMMARY ==========")
-    print(f"Data Shape: {data_shape.value}")
-    print("Summary Generated ✓")
+    # Section 12: DATA SHAPE
+    cols_count = len(rows[0].keys()) if rows else 0
+    print("\n========== DATA SHAPE ==========")
+    print(f"Detected Shape: {data_shape.name if hasattr(data_shape, 'name') else str(data_shape)}")
+    print(f"Rows: {len(rows)}")
+    print(f"Columns: {cols_count}")
+    print("Chart Recommendation: True")
+    print("================================")
 
     prompt = build_summary_prompt(
         question,
         sql_query,
         serialized_data,
         template
-        )
+    )
 
+    import time
+    start_sum = time.time()
     response = (
         LLMExecutionService.execute(
             purpose="insight",
@@ -164,11 +198,23 @@ def generate_business_summary(question: str,sql_query: str,rows,company_id = Non
             company_id=company_id
         )
     )
+    sum_time = round(time.time() - start_sum, 2)
+    model_used = getattr(response, "model", "Unknown") if response else "Unknown"
+
+    print("\n========== BUSINESS SUMMARY ==========")
+    print("Summary Enabled: True")
+    print(f"LLM Used: {model_used}")
+    print(f"Summary Time: {sum_time}s")
+    print("=====================================")
 
     followups = FollowupGenerator.generate(
         question=question,
         serialized_data=serialized_data,
-        company_id=company_id
+        semantic_result=semantic_result,
+        runtime_context=runtime_context,
+        history=history,
+        company_id=company_id,
+        connection_id=connection_id
     )
 
     summary = ""
@@ -187,7 +233,8 @@ def generate_business_summary(question: str,sql_query: str,rows,company_id = Non
             followups,
 
         "usage":
-            response.usage if response else None
+            response.usage if response else None,
+        "sum_time": sum_time
     }
 
 # Use the Intl.NumberFormat API in JavaScript/TypeScript, which natively supports the Indian numbering system via the en-IN locale. This is the most robust and standard method.

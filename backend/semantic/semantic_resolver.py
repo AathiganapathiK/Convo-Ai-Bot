@@ -1,11 +1,11 @@
 from semantic import test_metrics
-from semantic import test_metrics
 from semantic import discovery_service
 import re
 from sqlalchemy import text
 
 from database import engine
 from semantic.dimension_value_resolver import DimensionValueResolver
+from core.logger import debug_print as print
 
 def _normalize_string(s: str) -> str:
     if not s:
@@ -158,6 +158,7 @@ class SemanticResolver:
 
     @staticmethod
     def _fetch_active_metadata(connection_id):
+        print("Entered: _fetch_active_metadata")
         """
         Fetches active metrics and dimensions from database.
         """
@@ -180,7 +181,8 @@ class SemanticResolver:
             business_name,
             table_name,
             column_name,
-            synonyms
+            synonyms,
+            semantic_category
         FROM semantic_dimensions
         WHERE connection_id = :connection_id
           AND is_active = 1
@@ -196,6 +198,22 @@ class SemanticResolver:
                 text(dimension_query),
                 {"connection_id": connection_id}
             ).fetchall()
+
+        print("\n========== SEMANTIC METADATA LOAD DEBUG ==========")
+        print(f"Incoming connection_id: {connection_id}")
+        print(f"Metrics SQL:\n{metric_query}")
+        print(f"Dimensions SQL:\n{dimension_query}")
+        print(f"Rows returned from semantic_metrics: {len(metric_rows)}")
+        print(f"Rows returned from semantic_dimensions: {len(dimension_rows)}")
+        print("==================================================\n")
+
+        print("========== LOADED DIMENSIONS ==========")
+        for row in dimension_rows:
+            business_name = row[1]
+            table_name = row[2]
+            column_name = row[3]
+            synonyms = row[4] if row[4] is not None else ""
+            print(f"{business_name} | {column_name} | {table_name} | {synonyms}")
 
         return metric_rows, dimension_rows
 
@@ -242,7 +260,8 @@ class SemanticResolver:
                     "column_name": row[3],
                     "matched_by": matched_by,
                     "matched_text": matched_text,
-                    "spans": spans
+                    "spans": spans,
+                    "semantic_category": row[5] if len(row) > 5 else None
                 })
 
         return candidates
@@ -278,6 +297,8 @@ class SemanticResolver:
 
     @staticmethod
     def resolve(connection_id, question):
+        print("Entered: resolve")
+        print(f"connection_id = {connection_id}")
         """
         Resolves semantic metrics and dimensions based on deterministic ranking and overlap resolution.
         """
@@ -285,8 +306,73 @@ class SemanticResolver:
         metric_rows, dimension_rows = SemanticResolver._fetch_active_metadata(connection_id)
         candidates = SemanticResolver._generate_candidates(metric_rows, dimension_rows, question)
 
-        # 2. Overlap Removal
+        # 2. Extract resolved metric tables by doing a quick first pass on metrics
+        temp_selected = SemanticResolver._remove_overlaps(candidates)
+        resolved_metric_tables = set()
+        for cand in temp_selected:
+            if cand["type"] == "metric":
+                resolved_metric_tables.add(cand["table_name"])
+
+        # 3. Second ranking pass: Apply SAME_TABLE_BONUS
+        SAME_TABLE_BONUS = 0.35
+        if resolved_metric_tables:
+            print("\n========== CONTEXT RANKING ==========")
+            for table_name in sorted(resolved_metric_tables):
+                print(f"Metric Table : {table_name}")
+            print("")
+
+            for cand in candidates:
+                if isinstance(cand, dict) and cand.get("type") == "dimension":
+                    score_val = cand.get("score")
+                    keyword_score = float(score_val) if isinstance(score_val, (int, float)) else 0.0
+                    table_bonus = 0.0
+                    tname = cand.get("table_name")
+                    if isinstance(tname, str) and tname in resolved_metric_tables:
+                        table_bonus = SAME_TABLE_BONUS
+                    cand["score"] = keyword_score + table_bonus
+                    
+                    bname = cand.get("business_name")
+                    bname_str = str(bname) if bname is not None else ""
+                    print(f"Candidate: {bname_str}")
+                    print(f"Keyword Score : {keyword_score:.2f}")
+                    print(f"Table Bonus : +{table_bonus:.2f}")
+                    print(f"Final Score : {keyword_score + table_bonus:.2f}")
+                    print("")
+
+        # 4. Overlap Removal
         selected_candidates = SemanticResolver._remove_overlaps(candidates)
+
+        # Build selected dimension list
+        selected_dims = []
+        if isinstance(selected_candidates, list):
+            for cand in selected_candidates:
+                if isinstance(cand, dict) and cand.get("type") == "dimension":
+                    bname = cand.get("business_name")
+                    if isinstance(bname, str):
+                        selected_dims.append(bname)
+                        
+        # Build rejected dimension list
+        rejected_dims = []
+        for cand in candidates:
+            if isinstance(cand, dict) and cand.get("type") == "dimension":
+                bname = cand.get("business_name")
+                if isinstance(bname, str) and bname not in selected_dims:
+                    rejected_dims.append(bname)
+        
+        if resolved_metric_tables:
+            print("Selected Dimension:")
+            if selected_dims:
+                for s in sorted(set(selected_dims)):
+                    print(f"- {s}")
+            else:
+                print("- None")
+            print("Rejected Dimensions:")
+            if rejected_dims:
+                for r in sorted(set(rejected_dims)):
+                    print(f"- {r}")
+            else:
+                print("- None")
+            print("=====================================")
 
         # 3. Final Selection & Deduplication
         metrics = []
@@ -320,11 +406,24 @@ class SemanticResolver:
                         "matched_by": candidate["matched_by"],
                         "matched_text": candidate["matched_text"],
                         "table_name": candidate["table_name"],
-                        "column_name": candidate["column_name"]
+                        "column_name": candidate["column_name"],
+                        "semantic_category": candidate.get("semantic_category")
                     })
                     seen_dimensions.add(bname)
 
 
+
+        print("\n========== SEMANTIC CACHE ==========")
+        print(f"Metrics Loaded    : {len(metrics)}")
+        print(f"Dimensions Loaded : {len(dimensions)}")
+
+        print("\nSample Metrics:")
+        for metric in metrics[:5]:
+            print(metric)
+
+        print("\nSample Dimensions:")
+        for dimension in dimensions[:5]:
+            print(dimension)
 
         # Build rich unique objects
         metric_objects = []
@@ -353,7 +452,8 @@ class SemanticResolver:
                         "dimension_name": candidate["dimension_name"],
                         "business_name": candidate["business_name"],
                         "table_name": candidate["table_name"],
-                        "column_name": candidate["column_name"]
+                        "column_name": candidate["column_name"],
+                        "semantic_category": candidate.get("semantic_category")
                     })
 
         value_matches = DimensionValueResolver.resolve(

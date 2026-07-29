@@ -1,3 +1,4 @@
+from semantic import runtime_context_builder
 import core.config
 import sys
 import core.config
@@ -63,7 +64,8 @@ from semantic.relevant_table_resolver import RelevantTableResolver
 from semantic.relevant_schema_service import RelevantSchemaService
 from semantic.relationship_expander import RelationshipExpander
 from semantic.semantic_service import SemanticService
-from semantic.semantic_schema import MetricRequest,DimensionRequest
+from semantic.semantic_schema import MetricRequest, DimensionRequest
+from core.logger import debug_print as print
 
 # --- New Security Framework ---
 from security.rbac_service import require_permission
@@ -378,6 +380,20 @@ def ask_question(
         raise HTTPException(status_code=404, detail="Chat session not found")
 
     session_row = dict(session_row._mapping)
+    
+    import datetime
+    request_start_time = time.time()
+    active_conn = ConnectionService.get_active_connection(user["company_id"])
+    conn_id = active_conn["connection_id"] if active_conn else "None"
+    
+    print("\n========== REQUEST START ==========")
+    print(f"Question: {question}")
+    print(f"Session ID: {session_id}")
+    print(f"User ID: {user.get('employee_id')}")
+    print(f"Company ID: {user.get('company_id')}")
+    print(f"Connection ID: {conn_id}")
+    print(f"Timestamp: {datetime.datetime.now().isoformat()}")
+    print("===================================")
     caller_role = user.get("role", "").upper()
 
     if str(session_row["company_id"]) != str(user["company_id"]):
@@ -418,13 +434,17 @@ def ask_question(
         return {"type": "GENERAL", "message": response_text}
 
     # --- Security Pipeline: RLS → CLS → Audit ---
-    print("\n========== REQUEST ==========")
-    print(f"Question: {question}")
-
     pipeline = SecurityPipeline(user, ip_address=client_ip)
 
     # Analytics path
     history = get_history(user["employee_id"], str(session_id))
+
+    print("\n========== SESSION ==========")
+    print(f"Session Loaded: True")
+    print(f"Conversation Turns: {len(history) if history else 0}")
+    print(f"Previous Context Size: {sum(len(str(h)) for h in history) if history else 0}")
+    print(f"Memory Enabled: True")
+    print("=============================")
 
     try:
 
@@ -456,10 +476,22 @@ def ask_question(
 
         sql_query = cast(str,sql_response["sql_query"])
         sql_usage = sql_response["usage"]
+        semantic_result = sql_response.get("semantic_result")
+        runtime_context = sql_response.get("runtime_context")
 
-        sql_prompt_tokens = getattr(sql_usage, "prompt_tokens", 0)
-        sql_completion_tokens = getattr(sql_usage, "completion_tokens", 0)
-        sql_total_tokens = getattr(sql_usage, "total_tokens", 0)
+        sql_prompt_tokens = 0
+        sql_completion_tokens = 0
+        sql_total_tokens = 0
+        if sql_usage is not None:
+            pt = getattr(sql_usage, "prompt_tokens", 0)
+            ct = getattr(sql_usage, "completion_tokens", 0)
+            tt = getattr(sql_usage, "total_tokens", 0)
+            if isinstance(pt, int):
+                sql_prompt_tokens = pt
+            if isinstance(ct, int):
+                sql_completion_tokens = ct
+            if isinstance(tt, int):
+                sql_total_tokens = tt
 
         save_usage(
             user["employee_id"], session_id, "SQL_GENERATION",
@@ -467,9 +499,32 @@ def ask_question(
             sql_total_tokens, 0, user["company_id"]
         )
 
-    # CLS validation (pre-execution)
-
+        # CLS validation (pre-execution)
         is_allowed, cls_message = pipeline.validate_cls(sql_query)
+
+        # SQL safety validation
+        is_valid, validation_message = validate_sql_query(sql_query)
+
+        print("\n========== SQL VALIDATION ==========")
+        print("Validation Started: True")
+        
+        has_blocked_kw = False
+        lower_query = sql_query.lower()
+        import re
+        from ai.sql_validator import BLOCKED_KEYWORDS
+        for keyword in BLOCKED_KEYWORDS:
+            if re.search(rf"\b{keyword}\b", lower_query):
+                has_blocked_kw = True
+                print(f"Blocked Keywords: VIOLATION ({keyword.upper()})")
+                break
+        if not has_blocked_kw:
+            print("Blocked Keywords: Checked (No violations)")
+            
+        print("Schema Validation: NOT IMPLEMENTED")
+        print("AST Validation: NOT IMPLEMENTED")
+        print(f"Security Validation: {'Passed' if is_allowed else 'Failed: ' + cls_message}")
+        print(f"Validation Result: {'PASS' if (is_allowed and is_valid) else 'FAIL'}")
+        print("===================================")
 
         if not is_allowed:
             save_query_history(
@@ -477,9 +532,6 @@ def ask_question(
                 sql_query, "CLS_BLOCKED", 0, user["company_id"]
             )
             raise CLSException(message=cls_message)
-
-        # SQL safety validation
-        is_valid, validation_message = validate_sql_query(sql_query)
 
         if not is_valid:
             save_query_history(
@@ -489,6 +541,13 @@ def ask_question(
             raise SQLValidationException(message=validation_message)
 
     except EnterpriseException as ex:
+        import traceback
+        print("\n========== ERROR ==========")
+        print(f"Stage: Request Execution")
+        print(f"Exception: {ex.__class__.__name__}")
+        print(f"Reason: {ex.message}")
+        print(f"Stack Trace:\n{traceback.format_exc()}")
+        print("================================")
         _save_chat_message(
             session_id=session_id,
             role="ASSISTANT",
@@ -501,6 +560,13 @@ def ask_question(
         )
 
     except Exception as ex:
+        import traceback
+        print("\n========== ERROR ==========")
+        print(f"Stage: Request Execution")
+        print(f"Exception: {ex.__class__.__name__}")
+        print(f"Reason: {str(ex)}")
+        print(f"Stack Trace:\n{traceback.format_exc()}")
+        print("================================")
         err_exc = InternalSystemException(str(ex))
         _save_chat_message(
             session_id=session_id,
@@ -561,16 +627,26 @@ def ask_question(
         rows = pipeline.filter_columns(rows)
 
         execution_time = round(time.time() - start_time, 2)
+        keys_count = len(keys) if 'keys' in locals() else 0
 
-        print("\n========== EXECUTION ==========")
-        print(f"Rows Returned: {len(rows)}")
+        print("\n========== SQL EXECUTION ==========")
+        print("Execution Started: True")
         print(f"Execution Time: {execution_time}s")
+        print(f"Rows Returned: {len(rows)}")
+        print(f"Columns Returned: {keys_count}")
+        print("==================================")
+
+        connection_id = active_connection["connection_id"]
 
         summary_response = generate_business_summary(
             question,
             sql_query,
             rows,
-            company_id=user["company_id"]
+            semantic_result=semantic_result,
+            runtime_context=runtime_context,
+            history=history,
+            company_id=user["company_id"],
+            connection_id=connection_id
         )
 
         business_summary = (
@@ -598,15 +674,28 @@ def ask_question(
             chart_metadata = chart_result
             chart_rows = rows
 
+        rec_type = chart_metadata.get('recommended_view', 'table') if chart_metadata else 'table'
+        reason = chart_metadata.get('insight', 'No specific reason provided') if chart_metadata else 'No chart metadata returned'
         print("\n========== CHART ==========")
-        print(f"Recommended View: {chart_metadata.get('recommended_view', 'table') if chart_metadata else 'table'}")
-        print("Chart Generated ✓")
+        print(f"Recommended Type: {rec_type}")
+        print(f"Reason: {reason}")
+        print("================================")
 
         summary_usage      = summary_response["usage"]
 
-        sum_prompt_tokens = summary_usage.prompt_tokens if summary_usage is not None else 0
-        sum_completion_tokens = summary_usage.completion_tokens if summary_usage is not None else 0
-        sum_total_tokens = summary_usage.total_tokens if summary_usage is not None else 0
+        sum_prompt_tokens = 0
+        sum_completion_tokens = 0
+        sum_total_tokens = 0
+        if summary_usage is not None:
+            spt = getattr(summary_usage, "prompt_tokens", 0)
+            sct = getattr(summary_usage, "completion_tokens", 0)
+            stt = getattr(summary_usage, "total_tokens", 0)
+            if isinstance(spt, int):
+                sum_prompt_tokens = spt
+            if isinstance(sct, int):
+                sum_completion_tokens = sct
+            if isinstance(stt, int):
+                sum_total_tokens = stt
         save_usage(
             user["employee_id"], session_id, "SUMMARY_GENERATION",
             sum_prompt_tokens, sum_completion_tokens,
@@ -639,8 +728,36 @@ def ask_question(
         pipeline.audit_query(question, sql_query, status="SUCCESS",
                              extra_metadata={"execution_time": execution_time, "rows": len(rows)})
 
-        print("\n========== COMPLETE ==========")
-        print("Request completed successfully.")
+        total_req_time = round(time.time() - request_start_time, 2)
+        sem_time = 0.0
+        if isinstance(semantic_result, dict):
+            retrieval_data = semantic_result.get("retrieval")
+            if isinstance(retrieval_data, dict):
+                r_time = retrieval_data.get("time")
+                if isinstance(r_time, (int, float)):
+                    sem_time = float(r_time)
+
+        sql_gen_time = 0.0
+        if isinstance(sql_response, dict):
+            g_time = sql_response.get("gen_time")
+            if isinstance(g_time, (int, float)):
+                sql_gen_time = float(g_time)
+
+        sum_time_val = 0.0
+        if isinstance(summary_response, dict):
+            s_time = summary_response.get("sum_time")
+            if isinstance(s_time, (int, float)):
+                sum_time_val = float(s_time)
+        
+        print("\n========== REQUEST SUMMARY ==========")
+        print(f"Total Request Time: {total_req_time}s")
+        print(f"Semantic Time: {sem_time}s")
+        print(f"SQL Generation Time: {sql_gen_time}s")
+        print(f"SQL Execution Time: {execution_time}s")
+        print(f"Summary Time: {sum_time_val}s")
+        print(f"Total Tokens (if available): {sql_total_tokens + sum_total_tokens}")
+        print("Success: True")
+        print("=====================================")
                              
         if rows:
             QueryExamplesService.store(
@@ -1299,19 +1416,6 @@ def debug_relationships():
 
     return [list(row) for row in rows]
 
-
-@app.get("/test-relevant-tables")
-def test_relevant_tables():
-
-    active_connection = get_active_conn_or_raise()
-
-    return {
-        "tables":
-        RelevantTableResolver.resolve(
-            active_connection["connection_id"],
-            "Show internet sales"
-        )
-    }
 
 @app.get("/test-relevant-schema")
 def test_relevant_schema():

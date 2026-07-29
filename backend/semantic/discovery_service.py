@@ -1,7 +1,6 @@
 from semantic import dimension_value_index_builder
 from security import row_security
 from tools.load_all_sales_csv import table_name
-from ai.insights import followup_generator
 import uuid, re
 from sqlalchemy import text
 from database import engine
@@ -266,121 +265,170 @@ class SemanticDiscoveryService:
                                 }
                             )
                 # Generate dimensions
-                dimension_key = (table_name.lower(), lower)
-                if SemanticDiscoveryService.is_dimension_column(
-                     column_name,
-                     data_type
-                    ):
-
-                    dimension_name = lower.replace(" ", "_")
-
-                    # One semantic dimension per table + column
-                    dimension_key = (
-                        table_name.lower(),
-                        dimension_name
-                    )
+                if SemanticDiscoveryService.is_dimension_column(column_name, data_type):
+                    is_date = SemanticDiscoveryService.is_date_type(data_type)
+                    variants = []
                     
-                    discovered_dimensions.add((table_name, column_name))
-
-                    print(
-                        f"[DISCOVERY] table={table_name}, "
-                        f"column={column_name}, "
-                        f"dimension_name={dimension_name!r}, "
-                        f"key={dimension_key!r}, "
-                        f"already_seen={dimension_key in seen_dimensions}"
-                    )
-                    if dimension_key not in seen_dimensions:
-
-                        seen_dimensions.add(dimension_key)
-
-                        dimension_id = str(uuid.uuid4())
-
-                        business_name = (
-                            SemanticDiscoveryService.generate_business_name(
-                                table_name,
-                                column_name
-                            )
-                        )
-
+                    if is_date:
+                        base_bus_name = SemanticDiscoveryService.generate_business_name(table_name, column_name)
+                        
+                        # Date
+                        date_bus_name = base_bus_name if "date" in base_bus_name.lower() else f"{base_bus_name} Date"
+                        variants.append({
+                            "suffix": "date",
+                            "business_name": date_bus_name,
+                            "synonyms": "date,dt,day",
+                            "semantic_category": "TIME_DATE"
+                        })
+                        # Year
+                        variants.append({
+                            "suffix": "year",
+                            "business_name": f"{base_bus_name} Year",
+                            "synonyms": "year,yr,calendar year",
+                            "semantic_category": "TIME_YEAR"
+                        })
+                        # Quarter
+                        variants.append({
+                            "suffix": "quarter",
+                            "business_name": f"{base_bus_name} Quarter",
+                            "synonyms": "quarter,qtr",
+                            "semantic_category": "TIME_QUARTER"
+                        })
+                        # Month
+                        variants.append({
+                            "suffix": "month",
+                            "business_name": f"{base_bus_name} Month",
+                            "synonyms": "month,mth,calendar month",
+                            "semantic_category": "TIME_MONTH"
+                        })
+                        # Week
+                        variants.append({
+                            "suffix": "week",
+                            "business_name": f"{base_bus_name} Week",
+                            "synonyms": "week,wk",
+                            "semantic_category": "TIME_WEEK"
+                        })
+                        # Day
+                        variants.append({
+                            "suffix": "day",
+                            "business_name": f"{base_bus_name} Day",
+                            "synonyms": "day,dy,day of month",
+                            "semantic_category": "TIME_DAY"
+                        })
+                    else:
+                        dimension_name = lower.replace(" ", "_")
+                        business_name = SemanticDiscoveryService.generate_business_name(table_name, column_name)
                         semantic_category = SemanticDiscoveryService.detect_semantic_category(table_name, column_name, data_type)
+                        sql_expression = f"{table_name}.{column_name}"
 
-                        description = (
-                            f"Semantic dimension for {column_name} in {table_name}"
+                        variants.append({
+                            "suffix": None,
+                            "business_name": business_name,
+                            "synonyms": None,
+                            "semantic_category": semantic_category,
+                            "sql_expression": sql_expression
+                        })
+
+                    for var in variants:
+                        suffix = var["suffix"]
+                        v_dim_name = f"{lower.replace(' ', '_')}_{suffix}" if suffix else lower.replace(" ", "_")
+                        dimension_key = (table_name.lower(), v_dim_name)
+                        
+                        discovered_dimensions.add((table_name, column_name))
+
+                        print(
+                            f"[DISCOVERY] table={table_name}, "
+                            f"column={column_name}, "
+                            f"dimension_name={v_dim_name!r}, "
+                            f"key={dimension_key!r}, "
+                            f"already_seen={dimension_key in seen_dimensions}"
                         )
-
-                        existing_dimension = conn.execute(
-                            text("""
-                                SELECT dimension_id
-                                FROM semantic_dimensions
-                                WHERE connection_id = :connection_id
-                                AND table_name = :table_name
-                                AND column_name = :column_name
-                            """),
-                            {
-                                "connection_id": connection_id,
-                                "table_name": table_name,
-                                "column_name": column_name
-                            }
-                        ).fetchone()
-
-                        if existing_dimension:
-
-                            conn.execute(
-                                text("""
-                                    UPDATE semantic_dimensions
-                                    SET
-                                        semantic_category = :semantic_category,
-                                        source = 'AUTO'
-                                    WHERE dimension_id = :dimension_id
-                                """),
-                                {
-                                    "semantic_category": semantic_category,
-                                    "dimension_id": existing_dimension.dimension_id
-                                }
-                            )
-
-                        else:
-
+                        if dimension_key not in seen_dimensions:
+                            seen_dimensions.add(dimension_key)
                             dimension_id = str(uuid.uuid4())
-
-                            conn.execute(
+                            
+                            business_name = var["business_name"]
+                            semantic_category = var["semantic_category"]
+                            synonyms = var["synonyms"]
+                            
+                            description = f"Semantic dimension for {column_name} ({suffix if suffix else 'standard'}) in {table_name}"
+                            
+                            existing_dimension = conn.execute(
                                 text("""
-                                    INSERT INTO semantic_dimensions
-                                    (
-                                        dimension_id,
-                                        connection_id,
-                                        dimension_name,
-                                        business_name,
-                                        description,
-                                        table_name,
-                                        column_name,
-                                        semantic_category,
-                                        source
-                                    )
-                                    VALUES
-                                    (
-                                        :dimension_id,
-                                        :connection_id,
-                                        :dimension_name,
-                                        :business_name,
-                                        :description,
-                                        :table_name,
-                                        :column_name,
-                                        :semantic_category,
-                                        'AUTO'
-                                    )
+                                    SELECT dimension_id
+                                    FROM semantic_dimensions
+                                    WHERE connection_id = :connection_id
+                                    AND table_name = :table_name
+                                    AND column_name = :column_name
+                                    AND dimension_name = :dimension_name
                                 """),
                                 {
-                                    "dimension_id": dimension_id,
                                     "connection_id": connection_id,
-                                    "dimension_name": dimension_name,
-                                    "business_name": business_name,
-                                    "description": description,
                                     "table_name": table_name,
                                     "column_name": column_name,
-                                    "semantic_category": semantic_category
+                                    "dimension_name": v_dim_name
                                 }
-                            )
+                            ).fetchone()
+
+                            if existing_dimension:
+                                conn.execute(
+                                    text("""
+                                        UPDATE semantic_dimensions
+                                        SET
+                                            semantic_category = :semantic_category,
+                                            synonyms = :synonyms,
+                                            source = 'AUTO'
+                                        WHERE dimension_id = :dimension_id
+                                    """),
+                                    {
+                                        "semantic_category": semantic_category,
+                                        "synonyms": synonyms,
+                                        "dimension_id": existing_dimension.dimension_id
+                                    }
+                                )
+                            else:
+                                dimension_id = str(uuid.uuid4())
+                                conn.execute(
+                                    text("""
+                                        INSERT INTO semantic_dimensions
+                                        (
+                                            dimension_id,
+                                            connection_id,
+                                            dimension_name,
+                                            business_name,
+                                            description,
+                                            table_name,
+                                            column_name,
+                                            semantic_category,
+                                            source,
+                                            synonyms
+                                        )
+                                        VALUES
+                                        (
+                                            :dimension_id,
+                                            :connection_id,
+                                            :dimension_name,
+                                            :business_name,
+                                            :description,
+                                            :table_name,
+                                            :column_name,
+                                            :semantic_category,
+                                            'AUTO',
+                                            :synonyms
+                                        )
+                                    """),
+                                    {
+                                        "dimension_id": dimension_id,
+                                        "connection_id": connection_id,
+                                        "dimension_name": v_dim_name,
+                                        "business_name": business_name,
+                                        "description": description,
+                                        "table_name": table_name,
+                                        "column_name": column_name,
+                                        "semantic_category": semantic_category,
+                                        "synonyms": synonyms
+                                    }
+                                )
                             
             existing_metrics = conn.execute(
                 text("""
@@ -650,18 +698,13 @@ class SemanticDiscoveryService:
     def is_date_type(data_type: str):
 
         date_types = {
-
             "date",
-
-        "datetime",
-
-        "datetime2",
-
-        "smalldatetime",
-
-        "datetimeoffset"
-
-    }
+            "datetime",
+            "datetime2",
+            "smalldatetime",
+            "datetimeoffset",
+            "timestamp"
+        }
 
         return data_type.lower() in date_types
 
