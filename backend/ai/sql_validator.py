@@ -1,4 +1,5 @@
 import re
+from ai.schema_loader import get_schema_metadata
 
 # Block dangerous SQL operations
 BLOCKED_KEYWORDS = [
@@ -58,7 +59,227 @@ def validate_sql_query(sql_query: str ):
         if pattern in lower_query:
             return False, "SQL comments are not allowed"
 
+    is_valid, error = validate_schema(sql_query)
+
+    if not is_valid:
+        return False, error
+
     return True, sql_query
+
+def extract_tables(sql: str):
+    """
+    Extract tables from FROM and JOIN clauses.
+    """
+
+    pattern = r"(?:FROM|JOIN)\s+([A-Za-z0-9_.]+)"
+
+    return re.findall(pattern, sql, flags=re.IGNORECASE)
+
+def extract_columns(sql: str):
+    """
+    Extract column names from the SELECT clause.
+
+    A2 Scope:
+    - Supports regular columns
+    - Supports table aliases (s.Sales)
+    - Ignores '*'
+    - Ignores SQL functions (handled in A3)
+    - Ignores aliases (AS ...)
+    """
+
+    match = re.search(
+        r"SELECT\s+(.*?)\s+FROM",
+        sql,
+        flags=re.IGNORECASE | re.DOTALL
+    )
+
+    if not match:
+        return []
+
+    select_part = match.group(1)
+
+    columns = []
+
+    for item in select_part.split(","):
+
+        item = item.strip()
+
+        if item == "*":
+            continue
+
+        # Remove column alias
+        item = re.sub(
+            r"\s+AS\s+\w+$",
+            "",
+            item,
+            flags=re.IGNORECASE
+        )
+
+        # Skip SQL functions (A3)
+        if "(" in item or ")" in item:
+            continue
+
+        # Remove table alias
+        if "." in item:
+            item = item.split(".")[-1]
+
+        item = item.strip()
+
+        if item:
+            columns.append(item.lower())
+
+    return columns
+
+def extract_alias_map(sql: str):
+    """
+    Extract table aliases from FROM and JOIN clauses.
+
+    Example:
+        FROM Sales S
+        JOIN Products P
+
+    Returns:
+        {
+            "S": "Sales",
+            "P": "Products"
+        }
+    """
+
+    alias_map = {}
+
+    pattern = re.compile(
+        r"(?:FROM|JOIN)\s+([A-Za-z0-9_.]+)(?:\s+(?:AS\s+)?([A-Za-z0-9_]+))?",
+        re.IGNORECASE
+    )
+
+    for match in pattern.finditer(sql):
+
+        table_name = match.group(1)
+        alias = match.group(2)
+
+        # Ignore SQL keywords accidentally captured
+        if alias and alias.upper() in {
+            "ON", "WHERE", "GROUP", "ORDER",
+            "INNER", "LEFT", "RIGHT", "FULL",
+            "JOIN", "HAVING"
+        }:
+            alias = None
+
+        if alias:
+            alias_map[alias] = table_name
+        else:
+            # Allow unaliased tables
+            alias_map[table_name] = table_name
+
+    return alias_map
+
+def validate_schema(sql_query: str, company_id: str = None):
+    """
+    Validate that all referenced tables and columns exist
+    in the synchronized schema metadata.
+    """
+
+    metadata = get_schema_metadata(company_id)
+
+    if not metadata:
+        return False, "Schema metadata is unavailable."
+
+    errors = []
+
+    alias_map = extract_alias_map(sql_query)
+
+    # --------------------------------------------------
+    # Validate tables
+    # --------------------------------------------------
+
+    for table_name in alias_map.values():
+
+        full_table = None
+
+        if table_name in metadata:
+            full_table = table_name
+        else:
+            matches = [
+                t
+                for t in metadata.keys()
+                if t.endswith("." + table_name)
+            ]
+
+            if matches:
+                full_table = matches[0]
+
+        if full_table is None:
+            errors.append(
+                f"Table '{table_name}' does not exist."
+            )
+
+    # --------------------------------------------------
+    # Validate columns
+    # --------------------------------------------------
+
+    references = extract_column_references(sql_query)
+
+    for alias, column in references:
+
+        if alias not in alias_map:
+            errors.append(
+                f"Unknown table alias '{alias}'."
+            )
+            continue
+
+        table_name = alias_map[alias]
+
+        if table_name not in metadata:
+
+            matches = [
+                t
+                for t in metadata.keys()
+                if t.endswith("." + table_name)
+            ]
+
+            if matches:
+                table_name = matches[0]
+            else:
+                continue
+
+        if column.lower() not in metadata[table_name]["columns"]:
+
+            errors.append(
+                f"Column '{column}' does not exist in table '{table_name}'."
+            )
+
+    if errors:
+        return False, errors[0]
+
+    return True, None
+
+def extract_column_references(sql: str):
+    """
+    Extract all qualified column references from SQL.
+
+    Example:
+        S.Sales
+        R.Country
+        P.ProductKey
+
+    Returns:
+        [
+            ("S", "Sales"),
+            ("R", "Country"),
+            ("P", "ProductKey")
+        ]
+    """
+
+    pattern = re.compile(
+        r"\b([A-Za-z_][A-Za-z0-9_]*)\.([A-Za-z_][A-Za-z0-9_]*)\b"
+    )
+
+    references = []
+
+    for alias, column in pattern.findall(sql):
+        references.append((alias, column))
+
+    return references
 
 
 def enforce_row_limit(sql_query: str):

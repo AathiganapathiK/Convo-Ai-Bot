@@ -1,6 +1,9 @@
-from utils.value_formatter import format_value
+from ai.sql_validator import validate_sql_query
+from ai.sql_validator import validate_schema
 
-print(format_value("Sales", 1500000))
-print(format_value("TotalCost", 12345678.50))
-print(format_value("Quantity", 2500))
-print(format_value("ProductName", "Shirt"))
+sql = """
+SELECT *
+FROM InvalidTable
+"""
+
+print(validate_sql_query(sql))

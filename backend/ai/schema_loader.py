@@ -1,3 +1,4 @@
+import re
 import os
 from sqlalchemy import text
 from database import engine
@@ -129,6 +130,88 @@ try:
     print(get_database_schema())
 except Exception:
     pass
+
+from collections import defaultdict
+
+
+def get_schema_metadata(company_id: str = None) -> dict:
+    """
+    Returns structured schema metadata for SQL validation.
+
+    {
+        "dbo.Sales": {
+            "columns": {
+                "SalesAmount",
+                "OrderDate",
+                "ProductKey"
+            }
+        }
+    }
+    """
+
+    from services.connection_service import ConnectionService
+
+    if company_id:
+        active_conn = ConnectionService.get_active_connection(company_id)
+        if not active_conn:
+            return {}
+
+        connection_id = active_conn["connection_id"]
+
+        params = {
+            "connection_id": connection_id,
+            "company_id": company_id
+        }
+
+        where_clause = """
+            WHERE st.connection_id = :connection_id
+              AND st.company_id = :company_id
+        """
+
+    else:
+        active_conn = ConnectionService.get_active_connection_global()
+        if not active_conn:
+            return {}
+
+        connection_id = active_conn["connection_id"]
+
+        params = {
+            "connection_id": connection_id
+        }
+
+        where_clause = """
+            WHERE st.connection_id = :connection_id
+        """
+
+    query = f"""
+    SELECT
+        st.schema_name,
+        st.table_name,
+        sc.column_name
+    FROM schema_tables st
+    INNER JOIN schema_columns sc
+        ON st.table_id = sc.table_id
+    {where_clause}
+    ORDER BY
+        st.table_name,
+        sc.column_name
+    """
+
+    metadata = defaultdict(lambda: {"columns": set()})
+
+    with engine.connect() as conn:
+        rows = conn.execute(text(query), params).fetchall()
+
+    for row in rows:
+        table = f"{row.schema_name}.{row.table_name}"
+
+        if table not in ALLOWED_TABLES:
+            continue
+
+        metadata[table]["columns"].add(row.column_name.lower())
+
+    return dict(metadata)
+
 
 """
 
