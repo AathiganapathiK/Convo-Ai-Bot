@@ -12,3 +12,4 @@ requests
 groq
 openpyxl
 email-validator
+sqlglot

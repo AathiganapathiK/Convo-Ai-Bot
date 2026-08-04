@@ -126,10 +126,7 @@ def get_database_schema(company_id: str = None) -> str:
         return f"Error loading schema metadata: {str(e)}"
 
 
-try:
-    print(get_database_schema())
-except Exception:
-    pass
+
 
 from collections import defaultdict
 

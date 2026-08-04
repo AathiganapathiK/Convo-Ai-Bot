@@ -1,5 +1,19 @@
+from ai import schema_loader
 import re
+import logging
+from ai.ast import (
+    SQLASTParser,
+    SQLASTSecurityValidator,
+    SQLASTMetadataExtractor,
+    SQLASTSchemaValidator,
+)
+from ai.repair import RepairEngine
+from ai.validation_pipeline import ValidationPipeline
+
 from ai.schema_loader import get_schema_metadata
+
+logger = logging.getLogger(__name__)
+
 
 # Block dangerous SQL operations
 BLOCKED_KEYWORDS = [
@@ -15,14 +29,30 @@ BLOCKED_KEYWORDS = [
     "merge"
 ]
 
-def validate_sql_query(sql_query: str ):
+ast_parser = SQLASTParser()
+
+ast_security_validator = SQLASTSecurityValidator()
+
+ast_metadata_extractor = SQLASTMetadataExtractor()
+
+ast_schema_validator = SQLASTSchemaValidator()
+
+validation_pipeline = ValidationPipeline(
+    ast_parser,
+    ast_security_validator,
+    ast_metadata_extractor,
+    ast_schema_validator,
+)
+
+repair_engine = RepairEngine(validation_pipeline)
+
+def validate_sql_query(sql_query: str):
 
     # Remove extra spaces
     sql_query = sql_query.strip()
 
     sql_query = extract_sql(sql_query)
-    # Convert to lowercase for ch
-    # ecks
+    # Convert to lowercase for checks
     sql_query = re.sub(
         r"<think>.*?</think>",
         "",
@@ -59,12 +89,51 @@ def validate_sql_query(sql_query: str ):
         if pattern in lower_query:
             return False, "SQL comments are not allowed"
 
-    is_valid, error = validate_schema(sql_query)
+    # Step 5: Schema metadata
+    schema_metadata = get_schema_metadata()
+    if not schema_metadata:
+        return False, "Schema metadata is unavailable."
 
-    if not is_valid:
-        return False, error
+    # Step 6: Run Validation Pipeline
+    pipeline_result = validation_pipeline.validate(sql_query, schema_metadata)
+    if not pipeline_result.passed:
+        # If it failed schema validation, try to repair it
+        if pipeline_result.schema_result:
+            repair_result = repair_engine.repair_query(pipeline_result, schema_metadata)
+            if repair_result.success:
+                sql_query = repair_result.repaired_sql
+                pipeline_result = repair_result.final_validation
+            else:
+                return False, str(pipeline_result.schema_result.errors[0])
+        else:
+            return False, pipeline_result.error
 
+    schema_passed = True
+    schema_errors = []
+
+    # Step 9: Shadow Mode
+    legacy_valid, legacy_error = validate_schema(sql_query)
+
+    if legacy_valid != schema_passed:
+        logger.warning(
+            "Schema validator mismatch",
+            extra={
+                "event": "schema_validation_mismatch",
+                "sql": sql_query,
+                "legacy": {
+                    "passed": legacy_valid,
+                    "error": legacy_error,
+                },
+                "ast": {
+                    "passed": schema_passed,
+                    "errors": [str(e) for e in schema_errors],
+                },
+            },
+        )
+
+    # Step 10: Return
     return True, sql_query
+
 
 def extract_tables(sql: str):
     """

@@ -1,6 +1,5 @@
 from semantic import dimension_value_index_builder
 from security import row_security
-from tools.load_all_sales_csv import table_name
 import uuid, re
 from sqlalchemy import text
 from database import engine
