@@ -1,0 +1,872 @@
+[
+  {
+    "question": "past five years sales",
+    "intent": "LAST_N_YEARS",
+    "count": 5
+  },
+  {
+    "question": "last five years revenue",
+    "intent": "LAST_N_YEARS",
+    "count": 5
+  },
+  {
+    "question": "past 3 years orders",
+    "intent": "LAST_N_YEARS",
+    "count": 3
+  },
+  {
+    "question": "last 10 years growth",
+    "intent": "LAST_N_YEARS",
+    "count": 10
+  },
+  {
+    "question": "past one years customer count",
+    "intent": "LAST_N_YEARS",
+    "count": 1
+  },
+  {
+    "question": "last two years profit margins",
+    "intent": "LAST_N_YEARS",
+    "count": 2
+  },
+  {
+    "question": "past 4 years returns",
+    "intent": "LAST_N_YEARS",
+    "count": 4
+  },
+  {
+    "question": "last six years sales",
+    "intent": "LAST_N_YEARS",
+    "count": 6
+  },
+  {
+    "question": "past 7 years performance",
+    "intent": "LAST_N_YEARS",
+    "count": 7
+  },
+  {
+    "question": "last eight years transactions",
+    "intent": "LAST_N_YEARS",
+    "count": 8
+  },
+  {
+    "question": "past nine years expenses",
+    "intent": "LAST_N_YEARS",
+    "count": 9
+  },
+  {
+    "question": "last twelve years trends",
+    "intent": "LAST_N_YEARS",
+    "count": 12
+  },
+  {
+    "question": "rolling 12 months sales",
+    "intent": "LAST_N_MONTHS",
+    "count": 12
+  },
+  {
+    "question": "past six months revenue",
+    "intent": "LAST_N_MONTHS",
+    "count": 6
+  },
+  {
+    "question": "last 3 months orders",
+    "intent": "LAST_N_MONTHS",
+    "count": 3
+  },
+  {
+    "question": "past 9 months customer acquisition",
+    "intent": "LAST_N_MONTHS",
+    "count": 9
+  },
+  {
+    "question": "rolling 6 months trend",
+    "intent": "LAST_N_MONTHS",
+    "count": 6
+  },
+  {
+    "question": "last one month returns",
+    "intent": "LAST_N_MONTHS",
+    "count": 1
+  },
+  {
+    "question": "past two months performance",
+    "intent": "LAST_N_MONTHS",
+    "count": 2
+  },
+  {
+    "question": "rolling 3 months profit",
+    "intent": "LAST_N_MONTHS",
+    "count": 3
+  },
+  {
+    "question": "last four months expenses",
+    "intent": "LAST_N_MONTHS",
+    "count": 4
+  },
+  {
+    "question": "past five months transactions",
+    "intent": "LAST_N_MONTHS",
+    "count": 5
+  },
+  {
+    "question": "rolling 24 months volume",
+    "intent": "LAST_N_MONTHS",
+    "count": 24
+  },
+  {
+    "question": "last 8 months growth",
+    "intent": "LAST_N_MONTHS",
+    "count": 8
+  },
+  {
+    "question": "past two weeks revenue",
+    "intent": "LAST_N_WEEKS",
+    "count": 2
+  },
+  {
+    "question": "last 4 weeks sales",
+    "intent": "LAST_N_WEEKS",
+    "count": 4
+  },
+  {
+    "question": "past twelve weeks activity",
+    "intent": "LAST_N_WEEKS",
+    "count": 12
+  },
+  {
+    "question": "last 6 weeks active users",
+    "intent": "LAST_N_WEEKS",
+    "count": 6
+  },
+  {
+    "question": "past 8 weeks retention",
+    "intent": "LAST_N_WEEKS",
+    "count": 8
+  },
+  {
+    "question": "last one week conversion rate",
+    "intent": "LAST_N_WEEKS",
+    "count": 1
+  },
+  {
+    "question": "past 3 weeks volume",
+    "intent": "LAST_N_WEEKS",
+    "count": 3
+  },
+  {
+    "question": "last five weeks profit",
+    "intent": "LAST_N_WEEKS",
+    "count": 5
+  },
+  {
+    "question": "past ten weeks costs",
+    "intent": "LAST_N_WEEKS",
+    "count": 10
+  },
+  {
+    "question": "last 52 weeks performance",
+    "intent": "LAST_N_WEEKS",
+    "count": 52
+  },
+  {
+    "question": "past 26 weeks trend",
+    "intent": "LAST_N_WEEKS",
+    "count": 26
+  },
+  {
+    "question": "last 16 weeks sales",
+    "intent": "LAST_N_WEEKS",
+    "count": 16
+  },
+  {
+    "question": "past 30 days transactions",
+    "intent": "LAST_N_DAYS",
+    "count": 30
+  },
+  {
+    "question": "last 7 days active count",
+    "intent": "LAST_N_DAYS",
+    "count": 7
+  },
+  {
+    "question": "past ninety days revenue",
+    "intent": "LAST_N_DAYS",
+    "count": 90
+  },
+  {
+    "question": "last one day signups",
+    "intent": "LAST_N_DAYS",
+    "count": 1
+  },
+  {
+    "question": "past three days visitors",
+    "intent": "LAST_N_DAYS",
+    "count": 3
+  },
+  {
+    "question": "last 14 days growth",
+    "intent": "LAST_N_DAYS",
+    "count": 14
+  },
+  {
+    "question": "past 60 days returns",
+    "intent": "LAST_N_DAYS",
+    "count": 60
+  },
+  {
+    "question": "last ten days traffic",
+    "intent": "LAST_N_DAYS",
+    "count": 10
+  },
+  {
+    "question": "past 180 days sales",
+    "intent": "LAST_N_DAYS",
+    "count": 180
+  },
+  {
+    "question": "last 365 days performance",
+    "intent": "LAST_N_DAYS",
+    "count": 365
+  },
+  {
+    "question": "past five days conversion",
+    "intent": "LAST_N_DAYS",
+    "count": 5
+  },
+  {
+    "question": "last fifteen days margin",
+    "intent": "LAST_N_DAYS",
+    "count": 15
+  },
+  {
+    "question": "top products this year",
+    "intent": "CURRENT_YEAR"
+  },
+  {
+    "question": "current year growth",
+    "intent": "CURRENT_YEAR"
+  },
+  {
+    "question": "this year sales performance",
+    "intent": "CURRENT_YEAR"
+  },
+  {
+    "question": "revenue generated this year",
+    "intent": "CURRENT_YEAR"
+  },
+  {
+    "question": "current year margin",
+    "intent": "CURRENT_YEAR"
+  },
+  {
+    "question": "this year budget utilization",
+    "intent": "CURRENT_YEAR"
+  },
+  {
+    "question": "current year customer count",
+    "intent": "CURRENT_YEAR"
+  },
+  {
+    "question": "this year total refund",
+    "intent": "CURRENT_YEAR"
+  },
+  {
+    "question": "current year active stores",
+    "intent": "CURRENT_YEAR"
+  },
+  {
+    "question": "growth rate for this year",
+    "intent": "CURRENT_YEAR"
+  },
+  {
+    "question": "sales for the current month",
+    "intent": "CURRENT_MONTH"
+  },
+  {
+    "question": "this month revenue",
+    "intent": "CURRENT_MONTH"
+  },
+  {
+    "question": "current month conversions",
+    "intent": "CURRENT_MONTH"
+  },
+  {
+    "question": "active users this month",
+    "intent": "CURRENT_MONTH"
+  },
+  {
+    "question": "current month returns",
+    "intent": "CURRENT_MONTH"
+  },
+  {
+    "question": "this month profit margins",
+    "intent": "CURRENT_MONTH"
+  },
+  {
+    "question": "current month total expenses",
+    "intent": "CURRENT_MONTH"
+  },
+  {
+    "question": "this month discounts",
+    "intent": "CURRENT_MONTH"
+  },
+  {
+    "question": "current month order count",
+    "intent": "CURRENT_MONTH"
+  },
+  {
+    "question": "this month performance report",
+    "intent": "CURRENT_MONTH"
+  },
+  {
+    "question": "sales this week",
+    "intent": "CURRENT_WEEK"
+  },
+  {
+    "question": "current week growth",
+    "intent": "CURRENT_WEEK"
+  },
+  {
+    "question": "active visitors this week",
+    "intent": "CURRENT_WEEK"
+  },
+  {
+    "question": "current week revenue",
+    "intent": "CURRENT_WEEK"
+  },
+  {
+    "question": "this week profit",
+    "intent": "CURRENT_WEEK"
+  },
+  {
+    "question": "current week signups",
+    "intent": "CURRENT_WEEK"
+  },
+  {
+    "question": "this week expenses",
+    "intent": "CURRENT_WEEK"
+  },
+  {
+    "question": "current week order volume",
+    "intent": "CURRENT_WEEK"
+  },
+  {
+    "question": "this week store traffic",
+    "intent": "CURRENT_WEEK"
+  },
+  {
+    "question": "current week returns count",
+    "intent": "CURRENT_WEEK"
+  },
+  {
+    "question": "sales today",
+    "intent": "CURRENT_DAY"
+  },
+  {
+    "question": "current day revenue",
+    "intent": "CURRENT_DAY"
+  },
+  {
+    "question": "today's profit",
+    "intent": "CURRENT_DAY"
+  },
+  {
+    "question": "today's active users",
+    "intent": "CURRENT_DAY"
+  },
+  {
+    "question": "current day transactions",
+    "intent": "CURRENT_DAY"
+  },
+  {
+    "question": "today's order count",
+    "intent": "CURRENT_DAY"
+  },
+  {
+    "question": "current day return rate",
+    "intent": "CURRENT_DAY"
+  },
+  {
+    "question": "today's discount value",
+    "intent": "CURRENT_DAY"
+  },
+  {
+    "question": "current day signups count",
+    "intent": "CURRENT_DAY"
+  },
+  {
+    "question": "today's performance stats",
+    "intent": "CURRENT_DAY"
+  },
+  {
+    "question": "previous year sales",
+    "intent": "PREVIOUS_YEAR"
+  },
+  {
+    "question": "last year revenue",
+    "intent": "PREVIOUS_YEAR"
+  },
+  {
+    "question": "previous year profit margins",
+    "intent": "PREVIOUS_YEAR"
+  },
+  {
+    "question": "last year total expenses",
+    "intent": "PREVIOUS_YEAR"
+  },
+  {
+    "question": "previous year customer retention",
+    "intent": "PREVIOUS_YEAR"
+  },
+  {
+    "question": "last year growth rate",
+    "intent": "PREVIOUS_YEAR"
+  },
+  {
+    "question": "previous year order volume",
+    "intent": "PREVIOUS_YEAR"
+  },
+  {
+    "question": "last year refund totals",
+    "intent": "PREVIOUS_YEAR"
+  },
+  {
+    "question": "previous year transaction count",
+    "intent": "PREVIOUS_YEAR"
+  },
+  {
+    "question": "last year market share",
+    "intent": "PREVIOUS_YEAR"
+  },
+  {
+    "question": "previous month sales",
+    "intent": "PREVIOUS_MONTH"
+  },
+  {
+    "question": "last month revenue",
+    "intent": "PREVIOUS_MONTH"
+  },
+  {
+    "question": "previous month profit",
+    "intent": "PREVIOUS_MONTH"
+  },
+  {
+    "question": "last month active users",
+    "intent": "PREVIOUS_MONTH"
+  },
+  {
+    "question": "previous month conversion rate",
+    "intent": "PREVIOUS_MONTH"
+  },
+  {
+    "question": "last month return rate",
+    "intent": "PREVIOUS_MONTH"
+  },
+  {
+    "question": "previous month expenses",
+    "intent": "PREVIOUS_MONTH"
+  },
+  {
+    "question": "last month discounts",
+    "intent": "PREVIOUS_MONTH"
+  },
+  {
+    "question": "previous month signups",
+    "intent": "PREVIOUS_MONTH"
+  },
+  {
+    "question": "last month traffic",
+    "intent": "PREVIOUS_MONTH"
+  },
+  {
+    "question": "previous week sales",
+    "intent": "PREVIOUS_WEEK"
+  },
+  {
+    "question": "last week revenue",
+    "intent": "PREVIOUS_WEEK"
+  },
+  {
+    "question": "previous week profit",
+    "intent": "PREVIOUS_WEEK"
+  },
+  {
+    "question": "last week order volume",
+    "intent": "PREVIOUS_WEEK"
+  },
+  {
+    "question": "previous week active stores",
+    "intent": "PREVIOUS_WEEK"
+  },
+  {
+    "question": "last week signups",
+    "intent": "PREVIOUS_WEEK"
+  },
+  {
+    "question": "previous week returns",
+    "intent": "PREVIOUS_WEEK"
+  },
+  {
+    "question": "last week conversion count",
+    "intent": "PREVIOUS_WEEK"
+  },
+  {
+    "question": "previous week marketing spend",
+    "intent": "PREVIOUS_WEEK"
+  },
+  {
+    "question": "last week average order value",
+    "intent": "PREVIOUS_WEEK"
+  },
+  {
+    "question": "previous day sales",
+    "intent": "PREVIOUS_DAY"
+  },
+  {
+    "question": "last day revenue",
+    "intent": "PREVIOUS_DAY"
+  },
+  {
+    "question": "yesterday sales",
+    "intent": "PREVIOUS_DAY"
+  },
+  {
+    "question": "yesterday's profit",
+    "intent": "PREVIOUS_DAY"
+  },
+  {
+    "question": "previous day active users",
+    "intent": "PREVIOUS_DAY"
+  },
+  {
+    "question": "last day transaction count",
+    "intent": "PREVIOUS_DAY"
+  },
+  {
+    "question": "yesterday's order volume",
+    "intent": "PREVIOUS_DAY"
+  },
+  {
+    "question": "previous day signups",
+    "intent": "PREVIOUS_DAY"
+  },
+  {
+    "question": "last day expenses",
+    "intent": "PREVIOUS_DAY"
+  },
+  {
+    "question": "yesterday's discount amount",
+    "intent": "PREVIOUS_DAY"
+  },
+  {
+    "question": "sales between 2020 and 2024",
+    "intent": "YEAR_RANGE",
+    "start_year": 2020,
+    "end_year": 2024
+  },
+  {
+    "question": "revenue from 2018 to 2022",
+    "intent": "YEAR_RANGE",
+    "start_year": 2018,
+    "end_year": 2022
+  },
+  {
+    "question": "growth in 2015 - 2020",
+    "intent": "YEAR_RANGE",
+    "start_year": 2015,
+    "end_year": 2020
+  },
+  {
+    "question": "sales between 2010 and 2015",
+    "intent": "YEAR_RANGE",
+    "start_year": 2010,
+    "end_year": 2015
+  },
+  {
+    "question": "revenue from 2019 to 2021",
+    "intent": "YEAR_RANGE",
+    "start_year": 2019,
+    "end_year": 2021
+  },
+  {
+    "question": "orders in 2021 - 2023",
+    "intent": "YEAR_RANGE",
+    "start_year": 2021,
+    "end_year": 2023
+  },
+  {
+    "question": "profit between 2005 and 2010",
+    "intent": "YEAR_RANGE",
+    "start_year": 2005,
+    "end_year": 2010
+  },
+  {
+    "question": "returns from 2020 to 2023",
+    "intent": "YEAR_RANGE",
+    "start_year": 2020,
+    "end_year": 2023
+  },
+  {
+    "question": "customers in 2016 - 2018",
+    "intent": "YEAR_RANGE",
+    "start_year": 2016,
+    "end_year": 2018
+  },
+  {
+    "question": "sales between 2200 and 2204",
+    "intent": "YEAR_RANGE",
+    "start_year": 2200,
+    "end_year": 2204
+  },
+  {
+    "question": "revenue from 2017 to 2019",
+    "intent": "YEAR_RANGE",
+    "start_year": 2017,
+    "end_year": 2019
+  },
+  {
+    "question": "margins in 2020 - 2022",
+    "intent": "YEAR_RANGE",
+    "start_year": 2020,
+    "end_year": 2022
+  },
+  {
+    "question": "sales comparison between 2021 and 2023",
+    "intent": "YEAR_COMPARISON",
+    "start_year": 2021,
+    "end_year": 2023
+  },
+  {
+    "question": "compare revenue between 2019 and 2022",
+    "intent": "YEAR_COMPARISON",
+    "start_year": 2019,
+    "end_year": 2022
+  },
+  {
+    "question": "revenue 2020 vs 2021",
+    "intent": "YEAR_COMPARISON",
+    "start_year": 2020,
+    "end_year": 2021
+  },
+  {
+    "question": "sales 2018 versus 2020",
+    "intent": "YEAR_COMPARISON",
+    "start_year": 2018,
+    "end_year": 2020
+  },
+  {
+    "question": "comparison between 2015 and 2018 for revenue",
+    "intent": "YEAR_COMPARISON",
+    "start_year": 2015,
+    "end_year": 2018
+  },
+  {
+    "question": "compare profit between 2021 and 2022",
+    "intent": "YEAR_COMPARISON",
+    "start_year": 2021,
+    "end_year": 2022
+  },
+  {
+    "question": "transactions 2022 vs 2023",
+    "intent": "YEAR_COMPARISON",
+    "start_year": 2022,
+    "end_year": 2023
+  },
+  {
+    "question": "expenses 2019 versus 2022",
+    "intent": "YEAR_COMPARISON",
+    "start_year": 2019,
+    "end_year": 2022
+  },
+  {
+    "question": "comparison between 2017 and 2020 for orders",
+    "intent": "YEAR_COMPARISON",
+    "start_year": 2017,
+    "end_year": 2020
+  },
+  {
+    "question": "compare margins 2020 vs 2023",
+    "intent": "YEAR_COMPARISON",
+    "start_year": 2020,
+    "end_year": 2023
+  },
+  {
+    "question": "ytd revenue by product category",
+    "intent": "YTD"
+  },
+  {
+    "question": "mtd sales performance",
+    "intent": "MTD"
+  },
+  {
+    "question": "qtd orders total",
+    "intent": "QTD"
+  },
+  {
+    "question": "fiscal ytd profit",
+    "intent": "FISCAL_YTD"
+  },
+  {
+    "question": "ytd transactions",
+    "intent": "YTD"
+  },
+  {
+    "question": "mtd conversion rate",
+    "intent": "MTD"
+  },
+  {
+    "question": "qtd return rate",
+    "intent": "QTD"
+  },
+  {
+    "question": "fytd expenses",
+    "intent": "FISCAL_YTD"
+  },
+  {
+    "question": "ytd customer count",
+    "intent": "YTD"
+  },
+  {
+    "question": "mtd new signups",
+    "intent": "MTD"
+  },
+  {
+    "question": "qtd total discount",
+    "intent": "QTD"
+  },
+  {
+    "question": "fiscal ytd revenue",
+    "intent": "FISCAL_YTD"
+  },
+  {
+    "question": "yoy growth in revenue",
+    "intent": "YOY_GROWTH"
+  },
+  {
+    "question": "year over year growth in sales",
+    "intent": "YOY_GROWTH"
+  },
+  {
+    "question": "yoy performance trend",
+    "intent": "YOY_GROWTH"
+  },
+  {
+    "question": "historical trend of sales",
+    "intent": "TREND"
+  },
+  {
+    "question": "revenue trend over time",
+    "intent": "TREND"
+  },
+  {
+    "question": "growth trends by month",
+    "intent": "TREND"
+  },
+  {
+    "question": "running total of sales for this year",
+    "intent": "RUNNING_TOTAL"
+  },
+  {
+    "question": "cumulative sum of revenue",
+    "intent": "RUNNING_TOTAL"
+  },
+  {
+    "question": "running total of profit",
+    "intent": "RUNNING_TOTAL"
+  },
+  {
+    "question": "yoy sales growth",
+    "intent": "YOY_GROWTH"
+  },
+  {
+    "question": "historical trends of active users",
+    "intent": "TREND"
+  },
+  {
+    "question": "running total of transactions",
+    "intent": "RUNNING_TOTAL"
+  },
+  {
+    "question": "sales from january to march",
+    "intent": "MONTH_RANGE",
+    "start_month": 1,
+    "end_month": 3
+  },
+  {
+    "question": "revenue between june and august",
+    "intent": "MONTH_RANGE",
+    "start_month": 6,
+    "end_month": 8
+  },
+  {
+    "question": "profit from jan 2022 to dec 2022",
+    "intent": "MONTH_RANGE",
+    "start_month": 1,
+    "start_year": 2022,
+    "end_month": 12,
+    "end_year": 2022
+  },
+  {
+    "question": "orders between feb 2021 and jul 2021",
+    "intent": "MONTH_RANGE",
+    "start_month": 2,
+    "start_year": 2021,
+    "end_month": 7,
+    "end_year": 2021
+  },
+  {
+    "question": "sales from april to september",
+    "intent": "MONTH_RANGE",
+    "start_month": 4,
+    "end_month": 9
+  },
+  {
+    "question": "revenue between october and december",
+    "intent": "MONTH_RANGE",
+    "start_month": 10,
+    "end_month": 12
+  },
+  {
+    "question": "conversion from mar to jun",
+    "intent": "MONTH_RANGE",
+    "start_month": 3,
+    "end_month": 6
+  },
+  {
+    "question": "expenses from august 2020 to november 2020",
+    "intent": "MONTH_RANGE",
+    "start_month": 8,
+    "start_year": 2020,
+    "end_month": 11,
+    "end_year": 2020
+  },
+  {
+    "question": "signups between september 2021 and december 2021",
+    "intent": "MONTH_RANGE",
+    "start_month": 9,
+    "start_year": 2021,
+    "end_month": 12,
+    "end_year": 2021
+  },
+  {
+    "question": "discounts from jan to mar",
+    "intent": "MONTH_RANGE",
+    "start_month": 1,
+    "end_month": 3
+  },
+  {
+    "question": "returns from may to august",
+    "intent": "MONTH_RANGE",
+    "start_month": 5,
+    "end_month": 8
+  },
+  {
+    "question": "orders from nov 2022 to dec 2022",
+    "intent": "MONTH_RANGE",
+    "start_month": 11,
+    "start_year": 2022,
+    "end_month": 12,
+    "end_year": 2022
+  }
+]

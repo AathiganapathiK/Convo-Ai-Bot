@@ -15,7 +15,12 @@ class ConfigService:
             c.timezone,
             c.currency,
             c.date_format,
-            c.sql_dialect
+            c.sql_dialect,
+            c.financial_year_start_month,
+            c.week_start_day,
+            c.default_calendar,
+            c.locale,
+            c.preferred_strategy
         FROM companies c
         WHERE c.company_id = :company_id
         """
@@ -42,7 +47,12 @@ class ConfigService:
         timezone: str,
         currency: str,
         date_format: str,
-        sql_dialect: str
+        sql_dialect: str,
+        financial_year_start_month: int = None,
+        week_start_day: int = None,
+        default_calendar: str = None,
+        locale: str = None,
+        preferred_strategy: str = None
     ):
 
         query = """
@@ -52,6 +62,11 @@ class ConfigService:
             currency = :currency,
             date_format = :date_format,
             sql_dialect = :sql_dialect,
+            financial_year_start_month = :financial_year_start_month,
+            week_start_day = :week_start_day,
+            default_calendar = :default_calendar,
+            locale = :locale,
+            preferred_strategy = :preferred_strategy,
             updated_at = GETDATE()
         WHERE company_id = :company_id
         """
@@ -65,11 +80,13 @@ class ConfigService:
                     "timezone": timezone,
                     "currency": currency,
                     "date_format": date_format,
-                    "sql_dialect": sql_dialect
+                    "sql_dialect": sql_dialect,
+                    "financial_year_start_month": financial_year_start_month,
+                    "week_start_day": week_start_day,
+                    "default_calendar": default_calendar,
+                    "locale": locale,
+                    "preferred_strategy": preferred_strategy
                 }
             )
 
         return True
-
-
-    

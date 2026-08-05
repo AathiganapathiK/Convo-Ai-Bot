@@ -10,6 +10,7 @@ from services.database_connection_factory import (
     DatabaseConnectionFactory
 )
 from services.column_display_service import ColumnDisplayService
+from semantic.temporal import TimeResolutionCache
 
 PLATFORM_TABLES = {
     'companies',
@@ -526,6 +527,8 @@ class SchemaSyncService:
         # 6. Auto-populate column display config
         ColumnDisplayService.auto_populate_display_config(connection_id)
 
+        # Invalidate the temporal resolution cache since capabilities may have changed
+        TimeResolutionCache.invalidate(connection_id)
 
         return {
             "success": True,

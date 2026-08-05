@@ -1,0 +1,2 @@
+# Backward compatibility wrapper for SingularPluralMatcher
+from semantic.matching.singular_plural_matcher import SingularPluralMatcher

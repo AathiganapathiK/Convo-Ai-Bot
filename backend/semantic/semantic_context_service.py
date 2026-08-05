@@ -48,7 +48,7 @@ class SemanticContextService:
                 col_name = dimension["column_name"]
                 
                 if category and category.startswith("TIME_") and dialect:
-                    from semantic.temporal_mapper import TemporalMapper
+                    from semantic.sql.temporal_mapper import TemporalMapper
                     sql_expr = TemporalMapper.get_sql_expression(dialect, category, col_name)
                     lines.append(
                         f"  Column: {col_name}"
