@@ -13,3 +13,4 @@ groq
 openpyxl
 email-validator
 sqlglot
+rapidfuzz
