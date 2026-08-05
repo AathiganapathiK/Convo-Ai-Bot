@@ -8,3 +8,5 @@ from semantic.matching.pipeline import MatchingPipeline
 from semantic.matching.ranker import MatchRanker
 from semantic.matching.candidate_phrase_extractor import CandidatePhraseExtractor
 from semantic.matching.stopwords import STOPWORDS
+from semantic.matching.question_sanitizer import QuestionSanitizer
+

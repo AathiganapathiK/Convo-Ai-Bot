@@ -2,7 +2,6 @@ from dataclasses import dataclass
 from sqlalchemy import text
 import re
 from database import engine
-from semantic.matching import SingularPluralMatcher
 
 from semantic.matching import (
     MatchType,
@@ -16,7 +15,8 @@ from semantic.matching import (
     NormalizedMatcher,
     SingularPluralMatcher,
     FuzzyMatcher,
-    STOPWORDS
+    STOPWORDS,
+    QuestionSanitizer
 )
 from semantic.cache import DimensionValueCache
 
@@ -97,6 +97,7 @@ class DimensionValueResolver:
         Resolve matches using the injected matching pipeline.
         """
 
+        question = QuestionSanitizer.sanitize(question)
         normalized_question = self._normalize_text(question)
         
         # 1) Pre-compute question tokens (excluding stopwords) and singulars once

@@ -14,7 +14,6 @@ services:
           cpus: 0.5
           memory: "536870912"
     environment:
-      ALLOWED_TABLES: dbo.Sales,dbo.Products,dbo.Region,dbo.Reseller,dbo.Salesperson,dbo.Targets,dbo.SalespersonRegion
       APP_ENV: production
       DB_DRIVER: ODBC Driver 18 for SQL Server
       DB_HOST: host.docker.internal

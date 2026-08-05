@@ -2,7 +2,7 @@ import re
 from sqlalchemy import text
 from database import engine
 from services.connection_service import ConnectionService
-from ai.schema_loader import ALLOWED_TABLES
+
 
 # Common English stopwords to filter out from questions
 STOPWORDS = {
@@ -109,11 +109,10 @@ class SchemaContextService:
             t_schema = row._mapping["schema_name"]
             t_name = row._mapping["table_name"]
             full_name = f"{t_schema}.{t_name}"
-            if full_name in ALLOWED_TABLES and t_name.lower() not in INTERNAL_TABLES:
-                business_tables.append(row._mapping)
+            business_tables.append(row._mapping)
                 
         if not business_tables:
-            return "No schema tables found in ALLOWED_TABLES for the active connection."
+            return "No schema tables found for the active connection. Run schema sync."
             
         # 2. Fetch columns
         query_columns = """

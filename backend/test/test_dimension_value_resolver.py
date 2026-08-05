@@ -500,6 +500,39 @@ class TestDimensionValueResolver(unittest.TestCase):
             res = resolver.resolve_matches("test-conn", question)
             self.assertEqual(len(res), 0, f"Expected no match for: {question}, but got {res}")
 
+    @patch("semantic.dimension_value_resolver.engine")
+    def test_original_bug_fixed_resolver_tokens(self, mock_engine):
+        mock_conn = MagicMock()
+        mock_engine.connect.return_value.__enter__.return_value = mock_conn
+        mock_conn.execute.return_value.fetchall.return_value = []
+        
+        resolver = DimensionValueResolver()
+        
+        with patch.object(resolver.pipeline, "execute") as mock_execute:
+            mock_execute.return_value = ([], MagicMock())
+            
+            input_text = """
+            Original Question:
+            Show banian sales
+
+            Follow-up Question:
+            Quarterly trend
+            """
+            
+            resolver.resolve_matches("test-conn", input_text)
+            
+            self.assertTrue(mock_execute.called)
+            called_context = mock_execute.call_args[0][0]
+            q_context = called_context.question_context
+            
+            self.assertIn("show", q_context.normalized_question.split())
+            self.assertIn("banian", q_context.normalized_question.split())
+            self.assertIn("sales", q_context.normalized_question.split())
+            
+            self.assertNotIn("follow", q_context.q_tokens)
+            self.assertNotIn("up", q_context.q_tokens)
+            self.assertNotIn("question", q_context.q_tokens)
+
 
 if __name__ == "__main__":
     unittest.main()

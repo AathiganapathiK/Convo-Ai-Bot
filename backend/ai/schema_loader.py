@@ -4,11 +4,6 @@ from sqlalchemy import text
 from database import engine
 import core.config
 
-# Tables exposed to the AI SQL generator.
-# Configurable via ALLOWED_TABLES env var (comma-separated: "dbo.Sales,dbo.Products")
-# Defaults to AdventureWorks business tables.
-_env_tables = os.getenv("ALLOWED_TABLES", "dbo.Sales,dbo.Products,dbo.Region,dbo.Reseller,dbo.Salesperson,dbo.Targets,dbo.Users,dbo.SalespersonRegion")
-ALLOWED_TABLES = {t.strip() for t in _env_tables.split(",") if t.strip()}
 
 
 def get_database_schema(company_id: str = None) -> str:
@@ -54,8 +49,6 @@ def get_database_schema(company_id: str = None) -> str:
             tables = {}
             for row in rows:
                 table_key = f"{row.schema_name}.{row.table_name}"
-                if table_key not in ALLOWED_TABLES:
-                    continue
                 if table_key not in tables:
                     tables[table_key] = []
                 tables[table_key].append(f"{row.column_name} ({row.data_type})")
@@ -105,14 +98,12 @@ def get_database_schema(company_id: str = None) -> str:
         tables = {}
         for row in rows:
             table_key = f"{row.schema_name}.{row.table_name}"
-            if table_key not in ALLOWED_TABLES:
-                continue
             if table_key not in tables:
                 tables[table_key] = []
             tables[table_key].append(f"{row.column_name} ({row.data_type})")
 
         if not tables:
-            return "No synchronized schema found in ALLOWED_TABLES for the active connection. Run schema sync."
+            return "No synchronized schema found. Run schema sync."
 
         schema_text = ""
         for table, columns in tables.items():
@@ -202,24 +193,7 @@ def get_schema_metadata(company_id: str = None) -> dict:
     for row in rows:
         table = f"{row.schema_name}.{row.table_name}"
 
-        if table not in ALLOWED_TABLES:
-            continue
 
         metadata[table]["columns"].add(row.column_name.lower())
 
     return dict(metadata)
-
-
-"""
-
-To change tables exposed to AI:
-1. Edit ALLOWED_TABLES in backend/.env
-
-Example:
-ALLOWED_TABLES=dbo.Sales,dbo.Products,dbo.Region
-
-2. Reload server
-
-Allowed tables will automatically update without code changes.
-
-"""

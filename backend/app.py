@@ -148,28 +148,6 @@ def initialize_company_isolation():
 
 initialize_company_isolation()
 
-def validate_prompt_tables_in_metadata():
-    try:
-        from ai.schema_loader import ALLOWED_TABLES
-        with engine.connect() as conn:
-            result = conn.execute(text("SELECT schema_name, table_name FROM schema_tables")).fetchall()
-            metadata_tables = {f"{row._mapping['schema_name']}.{row._mapping['table_name']}" for row in result}
-            
-        missing_tables = ALLOWED_TABLES - metadata_tables
-        if missing_tables:
-            msg = f"[STARTUP VALIDATION ERROR] The following required prompt tables are missing from database schema_tables metadata: {', '.join(missing_tables)}. Please run schema sync."
-            logger.error(msg)
-            print(msg)
-        else:
-            msg = "Startup validation passed: all required prompt tables exist in database metadata."
-            logger.info(msg)
-            print(msg)
-    except Exception as e:
-        msg = f"Error during startup prompt tables validation: {e}"
-        logger.error(msg)
-        print(msg)
-
-validate_prompt_tables_in_metadata()
 
 
 SchemaMonitorService.start()

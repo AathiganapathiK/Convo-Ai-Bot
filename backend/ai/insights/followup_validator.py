@@ -23,23 +23,14 @@ class FollowupValidator:
         print("\n========== FOLLOWUP VALIDATION ==========")
 
         for followup_question in questions:
-
-            validation_text = f"""
-            Original Question:
-            {original_question}
-
-            Follow-up Question:
-            {followup_question}
-            """.strip()
-
             try:
-
                 print(f"\nFollow-up: {followup_question}")
-                print(f"Context: {original_question}")
+                print(f"Original Question: {original_question}")
+                print(f"Validating Follow-up: {followup_question}")
 
                 semantic_result = SemanticResolver.resolve(
                         connection_id,
-                        validation_text
+                        followup_question
                     )
                 
                 print("\n========== SEMANTIC RESULT ==========")
@@ -59,11 +50,9 @@ class FollowupValidator:
                     valid_questions.append(followup_question)
 
             except Exception as ex:
-
                 print(
                     f"[FollowupValidator] Failed validation: {followup_question}"
                 )
                 print(ex)
-
 
         return valid_questions
