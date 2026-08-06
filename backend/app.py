@@ -569,6 +569,15 @@ def ask_question(
         if not active_connection:
             raise Exception("No active database connection configured")
 
+        # Resolve division access scope and apply Division RLS
+        from security.access_scope_service import AccessScopeService
+        from security.division_rls_engine import DivisionRLSEngine
+
+        division_code = AccessScopeService.resolve_user_division(user)
+        if division_code:
+            connection_id = active_connection["connection_id"]
+            sql_query = DivisionRLSEngine.apply_division_rls(sql_query, division_code, connection_id)
+
         source_engine = (
                 ConnectionManager.source(
                     user["company_id"],
@@ -809,6 +818,17 @@ def export_excel(
 
 @app.get("/companies")
 def get_companies(user: dict = Depends(get_current_user)):
+    if user.get("role", "").upper() == "SYSTEM_ADMIN":
+        with engine.connect() as connection:
+            result = connection.execute(text("SELECT company_id, company_name, company_code FROM companies WHERE is_active = 1")).fetchall()
+            return [
+                {
+                    "company_id": str(row.company_id),
+                    "company_name": row.company_name,
+                    "company_code": row.company_code
+                }
+                for row in result
+            ]
     return [
         {
             "company_id": user["company_id"],

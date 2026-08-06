@@ -18,7 +18,8 @@ class CreateUserRequest(BaseModel):
 
     role: str
 
-    company: str
+    company: Optional[str] = None
+    division_code: Optional[str] = None
 
 class UpdateUserRequest(BaseModel):
 
@@ -35,6 +36,8 @@ class UpdateUserRequest(BaseModel):
     mobile_number: Optional[str] = None
 
     address: Optional[str] = None
+
+    division_code: Optional[str] = None
 
 class UserStatusRequest(BaseModel):
     is_active: bool

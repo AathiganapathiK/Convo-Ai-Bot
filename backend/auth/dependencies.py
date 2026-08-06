@@ -83,6 +83,7 @@ def get_current_user(
         result = connection.execute(
             text("""
                 SELECT
+                    id,
                     employee_id,
                     full_name,
                     official_email,
@@ -145,6 +146,7 @@ def get_current_user(
 
     # --- Step 6: Return the required DB fields ---
     return {
+        "id": db_user["id"],
         "employee_id": db_user["employee_id"],
         "full_name": db_user["full_name"],
         "role": db_user["role"],

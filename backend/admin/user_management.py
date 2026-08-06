@@ -1,10 +1,11 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy import text
 from database import engine
 from security.rbac_service import require_permission
 from security.audit_service import audit_log, AuditAction
 from admin.user_schema import CreateUserRequest, UpdateUserRequest, UserStatusRequest
 from auth.password_utils import hash_password
+from auth.password_validator import validate_password
 
 router = APIRouter()
 
@@ -64,36 +65,40 @@ def get_users(
     if caller_role == "SUPER_ADMIN":
         query = """
         SELECT
-            id,
-            employee_id,
-            full_name,
-            official_email,
-            department,
-            role,
-            company,
-            is_active,
-            created_at
-        FROM users
-        ORDER BY id
+            u.id,
+            u.employee_id,
+            u.full_name,
+            u.official_email,
+            u.department,
+            u.role,
+            u.company,
+            u.is_active,
+            u.created_at,
+            uda.division_code
+        FROM users u
+        LEFT JOIN user_division_access uda ON u.id = uda.user_id
+        ORDER BY u.id
         """
         params = {}
     else:  # ADMIN
         query = """
         SELECT
-            id,
-            employee_id,
-            full_name,
-            official_email,
-            department,
-            role,
-            company,
-            is_active,
-            created_at
-        FROM users
-        WHERE company_id = :company_id 
-          AND department = :department
-          AND (role != 'SUPER_ADMIN' OR role IS NULL)
-        ORDER BY id
+            u.id,
+            u.employee_id,
+            u.full_name,
+            u.official_email,
+            u.department,
+            u.role,
+            u.company,
+            u.is_active,
+            u.created_at,
+            uda.division_code
+        FROM users u
+        LEFT JOIN user_division_access uda ON u.id = uda.user_id
+        WHERE u.company_id = :company_id 
+          AND u.department = :department
+          AND (u.role != 'SUPER_ADMIN' OR u.role IS NULL)
+        ORDER BY u.id
         """
         params = {
             "company_id": user["company_id"],
@@ -109,28 +114,50 @@ def get_users(
 
 @router.post("/admin/users")
 def create_user(
-    request: CreateUserRequest,
+    request_payload: CreateUserRequest,
+    request: Request,
     user=Depends(require_permission("admin:users:write"))
 ):
     caller_role = user.get("role", "").upper()
-    if caller_role not in ("SUPER_ADMIN", "ADMIN"):
+    if caller_role not in ("SYSTEM_ADMIN", "SUPER_ADMIN", "ADMIN"):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Access denied: insufficient permissions to manage users."
         )
 
     # Hierarchy validation
-    if caller_role == "ADMIN":
-        if request.role.upper() == "SUPER_ADMIN":
+    if request_payload.role.upper() == "SYSTEM_ADMIN":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Access denied: cannot assign SYSTEM_ADMIN role."
+        )
+
+    if caller_role == "SUPER_ADMIN":
+        # Ignore company from payload for hierarchy check; locked to own company
+        pass
+    elif caller_role == "ADMIN":
+        if request_payload.role.upper() in ("SUPER_ADMIN", "SYSTEM_ADMIN"):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail="Access denied: ADMIN cannot assign SUPER_ADMIN role."
+                detail="Access denied: ADMIN cannot assign SUPER_ADMIN or SYSTEM_ADMIN role."
             )
-        if request.company != user["company"] or request.department != user["department"]:
+        # Lock to own department
+        if request_payload.department != user["department"]:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail="Access denied: ADMIN can only create users within their own department and company."
+                detail="Access denied: ADMIN can only create users within their own department."
             )
+    else: # SYSTEM_ADMIN
+        # Must provide company
+        if not request_payload.company:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Company is required for SYSTEM_ADMIN role."
+            )
+
+    # Password Validation
+    password = request_payload.password
+    validate_password(password)
 
     check_query = """
     SELECT official_email, employee_id
@@ -139,33 +166,41 @@ def create_user(
        OR employee_id = :employee_id
     """
 
+    client_ip = request.client.host if request.client else None
+
     with engine.begin() as connection:
         # Check for duplicates
         existing_user = connection.execute(
             text(check_query),
             {
-                "official_email": request.official_email,
-                "employee_id": request.employee_id
+                "official_email": request_payload.official_email,
+                "employee_id": request_payload.employee_id
             }
         ).fetchone()
 
         if existing_user:
             existing_user = dict(existing_user._mapping)
-            if existing_user["official_email"] == request.official_email:
+            if existing_user["official_email"] == request_payload.official_email:
                 raise HTTPException(status_code=400, detail="Official email already exists")
-            if existing_user["employee_id"] == request.employee_id:
+            if existing_user["employee_id"] == request_payload.employee_id:
                 raise HTTPException(status_code=400, detail="Employee ID already exists")
 
-        # Resolve company_id
-        if caller_role == "SUPER_ADMIN":
-            company_id = get_company_id_by_name_or_code(connection, request.company)
+        # Resolve company_id & company_name
+        if caller_role == "SYSTEM_ADMIN":
+            company_id = get_company_id_by_name_or_code(connection, request_payload.company)
         else:
             company_id = user["company_id"]
 
         if not company_id:
             raise HTTPException(status_code=400, detail="Could not resolve company_id for the user.")
 
-        hashed_password = hash_password(request.password)
+        company_row = connection.execute(
+            text("SELECT company_name FROM companies WHERE company_id = :cid"),
+            {"cid": company_id}
+        ).fetchone()
+        company_name = company_row.company_name if company_row else "Unknown Company"
+
+        hashed_password = hash_password(password)
         # Insert user
         insert_query = """
         INSERT INTO users (
@@ -179,32 +214,60 @@ def create_user(
         connection.execute(
             text(insert_query),
             {
-                "username":       request.official_email,
+                "username":       request_payload.official_email,
                 "password":       hashed_password,
-                "employee_id":    request.employee_id,
-                "full_name":      request.full_name,
-                "official_email": request.official_email,
-                "department":     request.department,
-                "role":           request.role,
-                "company":        request.company,
+                "employee_id":    request_payload.employee_id,
+                "full_name":      request_payload.full_name,
+                "official_email": request_payload.official_email,
+                "department":     request_payload.department,
+                "role":           request_payload.role,
+                "company":        company_name,
                 "company_id":     company_id,
-
             }
         )
 
         # Sync user roles
-        sync_user_role(connection, request.employee_id, company_id, request.role)
+        sync_user_role(connection, request_payload.employee_id, company_id, request_payload.role)
 
-    audit_log(
-        user_id=user["employee_id"],
-        action_type=AuditAction.USER_CREATED,
-        resource=f"user:{request.employee_id}",
-        metadata={
-            "created_user_email": request.official_email,
-            "role": request.role,
-            "department": request.department,
-        },
-    )
+        # Resolve newly created user's id to insert division access
+        from repositories.user_repository import UserRepository
+        from repositories.user_division_repository import UserDivisionRepository
+
+        new_user_id = UserRepository.get_user_id_by_employee_id(request_payload.employee_id, connection=connection)
+
+        if new_user_id:
+            UserDivisionRepository.save_division(new_user_id, request_payload.division_code, connection=connection)
+
+            # Audit log for division change
+            audit_log(
+                user_id=user["employee_id"],
+                action_type="DIVISION_ACCESS_CHANGED",
+                resource=f"user_division_access:{request_payload.employee_id}",
+                ip_address=client_ip,
+                metadata={
+                    "target_user_employee_id": request_payload.employee_id,
+                    "previous_division": None,
+                    "new_division": request_payload.division_code,
+                    "changed_by": user["employee_id"]
+                }
+            )
+
+        # Audit log inside transaction block
+        audit_log(
+            user_id=user["employee_id"],
+            action_type=AuditAction.USER_CREATED,
+            resource=f"user:{request_payload.employee_id}",
+            ip_address=client_ip,
+            metadata={
+                "created_user_email": request_payload.official_email,
+                "created_role": request_payload.role,
+                "created_department": request_payload.department,
+                "created_company": company_name,
+                "assigned_company_id": str(company_id),
+                "created_by": user["employee_id"],
+                "created_by_role": user["role"]
+            },
+        )
 
     return {"message": "User created successfully"}
 
@@ -213,6 +276,7 @@ def create_user(
 def update_user(
     user_id: int,
     request: UpdateUserRequest,
+    req_obj: Request,
     user=Depends(require_permission("admin:users:write"))
 ):
     caller_role = user.get("role", "").upper()
@@ -221,6 +285,8 @@ def update_user(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Access denied: insufficient permissions to manage users."
         )
+
+    client_ip = req_obj.client.host if req_obj.client else None
 
     with engine.begin() as connection:
         target_user = connection.execute(
@@ -300,10 +366,35 @@ def update_user(
         if request.role:
             sync_user_role(connection, target_user["employee_id"], company_id, request.role)
 
+        # Update division_code if provided in request
+        if "division_code" in request.dict(exclude_unset=True):
+            from repositories.user_division_repository import UserDivisionRepository
+            # Fetch previous division_code
+            prev_div = UserDivisionRepository.get_division(user_id, connection=connection)
+
+            # Update division code
+            UserDivisionRepository.save_division(user_id, request.division_code, connection=connection)
+
+            # Log audit trail if it changed
+            if prev_div != request.division_code:
+                audit_log(
+                    user_id=user["employee_id"],
+                    action_type="DIVISION_ACCESS_CHANGED",
+                    resource=f"user_division_access:{target_user['employee_id']}",
+                    ip_address=client_ip,
+                    metadata={
+                        "target_user_employee_id": target_user["employee_id"],
+                        "previous_division": prev_div,
+                        "new_division": request.division_code,
+                        "changed_by": user["employee_id"]
+                    }
+                )
+
     audit_log(
         user_id=user["employee_id"],
         action_type=AuditAction.USER_UPDATED,
         resource=f"user:{user_id}",
+        ip_address=client_ip,
         metadata={
             "updated_fields": {k: v for k, v in request.dict(exclude_unset=True).items()}
         },

@@ -18,6 +18,7 @@ export default function UserManagement({ API, token, userInfo }) {
   const [createFormVisible, setCreateFormVisible] = useState(false);
   const [editFormVisible, setEditFormVisible] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
+  const [companiesList, setCompaniesList] = useState([]);
   
   // Search and Filter States
   const [searchText, setSearchText] = useState("");
@@ -94,8 +95,24 @@ export default function UserManagement({ API, token, userInfo }) {
     }
   };
 
+  const loadCompanies = async () => {
+    if (!token) return;
+    try {
+      const response = await fetch(`${API}/companies`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setCompaniesList(data);
+      }
+    } catch (error) {
+      console.error("Error loading companies:", error);
+    }
+  };
+
   useEffect(() => {
     loadUsers();
+    loadCompanies();
   }, [token, API]); // eslint-disable-line
 
   const onCreateUser = async (userData) => {
@@ -139,7 +156,8 @@ export default function UserManagement({ API, token, userInfo }) {
           company: userData.company,
           location: userData.location,
           mobile_number: userData.mobile_number,
-          address: userData.address
+          address: userData.address,
+          division_code: userData.division_code || null
         })
       });
 
@@ -192,7 +210,7 @@ export default function UserManagement({ API, token, userInfo }) {
   }
 
   const userRole = userInfo.role?.toUpperCase();
-  if (userRole !== "SUPER_ADMIN" && userRole !== "ADMIN") {
+  if (userRole !== "SYSTEM_ADMIN" && userRole !== "SUPER_ADMIN" && userRole !== "ADMIN") {
     return (
       <Card style={{ margin: "24px", textAlign: "center", background: "var(--bg-card)", border: "1px solid var(--border-color)" }}>
         <Title level={4} style={{ color: "var(--color-error)" }}>Access Denied</Title>
@@ -204,17 +222,17 @@ export default function UserManagement({ API, token, userInfo }) {
   }
 
   const handleOpenCreate = () => {
-    if (userRole === "ADMIN") {
+    if (userRole === "SYSTEM_ADMIN") {
       createForm.setFieldsValue({
-        company: userInfo.company || "Acme Retail",
-        department: userInfo.department || "",
-        role: "ANALYST"
+        company: "",
+        department: "",
+        role: "SUPER_ADMIN"
       });
     } else {
       createForm.setFieldsValue({
-        company: "Acme Retail",
-        department: "",
-        role: "ANALYST"
+        company: userInfo.company || "",
+        department: userRole === "ADMIN" ? (userInfo.department || "") : "",
+        role: "USER"
       });
     }
     setCreateFormVisible(true);
@@ -230,17 +248,25 @@ export default function UserManagement({ API, token, userInfo }) {
       location: user.location || "",
       mobile_number: user.mobile_number || "",
       address: user.address || "",
+      division_code: user.division_code || "",
     });
     setEditFormVisible(true);
   };
 
   const handleCreateSubmit = () => {
     createForm.validateFields().then((values) => {
+      // Destructure to remove confirm_password and company (if not SYSTEM_ADMIN) from backend payload
+      const { confirm_password, company, ...restValues } = values;
       const payload = {
-        ...values,
+        ...restValues,
         username: values.official_email,
-        password: ""
+        password: values.password,
+        division_code: values.division_code || null
       };
+      // Only include company payload if user is SYSTEM_ADMIN
+      if (userRole === "SYSTEM_ADMIN") {
+        payload.company = company;
+      }
       onCreateUser(payload).then((success) => {
         if (success) {
           setCreateFormVisible(false);
@@ -313,6 +339,16 @@ export default function UserManagement({ API, token, userInfo }) {
       render: (role) => (
         <Tag color={role?.toUpperCase() === "ADMIN" ? "volcano" : "indigo"} bordered={false}>
           {role}
+        </Tag>
+      )
+    },
+    {
+      title: "Division Access",
+      dataIndex: "division_code",
+      key: "division_code",
+      render: (code) => (
+        <Tag color={code ? "purple" : "cyan"} bordered={false}>
+          {code || "All Divisions"}
         </Tag>
       )
     },
@@ -502,22 +538,103 @@ export default function UserManagement({ API, token, userInfo }) {
           <Form.Item
             name="department"
             label={<span style={{ color: "var(--text-secondary)" }}>Department</span>}
-            rules={[{ required: true, message: "Please input department!" }]}
+            rules={[{ required: true, message: "Please select department!" }]}
           >
-            <Input placeholder="e.g. Sales, Finance, Admin" disabled={userRole === "ADMIN"} />
+            {userRole === "ADMIN" ? (
+              <Input disabled />
+            ) : (
+              <Select placeholder="Select department">
+                <Option value="Sales">Sales</Option>
+                <Option value="Finance">Finance</Option>
+                <Option value="HR">HR</Option>
+                <Option value="Engineering">Engineering</Option>
+                <Option value="Operations">Operations</Option>
+                <Option value="Marketing">Marketing</Option>
+                <Option value="IT">IT</Option>
+              </Select>
+            )}
           </Form.Item>
 
           <Form.Item name="role" label={<span style={{ color: "var(--text-secondary)" }}>Role</span>} rules={[{ required: true }]}>
             <Select>
-              {userRole === "SUPER_ADMIN" && <Option value="SUPER_ADMIN">SUPER_ADMIN</Option>}
-              <Option value="ADMIN">ADMIN</Option>
+              {userRole === "SYSTEM_ADMIN" && <Option value="SUPER_ADMIN">SUPER_ADMIN</Option>}
+              {(userRole === "SYSTEM_ADMIN" || userRole === "SUPER_ADMIN") && <Option value="ADMIN">ADMIN</Option>}
               <Option value="ANALYST">ANALYST</Option>
               <Option value="USER">USER</Option>
             </Select>
           </Form.Item>
 
-          <Form.Item name="company" label={<span style={{ color: "var(--text-secondary)" }}>Company</span>}>
-            <Input disabled={userRole === "ADMIN"} />
+          {userRole === "SYSTEM_ADMIN" ? (
+            <Form.Item 
+              name="company" 
+              label={<span style={{ color: "var(--text-secondary)" }}>Company</span>}
+              rules={[{ required: true, message: "Please select a company!" }]}
+            >
+              <Select placeholder="Select Company">
+                {companiesList.map(c => (
+                  <Option key={c.company_id} value={c.company_name}>
+                    {c.company_name} ({c.company_code})
+                  </Option>
+                ))}
+              </Select>
+            </Form.Item>
+          ) : (
+            <Form.Item name="company" label={<span style={{ color: "var(--text-secondary)" }}>Company</span>}>
+              <Input disabled />
+            </Form.Item>
+          )}
+
+          <Form.Item
+            name="division_code"
+            label={<span style={{ color: "var(--text-secondary)" }}>Division Access</span>}
+          >
+            <Select placeholder="Select Allowed Division (Default: All Divisions)" allowClear>
+              <Option value="">All Divisions</Option>
+              <Option value="VCC">VCC</Option>
+              <Option value="RR">RR</Option>
+              <Option value="Finance">Finance</Option>
+            </Select>
+          </Form.Item>
+
+          <Form.Item
+            name="password"
+            label={<span style={{ color: "var(--text-secondary)" }}>Password</span>}
+            rules={[
+              { required: true, message: "Please input password!" },
+              { min: 8, message: "Password must be at least 8 characters!" },
+              { max: 128, message: "Password must be at most 128 characters!" },
+              {
+                pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>])[A-Za-z\d!@#$%^&*(),.?":{}|<>]{8,}$/,
+                message: "Password must contain at least one uppercase, one lowercase, one number, and one special character!"
+              }
+            ]}
+          >
+            <Input.Password 
+              placeholder="Enter a secure password" 
+              autoComplete="new-password" 
+            />
+          </Form.Item>
+
+          <Form.Item
+            name="confirm_password"
+            label={<span style={{ color: "var(--text-secondary)" }}>Confirm Password</span>}
+            dependencies={['password']}
+            rules={[
+              { required: true, message: "Please confirm your password!" },
+              ({ getFieldValue }) => ({
+                validator(_, value) {
+                  if (!value || getFieldValue('password') === value) {
+                    return Promise.resolve();
+                  }
+                  return Promise.reject(new Error('Passwords do not match!'));
+                },
+              }),
+            ]}
+          >
+            <Input.Password 
+              placeholder="Confirm password" 
+              autoComplete="new-password" 
+            />
           </Form.Item>
         </Form>
       </Modal>
@@ -564,6 +681,18 @@ export default function UserManagement({ API, token, userInfo }) {
 
           <Form.Item name="company" label={<span style={{ color: "var(--text-secondary)" }}>Company</span>}>
             <Input disabled={userRole === "ADMIN"} />
+          </Form.Item>
+
+          <Form.Item
+            name="division_code"
+            label={<span style={{ color: "var(--text-secondary)" }}>Division Access</span>}
+          >
+            <Select placeholder="Select Allowed Division (Default: All Divisions)" allowClear>
+              <Option value="">All Divisions</Option>
+              <Option value="VCC">VCC</Option>
+              <Option value="RR">RR</Option>
+              <Option value="Finance">Finance</Option>
+            </Select>
           </Form.Item>
 
           <Form.Item name="location" label={<span style={{ color: "var(--text-secondary)" }}>Location</span>}>
