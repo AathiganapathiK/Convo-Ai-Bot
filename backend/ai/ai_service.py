@@ -125,6 +125,113 @@ def generate_sql_query(question: str, history = None, company_id = None):
     print(sql_query)
     print("===================================")
 
+    # Structured temporal verification logging
+    try:
+        from semantic.temporal.detector import TemporalDetector
+        from semantic.temporal.time_resolver import TimeResolver
+        from semantic.execution_context import SemanticExecutionContext
+        from semantic.sql.temporal_mapper import TemporalMapper
+        from semantic.temporal.enums import TimeStrategyType, Granularity
+        import datetime
+
+        detector = TemporalDetector()
+        intent = detector.detect(question)
+
+        print("\n============================================================\nTEMPORAL VERIFICATION\n============================================================")
+        print(f"Question: {question}")
+
+        if not intent:
+            print("Temporal Detected : NO")
+            print("============================================================")
+        else:
+            print("Temporal Detected: YES")
+            intent_name = intent.__class__.__name__
+            print(f"Temporal Intent: {intent_name}")
+
+            # Get connection/settings context
+            context = SemanticExecutionContext(company_id=company_id)
+            resolver = TimeResolver()
+            time_res = resolver.resolve(
+                question=question,
+                connection_id=context.connection_id,
+                settings=context.settings
+            )
+
+            plan = time_res.plan if time_res.resolved else None
+            strategy = plan.strategy.value if (plan and plan.strategy) else "None"
+            granularity = plan.grouping.value if (plan and plan.grouping) else "None"
+            ref_date = getattr(intent, "reference_date", None) or datetime.date.today()
+            ref_date_str = ref_date.isoformat() if ref_date else "None"
+
+            start_date_str = plan.start_date.isoformat() if (plan and plan.start_date) else "None"
+            end_date_str = plan.end_date.isoformat() if (plan and plan.end_date) else "None"
+
+            print(f"Strategy: {strategy}")
+            print(f"Granularity: {granularity}")
+            print(f"Reference Date: {ref_date_str}")
+            print(f"Resolved Start Date: {start_date_str}")
+            print(f"Resolved End Date: {end_date_str}")
+
+            expected_fragments = []
+            if plan:
+                dialect = "mssql"
+                if context.connection and context.connection.get("database_type"):
+                    dialect = context.connection.get("database_type")
+
+                if plan.strategy == TimeStrategyType.SNAPSHOT:
+                    if plan.snapshot_columns:
+                        expected_fragments.extend(plan.snapshot_columns)
+                else:
+                    date_col = plan.date_column or "OrderDate"
+                    if "Quarter" in intent_name or "QTD" in intent_name:
+                        expected_fragments.append(TemporalMapper.get_sql_expression(dialect, "TIME_QUARTER", date_col))
+                    elif "Month" in intent_name or "MTD" in intent_name:
+                        expected_fragments.append(TemporalMapper.get_sql_expression(dialect, "TIME_MONTH", date_col))
+                        expected_fragments.append(TemporalMapper.get_sql_expression(dialect, "TIME_YEAR", date_col))
+                    elif "Year" in intent_name or "YTD" in intent_name:
+                        expected_fragments.append(TemporalMapper.get_sql_expression(dialect, "TIME_YEAR", date_col))
+                    elif "Week" in intent_name:
+                        expected_fragments.append(TemporalMapper.get_sql_expression(dialect, "TIME_WEEK", date_col))
+                    elif "Day" in intent_name:
+                        expected_fragments.append(TemporalMapper.get_sql_expression(dialect, "TIME_DAY", date_col))
+                    else:
+                        if plan.grouping and plan.grouping != Granularity.AUTO:
+                            cat = f"TIME_{plan.grouping.name}"
+                            expected_fragments.append(TemporalMapper.get_sql_expression(dialect, cat, date_col))
+                        else:
+                            expected_fragments.append(date_col)
+
+            expected_frag_str = ", ".join(expected_fragments) if expected_fragments else "None"
+            print(f"Expected SQL Fragment (from production TemporalMapper): {expected_frag_str}")
+            print(f"Generated SQL: {sql_query}")
+
+            validation_status = "FAIL"
+            validation_reason = ""
+            if not time_res.resolved:
+                validation_reason = f"Temporal resolution failed: {', '.join(time_res.warnings) if time_res.warnings else 'Unknown error'}"
+            elif not expected_fragments:
+                validation_status = "PASS"
+                validation_reason = "No specific expected temporal SQL fragments to validate."
+            else:
+                missing_fragments = []
+                sql_cleaned = sql_query.upper().replace(" ", "")
+                for frag in expected_fragments:
+                    frag_cleaned = frag.upper().replace(" ", "")
+                    if frag_cleaned not in sql_cleaned:
+                        missing_fragments.append(frag)
+
+                if missing_fragments:
+                    validation_reason = f"Missing expected SQL fragments: {', '.join(missing_fragments)}"
+                else:
+                    validation_status = "PASS"
+                    validation_reason = "All expected temporal SQL fragments present."
+
+            print(f"Temporal SQL Validation: {validation_status}")
+            print(f"Reason: {validation_reason}")
+            print("============================================================")
+    except Exception as exc:
+        pass
+
     return {
         "sql_query": sql_query,
         "usage": response.usage if response else None,
