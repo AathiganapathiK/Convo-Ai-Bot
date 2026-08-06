@@ -1,6 +1,6 @@
 import re
 from typing import Dict, Any, Callable, List
-from .enums import TimeIntentType
+from .enums import TimeIntentType, Granularity
 
 class TemporalPattern:
     """
@@ -59,6 +59,26 @@ def extract_month_range(m: re.Match) -> Dict[str, Any]:
         "end_year": int(end_y) if end_y else None
     }
 
+def extract_trend(m: re.Match) -> Dict[str, Any]:
+    text = m.string.lower()
+    granularity = Granularity.AUTO
+    if "year" in text or "yearly" in text:
+        granularity = Granularity.YEAR
+    elif "month" in text or "monthly" in text:
+        granularity = Granularity.MONTH
+    elif "quarter" in text or "quarterly" in text:
+        granularity = Granularity.QUARTER
+        
+    limit_years = None
+    m_limit = re.search(r"\b(?:last|past)\s+(\d+)\s+years?\b", text)
+    if m_limit:
+        limit_years = int(m_limit.group(1))
+        
+    return {
+        "granularity": granularity,
+        "limit_years": limit_years
+    }
+
 # Define the central library of patterns.
 # Checked sequentially in priority order.
 TEMPORAL_PATTERNS: List[TemporalPattern] = [
@@ -92,6 +112,50 @@ TEMPORAL_PATTERNS: List[TemporalPattern] = [
         confidence=0.98
     ),
 
+    # 1.5 Quarter & Relative Comparisons
+    TemporalPattern(
+        name="quarter_comparison",
+        regex_pattern=r"\b(?:compare\s+)?q(?P<q1>[1-4])\s*(?:and|with|to|vs|versus)\s*q(?P<q2>[1-4])\b",
+        intent_type=TimeIntentType.QUARTER_COMPARISON,
+        extractor=lambda m: {"q1": int(m.group("q1")), "q2": int(m.group("q2"))},
+        confidence=0.98
+    ),
+    TemporalPattern(
+        name="relative_year_comparison",
+        regex_pattern=r"\bcompare\s+(?:this|current)\s+year\s+(?:and|with|to)\s+(?:last|previous)\s+year\b|\bcompare\s+(?:last|previous)\s+year\s+(?:and|with|to)\s+(?:this|current)\s+year\b",
+        intent_type=TimeIntentType.YEAR_COMPARISON,
+        extractor=lambda m: {"relative": True},
+        confidence=0.98
+    ),
+    TemporalPattern(
+        name="relative_month_comparison",
+        regex_pattern=r"\bcompare\s+(?:this|current)\s+month\s+(?:and|with|to)\s+(?:last|previous)\s+month\b|\bcompare\s+(?:last|previous)\s+month\s+(?:and|with|to)\s+(?:this|current)\s+month\b",
+        intent_type=TimeIntentType.MONTH_COMPARISON,
+        extractor=lambda m: {"relative": True},
+        confidence=0.98
+    ),
+    TemporalPattern(
+        name="quarter_range",
+        regex_pattern=r"\bq(?P<quarter>[1-4])\b(?:\s+(?P<year>\d{4}))?",
+        intent_type=TimeIntentType.QUARTER_RANGE,
+        extractor=lambda m: {"quarter": int(m.group("quarter")), "year": int(m.group("year")) if m.group("year") else None},
+        confidence=0.97
+    ),
+    TemporalPattern(
+        name="current_quarter",
+        regex_pattern=r"\b(?:current|this)\s+quarter\b",
+        intent_type=TimeIntentType.CURRENT_QUARTER,
+        extractor=lambda m: {},
+        confidence=0.95
+    ),
+    TemporalPattern(
+        name="previous_quarter",
+        regex_pattern=r"\b(?:previous|last)\s+quarter\b",
+        intent_type=TimeIntentType.PREVIOUS_QUARTER,
+        extractor=lambda m: {},
+        confidence=0.95
+    ),
+
     # 2. Month Ranges (Check before Year Ranges)
     TemporalPattern(
         name="month_range_from_to",
@@ -106,6 +170,28 @@ TEMPORAL_PATTERNS: List[TemporalPattern] = [
         intent_type=TimeIntentType.MONTH_RANGE,
         extractor=extract_month_range,
         confidence=0.96
+    ),
+    TemporalPattern(
+        name="single_month_year",
+        regex_pattern=r"\b(?P<month>january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|oct|nov|dec)\s+(?P<year>\d{4})\b",
+        intent_type=TimeIntentType.MONTH_RANGE,
+        extractor=lambda m: {
+            "start_month": MONTH_MAP[m.group("month").lower()],
+            "start_year": int(m.group("year")),
+            "end_month": MONTH_MAP[m.group("month").lower()],
+            "end_year": int(m.group("year"))
+        },
+        confidence=0.97
+    ),
+    TemporalPattern(
+        name="single_month",
+        regex_pattern=r"\b(?P<month>january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|oct|nov|dec)\b",
+        intent_type=TimeIntentType.MONTH_RANGE,
+        extractor=lambda m: {
+            "start_month": MONTH_MAP[m.group("month").lower()],
+            "end_month": MONTH_MAP[m.group("month").lower()]
+        },
+        confidence=0.95
     ),
     
     # 3. Year Ranges
@@ -129,6 +215,43 @@ TEMPORAL_PATTERNS: List[TemporalPattern] = [
         intent_type=TimeIntentType.YEAR_RANGE,
         extractor=extract_year_range,
         confidence=0.96
+    ),
+
+    # 3.5 Single Year and Range Modifiers
+    TemporalPattern(
+        name="since_year",
+        regex_pattern=r"\bsince\s+(?P<year>\d{4})\b",
+        intent_type=TimeIntentType.DATE_RANGE,
+        extractor=lambda m: {"start_year": int(m.group("year")), "is_since": True},
+        confidence=0.95
+    ),
+    TemporalPattern(
+        name="before_month",
+        regex_pattern=r"\bbefore\s+(?P<month>january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|oct|nov|dec)\b",
+        intent_type=TimeIntentType.DATE_RANGE,
+        extractor=lambda m: {"end_month": MONTH_MAP[m.group("month").lower()], "is_before": True},
+        confidence=0.95
+    ),
+    TemporalPattern(
+        name="after_month",
+        regex_pattern=r"\bafter\s+(?P<month>january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|oct|nov|dec)\b",
+        intent_type=TimeIntentType.DATE_RANGE,
+        extractor=lambda m: {"start_month": MONTH_MAP[m.group("month").lower()], "is_after": True},
+        confidence=0.95
+    ),
+    TemporalPattern(
+        name="till_today",
+        regex_pattern=r"\b(?:till|to|up\s+to)\s+today\b|\btill\s+now\b",
+        intent_type=TimeIntentType.DATE_RANGE,
+        extractor=lambda m: {"is_till_today": True},
+        confidence=0.95
+    ),
+    TemporalPattern(
+        name="single_year",
+        regex_pattern=r"\b(?P<year>202[3-6])\b",
+        intent_type=TimeIntentType.YEAR_RANGE,
+        extractor=lambda m: {"start_year": int(m.group("year")), "end_year": int(m.group("year"))},
+        confidence=0.90
     ),
 
     # 4. Last N Days/Weeks/Months/Years (including rolling months, supports singulars like "1 year", "1 month")
@@ -185,9 +308,9 @@ TEMPORAL_PATTERNS: List[TemporalPattern] = [
     ),
     TemporalPattern(
         name="trend",
-        regex_pattern=r"\b(?:trend|trends|historical\s+trend)\b",
+        regex_pattern=r"\b(?:trend|trends|historical\s+trend|wise)\b",
         intent_type=TimeIntentType.TREND,
-        extractor=lambda m: {},
+        extractor=extract_trend,
         confidence=0.90
     ),
 

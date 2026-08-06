@@ -65,7 +65,7 @@ class TimeStrategyResolver:
             actual_conn_id = connection_id
 
         # Determine the reference date
-        ref_date = intent.reference_date or datetime.date.today()
+        ref_date = getattr(intent, "reference_date", None) or datetime.date.today()
         
         # Initialize default settings if not provided
         if settings is None or not isinstance(settings, TimeSettings):

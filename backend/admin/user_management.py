@@ -201,40 +201,27 @@ def create_user(
         company_name = company_row.company_name if company_row else "Unknown Company"
 
         hashed_password = hash_password(password)
-        # Insert user
-        insert_query = """
-        INSERT INTO users (
-            username, password, employee_id, full_name, official_email,
-            department, role, company, is_active, company_id, created_at
-        ) VALUES (
-            :username, :password, :employee_id, :full_name, :official_email,
-            :department, :role, :company, 1, :company_id, GETDATE()
-        )
-        """
-        connection.execute(
-            text(insert_query),
-            {
-                "username":       request_payload.official_email,
-                "password":       hashed_password,
-                "employee_id":    request_payload.employee_id,
-                "full_name":      request_payload.full_name,
-                "official_email": request_payload.official_email,
-                "department":     request_payload.department,
-                "role":           request_payload.role,
-                "company":        company_name,
-                "company_id":     company_id,
-            }
-        )
+        from repositories.user_repository import UserRepository
+        from repositories.user_division_repository import UserDivisionRepository
+
+        user_data = {
+            "username":       request_payload.official_email,
+            "password":       hashed_password,
+            "employee_id":    request_payload.employee_id,
+            "full_name":      request_payload.full_name,
+            "official_email": request_payload.official_email,
+            "department":     request_payload.department,
+            "role":           request_payload.role,
+            "company":        company_name,
+            "company_id":     company_id,
+        }
+        # Insert user and retrieve newly created user's ID
+        new_user_id = UserRepository.create_user(user_data, connection=connection)
 
         # Sync user roles
         sync_user_role(connection, request_payload.employee_id, company_id, request_payload.role)
 
-        # Resolve newly created user's id to insert division access
-        from repositories.user_repository import UserRepository
-        from repositories.user_division_repository import UserDivisionRepository
-
-        new_user_id = UserRepository.get_user_id_by_employee_id(request_payload.employee_id, connection=connection)
-
+        # Insert division access in the same transaction
         if new_user_id:
             UserDivisionRepository.save_division(new_user_id, request_payload.division_code, connection=connection)
 
@@ -332,35 +319,21 @@ def update_user(
         if caller_role == "SUPER_ADMIN" and request.company and request.company != target_user["company"]:
             company_id = get_company_id_by_name_or_code(connection, request.company)
 
-        # Update fields
-        update_query = """
-        UPDATE users
-        SET
-            full_name = :full_name,
-            department = :department,
-            role = :role,
-            company = :company,
-            company_id = :company_id,
-            location = :location,
-            mobile_number = :mobile_number,
-            address = :address,
-            updated_at = GETDATE()
-        WHERE id = :user_id
-        """
-        connection.execute(
-            text(update_query),
-            {
-                "full_name":     request.full_name if request.full_name is not None else target_user["full_name"],
-                "department":    request.department if request.department is not None else target_user["department"],
-                "role":          request.role if request.role is not None else target_user["role"],
-                "company":       request.company if request.company is not None else target_user["company"],
-                "company_id":    company_id,
-                "location":      request.location,
-                "mobile_number": request.mobile_number,
-                "address":       request.address,
-                "user_id":       user_id
-            }
-        )
+        from repositories.user_repository import UserRepository
+        from repositories.user_division_repository import UserDivisionRepository
+
+        user_data = {
+            "full_name":     request.full_name if request.full_name is not None else target_user["full_name"],
+            "department":    request.department if request.department is not None else target_user["department"],
+            "role":          request.role if request.role is not None else target_user["role"],
+            "company":       request.company if request.company is not None else target_user["company"],
+            "company_id":    company_id,
+            "location":      request.location,
+            "mobile_number": request.mobile_number,
+            "address":       request.address,
+        }
+        # Update user
+        UserRepository.update_user(user_id, user_data, connection=connection)
 
         # Sync role change if role was updated
         if request.role:
@@ -368,7 +341,6 @@ def update_user(
 
         # Update division_code if provided in request
         if "division_code" in request.dict(exclude_unset=True):
-            from repositories.user_division_repository import UserDivisionRepository
             # Fetch previous division_code
             prev_div = UserDivisionRepository.get_division(user_id, connection=connection)
 

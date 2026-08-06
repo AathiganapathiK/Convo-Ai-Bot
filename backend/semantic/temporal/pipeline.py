@@ -1,5 +1,6 @@
 import time
 import logging
+import datetime
 from typing import Optional
 
 from .detector import TemporalDetector
@@ -33,13 +34,14 @@ class TemporalPipeline:
         question: str,
         connection_id: Optional[str] = None,
         settings: Optional[TimeSettings] = None,
-        style: str = "llm"
+        style: str = "llm",
+        reference_date: Optional[datetime.date] = None
     ) -> str:
         start_time = time.time()
 
         # Phase 2.1.7.3: Skip Temporal Resolution if Not Needed
         try:
-            intent = self.detector.detect(question)
+            intent = self.detector.detect(question, reference_date=reference_date)
             if not intent:
                 return ""
         except TemporalException as te:
@@ -51,7 +53,8 @@ class TemporalPipeline:
             time_resolution = self.time_resolver.resolve(
                 question=question,
                 connection_id=connection_id,
-                settings=settings
+                settings=settings,
+                reference_date=reference_date
             )
 
             if not time_resolution.resolved:

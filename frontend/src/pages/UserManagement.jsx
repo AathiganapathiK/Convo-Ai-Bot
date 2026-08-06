@@ -12,6 +12,19 @@ import { getUserRoles } from "../services/userRoleService";
 const { Title, Text, Paragraph } = Typography;
 const { Option } = Select;
 
+const DIVISIONS = [
+  "ACC",
+  "AKG",
+  "ATC",
+  "BandB",
+  "RHL",
+  "RR",
+  "RRF",
+  "TARA",
+  "VGS",
+  "VT"
+];
+
 export default function UserManagement({ API, token, userInfo }) {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -590,9 +603,9 @@ export default function UserManagement({ API, token, userInfo }) {
           >
             <Select placeholder="Select Allowed Division (Default: All Divisions)" allowClear>
               <Option value="">All Divisions</Option>
-              <Option value="VCC">VCC</Option>
-              <Option value="RR">RR</Option>
-              <Option value="Finance">Finance</Option>
+              {DIVISIONS.map(div => (
+                <Option key={div} value={div}>{div}</Option>
+              ))}
             </Select>
           </Form.Item>
 
@@ -689,9 +702,9 @@ export default function UserManagement({ API, token, userInfo }) {
           >
             <Select placeholder="Select Allowed Division (Default: All Divisions)" allowClear>
               <Option value="">All Divisions</Option>
-              <Option value="VCC">VCC</Option>
-              <Option value="RR">RR</Option>
-              <Option value="Finance">Finance</Option>
+              {DIVISIONS.map(div => (
+                <Option key={div} value={div}>{div}</Option>
+              ))}
             </Select>
           </Form.Item>
 

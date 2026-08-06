@@ -24,6 +24,10 @@ from .models import (
     MonthRangeIntent,
     YearComparisonIntent,
     MonthComparisonIntent,
+    CurrentQuarterIntent,
+    PreviousQuarterIntent,
+    QuarterRangeIntent,
+    QuarterComparisonIntent,
     GrowthIntent,
     TrendIntent,
     RunningTotalIntent,
@@ -41,7 +45,7 @@ class DateCalculator:
         self.settings = settings
 
     def calculate(self, intent: BaseTimeIntent) -> CalculatedDateRange:
-        ref_date = intent.reference_date or datetime.date.today()
+        ref_date = getattr(intent, "reference_date", None) or datetime.date.today()
 
         if isinstance(intent, LastNDaysIntent):
             return self.calculate_last_n_days(intent, ref_date)
@@ -77,6 +81,14 @@ class DateCalculator:
             return self.calculate_year_comparison(intent, ref_date)
         elif isinstance(intent, MonthComparisonIntent):
             return self.calculate_month_comparison(intent, ref_date)
+        elif isinstance(intent, CurrentQuarterIntent):
+            return self.calculate_current_quarter(intent, ref_date)
+        elif isinstance(intent, PreviousQuarterIntent):
+            return self.calculate_previous_quarter(intent, ref_date)
+        elif isinstance(intent, QuarterRangeIntent):
+            return self.calculate_quarter_range(intent, ref_date)
+        elif isinstance(intent, QuarterComparisonIntent):
+            return self.calculate_quarter_comparison(intent, ref_date)
         elif isinstance(intent, YTDIntent):
             return self.calculate_ytd(intent, ref_date)
         elif isinstance(intent, MTDIntent):
@@ -198,6 +210,43 @@ class DateCalculator:
         end = datetime.date(intent.end_year, intent.end_month, max_day)
         return CalculatedDateRange(start, end, Granularity.MONTH, ref_date)
 
+    def calculate_current_quarter(self, intent: CurrentQuarterIntent, ref_date: datetime.date) -> CalculatedDateRange:
+        q = (ref_date.month - 1) // 3 + 1
+        start_date = datetime.date(ref_date.year, (q - 1) * 3 + 1, 1)
+        last_month = q * 3
+        last_day = calendar.monthrange(ref_date.year, last_month)[1]
+        end_date = datetime.date(ref_date.year, last_month, last_day)
+        return CalculatedDateRange(start_date, end_date, Granularity.QUARTER, ref_date)
+
+    def calculate_previous_quarter(self, intent: PreviousQuarterIntent, ref_date: datetime.date) -> CalculatedDateRange:
+        q = (ref_date.month - 1) // 3 + 1
+        prev_q = q - 1
+        prev_y = ref_date.year
+        if prev_q == 0:
+            prev_q = 4
+            prev_y -= 1
+        start_date = datetime.date(prev_y, (prev_q - 1) * 3 + 1, 1)
+        last_month = prev_q * 3
+        last_day = calendar.monthrange(prev_y, last_month)[1]
+        end_date = datetime.date(prev_y, last_month, last_day)
+        return CalculatedDateRange(start_date, end_date, Granularity.QUARTER, ref_date)
+
+    def calculate_quarter_range(self, intent: QuarterRangeIntent, ref_date: datetime.date) -> CalculatedDateRange:
+        start_date = datetime.date(intent.year, (intent.quarter - 1) * 3 + 1, 1)
+        last_month = intent.quarter * 3
+        last_day = calendar.monthrange(intent.year, last_month)[1]
+        end_date = datetime.date(intent.year, last_month, last_day)
+        return CalculatedDateRange(start_date, end_date, Granularity.QUARTER, ref_date)
+
+    def calculate_quarter_comparison(self, intent: QuarterComparisonIntent, ref_date: datetime.date) -> CalculatedDateRange:
+        q_min = min(intent.q1, intent.q2)
+        q_max = max(intent.q1, intent.q2)
+        start_date = datetime.date(intent.year, (q_min - 1) * 3 + 1, 1)
+        last_month = q_max * 3
+        last_day = calendar.monthrange(intent.year, last_month)[1]
+        end_date = datetime.date(intent.year, last_month, last_day)
+        return CalculatedDateRange(start_date, end_date, Granularity.QUARTER, ref_date)
+
     def calculate_ytd(self, intent: YTDIntent, ref_date: datetime.date) -> CalculatedDateRange:
         start = datetime.date(ref_date.year, 1, 1)
         return CalculatedDateRange(start, ref_date, Granularity.AUTO, ref_date)
@@ -228,6 +277,11 @@ class DateCalculator:
         return CalculatedDateRange(start, ref_date, Granularity.AUTO, ref_date)
 
     def calculate_trend(self, intent: TrendIntent, ref_date: datetime.date) -> CalculatedDateRange:
+        if intent.limit_years:
+            start_date = datetime.date(ref_date.year - intent.limit_years + 1, 1, 1)
+            end_date = datetime.date(ref_date.year, 12, 31)
+            return CalculatedDateRange(start_date, end_date, intent.granularity, ref_date)
+            
         year, month = ref_date.year, ref_date.month
         for _ in range(12):
             month -= 1
@@ -236,7 +290,7 @@ class DateCalculator:
                 year -= 1
         max_day = calendar.monthrange(year, month)[1]
         start = datetime.date(year, month, min(ref_date.day, max_day))
-        return CalculatedDateRange(start, ref_date, Granularity.AUTO, ref_date)
+        return CalculatedDateRange(start, ref_date, intent.granularity, ref_date)
 
     def calculate_running_total(self, intent: RunningTotalIntent, ref_date: datetime.date) -> CalculatedDateRange:
         start = datetime.date(ref_date.year, 1, 1)

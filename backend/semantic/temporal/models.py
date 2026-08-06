@@ -147,6 +147,39 @@ class MonthComparisonIntent(BaseTimeIntent):
 
 
 @dataclass
+class CurrentQuarterIntent(BaseTimeIntent):
+    reference_date: Optional[datetime.date] = None
+    calendar_type: CalendarType = CalendarType.AUTO
+    intent_type: TimeIntentType = TimeIntentType.CURRENT_QUARTER
+
+
+@dataclass
+class PreviousQuarterIntent(BaseTimeIntent):
+    reference_date: Optional[datetime.date] = None
+    calendar_type: CalendarType = CalendarType.AUTO
+    intent_type: TimeIntentType = TimeIntentType.PREVIOUS_QUARTER
+
+
+@dataclass
+class QuarterRangeIntent(BaseTimeIntent):
+    quarter: int
+    year: int
+    reference_date: Optional[datetime.date] = None
+    calendar_type: CalendarType = CalendarType.AUTO
+    intent_type: TimeIntentType = TimeIntentType.QUARTER_RANGE
+
+
+@dataclass
+class QuarterComparisonIntent(BaseTimeIntent):
+    q1: int
+    q2: int
+    year: int
+    reference_date: Optional[datetime.date] = None
+    calendar_type: CalendarType = CalendarType.AUTO
+    intent_type: TimeIntentType = TimeIntentType.QUARTER_COMPARISON
+
+
+@dataclass
 class GrowthIntent(BaseTimeIntent):
     comparison_type: TimeIntentType
     granularity: Granularity = Granularity.AUTO
@@ -159,6 +192,7 @@ class GrowthIntent(BaseTimeIntent):
 class TrendIntent(BaseTimeIntent):
     granularity: Granularity = Granularity.AUTO
     reference_date: Optional[datetime.date] = None
+    limit_years: Optional[int] = None
     calendar_type: CalendarType = CalendarType.AUTO
     intent_type: TimeIntentType = TimeIntentType.TREND
 

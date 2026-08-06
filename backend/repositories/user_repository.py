@@ -24,3 +24,53 @@ class UserRepository:
         except Exception as e:
             logger.error(f"Error fetching user ID for employee_id {employee_id}: {e}")
             raise e
+
+    @staticmethod
+    def create_user(user_data: dict, connection) -> int:
+        """
+        Creates a new user and returns their generated ID.
+        """
+        query = """
+        INSERT INTO users (
+            username, password, employee_id, full_name, official_email,
+            department, role, company, is_active, company_id, created_at
+        )
+        OUTPUT INSERTED.id
+        VALUES (
+            :username, :password, :employee_id, :full_name, :official_email,
+            :department, :role, :company, 1, :company_id, GETDATE()
+        )
+        """
+        try:
+            result = connection.execute(text(query), user_data)
+            return int(result.scalar())
+        except Exception as e:
+            logger.error(f"Error creating user: {e}")
+            raise e
+
+    @staticmethod
+    def update_user(user_id: int, user_data: dict, connection) -> None:
+        """
+        Updates an existing user.
+        """
+        query = """
+        UPDATE users
+        SET
+            full_name = :full_name,
+            department = :department,
+            role = :role,
+            company = :company,
+            company_id = :company_id,
+            location = :location,
+            mobile_number = :mobile_number,
+            address = :address,
+            updated_at = GETDATE()
+        WHERE id = :user_id
+        """
+        try:
+            params = {**user_data, "user_id": user_id}
+            connection.execute(text(query), params)
+        except Exception as e:
+            logger.error(f"Error updating user with id {user_id}: {e}")
+            raise e
+

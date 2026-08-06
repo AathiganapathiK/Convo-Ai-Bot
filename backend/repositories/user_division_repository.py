@@ -35,6 +35,7 @@ class UserDivisionRepository:
         """
         Saves (insert or update) the division_code for a given user_id.
         """
+        db_division_code = None if not division_code else division_code
         query = """
         IF EXISTS (SELECT 1 FROM user_division_access WHERE user_id = :user_id)
             UPDATE user_division_access 
@@ -46,10 +47,10 @@ class UserDivisionRepository:
         """
         try:
             if connection:
-                connection.execute(text(query), {"user_id": user_id, "division_code": division_code})
+                connection.execute(text(query), {"user_id": user_id, "division_code": db_division_code})
             else:
                 with engine.begin() as conn:
-                    conn.execute(text(query), {"user_id": user_id, "division_code": division_code})
+                    conn.execute(text(query), {"user_id": user_id, "division_code": db_division_code})
         except Exception as e:
             logger.error(f"Error saving division for user_id {user_id}: {e}")
             raise e
