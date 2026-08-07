@@ -127,45 +127,34 @@ def generate_sql_query(question: str, history = None, company_id = None):
 
     # Structured temporal verification logging
     try:
-        from semantic.temporal.detector import TemporalDetector
-        from semantic.temporal.time_resolver import TimeResolver
+        from semantic.temporal.pipeline import TemporalPipeline
         from semantic.execution_context import SemanticExecutionContext
         from semantic.sql.temporal_mapper import TemporalMapper
         from semantic.temporal.enums import TimeStrategyType, Granularity
         import datetime
 
-        detector = TemporalDetector()
-        intent = detector.detect(question)
+        time_res = TemporalPipeline.get_last_resolution()
+        intent = TemporalPipeline.get_last_intent()
 
         print("\n============================================================\nTEMPORAL VERIFICATION\n============================================================")
         print(f"Question: {question}")
 
-        if not intent:
+        if not intent or not time_res or not time_res.resolved:
             print("Temporal Detected : NO")
             print("============================================================")
         else:
-            print("Temporal Detected: YES")
             intent_name = intent.__class__.__name__
-            print(f"Temporal Intent: {intent_name}")
+            plan = time_res.plan
 
-            # Get connection/settings context
-            context = SemanticExecutionContext(company_id=company_id)
-            resolver = TimeResolver()
-            time_res = resolver.resolve(
-                question=question,
-                connection_id=context.connection_id,
-                settings=context.settings
-            )
-
-            plan = time_res.plan if time_res.resolved else None
             strategy = plan.strategy.value if (plan and plan.strategy) else "None"
             granularity = plan.grouping.value if (plan and plan.grouping) else "None"
-            ref_date = getattr(intent, "reference_date", None) or datetime.date.today()
+            ref_date = getattr(intent, "reference_date", None) or getattr(plan, "reference_date", None) or datetime.date.today()
             ref_date_str = ref_date.isoformat() if ref_date else "None"
 
             start_date_str = plan.start_date.isoformat() if (plan and plan.start_date) else "None"
             end_date_str = plan.end_date.isoformat() if (plan and plan.end_date) else "None"
 
+            print(f"Temporal Intent: {intent_name}")
             print(f"Strategy: {strategy}")
             print(f"Granularity: {granularity}")
             print(f"Reference Date: {ref_date_str}")
@@ -174,6 +163,7 @@ def generate_sql_query(question: str, history = None, company_id = None):
 
             expected_fragments = []
             if plan:
+                context = SemanticExecutionContext(company_id=company_id)
                 dialect = "mssql"
                 if context.connection and context.connection.get("database_type"):
                     dialect = context.connection.get("database_type")
@@ -202,14 +192,12 @@ def generate_sql_query(question: str, history = None, company_id = None):
                             expected_fragments.append(date_col)
 
             expected_frag_str = ", ".join(expected_fragments) if expected_fragments else "None"
-            print(f"Expected SQL Fragment (from production TemporalMapper): {expected_frag_str}")
+            print(f"Expected SQL Fragment: {expected_frag_str}")
             print(f"Generated SQL: {sql_query}")
 
             validation_status = "FAIL"
             validation_reason = ""
-            if not time_res.resolved:
-                validation_reason = f"Temporal resolution failed: {', '.join(time_res.warnings) if time_res.warnings else 'Unknown error'}"
-            elif not expected_fragments:
+            if not expected_fragments:
                 validation_status = "PASS"
                 validation_reason = "No specific expected temporal SQL fragments to validate."
             else:

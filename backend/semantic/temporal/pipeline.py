@@ -1,13 +1,14 @@
 import time
 import logging
 import datetime
-from typing import Optional
+import threading
+from typing import Optional, Any
 
 from .detector import TemporalDetector
 from .time_resolver import TimeResolver
 from .context_builder import TimeContextBuilder
 from .temporal_prompt_formatter import TemporalPromptFormatter
-from .models import TimeSettings
+from .models import TimeSettings, TimeResolutionResult, BaseTimeIntent
 from .exceptions import TemporalException
 from core.logger import debug_print as print
 
@@ -16,6 +17,21 @@ logger = logging.getLogger("TemporalPipeline")
 
 class TemporalPipeline:
     """Orchestrates temporal resolution, context mapping, text formatting, and production telemetry."""
+
+    _thread_local = threading.local()
+
+    @classmethod
+    def get_last_resolution(cls) -> Optional[TimeResolutionResult]:
+        return getattr(cls._thread_local, "last_resolution", None)
+
+    @classmethod
+    def get_last_intent(cls) -> Optional[BaseTimeIntent]:
+        return getattr(cls._thread_local, "last_intent", None)
+
+    @classmethod
+    def clear_last_result(cls):
+        cls._thread_local.last_resolution = None
+        cls._thread_local.last_intent = None
 
     def __init__(
         self,
@@ -37,6 +53,7 @@ class TemporalPipeline:
         style: str = "llm",
         reference_date: Optional[datetime.date] = None
     ) -> str:
+        self.clear_last_result()
         start_time = time.time()
 
         # Phase 2.1.7.3: Skip Temporal Resolution if Not Needed
@@ -48,6 +65,8 @@ class TemporalPipeline:
             print(f"[Temporal] Expected exception in detection: {te}")
             return ""
 
+        self._thread_local.last_intent = intent
+
         # Phase 2.1.7.2: Better Exception Handling (Catch only TemporalException)
         try:
             time_resolution = self.time_resolver.resolve(
@@ -56,6 +75,8 @@ class TemporalPipeline:
                 settings=settings,
                 reference_date=reference_date
             )
+
+            self._thread_local.last_resolution = time_resolution
 
             if not time_resolution.resolved:
                 return ""

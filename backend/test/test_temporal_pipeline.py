@@ -23,7 +23,7 @@ class TestTemporalPipeline(unittest.TestCase):
 
         # Assert
         self.assertEqual(result, "")
-        mock_detector.detect.assert_called_once_with("Show all users")
+        mock_detector.detect.assert_called_once_with("Show all users", reference_date=None)
         mock_resolver.resolve.assert_not_called()
 
     def test_pipeline_normal_flow(self):
@@ -120,6 +120,34 @@ class TestTemporalPipeline(unittest.TestCase):
         res_debug = pipeline.build("q", style="debug")
         self.assertIn("[DEBUG]", res_debug)
         self.assertIn("Strategy: DATE_COLUMN", res_debug)
+
+    def test_pipeline_thread_local_storage(self):
+        # Arrange
+        mock_intent = MagicMock()
+        mock_detector = MagicMock()
+        mock_detector.detect.return_value = mock_intent
+        
+        mock_plan = ResolvedTimePlan(
+            strategy=TimeStrategyType.SNAPSHOT,
+            snapshot_columns=["CY", "PY"]
+        )
+        mock_resolution = TimeResolutionResult(resolved=True, intent=mock_intent, plan=mock_plan)
+        mock_resolver = MagicMock()
+        mock_resolver.resolve.return_value = mock_resolution
+        
+        pipeline = TemporalPipeline(detector=mock_detector, time_resolver=mock_resolver)
+
+        # Act
+        pipeline.build("Sales in the last 2 years")
+
+        # Assert
+        self.assertEqual(TemporalPipeline.get_last_intent(), mock_intent)
+        self.assertEqual(TemporalPipeline.get_last_resolution(), mock_resolution)
+
+        # Clear
+        TemporalPipeline.clear_last_result()
+        self.assertIsNone(TemporalPipeline.get_last_intent())
+        self.assertIsNone(TemporalPipeline.get_last_resolution())
 
 
 class TestSemanticExecutionContext(unittest.TestCase):
