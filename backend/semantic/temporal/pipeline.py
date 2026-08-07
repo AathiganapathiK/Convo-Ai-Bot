@@ -56,6 +56,9 @@ class TemporalPipeline:
         self.clear_last_result()
         start_time = time.time()
 
+        if reference_date is None:
+            reference_date = datetime.date.today()
+
         # Phase 2.1.7.3: Skip Temporal Resolution if Not Needed
         try:
             intent = self.detector.detect(question, reference_date=reference_date)

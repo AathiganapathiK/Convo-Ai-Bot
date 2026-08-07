@@ -354,7 +354,7 @@ class SemanticDiscoveryService:
                             
                             existing_dimension = conn.execute(
                                 text("""
-                                    SELECT dimension_id
+                                    SELECT dimension_id, synonyms, semantic_category
                                     FROM semantic_dimensions
                                     WHERE connection_id = :connection_id
                                     AND table_name = :table_name
@@ -370,6 +370,11 @@ class SemanticDiscoveryService:
                             ).fetchone()
 
                             if existing_dimension:
+                                # Preserve manually added/existing synonyms if they are already populated
+                                updated_synonyms = existing_dimension.synonyms if (existing_dimension.synonyms is not None and existing_dimension.synonyms != "") else synonyms
+                                # Preserve semantic category if it was customized (not UNKNOWN/None)
+                                updated_category = existing_dimension.semantic_category if (existing_dimension.semantic_category is not None and existing_dimension.semantic_category != "UNKNOWN") else semantic_category
+
                                 conn.execute(
                                     text("""
                                         UPDATE semantic_dimensions
@@ -380,8 +385,8 @@ class SemanticDiscoveryService:
                                         WHERE dimension_id = :dimension_id
                                     """),
                                     {
-                                        "semantic_category": semantic_category,
-                                        "synonyms": synonyms,
+                                        "semantic_category": updated_category,
+                                        "synonyms": updated_synonyms,
                                         "dimension_id": existing_dimension.dimension_id
                                     }
                                 )

@@ -273,10 +273,14 @@ class SemanticService:
                     SELECT 1
                     FROM semantic_dimensions
                     WHERE connection_id = :connection_id
+                      AND LOWER(table_name) = LOWER(:table_name)
+                      AND LOWER(column_name) = LOWER(:column_name)
                       AND LOWER(dimension_name) = LOWER(:dimension_name)
                 """),
                 {
                     "connection_id": connection_id,
+                    "table_name": data["table_name"],
+                    "column_name": data["column_name"],
                     "dimension_name": data["dimension_name"]
                 }
             ).fetchone()
@@ -371,11 +375,15 @@ class SemanticService:
                     SELECT 1
                     FROM semantic_dimensions
                     WHERE connection_id = :connection_id
+                      AND LOWER(table_name) = LOWER(:table_name)
+                      AND LOWER(column_name) = LOWER(:column_name)
                       AND LOWER(dimension_name) = LOWER(:dimension_name)
                       AND dimension_id <> :dimension_id
                 """),
                 {
                     "connection_id": connection_id,
+                    "table_name": data["table_name"],
+                    "column_name": data["column_name"],
                     "dimension_name": data["dimension_name"],
                     "dimension_id": dimension_id
                 }

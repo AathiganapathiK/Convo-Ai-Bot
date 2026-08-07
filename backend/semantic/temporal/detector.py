@@ -51,6 +51,10 @@ class TemporalDetector:
         if not question:
             return None
             
+        # Fail gracefully if reference_date is unexpectedly None
+        if reference_date is None:
+            reference_date = datetime.date.today()
+            
         # 1. Tokenizer
         tokens = self.tokenizer.tokenize(question)
         if not tokens:
@@ -69,7 +73,7 @@ class TemporalDetector:
         # 4. Map to TimeIntent subclass
         intent_type = expression.intent
         meta = expression.metadata
-        ref_year = reference_date.year if reference_date else datetime.date.today().year
+        ref_year = reference_date.year
         
         if intent_type == TimeIntentType.LAST_N_YEARS:
             return LastNYearsIntent(count=meta.get("count", 1), reference_date=reference_date)

@@ -207,13 +207,7 @@ class SemanticResolver:
         print(f"Rows returned from semantic_dimensions: {len(dimension_rows)}")
         print("==================================================\n")
 
-        print("========== LOADED DIMENSIONS ==========")
-        for row in dimension_rows:
-            business_name = row[1]
-            table_name = row[2]
-            column_name = row[3]
-            synonyms = row[4] if row[4] is not None else ""
-            print(f"{business_name} | {column_name} | {table_name} | {synonyms}")
+
 
         return metric_rows, dimension_rows
 

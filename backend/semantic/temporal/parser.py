@@ -1,6 +1,7 @@
 from typing import List, Optional
 from .models import DetectedTimeExpression
 from .patterns import TEMPORAL_PATTERNS
+from core.logger import debug_print as print
 
 class TimeParser:
     """
@@ -23,6 +24,15 @@ class TimeParser:
                 except Exception:
                     metadata = {}
                 
+                print(
+                    "\n========== TEMPORAL PARSER ==========\n"
+                    f"Normalized Text : {normalized_text}\n"
+                    f"Matched Pattern : {pattern.name}\n"
+                    f"Matched Text    : {matched_str}\n"
+                    f"Intent          : {pattern.intent_type.name}\n"
+                    f"Confidence      : {pattern.confidence:.2f}\n"
+                    "===================================="
+                )
                 return DetectedTimeExpression(
                     text=matched_str,
                     intent=pattern.intent_type,
@@ -30,4 +40,10 @@ class TimeParser:
                     matched_tokens=matched_tokens,
                     metadata=metadata
                 )
+        print(
+            "\n========== TEMPORAL PARSER ==========\n"
+            f"Normalized Text : {normalized_text}\n"
+            "Matched Pattern : NONE\n"
+            "===================================="
+        )
         return None

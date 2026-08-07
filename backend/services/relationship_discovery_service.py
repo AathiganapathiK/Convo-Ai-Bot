@@ -39,6 +39,7 @@ class RelationshipDiscoveryService:
                 text("""
                     DELETE FROM schema_relationships
                     WHERE connection_id = :connection_id
+                      AND (discovered_by = 'SYSTEM' OR discovered_by IS NULL)
                 """),
                 {
                     "connection_id": connection_id
@@ -196,52 +197,72 @@ class RelationshipDiscoveryService:
                 if not source_column or not target_column:
                     continue
 
-                # Insert relationship
-                conn.execute(
+                # Check if relationship already exists
+                existing_rel = conn.execute(
                     text("""
-                        INSERT INTO schema_relationships
-                        (
-                            relationship_id,
-                            company_id,
-                            connection_id,
-                            source_table_id,
-                            source_column_id,
-                            target_table_id,
-                            target_column_id,
-                            relationship_type,
-                            confidence_score,
-                            is_confirmed,
-                            discovered_by
-                        )
-                        VALUES
-                        (
-                            :relationship_id,
-                            :company_id,
-                            :connection_id,
-                            :source_table_id,
-                            :source_column_id,
-                            :target_table_id,
-                            :target_column_id,
-                            :relationship_type,
-                            :confidence_score,
-                            :is_confirmed,
-                            :discovered_by
-                        )
+                        SELECT 1 FROM schema_relationships
+                        WHERE connection_id = :connection_id
+                          AND source_table_id = :source_table_id
+                          AND source_column_id = :source_column_id
+                          AND target_table_id = :target_table_id
+                          AND target_column_id = :target_column_id
                     """),
                     {
-                        "relationship_id": str(uuid.uuid4()),
-                        "company_id": company_id,
                         "connection_id": connection_id,
                         "source_table_id": source_table.table_id,
                         "source_column_id": source_column.column_id,
                         "target_table_id": target_table.table_id,
-                        "target_column_id": target_column.column_id,
-                        "relationship_type": "FOREIGN_KEY",
-                        "confidence_score": 1.0,
-                        "is_confirmed": True,
-                        "discovered_by": "SYSTEM"
+                        "target_column_id": target_column.column_id
                     }
-                )
+                ).fetchone()
+
+                if not existing_rel:
+                    # Insert relationship
+                    conn.execute(
+                        text("""
+                            INSERT INTO schema_relationships
+                            (
+                                relationship_id,
+                                company_id,
+                                connection_id,
+                                source_table_id,
+                                source_column_id,
+                                target_table_id,
+                                target_column_id,
+                                relationship_type,
+                                confidence_score,
+                                is_confirmed,
+                                discovered_by
+                            )
+                            VALUES
+                            (
+                                :relationship_id,
+                                :company_id,
+                                :connection_id,
+                                :source_table_id,
+                                :source_column_id,
+                                :target_table_id,
+                                :target_column_id,
+                                :relationship_type,
+                                :confidence_score,
+                                :is_confirmed,
+                                :discovered_by
+                            )
+                        """),
+                        {
+                            "relationship_id": str(uuid.uuid4()),
+                            "company_id": company_id,
+                            "connection_id": connection_id,
+                            "source_table_id": source_table.table_id,
+                            "source_column_id": source_column.column_id,
+                            "target_table_id": target_table.table_id,
+                            "target_column_id": target_column.column_id,
+                            "relationship_type": "FOREIGN_KEY",
+                            "confidence_score": 1.0,
+                            "is_confirmed": True,
+                            "discovered_by": "SYSTEM"
+                        }
+                    )
 
                 # Mark FK column
                 conn.execute(

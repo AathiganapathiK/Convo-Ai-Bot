@@ -23,7 +23,7 @@ class TestTemporalPipeline(unittest.TestCase):
 
         # Assert
         self.assertEqual(result, "")
-        mock_detector.detect.assert_called_once_with("Show all users", reference_date=None)
+        mock_detector.detect.assert_called_once_with("Show all users", reference_date=datetime.date.today())
         mock_resolver.resolve.assert_not_called()
 
     def test_pipeline_normal_flow(self):
@@ -148,6 +148,52 @@ class TestTemporalPipeline(unittest.TestCase):
         TemporalPipeline.clear_last_result()
         self.assertIsNone(TemporalPipeline.get_last_intent())
         self.assertIsNone(TemporalPipeline.get_last_resolution())
+
+    def test_pipeline_reference_date_omitted(self):
+        # Arrange
+        mock_detector = MagicMock()
+        mock_detector.detect.return_value = None
+        mock_resolver = MagicMock()
+        pipeline = TemporalPipeline(detector=mock_detector, time_resolver=mock_resolver)
+        
+        # Act
+        pipeline.build("Show all users")
+        
+        # Assert
+        expected_today = datetime.date.today()
+        mock_detector.detect.assert_called_once()
+        called_args, called_kwargs = mock_detector.detect.call_args
+        self.assertEqual(called_kwargs.get("reference_date"), expected_today)
+
+    def test_pipeline_reference_date_none(self):
+        # Arrange
+        mock_detector = MagicMock()
+        mock_detector.detect.return_value = None
+        mock_resolver = MagicMock()
+        pipeline = TemporalPipeline(detector=mock_detector, time_resolver=mock_resolver)
+        
+        # Act
+        pipeline.build("Show all users", reference_date=None)
+        
+        # Assert
+        expected_today = datetime.date.today()
+        mock_detector.detect.assert_called_once()
+        called_args, called_kwargs = mock_detector.detect.call_args
+        self.assertEqual(called_kwargs.get("reference_date"), expected_today)
+
+    def test_pipeline_reference_date_explicit(self):
+        # Arrange
+        mock_detector = MagicMock()
+        mock_detector.detect.return_value = None
+        mock_resolver = MagicMock()
+        pipeline = TemporalPipeline(detector=mock_detector, time_resolver=mock_resolver)
+        
+        explicit_date = datetime.date(2025, 5, 20)
+        # Act
+        pipeline.build("Show all users", reference_date=explicit_date)
+        
+        # Assert
+        mock_detector.detect.assert_called_once_with("Show all users", reference_date=explicit_date)
 
 
 class TestSemanticExecutionContext(unittest.TestCase):
