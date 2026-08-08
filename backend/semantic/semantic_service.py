@@ -270,7 +270,7 @@ class SemanticService:
 
             duplicate = conn.execute(
                 text("""
-                    SELECT 1
+                    SELECT dimension_id, source
                     FROM semantic_dimensions
                     WHERE connection_id = :connection_id
                       AND LOWER(table_name) = LOWER(:table_name)
@@ -286,10 +286,35 @@ class SemanticService:
             ).fetchone()
 
             if duplicate:
-                raise HTTPException(
-                    status_code=409,
-                    detail="Dimension already exists."
-                )
+                if duplicate.source == 'AUTO':
+                    conn.execute(
+                        text("""
+                            UPDATE semantic_dimensions
+                            SET business_name = :business_name,
+                                synonyms = :synonyms,
+                                description = :description,
+                                source = 'MANUAL',
+                                updated_by = :updated_by,
+                                updated_at = GETDATE()
+                            WHERE dimension_id = :dimension_id
+                        """),
+                        {
+                            "business_name": data["business_name"],
+                            "synonyms": data.get("synonyms"),
+                            "description": data.get("description"),
+                            "updated_by": user["employee_id"],
+                            "dimension_id": duplicate.dimension_id
+                        }
+                    )
+                    return {
+                        "message": "Semantic dimension updated successfully.",
+                        "dimension_id": duplicate.dimension_id
+                    }
+                else:
+                    raise HTTPException(
+                        status_code=409,
+                        detail="Dimension already exists."
+                    )
 
             dimension_id = str(uuid.uuid4())
 

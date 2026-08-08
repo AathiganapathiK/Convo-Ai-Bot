@@ -167,7 +167,7 @@ class SemanticDiscoveryService:
                         table_name.lower(),
                         lower
                     )
-                    discovered_metrics.add((table_name, column_name))
+                    discovered_metrics.add((table_name.lower(), column_name.lower()))
 
                     if metric_key not in seen_metrics:
 
@@ -195,8 +195,8 @@ class SemanticDiscoveryService:
                                 SELECT metric_id
                                 FROM semantic_metrics
                                 WHERE connection_id = :connection_id
-                                AND table_name = :table_name
-                                AND column_name = :column_name
+                                  AND LOWER(table_name) = LOWER(:table_name)
+                                  AND LOWER(column_name) = LOWER(:column_name)
                             """),
                             {
                                 "connection_id": connection_id,
@@ -212,11 +212,15 @@ class SemanticDiscoveryService:
                                     UPDATE semantic_metrics
                                     SET
                                         aggregation_type = :aggregation_type,
-                                        source = 'AUTO'
+                                        source = 'AUTO',
+                                        table_name = :table_name,
+                                        column_name = :column_name
                                     WHERE metric_id = :metric_id
                                 """),
                                 {
                                     "aggregation_type": aggregation_type,
+                                    "table_name": table_name,
+                                    "column_name": column_name,
                                     "metric_id": existing_metric.metric_id
                                 }
                             )
@@ -333,7 +337,7 @@ class SemanticDiscoveryService:
                         v_dim_name = f"{lower.replace(' ', '_')}_{suffix}" if suffix else lower.replace(" ", "_")
                         dimension_key = (table_name.lower(), v_dim_name)
                         
-                        discovered_dimensions.add((table_name, column_name))
+                        discovered_dimensions.add((table_name.lower(), column_name.lower()))
 
                         print(
                             f"[DISCOVERY] table={table_name}, "
@@ -357,9 +361,9 @@ class SemanticDiscoveryService:
                                     SELECT dimension_id, synonyms, semantic_category
                                     FROM semantic_dimensions
                                     WHERE connection_id = :connection_id
-                                    AND table_name = :table_name
-                                    AND column_name = :column_name
-                                    AND dimension_name = :dimension_name
+                                      AND LOWER(table_name) = LOWER(:table_name)
+                                      AND LOWER(column_name) = LOWER(:column_name)
+                                      AND LOWER(dimension_name) = LOWER(:dimension_name)
                                 """),
                                 {
                                     "connection_id": connection_id,
@@ -381,12 +385,16 @@ class SemanticDiscoveryService:
                                         SET
                                             semantic_category = :semantic_category,
                                             synonyms = :synonyms,
-                                            source = 'AUTO'
+                                            source = 'AUTO',
+                                            table_name = :table_name,
+                                            column_name = :column_name
                                         WHERE dimension_id = :dimension_id
                                     """),
                                     {
                                         "semantic_category": updated_category,
                                         "synonyms": updated_synonyms,
+                                        "table_name": table_name,
+                                        "column_name": column_name,
                                         "dimension_id": existing_dimension.dimension_id
                                     }
                                 )
@@ -445,7 +453,9 @@ class SemanticDiscoveryService:
             ).fetchall()
 
             for metric in existing_metrics:
-                if (metric.table_name, metric.column_name) not in discovered_metrics:
+                m_table = metric.table_name.lower() if metric.table_name else ""
+                m_column = metric.column_name.lower() if metric.column_name else ""
+                if (m_table, m_column) not in discovered_metrics:
                     conn.execute(
                         text("""
                             DELETE FROM semantic_metrics
@@ -465,7 +475,9 @@ class SemanticDiscoveryService:
             ).fetchall()
 
             for dimension in existing_dimensions:
-                if (dimension.table_name, dimension.column_name) not in discovered_dimensions:
+                d_table = dimension.table_name.lower() if dimension.table_name else ""
+                d_column = dimension.column_name.lower() if dimension.column_name else ""
+                if (d_table, d_column) not in discovered_dimensions:
 
                     # Delete indexed values first (child records)
                     conn.execute(

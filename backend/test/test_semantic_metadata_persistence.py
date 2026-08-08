@@ -321,3 +321,113 @@ class TestSemanticMetadataPersistence(unittest.TestCase):
         data1_updated["synonyms"] = "state,progress"
         res_update = SemanticService.update_dimension(dim1_id, data1_updated, user)
         self.assertEqual(res_update["message"], "Semantic dimension updated successfully.")
+
+    @patch("semantic.discovery_service.engine", test_engine)
+    @patch("semantic.dimension_value_index_builder.engine", test_engine)
+    @patch("services.connection_service.ConnectionService.get_connection")
+    @patch("services.database_connection_factory.DatabaseConnectionFactory.create_engine_for_connection")
+    def test_semantic_discovery_case_insensitive_preservation(self, mock_create_engine, mock_get_connection):
+        connection_id = str(uuid.uuid4())
+        company_id = str(uuid.uuid4())
+
+        mock_get_connection.return_value = {"connection_id": connection_id, "company_id": company_id}
+
+        # Setup mock source engine
+        mock_source_conn = MagicMock()
+        def execute_side_effect(sql_text, *args, **kwargs):
+            sql_str = str(sql_text)
+            mock_res = MagicMock()
+            if "INFORMATION_SCHEMA.COLUMNS" in sql_str:
+                mock_res.fetchone.return_value = ("Country",)
+            elif "SELECT DISTINCT" in sql_str:
+                mock_res.fetchall.return_value = [("USA",)]
+            else:
+                mock_res.fetchall.return_value = []
+                mock_res.fetchone.return_value = None
+            return mock_res
+            
+        mock_source_conn.execute.side_effect = execute_side_effect
+        mock_source_engine = MagicMock()
+        mock_source_engine.dialect.name = "mssql"
+        mock_source_engine.connect.return_value.__enter__.return_value = mock_source_conn
+        mock_create_engine.return_value = mock_source_engine
+
+        # Populate tables and columns using specific casing
+        with test_engine.begin() as conn:
+            conn.execute(text("""
+                INSERT INTO schema_tables (table_id, connection_id, schema_name, table_name)
+                VALUES ('t1', :conn_id, 'dbo', 'Customers')
+            """), {"conn_id": connection_id})
+            
+            conn.execute(text("""
+                INSERT INTO schema_columns (column_id, table_id, column_name, data_type)
+                VALUES ('c1', 't1', 'Country', 'varchar')
+            """))
+
+        # 1. Run discovery first time - will insert as AUTO
+        SemanticDiscoveryService.discover(connection_id)
+
+        # 2. Simulate manual user customization but with LOWERCASE table/column casing
+        with test_engine.begin() as conn:
+            conn.execute(text("""
+                UPDATE semantic_dimensions
+                SET synonyms = 'nation,region',
+                    semantic_category = 'LOCATION_COUNTRY',
+                    table_name = 'customers',
+                    column_name = 'country'
+                WHERE connection_id = :conn_id
+            """), {"conn_id": connection_id})
+
+        # 3. Run discovery a second time with original casing ('Customers', 'Country')
+        SemanticDiscoveryService.discover(connection_id)
+
+        # 4. Verify the manual changes were NOT overwritten or deleted
+        with test_engine.connect() as conn:
+            dims = conn.execute(text("SELECT * FROM semantic_dimensions WHERE connection_id = :conn_id"), {"conn_id": connection_id}).fetchall()
+            self.assertEqual(len(dims), 1)
+            dim = dims[0]
+            self.assertEqual(dim.synonyms, "nation,region")
+            self.assertEqual(dim.semantic_category, "LOCATION_COUNTRY")
+            # Casing should also be updated/aligned to match the latest schema discovery casing
+            self.assertEqual(dim.table_name, "Customers")
+            self.assertEqual(dim.column_name, "Country")
+
+    @patch("semantic.semantic_service.engine", test_engine)
+    def test_create_dimension_promotes_auto_to_manual(self):
+        connection_id = str(uuid.uuid4())
+        user = {"employee_id": "test-emp"}
+
+        # 1. Insert an AUTO dimension to simulate one discovered by system
+        with test_engine.begin() as conn:
+            conn.execute(text("""
+                INSERT INTO semantic_dimensions (
+                    dimension_id, connection_id, dimension_name, business_name,
+                    table_name, column_name, source, is_active
+                ) VALUES (
+                    'dim-auto-1', :conn_id, 'status', 'Status',
+                    'Orders', 'order_status', 'AUTO', 1
+                )
+            """), {"conn_id": connection_id})
+
+        # 2. Try to manually create the dimension with the same details + synonyms + description
+        data = {
+            "dimension_name": "status",
+            "business_name": "Order Status Override",
+            "synonyms": "state,status",
+            "description": "Status of the order customized",
+            "table_name": "Orders",
+            "column_name": "order_status"
+        }
+        res = SemanticService.create_dimension(connection_id, data, user)
+        self.assertEqual(res["message"], "Semantic dimension updated successfully.")
+        self.assertEqual(res["dimension_id"], "dim-auto-1")
+
+        # 3. Verify it was promoted to MANUAL and updated
+        with test_engine.connect() as conn:
+            dim = conn.execute(text("SELECT * FROM semantic_dimensions WHERE dimension_id = 'dim-auto-1'")).fetchone()
+            self.assertEqual(dim.source, "MANUAL")
+            self.assertEqual(dim.business_name, "Order Status Override")
+            self.assertEqual(dim.synonyms, "state,status")
+            self.assertEqual(dim.description, "Status of the order customized")
+
+
