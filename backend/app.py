@@ -55,6 +55,8 @@ from services.column_display_service import ColumnDisplayService
 
 
 from semantic.discovery_service import SemanticDiscoveryService
+from semantic.dimension_value_index_builder import DimensionValueIndexBuilder
+from semantic.dimension_value_resolver import DimensionValueResolver
 from semantic.semantic_context_service import SemanticContextService
 from semantic.semantic_resolver import SemanticResolver
 from semantic.relationship_service import SemanticRelationshipService
@@ -1328,6 +1330,96 @@ def delete_semantic_dimension(
 ):
 
     return SemanticService.delete_dimension(dimension_id)
+
+
+@app.get("/semantic/dimension-value-index/status")
+def get_dimension_value_index_status(
+    user: dict = Depends(require_permission("semantic:write"))
+):
+    active_connection = get_active_conn_or_raise()
+    connection_id = active_connection["connection_id"]
+
+    with engine.connect() as conn:
+        active_dimensions = conn.execute(
+            text("""
+                SELECT COUNT(*)
+                FROM semantic_dimensions
+                WHERE connection_id = :connection_id
+                  AND is_active = 1
+            """),
+            {"connection_id": connection_id},
+        ).scalar() or 0
+
+        indexed_value_rows = conn.execute(
+            text("""
+                SELECT COUNT(*)
+                FROM dimension_value_index
+                WHERE connection_id = :connection_id
+            """),
+            {"connection_id": connection_id},
+        ).scalar() or 0
+
+        dimensions_with_values = conn.execute(
+            text("""
+                SELECT COUNT(DISTINCT semantic_dimension_id)
+                FROM dimension_value_index
+                WHERE connection_id = :connection_id
+            """),
+            {"connection_id": connection_id},
+        ).scalar() or 0
+
+    return {
+        "connection_id": connection_id,
+        "active_dimensions": active_dimensions,
+        "indexed_value_rows": indexed_value_rows,
+        "dimensions_with_values": dimensions_with_values,
+    }
+
+
+@app.post("/semantic/dimension-value-index/rebuild")
+def rebuild_dimension_value_index(
+    user: dict = Depends(require_permission("semantic:write"))
+):
+    active_connection = get_active_conn_or_raise()
+    connection_id = active_connection["connection_id"]
+
+    try:
+        result = DimensionValueIndexBuilder.build_all(connection_id)
+        DimensionValueResolver.clear_cache(connection_id)
+        return {
+            "success": True,
+            "message": "Dimension value index rebuilt.",
+            "result": result,
+        }
+    except Exception as ex:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(ex),
+        )
+
+
+@app.post("/semantic/discover")
+def run_semantic_discovery(
+    user: dict = Depends(require_permission("semantic:write"))
+):
+    active_connection = get_active_conn_or_raise()
+    connection_id = active_connection["connection_id"]
+
+    try:
+        SemanticDiscoveryService.discover(connection_id)
+        DimensionValueResolver.clear_cache(connection_id)
+        return {
+            "success": True,
+            "message": (
+                "Semantic discovery completed. Metrics and dimensions were "
+                "refreshed and the dimension value index was rebuilt."
+            ),
+        }
+    except Exception as ex:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(ex),
+        )
 
 
 @app.get("/test-relationships")

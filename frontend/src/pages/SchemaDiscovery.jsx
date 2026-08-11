@@ -6,10 +6,50 @@ import {
 import { 
   SearchOutlined, SyncOutlined, DatabaseOutlined, TableOutlined, 
   KeyOutlined, EyeOutlined, FileTextOutlined, InfoCircleOutlined,
-  PartitionOutlined
+  PartitionOutlined, LeftOutlined
 } from "@ant-design/icons";
 
 const { Title, Text, Paragraph } = Typography;
+
+const ResizableHeaderCell = (props) => {
+  const { onResize, width, ...restProps } = props;
+
+  if (!width) {
+    return <th {...restProps} />;
+  }
+
+  return (
+    <th
+      {...restProps}
+      style={{ ...restProps.style, position: "relative" }}
+    >
+      {restProps.children}
+      <div
+        className="table-resize-handle"
+        onClick={(e) => e.stopPropagation()}
+        onMouseDown={(e) => {
+          e.preventDefault();
+          const startX = e.pageX;
+          const startWidth = width;
+
+          const onMouseMove = (moveEvent) => {
+            const currentX = moveEvent.pageX;
+            const newWidth = Math.max(50, startWidth + (currentX - startX));
+            onResize(newWidth);
+          };
+
+          const onMouseUp = () => {
+            document.removeEventListener("mousemove", onMouseMove);
+            document.removeEventListener("mouseup", onMouseUp);
+          };
+
+          document.addEventListener("mousemove", onMouseMove);
+          document.addEventListener("mouseup", onMouseUp);
+        }}
+      />
+    </th>
+  );
+};
 
 export default function SchemaDiscovery({ API, token, userInfo }) {
   const [activeConnection, setActiveConnection] = useState(null);
@@ -20,6 +60,32 @@ export default function SchemaDiscovery({ API, token, userInfo }) {
   const [scanLoading, setScanLoading] = useState(false);
   const [pageLoading, setPageLoading] = useState(true);
   const [tableLoading, setTableLoading] = useState(false);
+  const [viewMode, setViewMode] = useState("list");
+  
+  const [colWidths, setColWidths] = useState({
+    name: 200,
+    type: 120,
+    constraint: 220,
+    nullable: 100,
+    desc: 300
+  });
+
+  const handleColResize = (key, newWidth) => {
+    setColWidths(prev => ({ ...prev, [key]: newWidth }));
+  };
+
+  const [sampleColWidths, setSampleColWidths] = useState({});
+
+  useEffect(() => {
+    if (activeTable && activeTable.sampleData && activeTable.sampleData.length > 0) {
+      const initialWidths = {};
+      Object.keys(activeTable.sampleData[0]).forEach(col => {
+        const firstVal = activeTable.sampleData[0][col];
+        initialWidths[col] = typeof firstVal === "number" ? 100 : 180;
+      });
+      setSampleColWidths(initialWidths);
+    }
+  }, [activeTable]);
 
   const role = userInfo?.role?.toUpperCase() || "";
   const isAnalyst = role === "ANALYST";
@@ -118,12 +184,22 @@ export default function SchemaDiscovery({ API, token, userInfo }) {
       title: activeConnection.database_name,
       key: "db_root",
       icon: <DatabaseOutlined style={{ color: "#6366f1" }} />,
-      children: filteredTables.map(t => ({
-        title: `${t.schema_name ? t.schema_name + '.' : ''}${t.table_name}`,
-        key: t.table_id,
-        icon: <TableOutlined style={{ color: "#3b82f6" }} />,
-        isLeaf: true
-      }))
+      children: filteredTables.map(t => {
+        const fullTableName = `${t.schema_name ? t.schema_name + '.' : ''}${t.table_name}`;
+        return {
+          title: (
+            <Text 
+              style={{ color: "inherit", maxWidth: "160px", display: "inline-block", verticalAlign: "middle" }}
+              ellipsis={{ tooltip: fullTableName }}
+            >
+              {fullTableName}
+            </Text>
+          ),
+          key: t.table_id,
+          icon: <TableOutlined style={{ color: "#3b82f6" }} />,
+          isLeaf: true
+        };
+      })
     }
   ] : [];
 
@@ -132,12 +208,21 @@ export default function SchemaDiscovery({ API, token, userInfo }) {
       title: "Column Name",
       dataIndex: "name",
       key: "name",
+      width: colWidths.name,
       render: (text, record) => {
         const isKey = record.constraint.includes("PRIMARY") || record.constraint.includes("FOREIGN");
         return (
           <Space>
             {isKey ? <KeyOutlined style={{ color: "#f59e0b" }} /> : <FileTextOutlined style={{ color: "var(--text-muted)" }} />}
-            <span style={{ fontWeight: 600, color: "var(--text-main)" }}>{text}</span>
+            <Text 
+              tabIndex={0}
+              title={text}
+              style={{ fontWeight: 600, color: "var(--text-main)", maxWidth: colWidths.name - 50, display: "inline-block", cursor: "help" }} 
+              ellipsis={{ tooltip: text }}
+              className="focusable-ellipsis-text"
+            >
+              {text}
+            </Text>
           </Space>
         );
       }
@@ -146,12 +231,14 @@ export default function SchemaDiscovery({ API, token, userInfo }) {
       title: "Data Type",
       dataIndex: "type",
       key: "type",
+      width: colWidths.type,
       render: (text) => <code style={{ color: "var(--code-purple)" }}>{text}</code>
     },
     {
       title: "Tag / Classification",
       dataIndex: "constraint",
       key: "constraint",
+      width: colWidths.constraint,
       render: (text) => {
         if (!text || text === "NONE") return <Tag color="default" bordered={false}>NONE</Tag>;
         return (
@@ -173,29 +260,51 @@ export default function SchemaDiscovery({ API, token, userInfo }) {
       title: "Nullable",
       dataIndex: "nullable",
       key: "nullable",
+      width: colWidths.nullable,
       render: (text) => <span style={{ color: text === "YES" ? "#6b7280" : "var(--text-secondary)" }}>{text}</span>
     },
     {
       title: "Description",
       dataIndex: "desc",
       key: "desc",
-      render: (text) => <span style={{ color: "var(--text-muted)" }}>{text}</span>
+      width: colWidths.desc,
+      render: (text) => <span style={{ color: "var(--text-muted)", wordBreak: "break-word", whiteSpace: "normal" }}>{text}</span>
     }
   ];
 
   // Dynamic sample data columns
   const sampleDataColumns = activeTable && activeTable.sampleData && activeTable.sampleData.length > 0
-    ? Object.keys(activeTable.sampleData[0]).map(col => ({
-        title: col,
-        dataIndex: col,
-        key: col,
-        render: (val) => {
-          if (typeof val === "number") {
-            return <span style={{ color: "var(--code-blue)", fontWeight: 500 }}>{val}</span>;
+    ? Object.keys(activeTable.sampleData[0]).map(col => {
+        const firstVal = activeTable.sampleData[0][col];
+        const isNumeric = typeof firstVal === "number";
+        const width = sampleColWidths[col] || (isNumeric ? 100 : 180);
+        return {
+          title: col,
+          dataIndex: col,
+          key: col,
+          width: width,
+          align: isNumeric ? "right" : "left",
+          render: (val) => {
+            if (val === null || val === undefined) {
+              return <span style={{ color: "#6b7280", fontStyle: "italic" }}>NULL</span>;
+            }
+            if (typeof val === "number") {
+              return <span style={{ color: "var(--code-blue)", fontWeight: 500 }}>{val}</span>;
+            }
+            return (
+              <Text 
+                tabIndex={0}
+                title={String(val)}
+                style={{ color: "var(--text-main)", maxWidth: width - 20, display: "inline-block", cursor: "help" }}
+                ellipsis={{ tooltip: String(val) }}
+                className="focusable-ellipsis-text"
+              >
+                {String(val)}
+              </Text>
+            );
           }
-          return <span style={{ color: "var(--text-main)" }}>{val !== null && val !== undefined ? String(val) : <span style={{ color: "#6b7280", fontStyle: "italic" }}>NULL</span>}</span>;
-        }
-      }))
+        };
+      })
     : [];
 
   if (pageLoading) {
@@ -238,9 +347,9 @@ export default function SchemaDiscovery({ API, token, userInfo }) {
           style={{ borderRadius: "12px", padding: "16px" }}
         />
       ) : (
-        <Row gutter={[16, 16]}>
+        <Row gutter={[16, 16]} className={`schema-discovery-container ${selectedTableKey && viewMode === "details" ? "show-details" : "show-list"}`}>
           {/* Left Side: Tables Navigation Tree */}
-          <Col xs={24} md={6}>
+          <Col xs={24} md={6} className="schema-discovery-sidebar">
             <Card 
               title={
                 <Input 
@@ -262,6 +371,7 @@ export default function SchemaDiscovery({ API, token, userInfo }) {
                   onSelect={(keys) => {
                     if (keys[0] && keys[0] !== "db_root") {
                       setSelectedTableKey(keys[0]);
+                      setViewMode("details");
                     }
                   }}
                   treeData={treeData}
@@ -273,7 +383,18 @@ export default function SchemaDiscovery({ API, token, userInfo }) {
           </Col>
 
           {/* Right Side: Column definitions & sample data */}
-          <Col xs={24} md={18}>
+          <Col xs={24} md={18} className="schema-discovery-details">
+            {selectedTableKey && viewMode === "details" && (
+              <Button
+                type="link"
+                icon={<LeftOutlined />}
+                onClick={() => setViewMode("list")}
+                className="schema-discovery-back-btn"
+                style={{ display: "none", marginBottom: "12px", padding: 0 }}
+              >
+                Back to Tables List
+              </Button>
+            )}
             {tableLoading ? (
               <Card bordered={false} style={{ background: "var(--bg-card)", border: "1px solid var(--border-color)", borderRadius: "12px", minHeight: "300px", display: "flex", justifyContent: "center", alignItems: "center" }}>
                 <Spin size="large" />
@@ -281,11 +402,14 @@ export default function SchemaDiscovery({ API, token, userInfo }) {
             ) : activeTable ? (
               <Card 
                 title={
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%" }}>
-                    <Space size="middle">
-                      <span style={{ color: "var(--text-main)", fontSize: "18px", fontWeight: 700 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%", flexWrap: "wrap", gap: "8px" }}>
+                    <Space size="middle" style={{ flexWrap: "wrap" }}>
+                      <Text 
+                        style={{ color: "var(--text-main)", fontSize: "18px", fontWeight: 700, maxWidth: "300px" }}
+                        ellipsis={{ tooltip: activeTable.name }}
+                      >
                         {activeTable.name}
-                      </span>
+                      </Text>
                       <Badge count={`${activeTable.rowCount.toLocaleString()} Rows`} style={{ backgroundColor: "var(--bg-selected-chat)", border: "1px solid var(--border-color)", color: "var(--text-main)" }} />
                     </Space>
                     <span style={{ fontSize: "12px", color: "#6b7280" }}>
@@ -309,8 +433,20 @@ export default function SchemaDiscovery({ API, token, userInfo }) {
                       children: (
                         <Table 
                           dataSource={activeTable.columns} 
-                          columns={columnColumns} 
+                          columns={columnColumns.map(col => ({
+                            ...col,
+                            onHeaderCell: (column) => ({
+                              width: column.width,
+                              onResize: (width) => handleColResize(column.key, width),
+                            }),
+                          }))} 
+                          components={{
+                            header: {
+                              cell: ResizableHeaderCell
+                            }
+                          }}
                           pagination={false}
+                          scroll={{ x: 'max-content' }}
                           style={{ background: "var(--bg-card)" }}
                           className="dark-table"
                         />
@@ -326,6 +462,7 @@ export default function SchemaDiscovery({ API, token, userInfo }) {
                             { 
                               title: "Source", 
                               key: "source",
+                              width: 250,
                               render: (_, rec) => (
                                 <Space>
                                   <Tag color="blue">{rec.source_table}</Tag>
@@ -336,11 +473,13 @@ export default function SchemaDiscovery({ API, token, userInfo }) {
                             { 
                               title: "Direction", 
                               key: "direction", 
+                              width: 120,
                               render: () => <span style={{ color: "var(--text-muted)" }}>references →</span>
                             },
                             { 
                               title: "Target", 
                               key: "target",
+                              width: 250,
                               render: (_, rec) => (
                                 <Space>
                                   <Tag color="purple">{rec.target_table}</Tag>
@@ -351,6 +490,7 @@ export default function SchemaDiscovery({ API, token, userInfo }) {
                           ]} 
                           pagination={false}
                           rowKey="relationship_id"
+                          scroll={{ x: 'max-content' }}
                           style={{ background: "var(--bg-card)" }}
                           className="dark-table"
                         />
@@ -362,9 +502,21 @@ export default function SchemaDiscovery({ API, token, userInfo }) {
                       children: (
                         <Table 
                           dataSource={activeTable.sampleData} 
-                          columns={sampleDataColumns} 
+                          columns={sampleDataColumns.map(col => ({
+                            ...col,
+                            onHeaderCell: (column) => ({
+                              width: column.width,
+                              onResize: (width) => setSampleColWidths(prev => ({ ...prev, [column.key]: width })),
+                            }),
+                          }))}
+                          components={{
+                            header: {
+                              cell: ResizableHeaderCell
+                            }
+                          }}
                           pagination={false}
                           rowKey={(record, idx) => idx}
+                          scroll={{ x: 'max-content' }}
                           style={{ background: "var(--bg-card)" }}
                           className="dark-table"
                         />

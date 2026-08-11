@@ -173,7 +173,7 @@ function MainAppLayout({
     return { ...section, items };
   }).filter(section => section.items.length > 0);
 
-  const [activeSection, setActiveSection] = useState(null);
+  const [openSections, setOpenSections] = useState({});
 
   // Set default active section based on path
   useEffect(() => {
@@ -182,13 +182,29 @@ function MainAppLayout({
       section.items.some(item => item.path === currentPath)
     );
     if (matchedSection) {
-      setActiveSection(matchedSection.id);
+      setOpenSections(prev => ({ ...prev, [matchedSection.id]: true }));
     }
   }, [location.pathname, role]); // eslint-disable-line
 
   const handleSectionToggle = (sectionId) => {
-    setActiveSection(prev => prev === sectionId ? null : sectionId);
+    setOpenSections(prev => ({ ...prev, [sectionId]: !prev[sectionId] }));
   };
+
+  const handleCloseSidebar = () => {
+    setIsPinned(false);
+    setIsHovered(false);
+  };
+
+  // Keyboard navigation & accessibility for sidebar: escape key closes it
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape" && isExpanded) {
+        handleCloseSidebar();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isExpanded]);
 
   const userDropdownItems = [
     { key: "profile", label: "My Profile", icon: <UserOutlined />, onClick: () => setProfileOpen(true) },
@@ -237,7 +253,16 @@ function MainAppLayout({
   ];
 
   return (
-    <Layout style={{ minHeight: "100vh", background: "var(--bg-layout)" }}>
+    <Layout className="app-root-layout">
+      {/* Sidebar Backdrop Overlay on Mobile */}
+      {isExpanded && (
+        <div 
+          className="sidebar-backdrop" 
+          onClick={handleCloseSidebar}
+          aria-hidden="true"
+        />
+      )}
+
       {/* Sidebar Navigation */}
       <div 
         className={`custom-sidebar ${isExpanded ? "expanded" : ""}`}
@@ -259,19 +284,23 @@ function MainAppLayout({
         <div className="sidebar-content">
           {isExpanded ? (
             filteredSections.map(section => {
-              const isOpen = activeSection === section.id;
+              const isOpen = !!openSections[section.id];
               return (
                 <div key={section.id} className="sidebar-section">
-                  <div 
+                  <button 
+                    type="button"
                     className="sidebar-section-header" 
                     onClick={() => handleSectionToggle(section.id)}
+                    aria-expanded={isOpen}
+                    aria-label={`Toggle ${section.title} section`}
+                    style={{ border: "none", background: "transparent", width: "100%", fontFamily: "inherit", outline: "none" }}
                   >
                     <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                       <section.icon size={14} style={{ color: "var(--text-muted)" }} />
                       <span>{section.title}</span>
                     </div>
                     <ChevronDown size={12} className={`chevron-icon ${isOpen ? 'open' : ''}`} />
-                  </div>
+                  </button>
                   
                   <div className={`sidebar-section-items ${isOpen ? 'open' : 'collapsed'}`}>
                     {section.items.map(item => {
@@ -305,7 +334,7 @@ function MainAppLayout({
                       className={`sidebar-group-collapsed-icon ${isGroupActive ? 'active' : ''}`}
                       onClick={() => {
                         setIsPinned(true);
-                        setActiveSection(section.id);
+                        setOpenSections(prev => ({ ...prev, [section.id]: true }));
                       }}
                     >
                       <GroupIcon size={22} />
@@ -357,12 +386,7 @@ function MainAppLayout({
       </div>
 
       {/* Main Body */}
-      <Layout style={{ 
-        marginLeft: isExpanded ? 280 : 72, 
-        background: "var(--bg-layout)",
-        transition: "margin-left 250ms cubic-bezier(0.4, 0, 0.2, 1)",
-        minHeight: "100vh"
-      }}>
+      <Layout className="app-main-content-layout">
         {/* Top Header */}
         <Header
           style={{

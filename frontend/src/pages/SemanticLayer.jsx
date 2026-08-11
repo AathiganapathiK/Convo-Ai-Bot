@@ -1,16 +1,57 @@
 import React, { useState, useEffect } from "react";
 import { 
   Table, Card, Button, Tag, Space, Typography, Modal, Form, 
-  Input, Select, message, Tabs, Divider, Switch
+  Input, Select, message, Tabs, Divider, Switch, Descriptions, Alert
 } from "antd";
 import { 
   PlusOutlined, TagsOutlined, CompassOutlined, 
   EditOutlined, DeleteOutlined, SearchOutlined,
-  ReloadOutlined, ClearOutlined
+  ReloadOutlined, ClearOutlined, SyncOutlined,
+  SafetyCertificateOutlined, ThunderboltOutlined
 } from "@ant-design/icons";
 
 const { Title, Text, Paragraph } = Typography;
 const { Option } = Select;
+
+const ResizableHeaderCell = (props) => {
+  const { onResize, width, ...restProps } = props;
+
+  if (!width) {
+    return <th {...restProps} />;
+  }
+
+  return (
+    <th
+      {...restProps}
+      style={{ ...restProps.style, position: "relative" }}
+    >
+      {restProps.children}
+      <div
+        className="table-resize-handle"
+        onClick={(e) => e.stopPropagation()}
+        onMouseDown={(e) => {
+          e.preventDefault();
+          const startX = e.pageX;
+          const startWidth = width;
+
+          const onMouseMove = (moveEvent) => {
+            const currentX = moveEvent.pageX;
+            const newWidth = Math.max(50, startWidth + (currentX - startX));
+            onResize(newWidth);
+          };
+
+          const onMouseUp = () => {
+            document.removeEventListener("mousemove", onMouseMove);
+            document.removeEventListener("mouseup", onMouseUp);
+          };
+
+          document.addEventListener("mousemove", onMouseMove);
+          document.addEventListener("mouseup", onMouseUp);
+        }}
+      />
+    </th>
+  );
+};
 
 export default function SemanticLayer({ API, token, userInfo }) {
   const [metrics, setMetrics] = useState([]);
@@ -22,10 +63,46 @@ export default function SemanticLayer({ API, token, userInfo }) {
   const [activeTab, setActiveTab] = useState("metrics");
   const [form] = Form.useForm();
 
+  const [metricColWidths, setMetricColWidths] = useState({
+    metric_name: 180,
+    business_name: 160,
+    synonyms: 150,
+    table_name: 180,
+    column_name: 150,
+    aggregation_type: 120,
+    source: 100,
+    is_active: 100,
+    description: 220,
+  });
+
+  const [dimensionColWidths, setDimensionColWidths] = useState({
+    dimension_name: 180,
+    business_name: 160,
+    synonyms: 150,
+    table_name: 180,
+    column_name: 150,
+    source: 100,
+    is_active: 100,
+    description: 220,
+  });
+
+  const handleMetricColResize = (key, newWidth) => {
+    setMetricColWidths(prev => ({ ...prev, [key]: newWidth }));
+  };
+
+  const handleDimensionColResize = (key, newWidth) => {
+    setDimensionColWidths(prev => ({ ...prev, [key]: newWidth }));
+  };
+
   // Search & Filter States
   const [searchText, setSearchText] = useState("");
   const [sourceFilter, setSourceFilter] = useState("ALL");
   const [statusFilter, setStatusFilter] = useState("ALL");
+  const [indexVerifyOpen, setIndexVerifyOpen] = useState(false);
+  const [indexStatus, setIndexStatus] = useState(null);
+  const [indexVerifyLoading, setIndexVerifyLoading] = useState(false);
+  const [indexRebuildLoading, setIndexRebuildLoading] = useState(false);
+  const [discoveryLoading, setDiscoveryLoading] = useState(false);
 
   const role = userInfo?.role?.toUpperCase() || "";
   const isAnalyst = role === "ANALYST";
@@ -100,6 +177,117 @@ export default function SemanticLayer({ API, token, userInfo }) {
   useEffect(() => {
     loadData();
   }, [token, API]); // eslint-disable-line
+
+  const handleVerifyDimensionIndex = async () => {
+    if (!token) return;
+    setIndexVerifyLoading(true);
+    setIndexStatus(null);
+    setIndexVerifyOpen(true);
+    try {
+      const res = await fetch(`${API}/semantic/dimension-value-index/status`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.status === 400) {
+        message.warning("Please configure an active database connection first.");
+        setIndexVerifyOpen(false);
+        return;
+      }
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.detail || `Status check failed (${res.status})`);
+      }
+      const data = await res.json();
+      setIndexStatus(data);
+    } catch (err) {
+      console.error(err);
+      message.error(err.message || "Could not verify dimension value index.");
+      setIndexVerifyOpen(false);
+    } finally {
+      setIndexVerifyLoading(false);
+    }
+  };
+
+  const handleRebuildDimensionIndex = async () => {
+    if (!token) return;
+    setIndexRebuildLoading(true);
+    try {
+      const res = await fetch(`${API}/semantic/dimension-value-index/rebuild`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.detail || "Rebuild failed");
+      }
+      const data = await res.json();
+      const summary = data.result || {};
+      message.success(
+        `Index rebuilt: ${summary.indexed ?? 0} indexed, ` +
+        `${summary.skipped ?? 0} skipped, ${summary.failed ?? 0} failed.`
+      );
+      setIndexVerifyOpen(false);
+      await handleVerifyDimensionIndex();
+    } catch (err) {
+      console.error(err);
+      message.error(err.message || "Dimension value index rebuild failed.");
+    } finally {
+      setIndexRebuildLoading(false);
+    }
+  };
+
+  const confirmRebuildDimensionIndex = () => {
+    Modal.confirm({
+      title: "Rebuild dimension value index?",
+      content: (
+        <span style={{ color: "var(--text-secondary)" }}>
+          This rescans distinct values for all active dimensions on the current connection.
+          Raw date and datetime columns are skipped; year and month dimensions use extracted values.
+          This may take several minutes on large databases.
+        </span>
+      ),
+      okText: "Rebuild index",
+      cancelText: "Cancel",
+      okButtonProps: { loading: indexRebuildLoading },
+      onOk: () => handleRebuildDimensionIndex()
+    });
+  };
+
+  const handleRunSemanticDiscovery = () => {
+    Modal.confirm({
+      title: "Run full semantic discovery?",
+      content: (
+        <span style={{ color: "var(--text-secondary)" }}>
+          This refreshes auto-discovered metrics and dimensions from the synced schema,
+          then rebuilds the dimension value index. Manual synonyms and categories you kept
+          are preserved where discovery supports it. Use this instead of disabling and
+          re-enabling the datasource.
+        </span>
+      ),
+      okText: "Run discovery",
+      cancelText: "Cancel",
+      onOk: async () => {
+        setDiscoveryLoading(true);
+        try {
+          const res = await fetch(`${API}/semantic/discover`, {
+            method: "POST",
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          if (!res.ok) {
+            const errData = await res.json().catch(() => ({}));
+            throw new Error(errData.detail || "Semantic discovery failed");
+          }
+          message.success("Semantic discovery completed successfully.");
+          await loadData();
+        } catch (err) {
+          console.error(err);
+          message.error(err.message || "Semantic discovery failed.");
+          throw err;
+        } finally {
+          setDiscoveryLoading(false);
+        }
+      }
+    });
+  };
 
   // Compute filtered datasets
   const filteredMetrics = metrics.filter(m => {
@@ -298,42 +486,96 @@ export default function SemanticLayer({ API, token, userInfo }) {
       title: "Metric Name",
       dataIndex: "metric_name",
       key: "metric_name",
+      width: metricColWidths.metric_name,
       sorter: (a, b) => (a.metric_name || "").localeCompare(b.metric_name || ""),
       render: (text) => (
-        <span style={{ fontWeight: 600 }}>
+        <Text 
+          tabIndex={0}
+          title={text}
+          style={{ fontWeight: 600, maxWidth: metricColWidths.metric_name - 20, display: "inline-block", cursor: "help" }}
+          ellipsis={{ tooltip: text }}
+          className="focusable-ellipsis-text"
+        >
           {text}
-        </span>
+        </Text>
       )
     },
     {
       title: "Business Name",
       dataIndex: "business_name",
       key: "business_name",
-      sorter: (a, b) => (a.business_name || "").localeCompare(b.business_name || "")
+      width: metricColWidths.business_name,
+      sorter: (a, b) => (a.business_name || "").localeCompare(b.business_name || ""),
+      render: (text) => (
+        <Text 
+          tabIndex={0}
+          title={text}
+          style={{ maxWidth: metricColWidths.business_name - 20, display: "inline-block", cursor: "help" }}
+          ellipsis={{ tooltip: text }}
+          className="focusable-ellipsis-text"
+        >
+          {text}
+        </Text>
+      )
     },
     {
       title: "Synonyms",
       dataIndex: "synonyms",
       key: "synonyms",
-      render: (value) =>
-        value || "-"
+      width: metricColWidths.synonyms,
+      render: (text) => (
+        <Text 
+          tabIndex={0}
+          title={text || "-"}
+          style={{ maxWidth: metricColWidths.synonyms - 20, display: "inline-block", cursor: "help" }}
+          ellipsis={{ tooltip: text || "-" }}
+          className="focusable-ellipsis-text"
+        >
+          {text || "-"}
+        </Text>
+      )
     },
     {
       title: "Table",
       dataIndex: "table_name",
       key: "table_name",
-      sorter: (a, b) => (a.table_name || "").localeCompare(b.table_name || "")
+      width: metricColWidths.table_name,
+      sorter: (a, b) => (a.table_name || "").localeCompare(b.table_name || ""),
+      render: (text) => (
+        <Text 
+          tabIndex={0}
+          title={text}
+          style={{ maxWidth: metricColWidths.table_name - 20, display: "inline-block", cursor: "help" }}
+          ellipsis={{ tooltip: text }}
+          className="focusable-ellipsis-text"
+        >
+          {text}
+        </Text>
+      )
     },
     {
       title: "Column",
       dataIndex: "column_name",
       key: "column_name",
-      sorter: (a, b) => (a.column_name || "").localeCompare(b.column_name || "")
+      width: metricColWidths.column_name,
+      sorter: (a, b) => (a.column_name || "").localeCompare(b.column_name || ""),
+      render: (text) => (
+        <Text 
+          tabIndex={0}
+          title={text}
+          style={{ maxWidth: metricColWidths.column_name - 20, display: "inline-block", cursor: "help" }}
+          ellipsis={{ tooltip: text }}
+          className="focusable-ellipsis-text"
+        >
+          {text}
+        </Text>
+      )
     },
     {
       title: "Aggregation",
       dataIndex: "aggregation_type",
       key: "aggregation_type",
+      width: metricColWidths.aggregation_type,
       sorter: (a, b) => (a.aggregation_type || "").localeCompare(b.aggregation_type || ""),
       render: (value) => (
         <Tag color="processing">
@@ -345,6 +587,7 @@ export default function SemanticLayer({ API, token, userInfo }) {
       title: "Source",
       dataIndex: "source",
       key: "source",
+      width: metricColWidths.source,
       sorter: (a, b) => (a.source || "").localeCompare(b.source || ""),
       render: (value) => (
         <Tag color={value === "AUTO" ? "blue" : "green"}>
@@ -356,6 +599,7 @@ export default function SemanticLayer({ API, token, userInfo }) {
       title: "Status",
       dataIndex: "is_active",
       key: "is_active",
+      width: metricColWidths.is_active,
       sorter: (a, b) => (a.is_active === b.is_active ? 0 : a.is_active ? 1 : -1),
       render: (value) => (
         <Tag color={value ? "green" : "red"}>
@@ -366,17 +610,32 @@ export default function SemanticLayer({ API, token, userInfo }) {
     {
       title: "Description",
       dataIndex: "description",
-      key: "description"
+      key: "description",
+      width: metricColWidths.description,
+      render: (text) => (
+        <Text 
+          tabIndex={0}
+          title={text || "-"}
+          style={{ color: "var(--text-muted)", maxWidth: metricColWidths.description - 20, display: "inline-block", cursor: "help" }}
+          ellipsis={{ tooltip: text || "-" }}
+          className="focusable-ellipsis-text"
+        >
+          {text || "-"}
+        </Text>
+      )
     },
     {
       title: "Actions",
       key: "actions",
+      width: 100,
+      fixed: "right",
       render: (_, record) => (
         <Space>
           <Button
             type="text"
             icon={<EditOutlined />}
             onClick={() => handleEdit(record)}
+            aria-label={`Edit metric ${record.business_name}`}
           />
           <Button
             type="text"
@@ -384,6 +643,7 @@ export default function SemanticLayer({ API, token, userInfo }) {
             disabled={record.source === "AUTO"}
             icon={<DeleteOutlined />}
             onClick={() => handleDelete(record)}
+            aria-label={`Delete metric ${record.business_name}`}
           />
         </Space>
       )
@@ -396,42 +656,96 @@ export default function SemanticLayer({ API, token, userInfo }) {
       title: "Dimension Name",
       dataIndex: "dimension_name",
       key: "dimension_name",
+      width: dimensionColWidths.dimension_name,
       sorter: (a, b) => (a.dimension_name || "").localeCompare(b.dimension_name || ""),
       render: (text) => (
-        <span style={{ fontWeight: 600 }}>
+        <Text 
+          tabIndex={0}
+          title={text}
+          style={{ fontWeight: 600, maxWidth: dimensionColWidths.dimension_name - 20, display: "inline-block", cursor: "help" }}
+          ellipsis={{ tooltip: text }}
+          className="focusable-ellipsis-text"
+        >
           {text}
-        </span>
+        </Text>
       )
     },
     {
       title: "Business Name",
       dataIndex: "business_name",
       key: "business_name",
-      sorter: (a, b) => (a.business_name || "").localeCompare(b.business_name || "")
+      width: dimensionColWidths.business_name,
+      sorter: (a, b) => (a.business_name || "").localeCompare(b.business_name || ""),
+      render: (text) => (
+        <Text 
+          tabIndex={0}
+          title={text}
+          style={{ maxWidth: dimensionColWidths.business_name - 20, display: "inline-block", cursor: "help" }}
+          ellipsis={{ tooltip: text }}
+          className="focusable-ellipsis-text"
+        >
+          {text}
+        </Text>
+      )
     },
     {
       title: "Synonyms",
       dataIndex: "synonyms",
       key: "synonyms",
-      render: (value) =>
-        value || "-"
+      width: dimensionColWidths.synonyms,
+      render: (text) => (
+        <Text 
+          tabIndex={0}
+          title={text || "-"}
+          style={{ maxWidth: dimensionColWidths.synonyms - 20, display: "inline-block", cursor: "help" }}
+          ellipsis={{ tooltip: text || "-" }}
+          className="focusable-ellipsis-text"
+        >
+          {text || "-"}
+        </Text>
+      )
     },
     {
       title: "Table",
       dataIndex: "table_name",
       key: "table_name",
-      sorter: (a, b) => (a.table_name || "").localeCompare(b.table_name || "")
+      width: dimensionColWidths.table_name,
+      sorter: (a, b) => (a.table_name || "").localeCompare(b.table_name || ""),
+      render: (text) => (
+        <Text 
+          tabIndex={0}
+          title={text}
+          style={{ maxWidth: dimensionColWidths.table_name - 20, display: "inline-block", cursor: "help" }}
+          ellipsis={{ tooltip: text }}
+          className="focusable-ellipsis-text"
+        >
+          {text}
+        </Text>
+      )
     },
     {
       title: "Column",
       dataIndex: "column_name",
       key: "column_name",
-      sorter: (a, b) => (a.column_name || "").localeCompare(b.column_name || "")
+      width: dimensionColWidths.column_name,
+      sorter: (a, b) => (a.column_name || "").localeCompare(b.column_name || ""),
+      render: (text) => (
+        <Text 
+          tabIndex={0}
+          title={text}
+          style={{ maxWidth: dimensionColWidths.column_name - 20, display: "inline-block", cursor: "help" }}
+          ellipsis={{ tooltip: text }}
+          className="focusable-ellipsis-text"
+        >
+          {text}
+        </Text>
+      )
     },
     {
       title: "Source",
       dataIndex: "source",
       key: "source",
+      width: dimensionColWidths.source,
       sorter: (a, b) => (a.source || "").localeCompare(b.source || ""),
       render: (value) => (
         <Tag color={value === "AUTO" ? "blue" : "green"}>
@@ -443,6 +757,7 @@ export default function SemanticLayer({ API, token, userInfo }) {
       title: "Status",
       dataIndex: "is_active",
       key: "is_active",
+      width: dimensionColWidths.is_active,
       sorter: (a, b) => (a.is_active === b.is_active ? 0 : a.is_active ? 1 : -1),
       render: (value) => (
         <Tag color={value ? "green" : "red"}>
@@ -453,17 +768,32 @@ export default function SemanticLayer({ API, token, userInfo }) {
     {
       title: "Description",
       dataIndex: "description",
-      key: "description"
+      key: "description",
+      width: dimensionColWidths.description,
+      render: (text) => (
+        <Text 
+          tabIndex={0}
+          title={text || "-"}
+          style={{ color: "var(--text-muted)", maxWidth: dimensionColWidths.description - 20, display: "inline-block", cursor: "help" }}
+          ellipsis={{ tooltip: text || "-" }}
+          className="focusable-ellipsis-text"
+        >
+          {text || "-"}
+        </Text>
+      )
     },
     {
       title: "Actions",
       key: "actions",
+      width: 100,
+      fixed: "right",
       render: (_, record) => (
         <Space>
           <Button
             type="text"
             icon={<EditOutlined />}
             onClick={() => handleEdit(record)}
+            aria-label={`Edit dimension ${record.business_name}`}
           />
           <Button
             type="text"
@@ -471,6 +801,7 @@ export default function SemanticLayer({ API, token, userInfo }) {
             disabled={record.source === "AUTO"}
             icon={<DeleteOutlined />}
             onClick={() => handleDelete(record)}
+            aria-label={`Delete dimension ${record.business_name}`}
           />
         </Space>
       )
@@ -489,18 +820,41 @@ export default function SemanticLayer({ API, token, userInfo }) {
           </Text>
         </div>
         {!isAnalyst && (
-          <Button 
-            type="primary" 
-            icon={<PlusOutlined />}
-            style={{ backgroundColor: "#4f46e5", borderColor: "#4338ca" }}
-            onClick={() => {
-              setEditingRecord(null);
-              form.resetFields();
-              setIsModalVisible(true);
-            }}
-          >
-            Add Definition
-          </Button>
+          <Space wrap>
+            <Button
+              icon={<SafetyCertificateOutlined />}
+              onClick={handleVerifyDimensionIndex}
+              loading={indexVerifyLoading}
+            >
+              Verify index
+            </Button>
+            <Button
+              icon={<SyncOutlined />}
+              onClick={confirmRebuildDimensionIndex}
+              loading={indexRebuildLoading}
+            >
+              Rebuild value index
+            </Button>
+            <Button
+              icon={<ThunderboltOutlined />}
+              onClick={handleRunSemanticDiscovery}
+              loading={discoveryLoading}
+            >
+              Run semantic discovery
+            </Button>
+            <Button 
+              type="primary" 
+              icon={<PlusOutlined />}
+              style={{ backgroundColor: "#4f46e5", borderColor: "#4338ca" }}
+              onClick={() => {
+                setEditingRecord(null);
+                form.resetFields();
+                setIsModalVisible(true);
+              }}
+            >
+              Add Definition
+            </Button>
+          </Space>
         )}
       </div>
 
@@ -582,13 +936,25 @@ export default function SemanticLayer({ API, token, userInfo }) {
               children: (
                 <Table 
                   dataSource={filteredMetrics} 
-                  columns={isAnalyst ? metricColumns.filter(c => c.key !== "actions") : metricColumns} 
+                  columns={(isAnalyst ? metricColumns.filter(c => c.key !== "actions") : metricColumns).map(col => ({
+                    ...col,
+                    onHeaderCell: (column) => ({
+                      width: column.width,
+                      onResize: (width) => handleMetricColResize(column.key, width),
+                    }),
+                  }))} 
+                  components={{
+                    header: {
+                      cell: ResizableHeaderCell
+                    }
+                  }}
                   pagination={{
                     pageSize: 10,
                     showSizeChanger: true,
                     showTotal: (total) => `Total ${total} items`
                   }}
                   loading={loading}
+                  scroll={{ x: 1300 }}
                   style={{ background: "var(--bg-card)" }}
                   className="dark-table"
                   locale={{ 
@@ -603,13 +969,25 @@ export default function SemanticLayer({ API, token, userInfo }) {
               children: (
                 <Table 
                   dataSource={filteredDimensions} 
-                  columns={isAnalyst ? dimensionColumns.filter(c => c.key !== "actions") : dimensionColumns} 
+                  columns={(isAnalyst ? dimensionColumns.filter(c => c.key !== "actions") : dimensionColumns).map(col => ({
+                    ...col,
+                    onHeaderCell: (column) => ({
+                      width: column.width,
+                      onResize: (width) => handleDimensionColResize(column.key, width),
+                    }),
+                  }))}
+                  components={{
+                    header: {
+                      cell: ResizableHeaderCell
+                    }
+                  }}
                   pagination={{
                     pageSize: 10,
                     showSizeChanger: true,
                     showTotal: (total) => `Total ${total} items`
                   }}
                   loading={loading}
+                  scroll={{ x: 1200 }}
                   style={{ background: "var(--bg-card)" }}
                   className="dark-table"
                   locale={{ 
@@ -621,6 +999,60 @@ export default function SemanticLayer({ API, token, userInfo }) {
           ]}
         />
       </Card>
+
+      <Modal
+        title={<span style={{ color: "var(--text-main)" }}>Dimension value index</span>}
+        open={indexVerifyOpen}
+        onCancel={() => {
+          setIndexVerifyOpen(false);
+          setIndexStatus(null);
+        }}
+        footer={[
+          <Button key="close" onClick={() => setIndexVerifyOpen(false)}>
+            Close
+          </Button>,
+          !isAnalyst && (
+            <Button
+              key="rebuild"
+              type="primary"
+              icon={<SyncOutlined />}
+              loading={indexRebuildLoading}
+              onClick={confirmRebuildDimensionIndex}
+              style={{ backgroundColor: "#4f46e5", borderColor: "#4338ca" }}
+            >
+              Rebuild index
+            </Button>
+          )
+        ].filter(Boolean)}
+        styles={{ body: { backgroundColor: "var(--bg-card)" } }}
+      >
+        {indexVerifyLoading ? (
+          <div style={{ padding: "24px", textAlign: "center", color: "var(--text-muted)" }}>
+            Loading index status…
+          </div>
+        ) : indexStatus ? (
+          <>
+            <Alert
+              type="info"
+              showIcon
+              style={{ marginBottom: 16 }}
+              message="Index verification"
+              description="Compare active dimensions with indexed value rows. If counts look stale after schema changes, run Rebuild value index or full semantic discovery."
+            />
+            <Descriptions column={1} bordered size="small">
+              <Descriptions.Item label="Active dimensions">
+                {indexStatus.active_dimensions}
+              </Descriptions.Item>
+              <Descriptions.Item label="Dimensions with indexed values">
+                {indexStatus.dimensions_with_values}
+              </Descriptions.Item>
+              <Descriptions.Item label="Total indexed value rows">
+                {indexStatus.indexed_value_rows}
+              </Descriptions.Item>
+            </Descriptions>
+          </>
+        ) : null}
+      </Modal>
 
       {/* Definition creation Modal */}
       <Modal

@@ -119,17 +119,24 @@ class DimensionValueResolver:
             indexed_values=indexed_values,
             settings=self.settings
         )
-
-        # Pipeline execution
+        
         matches, stats = self.pipeline.execute(matching_context)
         self.last_match_stats = stats
 
         if matches:
-            # Remove contained matches first to filter out duplicates/contained sub-phrases
-            matches = self._remove_contained_matches(matches)
-            # Rank the surviving matches (best candidate first) using the MatchRanker
+            # Step 1:
+            # Different matchers may return the same indexed value.
+            # Consolidate those duplicate pieces of evidence first.
+            matches = self._consolidate_duplicate_matches(matches)
+
+            # Step 2:
+            # Remove genuinely contained candidate values.
+            matches = self._remove_contained_matches(matches, q_tokens)
+
+            # Step 3:
+            # Rank the remaining candidates globally.
             matches = MatchRanker.rank(matches, q_tokens)
-            
+
             # Map back to dicts for backward compatibility across downstream components (e.g. PromptBuilder)
             return [
                 {
@@ -254,7 +261,40 @@ class DimensionValueResolver:
         return MatchRanker.rank(matches, question_tokens)
 
     @staticmethod
-    def _remove_contained_matches(matches: list[MatchResult]) -> list[MatchResult]:
+    def _is_contiguous_sublist(sublist: list, main_list: list) -> bool:
+        if not sublist:
+            return True
+        sub_len = len(sublist)
+        for i in range(len(main_list) - sub_len + 1):
+            if main_list[i : i + sub_len] == sublist:
+                return True
+        return False
+
+    @staticmethod
+    def _find_matched_question_span(v_tokens: list[str], q_tokens: list[str]) -> list[str]:
+        if not v_tokens or not q_tokens:
+            return []
+        
+        q_sing = [SingularPluralMatcher._to_singular(t) for t in q_tokens]
+        v_sing = [SingularPluralMatcher._to_singular(t) for t in v_tokens]
+        
+        # 1) Try exact contiguous singularized match first
+        v_len = len(v_sing)
+        for i in range(len(q_sing) - v_len + 1):
+            if q_sing[i : i + v_len] == v_sing:
+                return q_tokens[i : i + v_len]
+        
+        # 2) Longest contiguous sublist of q_sing that matches a contiguous sublist of v_sing
+        for width in range(len(q_sing), 0, -1):
+            for i in range(len(q_sing) - width + 1):
+                sub = q_sing[i : i + width]
+                if DimensionValueResolver._is_contiguous_sublist(sub, v_sing):
+                    return q_tokens[i : i + width]
+                    
+        return []
+
+    @staticmethod
+    def _remove_contained_matches(matches: list[MatchResult], q_tokens: list[str]) -> list[MatchResult]:
         """
         Remove semantic matches that are fully contained
         inside a longer matched value.
@@ -262,23 +302,144 @@ class DimensionValueResolver:
         if len(matches) <= 1:
             return matches
 
-        matches = sorted(
-            matches,
-            key=lambda m: len(m.normalized_value),
-            reverse=True
-        )
+        # Sort matches by the length of their matched question span descending,
+        # keeping direct matches before fuzzy matches if span lengths are equal.
+        def sort_key(m):
+            span = DimensionValueResolver._find_matched_question_span(m.matched_value_tokens, q_tokens)
+            is_direct = m.match_type in (MatchType.EXACT, MatchType.NORMALIZED, MatchType.SINGULAR_PLURAL)
+            return (len(span), 1 if is_direct else 0, len(m.normalized_value))
+
+        matches = sorted(matches, key=sort_key, reverse=True)
 
         filtered = []
         for candidate in matches:
-            contained = False
+            candidate_span = DimensionValueResolver._find_matched_question_span(candidate.matched_value_tokens, q_tokens)
+            
+            # Discard FUZZY candidates whose matching tokens are split non-contiguously in the question
+            if candidate.match_type == MatchType.FUZZY:
+                q_sing = [SingularPluralMatcher._to_singular(t) for t in q_tokens]
+                v_sing = [SingularPluralMatcher._to_singular(t) for t in candidate.matched_value_tokens]
+                present_tokens = {t for t in v_sing if t in q_sing}
+                candidate_span_sing = {SingularPluralMatcher._to_singular(t) for t in candidate_span}
+                if len(present_tokens) > len(candidate_span_sing):
+                    continue
+
+            suppressed = False
             for kept in filtered:
-                if candidate.normalized_value in kept.normalized_value:
-                    contained = True
+                kept_span = DimensionValueResolver._find_matched_question_span(kept.matched_value_tokens, q_tokens)
+                
+                # Rule 1: Direct match suppresses fuzzy match on the same question span
+                if (candidate.match_type == MatchType.FUZZY and 
+                    kept.match_type in (MatchType.EXACT, MatchType.NORMALIZED, MatchType.SINGULAR_PLURAL) and 
+                    candidate_span == kept_span and len(candidate_span) > 0):
+                    suppressed = True
                     break
-            if not contained:
+                
+                # Rule 2: Strict contiguous sublist containment
+                if (len(candidate_span) < len(kept_span) and 
+                    len(candidate_span) > 0 and
+                    DimensionValueResolver._is_contiguous_sublist(candidate_span, kept_span)):
+                    suppressed = True
+                    break
+                    
+            if not suppressed:
                 filtered.append(candidate)
 
         return filtered
+
+
+    @staticmethod
+    def _consolidate_duplicate_matches(
+        matches: list[MatchResult],
+    ) -> list[MatchResult]:
+        """
+        Consolidate multiple matcher results that refer to the same
+        indexed semantic dimension value.
+
+        Different matchers may independently discover the same value.
+        For example:
+
+            ExactMatcher      -> T-Shirt
+            NormalizedMatcher -> T-Shirt
+
+        These are different pieces of matching evidence for the same
+        semantic value and must become one candidate.
+
+        The strongest candidate is retained using the following
+        deterministic priority:
+
+            EXACT             > NORMALIZED
+            > SINGULAR_PLURAL > FUZZY
+
+        If the match type is identical, higher confidence wins.
+        If confidence is also identical, the candidate with greater
+        question-token coverage wins.
+        If all of those are equal, the first candidate is retained.
+
+        Candidates representing different indexed values are never
+        consolidated here.
+        """
+
+        if len(matches) <= 1:
+            return matches
+
+        match_type_priority = {
+            MatchType.EXACT: 4,
+            MatchType.NORMALIZED: 3,
+            MatchType.SINGULAR_PLURAL: 2,
+            MatchType.FUZZY: 1,
+        }
+
+        consolidated: dict[tuple, MatchResult] = {}
+
+        for candidate in matches:
+            identity = (
+                candidate.dimension_id,
+                candidate.normalized_value.strip().lower(),
+            )
+
+            existing = consolidated.get(identity)
+
+            if existing is None:
+                consolidated[identity] = candidate
+                continue
+
+            existing_priority = match_type_priority.get(
+                existing.match_type,
+                0,
+            )
+
+            candidate_priority = match_type_priority.get(
+                candidate.match_type,
+                0,
+            )
+
+            if candidate_priority > existing_priority:
+                consolidated[identity] = candidate
+                continue
+
+            if candidate_priority < existing_priority:
+                continue
+
+            existing_coverage = len(
+                existing.matched_question_tokens or []
+            )
+
+            candidate_coverage = len(
+                candidate.matched_question_tokens or []
+            )
+
+            if candidate.confidence > existing.confidence:
+                consolidated[identity] = candidate
+                continue
+
+            if (
+                candidate.confidence == existing.confidence
+                and candidate_coverage > existing_coverage
+            ):
+                consolidated[identity] = candidate
+
+        return list(consolidated.values())
 
     @staticmethod
     def _filter_metric_conflicts(

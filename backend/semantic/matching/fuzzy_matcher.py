@@ -31,25 +31,35 @@ class FuzzyMatcher(BaseMatcher):
         best_match_val = None
 
         for phrase in phrases:
-            # Prune searches that cannot exceed the current best score
-            current_cutoff = max(cutoff, best_score)
-            result = process.extractOne(
+            results = process.extract(
                 phrase,
                 candidate_strings,
                 scorer=fuzz.WRatio,
-                score_cutoff=current_cutoff
+                score_cutoff=cutoff
             )
-            if result:
-                match_str, score, index = result
+            if results:
+                # Sort by score descending, then by character length difference ascending
+                sorted_results = sorted(
+                    results,
+                    key=lambda x: (-x[1], abs(len(x[0]) - len(phrase)))
+                )
+                match_str, score, index = sorted_results[0]
                 if score > best_score:
                     best_score = score
                     best_match_val = context.indexed_values[index]
+                elif score == best_score:
+                    if best_match_val is not None:
+                        existing_diff = abs(len(best_match_val.normalized_value) - len(phrase))
+                        new_diff = abs(len(match_str) - len(phrase))
+                        if new_diff < existing_diff:
+                            best_match_val = context.indexed_values[index]
 
         if best_match_val:
+            norm_val = best_match_val.runtime_stored_norm if best_match_val.normalized_value else best_match_val.runtime_raw_norm
             return [MatchResult(
                 matched=True,
                 value=best_match_val.value,
-                normalized_value=best_match_val.normalized_value,
+                normalized_value=norm_val,
                 confidence=best_score / 100.0,
                 match_type=MatchType.FUZZY,
                 reason=f"RapidFuzz similarity score {best_score:.1f}%",

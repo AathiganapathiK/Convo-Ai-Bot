@@ -1,8 +1,10 @@
+
 import os
 import sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import unittest
 from unittest.mock import MagicMock, patch
+from semantic.matching import MatchResult
 from semantic.dimension_value_resolver import DimensionValueResolver, MatchType, ResolvedDimensionValue
 
 
@@ -296,7 +298,11 @@ class TestDimensionValueResolver(unittest.TestCase):
         stats = DimensionValueResolver.last_match_stats
         self.assertIsNotNone(stats)
         self.assertTrue(stats.exact_attempted)
-        self.assertEqual(stats.winning_match, "ExactMatcher")
+        self.assertIsNone(stats.winning_match)
+        self.assertTrue(stats.exact_attempted)
+        self.assertTrue(stats.normalized_attempted)
+        self.assertTrue(stats.plural_attempted)
+        self.assertTrue(stats.fuzzy_attempted)
         self.assertGreaterEqual(stats.execution_time_ms, 0.0)
 
     def test_candidate_ranking_with_coverage(self):
@@ -533,6 +539,145 @@ class TestDimensionValueResolver(unittest.TestCase):
             self.assertNotIn("up", q_context.q_tokens)
             self.assertNotIn("question", q_context.q_tokens)
 
+
+    def test_duplicate_matchers_are_consolidated(self):
+        matches = [
+            MatchResult(
+                matched=True,
+                value="T-Shirt",
+                normalized_value="t-shirt",
+                confidence=1.0,
+                match_type=MatchType.EXACT,
+                matched_question_tokens=["t", "shirt"],
+                matched_value_tokens=["t", "shirt"],
+                reason="exact",
+                dimension_id=1,
+                business_name="Product Category",
+                table_name="Products",
+                column_name="CategoryName",
+            ),
+            MatchResult(
+                matched=True,
+                value="T-Shirt",
+                normalized_value="t-shirt",
+                confidence=0.98,
+                match_type=MatchType.NORMALIZED,
+                matched_question_tokens=["t", "shirt"],
+                matched_value_tokens=["t", "shirt"],
+                reason="normalized",
+                dimension_id=1,
+                business_name="Product Category",
+                table_name="Products",
+                column_name="CategoryName",
+            ),
+        ]
+
+        result = DimensionValueResolver._consolidate_duplicate_matches(
+            matches
+        )
+
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0].value, "T-Shirt")
+        self.assertEqual(
+            result[0].match_type,
+            MatchType.EXACT,
+        )
+        self.assertEqual(
+            result[0].confidence,
+            1.0,
+        )
+
+    def test_same_value_in_different_dimensions_is_not_consolidated(self):
+        matches = [
+            MatchResult(
+                matched=True,
+                value="RR",
+                normalized_value="rr",
+                confidence=1.0,
+                match_type=MatchType.EXACT,
+                matched_question_tokens=["rr"],
+                matched_value_tokens=["rr"],
+                reason="exact",
+                dimension_id=1,
+                business_name="Division",
+                table_name="Sales",
+                column_name="Division",
+            ),
+            MatchResult(
+                matched=True,
+                value="RR",
+                normalized_value="rr",
+                confidence=1.0,
+                match_type=MatchType.EXACT,
+                matched_question_tokens=["rr"],
+                matched_value_tokens=["rr"],
+                reason="exact",
+                dimension_id=2,
+                business_name="Brand",
+                table_name="Products",
+                column_name="Brand",
+            ),
+        ]
+
+        result = DimensionValueResolver._consolidate_duplicate_matches(
+            matches
+        )
+
+        self.assertEqual(len(result), 2)
+
+    @patch("semantic.dimension_value_resolver.engine")
+    def test_focused_regression_phase1b(self, mock_engine):
+        mock_conn = MagicMock()
+        mock_engine.connect.return_value.__enter__.return_value = mock_conn
+        
+        mock_rows = [
+            MagicMock(_mapping={"semantic_dimension_id": 1, "business_name": "Category", "table_name": "T", "column_name": "C", "value": "Shirts", "normalized_value": "shirts"}),
+            MagicMock(_mapping={"semantic_dimension_id": 2, "business_name": "Category", "table_name": "T", "column_name": "C", "value": "Formal Shirts", "normalized_value": "formal shirts"}),
+            MagicMock(_mapping={"semantic_dimension_id": 3, "business_name": "Category", "table_name": "T", "column_name": "C", "value": "Pants", "normalized_value": "pants"}),
+            MagicMock(_mapping={"semantic_dimension_id": 8, "business_name": "Category", "table_name": "T", "column_name": "C", "value": "Cotton Pants", "normalized_value": "cotton pants"}),
+            MagicMock(_mapping={"semantic_dimension_id": 9, "business_name": "Category", "table_name": "T", "column_name": "C", "value": "T-Shirt", "normalized_value": "t-shirt"}),
+            # Same value, different semantic dimensions:
+            MagicMock(_mapping={"semantic_dimension_id": 10, "business_name": "Category1", "table_name": "T1", "column_name": "C1", "value": "CommonVal", "normalized_value": "commonval"}),
+            MagicMock(_mapping={"semantic_dimension_id": 11, "business_name": "Category2", "table_name": "T2", "column_name": "C2", "value": "CommonVal", "normalized_value": "commonval"}),
+        ]
+        mock_conn.execute.return_value.fetchall.return_value = mock_rows
+
+        # Test A: Question "Pant" -> Pants
+        results_a = DimensionValueResolver.resolve("test-conn", "Pant")
+        self.assertEqual(len(results_a), 1)
+        self.assertEqual(results_a[0]["value"], "Pants")
+
+        # Test B: Question "Cotton Pant" -> Cotton Pants
+        results_b = DimensionValueResolver.resolve("test-conn", "Cotton Pant")
+        self.assertEqual(len(results_b), 1)
+        self.assertEqual(results_b[0]["value"], "Cotton Pants")
+
+        # Test C: Question "Formal Shirt" -> Formal Shirts
+        results_c = DimensionValueResolver.resolve("test-conn", "Formal Shirt")
+        self.assertEqual(len(results_c), 1)
+        self.assertEqual(results_c[0]["value"], "Formal Shirts")
+
+        # Test D: Question "cotton sales pant" vs "cotton laptop pant"
+        # "cotton sales pant" matches Cotton Pants because "sales" is a stopword and is removed, which is intentional.
+        results_d_intentional = DimensionValueResolver.resolve("test-conn", "cotton sales pant")
+        self.assertEqual(len(results_d_intentional), 1)
+        self.assertEqual(results_d_intentional[0]["value"], "Cotton Pants")
+
+        # "cotton laptop pant" must NOT select Cotton Pants because "laptop" is not a stopword and keeps them non-contiguous.
+        results_d_negative = DimensionValueResolver.resolve("test-conn", "cotton laptop pant")
+        results_d_negative_vals = [r["value"] for r in results_d_negative]
+        self.assertNotIn("Cotton Pants", results_d_negative_vals)
+
+        # Test E: Question "Show t shirt sales" -> T-Shirt
+        results_e = DimensionValueResolver.resolve("test-conn", "Show t shirt sales")
+        self.assertEqual(len(results_e), 1)
+        self.assertEqual(results_e[0]["value"], "T-Shirt")
+
+        # Test F: Same normalized value in different semantic dimensions remains separate
+        results_f = DimensionValueResolver.resolve("test-conn", "CommonVal")
+        self.assertEqual(len(results_f), 2)
+        dimensions = {r["dimension_id"] for r in results_f}
+        self.assertEqual(dimensions, {10, 11})
 
 if __name__ == "__main__":
     unittest.main()

@@ -1,8 +1,9 @@
-from sqlalchemy.engine import result
+    from sqlalchemy.engine import result
 from semantic import dimension_value_resolver
 from sqlalchemy import dialects
 from services.connection_service import ConnectionService
 from services.database_connection_factory import DatabaseConnectionFactory
+from semantic.sql.temporal_mapper import TemporalMapper
 from sqlalchemy import text
 from database import engine
 import re
@@ -10,6 +11,21 @@ import time
 
 class DimensionValueIndexBuilder:
     MAX_INDEX_VALUES = 5000
+
+    DATE_DATA_TYPES = {
+        "date",
+        "datetime",
+        "datetime2",
+        "smalldatetime",
+        "datetimeoffset",
+        "timestamp",
+    }
+
+    INDEXABLE_TEMPORAL_CATEGORIES = {
+        "TIME_YEAR",
+        "TIME_MONTH",
+        "TIME_QUARTER",
+    }
 
     @staticmethod
     def _load_dimension(connection_id: str, dimension_id: str):
@@ -25,6 +41,7 @@ class DimensionValueIndexBuilder:
             business_name,
             table_name,
             column_name,
+            semantic_category,
             synonyms,
             source,
             is_active
@@ -95,13 +112,48 @@ class DimensionValueIndexBuilder:
             dimension["column_name"]
         )
 
+        column_data_type = DimensionValueIndexBuilder._get_source_column_data_type(
+            source_engine,
+            dimension["table_name"],
+            dimension["column_name"],
+        )
+
+        select_expression = None
+        if DimensionValueIndexBuilder._is_date_data_type(column_data_type):
+            semantic_category = (dimension.get("semantic_category") or "").upper()
+            if semantic_category not in DimensionValueIndexBuilder.INDEXABLE_TEMPORAL_CATEGORIES:
+                print(
+                    f"[SKIPPED] Date/datetime column "
+                    f"{dimension['table_name']}.{dimension['column_name']} "
+                    f"(category={semantic_category or 'UNKNOWN'}) — "
+                    f"raw date values are not indexed"
+                )
+                return {
+                    "dimension_id": dimension_id,
+                    "business_name": dimension["business_name"],
+                    "indexed_values": 0,
+                    "status": "SKIPPED_DATE_TYPE",
+                }
+
+            dialect = source_engine.dialect.name
+            quoted_column = DimensionValueIndexBuilder._quote_column_name(
+                dialect,
+                dimension["column_name"],
+            )
+            select_expression = TemporalMapper.get_sql_expression(
+                dialect,
+                semantic_category,
+                quoted_column,
+            )
+
         # Fetch values from source database
         values = (
             DimensionValueIndexBuilder
             ._fetch_distinct_values(
                 source_engine,
                 dimension["table_name"],
-                dimension["column_name"]
+                dimension["column_name"],
+                select_expression=select_expression,
             )
         )
 
@@ -219,7 +271,8 @@ class DimensionValueIndexBuilder:
 
                 if result.get("status") in (
                     "SKIPPED_EMPTY",
-                    "SKIPPED_HIGH_CARDINALITY"
+                    "SKIPPED_HIGH_CARDINALITY",
+                    "SKIPPED_DATE_TYPE",
                 ):
 
                     if result["status"] == "SKIPPED_EMPTY":
@@ -227,6 +280,13 @@ class DimensionValueIndexBuilder:
                         print(
                             f"[SKIPPED] {result['business_name']} "
                             f"(No values found)"
+                        )
+
+                    elif result["status"] == "SKIPPED_DATE_TYPE":
+
+                        print(
+                            f"[SKIPPED] {result['business_name']} "
+                            f"(Date/datetime column — values not indexed)"
                         )
 
                     else:
@@ -321,10 +381,55 @@ class DimensionValueIndexBuilder:
         }
 
     @staticmethod
+    def _is_date_data_type(data_type: str) -> bool:
+        if not data_type:
+            return False
+        return data_type.lower() in DimensionValueIndexBuilder.DATE_DATA_TYPES
+
+    @staticmethod
+    def _quote_column_name(dialect: str, column_name: str) -> str:
+        if dialect == "mssql":
+            return f"[{column_name}]"
+        if dialect == "postgresql":
+            return f'"{column_name}"'
+        if dialect == "mysql":
+            return f"`{column_name}`"
+        return column_name
+
+    @staticmethod
+    def _get_source_column_data_type(
+        source_engine,
+        table_name: str,
+        column_name: str,
+    ):
+        query = text("""
+            SELECT DATA_TYPE
+            FROM INFORMATION_SCHEMA.COLUMNS
+            WHERE
+                TABLE_NAME = :table_name
+                AND COLUMN_NAME = :column_name
+        """)
+
+        with source_engine.connect() as conn:
+            row = conn.execute(
+                query,
+                {
+                    "table_name": table_name,
+                    "column_name": column_name,
+                },
+            ).fetchone()
+
+        if not row:
+            return None
+
+        return row[0]
+
+    @staticmethod
     def _fetch_distinct_values(
         source_engine,
         table_name: str,
-        column_name: str
+        column_name: str,
+        select_expression: str = None,
     ):
         """
         Fetch distinct values from the source database.
@@ -337,30 +442,32 @@ class DimensionValueIndexBuilder:
 
             table = f"[{table_name}]"
             column = f"[{column_name}]"
+            value_expr = select_expression or column
 
             query = text(f"""
-                SELECT DISTINCT TOP ({DimensionValueIndexBuilder.MAX_INDEX_VALUES + 1}) {column}
+                SELECT DISTINCT TOP ({DimensionValueIndexBuilder.MAX_INDEX_VALUES + 1}) {value_expr}
                 FROM {table}
                 WHERE
                     {column} IS NOT NULL
-                    AND LTRIM(RTRIM(CAST({column} AS NVARCHAR(MAX)))) <> ''
-                    AND LEN(CAST({column} AS NVARCHAR(MAX))) <= 500
-                ORDER BY {column}
+                    AND LTRIM(RTRIM(CAST({value_expr} AS NVARCHAR(MAX)))) <> ''
+                    AND LEN(CAST({value_expr} AS NVARCHAR(MAX))) <= 500
+                ORDER BY {value_expr}
             """)
 
         elif dialect == "postgresql":
 
             table = f'"{table_name}"'
             column = f'"{column_name}"'
+            value_expr = select_expression or column
 
             query = text(f"""
-                SELECT DISTINCT {column}
+                SELECT DISTINCT {value_expr}
                 FROM {table}
                 WHERE
                     {column} IS NOT NULL
-                    AND BTRIM(CAST({column} AS TEXT)) <> ''
-                    AND LENGTH(CAST({column} AS TEXT)) <= 500
-                ORDER BY {column}
+                    AND BTRIM(CAST({value_expr} AS TEXT)) <> ''
+                    AND LENGTH(CAST({value_expr} AS TEXT)) <= 500
+                ORDER BY {value_expr}
                 LIMIT {DimensionValueIndexBuilder.MAX_INDEX_VALUES + 1}
             """)
 
@@ -368,15 +475,16 @@ class DimensionValueIndexBuilder:
 
             table = f"`{table_name}`"
             column = f"`{column_name}`"
+            value_expr = select_expression or column
 
             query = text(f"""
-                SELECT DISTINCT {column}
+                SELECT DISTINCT {value_expr}
                 FROM {table}
                 WHERE
                     {column} IS NOT NULL
-                    AND TRIM(CAST({column} AS CHAR)) <> ''
-                    AND CHAR_LENGTH(CAST({column} AS CHAR)) <= 500
-                ORDER BY {column}
+                    AND TRIM(CAST({value_expr} AS CHAR)) <> ''
+                    AND CHAR_LENGTH(CAST({value_expr} AS CHAR)) <= 500
+                ORDER BY {value_expr}
                 LIMIT {DimensionValueIndexBuilder.MAX_INDEX_VALUES + 1}
             """)
 

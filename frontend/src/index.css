@@ -402,10 +402,29 @@ code {
   --sidebar-transition: width 250ms cubic-bezier(0.4, 0, 0.2, 1), transform 250ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* Core Layout Coordination */
+.app-root-layout {
+  min-height: 100vh;
+  background: var(--bg-layout);
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  overflow: hidden;
+}
+
+.app-main-content-layout {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  min-width: 0; /* CRITICAL: prevents layout expansion by wide content/tables */
+  background: var(--bg-layout);
+  min-height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
 .custom-sidebar {
-  position: fixed;
-  left: 0;
-  top: 0;
+  position: relative;
   height: 100vh;
   background: var(--bg-sidebar);
   border-right: 1px solid var(--border-color);
@@ -415,6 +434,7 @@ code {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  flex-shrink: 0;
 }
 
 .custom-sidebar.expanded {
@@ -679,6 +699,35 @@ code {
   border-color: var(--border-light);
 }
 
+/* Focus state accessibility ring */
+.sidebar-item:focus-visible,
+.sidebar-section-header:focus-visible,
+.focusable-ellipsis-text:focus-visible {
+  outline: 2px solid #6366f1 !important;
+  outline-offset: -2px;
+}
+
+/* Custom Table Resizing Styles */
+.table-resize-handle {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 10px;
+  cursor: col-resize;
+  z-index: 10;
+  user-select: none;
+}
+.table-resize-handle:hover,
+.table-resize-handle:active {
+  border-right: 2px solid #6366f1;
+}
+
+/* Sidebar backdrop on mobile overlay */
+.sidebar-backdrop {
+  display: none;
+}
+
 /* Mobile responsiveness */
 @media (max-width: 768px) {
   .mobile-sidebar-toggle {
@@ -687,19 +736,59 @@ code {
     justify-content: center;
     color: var(--text-main);
   }
+  
+  .sidebar-backdrop {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(2px);
+    z-index: 1005;
+    animation: fadeInOverlay 0.2s ease-out;
+  }
+  
   .custom-sidebar {
     position: fixed;
+    left: 0;
+    top: 0;
+    height: 100vh;
     transform: translateX(-100%);
     width: var(--sidebar-w-expanded) !important;
     z-index: 1010;
   }
+  
   .custom-sidebar.expanded {
     transform: translateX(0) !important;
     box-shadow: 4px 0 24px rgba(0, 0, 0, 0.5);
   }
-  .ant-layout {
+  
+  .app-main-content-layout {
     margin-left: 0 !important;
+    width: 100%;
   }
+
+  /* Schema Discovery Mobile responsive overrides */
+  .schema-discovery-container.show-list .schema-discovery-details {
+    display: none !important;
+  }
+  
+  .schema-discovery-container.show-details .schema-discovery-sidebar {
+    display: none !important;
+  }
+  
+  .schema-discovery-back-btn {
+    display: inline-flex !important;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+}
+
+@keyframes fadeInOverlay {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 /* Collapsed Group Icon Styles */
