@@ -1,0 +1,118 @@
+============================================================
+APP_RUNTIME (raw): None
+Runtime selected : local
+Configuration    : D:\Projects\Ramraj-AI-Chatbot\backend\.local.env
+DB_HOST          : 192.168.0.187
+============================================================
+DATABASE_url mssql+pyodbc:///?odbc_connect=DRIVER%3D%7BODBC+Driver+18+for+SQL+Server%7D%3BSERVER%3D192.168.0.187%2C1433%3BDATABASE%3DRR_platform%3BUID%3DIntern_Chatbot%3BPWD%3DKgdt%26LPD148%5EHp%3BTrustServerCertificate%3Dyes%3B
+=== STOPWORD AUDIT ===
+Original: 'show sales'
+  Normalized: 'show sales'
+  Removed Stopwords: ['show', 'sales']
+  Candidate Phrases: []
+  'sales' survives in candidate phrases? False
+  Resolved Dimension Values: []
+
+Original: 'total sales'
+  Normalized: 'total sales'
+  Removed Stopwords: ['sales']
+  Candidate Phrases: ['total']
+  'sales' survives in candidate phrases? False
+  Resolved Dimension Values: []
+
+Original: 'show monthly sales'
+  Normalized: 'show monthly sales'
+  Removed Stopwords: ['show', 'sales']
+  Candidate Phrases: ['monthly']
+  'sales' survives in candidate phrases? False
+  Resolved Dimension Values: []
+
+Original: 'sales by region'
+  Normalized: 'sales by region'
+  Removed Stopwords: ['sales', 'by']
+  Candidate Phrases: ['region']
+  'sales' survives in candidate phrases? False
+  Resolved Dimension Values: ['South Region']
+
+Original: 'sales by product'
+  Normalized: 'sales by product'
+  Removed Stopwords: ['sales', 'by']
+  Candidate Phrases: ['product']
+  'sales' survives in candidate phrases? False
+  Resolved Dimension Values: []
+
+Original: 'show sales for tamil nadu'
+  Normalized: 'show sales for tamil nadu'
+  Removed Stopwords: ['show', 'sales', 'for']
+  Candidate Phrases: ['tamil nadu', 'tamil', 'nadu']
+  'sales' survives in candidate phrases? False
+  Resolved Dimension Values: ['Tamil Nadu']
+
+Original: 'show total sales for cotton pants'
+  Normalized: 'show total sales for cotton pants'
+  Removed Stopwords: ['show', 'sales', 'for']
+  Candidate Phrases: ['total cotton pants', 'total cotton', 'cotton pants', 'total', 'cotton', 'pants']
+  'sales' survives in candidate phrases? False
+  Resolved Dimension Values: ['Cotton Pants']
+
+Original: 'compare sales by month'
+  Normalized: 'compare sales by month'
+  Removed Stopwords: ['sales', 'by']
+  Candidate Phrases: ['compare month', 'compare', 'month']
+  'sales' survives in candidate phrases? False
+  Resolved Dimension Values: []
+
+=== EMPIRICAL THRESHOLD AUDIT ===
+
+--- POSITIVE CASES SCORING ---
+Query: 'cottn pant' (Expected: 'Cotton Pants') -> Best Match: 'Cotton Pants' | Score: 90.9 | Phrase: 'cottn pant'
+Query: 'forml shirt' (Expected: 'Formal Shirts') -> Best Match: 'Formal Shirts' | Score: 91.7 | Phrase: 'forml shirt'
+Query: 'childern wear' (Expected: "Children's Wear") -> Best Match: "Children's Wear" | Score: 90.0 | Phrase: 'wear'
+Query: 'womens wear' (Expected: "Women's Wear") -> Best Match: "Women's Wear" | Score: 100.0 | Phrase: 'womens wear'
+Query: 'mens wear' (Expected: "Men's Wear") -> Best Match: "Men's Wear" | Score: 100.0 | Phrase: 'mens wear'
+Query: 'persn choice' (Expected: 'People Choice') -> Best Match: 'People Choice' | Score: 90.0 | Phrase: 'choice'
+Query: 'child wear' (Expected: "Children's Wear") -> Best Match: 'Children Pants' | Score: 90.0 | Phrase: 'child'
+  [MISMATCH] Expected "Children's Wear" but got 'Children Pants' with score 90.0
+  Expected "Children's Wear" scored: 90.0
+
+--- NEGATIVE CASES SCORING ---
+Query: 'laptop' -> Best Distractor Match: 'VAT' | Score: 60.0
+Query: 'banana' -> Best Distractor Match: 'Banians' | Score: 76.9
+Query: 'hospital' -> Best Distractor Match: 'Postal Codes' | Score: 65.8
+Query: 'customer' -> Best Distractor Match: 'Customers' | Score: 94.1
+Query: 'invoice' -> Best Distractor Match: 'Invoices' | Score: 93.3
+Query: 'employee' -> Best Distractor Match: 'Employees' | Score: 94.1
+Query: 'computer' -> Best Distractor Match: 'Customers' | Score: 58.8
+Query: 'mobile' -> Best Distractor Match: 'Billing Address' | Score: 60.0
+Query: 'furniture' -> Best Distractor Match: 'Countries' | Score: 55.6
+Query: 'payment' -> Best Distractor Match: 'Payments' | Score: 93.3
+
+--- AMBIGUOUS CASES SCORING ---
+Query: 'pant'
+  Candidate: 'Children Pants' | Score: 90.0
+  Candidate: 'Formal Pants' | Score: 90.0
+  Candidate: 'Cotton Pants' | Score: 90.0
+  Candidate: 'Pants' | Score: 88.9
+Query: 'shirt'
+  Candidate: 'Shirts' | Score: 90.9
+  Candidate: 'T-Shirts' | Score: 90.0
+  Candidate: 'Cotton Shirts' | Score: 90.0
+  Candidate: 'Formal Shirts' | Score: 90.0
+Query: 'wear'
+  Candidate: "Women's Wear" | Score: 90.0
+  Candidate: "Men's Wear" | Score: 90.0
+  Candidate: "Children's Wear" | Score: 90.0
+  Candidate: 'Warehouses' | Score: 77.1
+Query: 'men'
+  Candidate: 'Departments' | Score: 90.0
+  Candidate: 'Payments' | Score: 90.0
+  Candidate: "Women's Wear" | Score: 90.0
+  Candidate: "Men's Wear" | Score: 90.0
+Query: 'cotton'
+  Candidate: 'Cotton Shirts' | Score: 90.0
+  Candidate: 'Cotton Pants' | Score: 90.0
+
+--- THRESHOLD METRICS ---
+Lowest Valid-Positive Score: 90.0
+Highest Negative/Distractor Score: 94.1
+Score Gap: -4.1

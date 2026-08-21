@@ -1,0 +1,225 @@
+============================================================
+APP_RUNTIME (raw): None
+Runtime selected : local
+Configuration    : D:\Projects\Ramraj-AI-Chatbot\backend\.local.env
+DB_HOST          : 192.168.0.187
+============================================================
+DATABASE_url mssql+pyodbc:///?odbc_connect=DRIVER%3D%7BODBC+Driver+18+for+SQL+Server%7D%3BSERVER%3D192.168.0.187%2C1433%3BDATABASE%3DRR_platform%3BUID%3DIntern_Chatbot%3BPWD%3DKgdt%26LPD148%5EHp%3BTrustServerCertificate%3Dyes%3B
+Attempting to load dimension values from live database...
+Database connection timed out or failed: (pyodbc.OperationalError) ('08001', '[08001] [Microsoft][ODBC Driver 18 for SQL Server]TCP Provider: The wait operation timed out.\r\n (258) (SQLDriverConnect); [08001] [Microsoft][ODBC Driver 18 for SQL Server]Login timeout expired (0); [08001] [Microsoft][ODBC Driver 18 for SQL Server]A network-related or instance-specific error has occurred while establishing a connection to 192.168.0.187,1433. Server is not found or not accessible. Check if instance name is correct and if SQL Server is configured to allow remote connections. For more information see SQL Server Books Online. (258)')
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+Falling back to pre-recorded real-data semantic values for simulation.
+
+================================================================================
+PHASE 1D.2.A ù AMBIGUITY CANDIDATE AUDIT RUN
+================================================================================
+
+QUERY: "pant"
+Total resolved candidates: 3
+  Candidate #1:
+    value: 'LS PANT'
+    normalized_value: 'ls pant'
+    confidence: 0.95
+    match_type: SINGULAR_PLURAL
+    matched_question_tokens: ['pant']
+    matched_value_tokens: ['ls', 'pant']
+    dimension_id: 202
+    business_name: 'Prod Grp2'
+    table_name: 'QB_MDJMD_SALES_5YRS_SUMMARY'
+    column_name: 'ProdGrp2'
+    reason: 'Morphological singular/plural match'
+  Candidate #2:
+    value: 'LINEN PANT'
+    normalized_value: 'linen pant'
+    confidence: 0.95
+    match_type: SINGULAR_PLURAL
+    matched_question_tokens: ['pant']
+    matched_value_tokens: ['linen', 'pant']
+    dimension_id: 201
+    business_name: 'Brand'
+    table_name: 'PBI_ENES_ORDER_PENDING_SUMMARY'
+    column_name: 'Brand'
+    reason: 'Morphological singular/plural match'
+  Candidate #3:
+    value: 'RAMRAJ PANT'
+    normalized_value: 'ramraj pant'
+    confidence: 0.95
+    match_type: SINGULAR_PLURAL
+    matched_question_tokens: ['pant']
+    matched_value_tokens: ['ramraj', 'pant']
+    dimension_id: 201
+    business_name: 'Brand'
+    table_name: 'PBI_ENES_ORDER_PENDING_SUMMARY'
+    column_name: 'Brand'
+    reason: 'Morphological singular/plural match'
+
+QUERY: "shirt"
+Total resolved candidates: 4
+  Candidate #1:
+    value: 'ADD SHIRT'
+    normalized_value: 'add shirt'
+    confidence: 0.95
+    match_type: SINGULAR_PLURAL
+    matched_question_tokens: ['shirt']
+    matched_value_tokens: ['add', 'shirt']
+    dimension_id: 201
+    business_name: 'Brand'
+    table_name: 'PBI_ENES_ORDER_PENDING_SUMMARY'
+    column_name: 'Brand'
+    reason: 'Morphological singular/plural match'
+  Candidate #2:
+    value: 'ARISER SHIRT'
+    normalized_value: 'ariser shirt'
+    confidence: 0.95
+    match_type: SINGULAR_PLURAL
+    matched_question_tokens: ['shirt']
+    matched_value_tokens: ['ariser', 'shirt']
+    dimension_id: 201
+    business_name: 'Brand'
+    table_name: 'PBI_ENES_ORDER_PENDING_SUMMARY'
+    column_name: 'Brand'
+    reason: 'Morphological singular/plural match'
+  Candidate #3:
+    value: 'RAMRAJ SHIRT'
+    normalized_value: 'ramraj shirt'
+    confidence: 0.95
+    match_type: SINGULAR_PLURAL
+    matched_question_tokens: ['shirt']
+    matched_value_tokens: ['ramraj', 'shirt']
+    dimension_id: 201
+    business_name: 'Brand'
+    table_name: 'PBI_ENES_ORDER_PENDING_SUMMARY'
+    column_name: 'Brand'
+    reason: 'Morphological singular/plural match'
+  Candidate #4:
+    value: 'VIVEAGHAM COLOUR SHIRT'
+    normalized_value: 'viveagham colour shirt'
+    confidence: 0.95
+    match_type: SINGULAR_PLURAL
+    matched_question_tokens: ['shirt']
+    matched_value_tokens: ['viveagham', 'colour', 'shirt']
+    dimension_id: 201
+    business_name: 'Brand'
+    table_name: 'PBI_ENES_ORDER_PENDING_SUMMARY'
+    column_name: 'Brand'
+    reason: 'Morphological singular/plural match'
+
+QUERY: "cotton pant"
+Total resolved candidates: 3
+  Candidate #1:
+    value: 'RAMRAJ PANT'
+    normalized_value: 'ramraj pant'
+    confidence: 0.90
+    match_type: FUZZY
+    matched_question_tokens: ['pant']
+    matched_value_tokens: ['ramraj', 'pant']
+    dimension_id: 201
+    business_name: 'Brand'
+    table_name: 'PBI_ENES_ORDER_PENDING_SUMMARY'
+    column_name: 'Brand'
+    reason: 'RapidFuzz similarity score 90.0%'
+  Candidate #2:
+    value: 'LINEN PANT'
+    normalized_value: 'linen pant'
+    confidence: 0.90
+    match_type: FUZZY
+    matched_question_tokens: ['pant']
+    matched_value_tokens: ['linen', 'pant']
+    dimension_id: 201
+    business_name: 'Brand'
+    table_name: 'PBI_ENES_ORDER_PENDING_SUMMARY'
+    column_name: 'Brand'
+    reason: 'RapidFuzz similarity score 90.0%'
+  Candidate #3:
+    value: 'LS PANT'
+    normalized_value: 'ls pant'
+    confidence: 0.90
+    match_type: FUZZY
+    matched_question_tokens: ['pant']
+    matched_value_tokens: ['ls', 'pant']
+    dimension_id: 202
+    business_name: 'Prod Grp2'
+    table_name: 'QB_MDJMD_SALES_5YRS_SUMMARY'
+    column_name: 'ProdGrp2'
+    reason: 'RapidFuzz similarity score 90.0%'
+
+QUERY: "formal shirt"
+Total resolved candidates: 2
+  Candidate #1:
+    value: 'VIVEAGHAM COLOUR SHIRT'
+    normalized_value: 'viveagham colour shirt'
+    confidence: 0.95
+    match_type: SINGULAR_PLURAL
+    matched_question_tokens: ['formal', 'shirt']
+    matched_value_tokens: ['viveagham', 'colour', 'shirt']
+    dimension_id: 201
+    business_name: 'Brand'
+    table_name: 'PBI_ENES_ORDER_PENDING_SUMMARY'
+    column_name: 'Brand'
+    reason: 'Morphological singular/plural match'
+  Candidate #2:
+    value: 'FORMAL SOCKS DESIGN FULL'
+    normalized_value: 'formal socks design full'
+    confidence: 0.95
+    match_type: SINGULAR_PLURAL
+    matched_question_tokens: ['formal', 'shirt']
+    matched_value_tokens: ['formal', 'socks', 'design', 'full']
+    dimension_id: 203
+    business_name: 'Prod Grp3'
+    table_name: 'QB_MDJMD_SALES_5YRS_SUMMARY'
+    column_name: 'ProdGrp3'
+    reason: 'Morphological singular/plural match'
+
+QUERY: "banian"
+Total resolved candidates: 3
+  Candidate #1:
+    value: 'BANIANS'
+    normalized_value: 'banians'
+    confidence: 0.95
+    match_type: SINGULAR_PLURAL
+    matched_question_tokens: ['banian']
+    matched_value_tokens: ['banians']
+    dimension_id: 301
+    business_name: 'Prod Grp1'
+    table_name: 'QB_MDJMD_SALES_5YRS_SUMMARY'
+    column_name: 'ProdGrp1'
+    reason: 'Morphological singular/plural match'
+  Candidate #2:
+    value: '1 BANIAN'
+    normalized_value: '1 banian'
+    confidence: 0.95
+    match_type: SINGULAR_PLURAL
+    matched_question_tokens: ['banian']
+    matched_value_tokens: ['1', 'banian']
+    dimension_id: 302
+    business_name: 'Prod Grp2'
+    table_name: 'QB_MDJMD_SALES_5YRS_SUMMARY'
+    column_name: 'ProdGrp2'
+    reason: 'Morphological singular/plural match'
+  Candidate #3:
+    value: 'ADVERTISEMENT BANIAN'
+    normalized_value: 'advertisement banian'
+    confidence: 0.95
+    match_type: SINGULAR_PLURAL
+    matched_question_tokens: ['banian']
+    matched_value_tokens: ['advertisement', 'banian']
+    dimension_id: 303
+    business_name: 'Prod Grp3'
+    table_name: 'QB_MDJMD_SALES_5YRS_SUMMARY'
+    column_name: 'ProdGrp3'
+    reason: 'Morphological singular/plural match'
+
+QUERY: "children wear"
+Total resolved candidates: 1
+  Candidate #1:
+    value: 'Children Wear'
+    normalized_value: 'children wear'
+    confidence: 1.00
+    match_type: EXACT
+    matched_question_tokens: ['children', 'wear']
+    matched_value_tokens: ['children', 'wear']
+    dimension_id: 401
+    business_name: 'Category'
+    table_name: 'QB_MDJMD_SALES_5YRS_SUMMARY'
+    column_name: 'Category'
+    reason: 'Exact word match in question context'

@@ -18,6 +18,8 @@ class CreateModelRequest(
 
     model_name: str
 
-    purpose: str
+    purpose: str | None = None
+
+    purposes: list[str] | None = None
 
     is_default: bool = False

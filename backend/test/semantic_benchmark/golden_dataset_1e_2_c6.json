@@ -1,0 +1,418 @@
+[
+  {
+    "case_id": "E1-180",
+    "category": "NO_MATCH_ADVERSARIAL",
+    "source": "SYNTHETIC_SAFETY",
+    "severity": "CRITICAL",
+    "question": "Show sales for xyzabc",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [],
+      "dimensions": [],
+      "values": [],
+      "status": "NO_MATCH",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "INSUFFICIENT"
+    },
+    "notes": "Completely unknown random alphabetical term must be rejected to prevent false matching."
+  },
+  {
+    "case_id": "E1-181",
+    "category": "NO_MATCH_ADVERSARIAL",
+    "source": "SYNTHETIC_SAFETY",
+    "severity": "CRITICAL",
+    "question": "Show sales for smartphone",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [],
+      "dimensions": [],
+      "values": [],
+      "status": "NO_MATCH",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "INSUFFICIENT"
+    },
+    "notes": "Unrelated product category not in Ramraj business catalog (e.g., consumer electronics)."
+  },
+  {
+    "case_id": "E1-182",
+    "category": "NO_MATCH_ADVERSARIAL",
+    "source": "SYNTHETIC_SAFETY",
+    "severity": "CRITICAL",
+    "question": "Show sales for mobile phone",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [],
+      "dimensions": [],
+      "values": [],
+      "status": "NO_MATCH",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "INSUFFICIENT"
+    },
+    "notes": "Unrelated retail product term (electronics) must not match apparel categories."
+  },
+  {
+    "case_id": "E1-183",
+    "category": "NO_MATCH_ADVERSARIAL",
+    "source": "SYNTHETIC_SAFETY",
+    "severity": "CRITICAL",
+    "question": "Show sales for qwert",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [],
+      "dimensions": [],
+      "values": [],
+      "status": "NO_MATCH",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "INSUFFICIENT"
+    },
+    "notes": "Keyboard mash gibberish."
+  },
+  {
+    "case_id": "E1-184",
+    "category": "NO_MATCH_ADVERSARIAL",
+    "source": "SYNTHETIC_SAFETY",
+    "severity": "CRITICAL",
+    "question": "Show sales for asdfgh",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [],
+      "dimensions": [],
+      "values": [],
+      "status": "NO_MATCH",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "INSUFFICIENT"
+    },
+    "notes": "Gibberish query."
+  },
+  {
+    "case_id": "E1-185",
+    "category": "NO_MATCH_ADVERSARIAL",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show sales for Bangalore",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [],
+      "dimensions": [],
+      "values": [],
+      "status": "NO_MATCH",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "INSUFFICIENT"
+    },
+    "notes": "Real city (Bangalore) but unsupported/not indexed in the chatbot metadata inventory."
+  },
+  {
+    "case_id": "E1-186",
+    "category": "NO_MATCH_ADVERSARIAL",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show sales for Mumbai",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [],
+      "dimensions": [],
+      "values": [],
+      "status": "NO_MATCH",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "INSUFFICIENT"
+    },
+    "notes": "Real city (Mumbai) but unsupported/not indexed in the chatbot metadata inventory."
+  },
+  {
+    "case_id": "E1-187",
+    "category": "NO_MATCH_ADVERSARIAL",
+    "source": "SYNTHETIC_SAFETY",
+    "severity": "HIGH",
+    "question": "Show sales for Ramrajj",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [],
+      "dimensions": [],
+      "values": [],
+      "status": "NO_MATCH",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "INSUFFICIENT"
+    },
+    "notes": "Typo with distance too large (fuzzy matching threshold gate must reject it)."
+  },
+  {
+    "case_id": "E1-188",
+    "category": "NO_MATCH_ADVERSARIAL",
+    "source": "SYNTHETIC_SAFETY",
+    "severity": "HIGH",
+    "question": "Show quantity for Banianist",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [],
+      "dimensions": [],
+      "values": [],
+      "status": "NO_MATCH",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "INSUFFICIENT"
+    },
+    "notes": "Suffix variation of verified category that is not indexed."
+  },
+  {
+    "case_id": "E1-189",
+    "category": "NO_MATCH_ADVERSARIAL",
+    "source": "SYNTHETIC_SAFETY",
+    "severity": "HIGH",
+    "question": "Show sales for Chennaipet",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [],
+      "dimensions": [],
+      "values": [],
+      "status": "NO_MATCH",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "INSUFFICIENT"
+    },
+    "notes": "Mashed town name containing valid substring but exceeding edit distance."
+  },
+  {
+    "case_id": "E1-190",
+    "category": "TEMPORAL_QUESTIONS",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show sales this year",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "createddate Year"
+      ],
+      "values": [],
+      "status": "NO_MATCH",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "PARTIAL"
+    },
+    "notes": "CURRENTLY_IMPLEMENTED: Resolves current year OrderDate filter."
+  },
+  {
+    "case_id": "E1-191",
+    "category": "TEMPORAL_QUESTIONS",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show sales last year",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "P Y"
+      ],
+      "dimensions": [
+        "createddate Year"
+      ],
+      "values": [],
+      "status": "NO_MATCH",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "PARTIAL"
+    },
+    "notes": "CURRENTLY_IMPLEMENTED: Resolves previous year OrderDate filter."
+  },
+  {
+    "case_id": "E1-192",
+    "category": "TEMPORAL_QUESTIONS",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show sales for last month",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "createddate Month"
+      ],
+      "values": [],
+      "status": "NO_MATCH",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "PARTIAL"
+    },
+    "notes": "CURRENTLY_IMPLEMENTED: Resolves previous month OrderDate filter."
+  },
+  {
+    "case_id": "E1-193",
+    "category": "TEMPORAL_QUESTIONS",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show quantity this month",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "Qty"
+      ],
+      "dimensions": [
+        "Doc Month"
+      ],
+      "values": [],
+      "status": "NO_MATCH",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "PARTIAL"
+    },
+    "notes": "CURRENTLY_IMPLEMENTED: Resolves current month OrderDate filter."
+  },
+  {
+    "case_id": "E1-194",
+    "category": "TEMPORAL_QUESTIONS",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show sales by year",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "createddate Year"
+      ],
+      "values": [],
+      "status": "NO_MATCH",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "PARTIAL"
+    },
+    "notes": "CURRENTLY_IMPLEMENTED: Yearly sales trend (TrendIntent)."
+  },
+  {
+    "case_id": "E1-195",
+    "category": "TEMPORAL_QUESTIONS",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show sales by month",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "createddate Month"
+      ],
+      "values": [],
+      "status": "NO_MATCH",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "PARTIAL"
+    },
+    "notes": "CURRENTLY_IMPLEMENTED: Monthly sales trend (TrendIntent)."
+  },
+  {
+    "case_id": "E1-196",
+    "category": "TEMPORAL_QUESTIONS",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show sales same period last year",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "P Y"
+      ],
+      "dimensions": [],
+      "values": [],
+      "status": "NO_MATCH",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "implementation_status": "FUTURE_PHASE",
+      "retrieval_status": "PARTIAL"
+    },
+    "notes": "FUTURE_PHASE: Requires year-over-year same period comparison, not currently implemented in time resolver."
+  },
+  {
+    "case_id": "E1-197",
+    "category": "TEMPORAL_QUESTIONS",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show sales for the last two quarters",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [],
+      "values": [],
+      "status": "NO_MATCH",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "implementation_status": "FUTURE_PHASE",
+      "retrieval_status": "PARTIAL"
+    },
+    "notes": "FUTURE_PHASE: Rolling multiple quarters range is not supported natively."
+  },
+  {
+    "case_id": "E1-198",
+    "category": "TEMPORAL_QUESTIONS",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show sales for fiscal year 2024",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [],
+      "values": [],
+      "status": "NO_MATCH",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "implementation_status": "FUTURE_PHASE",
+      "retrieval_status": "PARTIAL"
+    },
+    "notes": "FUTURE_PHASE: Financial year parsing not fully automated in the semantic layer without explicit date column overrides."
+  },
+  {
+    "case_id": "E1-199",
+    "category": "TEMPORAL_QUESTIONS",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show sales for the next month",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [],
+      "values": [],
+      "status": "NO_MATCH",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "implementation_status": "FUTURE_PHASE",
+      "retrieval_status": "PARTIAL"
+    },
+    "notes": "FUTURE_PHASE: Future date resolution is currently not supported."
+  }
+]

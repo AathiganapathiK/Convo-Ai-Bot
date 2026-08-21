@@ -30,4 +30,6 @@ export function getToken() {
 
 export function logout() {
     localStorage.removeItem("access_token");
+    localStorage.removeItem("selectedSessionId");
+    localStorage.removeItem("userInfo");
 }

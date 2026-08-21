@@ -1,0 +1,214 @@
+[
+  {
+    "file": "test_phase1d_2_b_ambiguity.py",
+    "test_count": 14,
+    "test_methods": [
+      "test_no_match",
+      "test_single_match",
+      "test_strong_same_type_ambiguity",
+      "test_strong_fuzzy_ambiguity",
+      "test_fuzzy_minor_gap_ambiguity",
+      "test_fuzzy_larger_gap_dominance",
+      "test_exact_dominant_match",
+      "test_preserve_metadata",
+      "test_duplicate_candidates_integration",
+      "test_formal_shirt_coverage_calculation",
+      "test_coverage_dominance_rule",
+      "test_equal_coverage_equal_confidence_ambiguity",
+      "test_semantic_gate_blocks_strong_ambiguity",
+      "test_resolver_filters_to_dominant_match_and_cleans_tokens"
+    ],
+    "sample_queries": []
+  },
+  {
+    "file": "test_phase1d_2_e_clarification.py",
+    "test_count": 11,
+    "test_methods": [
+      "test_pant_triggers_strong_ambiguity_clarification",
+      "test_option_selection_resolution",
+      "test_option_token_match_resolution",
+      "test_ambiguous_selection_does_not_guess",
+      "test_intent_shift_clears_clarification",
+      "test_cls_block_on_resume",
+      "test_exact_value_selection_resolves",
+      "test_single_quoted_exact_value_resolves",
+      "test_double_quoted_exact_value_resolves",
+      "test_embedded_value_with_dimension_label_resolves",
+      "test_server_side_state_retains_internal_metadata"
+    ],
+    "sample_queries": [
+      "1",
+      "2",
+      "I meant Prod Grp2 ",
+      "MENS PYJAMA PANT",
+      "Ramraj",
+      "linen",
+      "pant",
+      "show sales for banians"
+    ]
+  },
+  {
+    "file": "test_phase1d_2_g_clarification_hardening.py",
+    "test_count": 11,
+    "test_methods": [
+      "test_response_contract_and_metadata_leakage",
+      "test_option_id_integrity_and_spoof_prevention",
+      "test_session_and_user_isolation",
+      "test_state_lifecycle_valid_cleared",
+      "test_state_lifecycle_invalid_preserved",
+      "test_state_lifecycle_ambiguous_preserved",
+      "test_state_lifecycle_intent_shift_cleared",
+      "test_state_lifecycle_ttl_expiry",
+      "test_sql_generation_blocking_and_continuation",
+      "test_company_isolation",
+      "test_security_revalidation_cls"
+    ],
+    "sample_queries": [
+      "1",
+      "999",
+      "linen pant",
+      "pant",
+      "show sales"
+    ]
+  },
+  {
+    "file": "test_phase1d_5_b1_explicit_dimension_context.py",
+    "test_count": 12,
+    "test_methods": [
+      "test_1_brand_ramraj_pant",
+      "test_2_ramraj_pant_brand",
+      "test_3_city_coimbatore",
+      "test_4_coimbatore_city",
+      "test_5_state_tamil_nadu",
+      "test_6_tamil_nadu_state",
+      "test_7_brand_ramraj",
+      "test_8_city_xyz",
+      "test_9_show_brand_sales_for_coimbatore",
+      "test_10_show_sales_for_pant",
+      "test_11_explicit_dimension_multiple_candidates",
+      "test_12_client_cannot_supply_dimension_id"
+    ],
+    "sample_queries": []
+  },
+  {
+    "file": "test_phase1d_5_b2_followup_dimension_context.py",
+    "test_count": 0,
+    "test_methods": [],
+    "sample_queries": [
+      "Chennai",
+      "Coimbatore",
+      "Ramraj",
+      "city Coimbatore",
+      "outstanding Coimbatore"
+    ]
+  },
+  {
+    "file": "test_phase1d_5_b3_metric_guard_refinement.py",
+    "test_count": 0,
+    "test_methods": [],
+    "sample_queries": [
+      "Coimbatore",
+      "amt Coimbatore",
+      "district Coimbatore",
+      "qty Chennai and Coimbatore",
+      "qty Coimbatore",
+      "qty amt Coimbatore"
+    ]
+  },
+  {
+    "file": "test_phase1d_5_c_integration_gaps.py",
+    "test_count": 4,
+    "test_methods": [
+      "test_integration_metric_shift_different_metric",
+      "test_integration_metric_shift_same_metric",
+      "test_integration_partial_single_coverage_preservation",
+      "test_resolved_candidate_to_sql_prompt_serialization"
+    ],
+    "sample_queries": [
+      "Chennai",
+      "amt Coimbatore",
+      "cotton",
+      "qty Coimbatore"
+    ]
+  },
+  {
+    "file": "test_phase1d_6_a_thread_safety.py",
+    "test_count": 5,
+    "test_methods": [
+      "test_concurrent_resolutions_metadata_isolation",
+      "test_concurrent_status_isolation",
+      "test_concurrent_followup_context_isolation",
+      "test_concurrent_match_stats_isolation",
+      "test_backward_compatibility_class_attributes"
+    ],
+    "sample_queries": []
+  },
+  {
+    "file": "test_phase1d_6_c_partial_coverage_safety.py",
+    "test_count": 11,
+    "test_methods": [
+      "test_children_wear_partial_match_blocked",
+      "test_women_wear_partial_match_blocked",
+      "test_chennai_hospital_partial_match_blocked",
+      "test_cotton_shirt_partial_match_blocked",
+      "test_cotton_pant_full_coverage_allowed",
+      "test_coimbatore_city_dimension_label_allowed",
+      "test_full_query_coverage_one_candidate_allowed",
+      "test_zero_candidate_no_match_blocked",
+      "test_multiple_candidates_ambiguity_unchanged",
+      "test_partial_match_candidate_preservation",
+      "test_partial_match_api_response_clarification"
+    ],
+    "sample_queries": [
+      "Chennai",
+      "Chennai hospital",
+      "Coimbatore city",
+      "Laptop",
+      "children wear",
+      "cotton pant",
+      "cotton shirt",
+      "shirt",
+      "women wear"
+    ]
+  },
+  {
+    "file": "test_phase1d_6_d3_selection_matching.py",
+    "test_count": 7,
+    "test_methods": [
+      "test_numeric_selection",
+      "test_option_n_selection",
+      "test_exact_value_selection",
+      "test_case_insensitive_exact_value_selection",
+      "test_unique_prefix_selection",
+      "test_ambiguous_selection",
+      "test_invalid_selection"
+    ],
+    "sample_queries": [
+      "1",
+      "MENS PYJAMA PANT",
+      "ls",
+      "mens pyjama",
+      "mens pyjama pant",
+      "option 2",
+      "pant"
+    ]
+  },
+  {
+    "file": "test_phase1d_6_d4_resume_security.py",
+    "test_count": 6,
+    "test_methods": [
+      "test_successful_resume_flow",
+      "test_invalid_selection_retains_pending_state",
+      "test_ambiguous_selection_retains_pending_state",
+      "test_expired_state_cannot_resume",
+      "test_intent_shift_clears_pending_state",
+      "test_security_revalidation_cls_blocks_continuation"
+    ],
+    "sample_queries": [
+      "1",
+      "invalid_choice",
+      "ls",
+      "show sales for shirt"
+    ]
+  }
+]

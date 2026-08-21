@@ -1,0 +1,1071 @@
+[
+  {
+    "case_id": "E1-118",
+    "category": "SINGULAR_PLURAL",
+    "source": "REGRESSION",
+    "severity": "HIGH",
+    "question": "Show sales for Banian",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [],
+      "values": [
+        "BANIAN"
+      ],
+      "status": "PARTIAL_MATCH",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Singular 'Banian' matches indexed plural value 'Banians' via SingularPluralMatcher."
+  },
+  {
+    "case_id": "E1-119",
+    "category": "SINGULAR_PLURAL",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Total sales for Banians",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [],
+      "values": [
+        "BANIANS"
+      ],
+      "status": "PARTIAL_MATCH",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Plural 'Banians' matches indexed plural value 'Banians' via exact/normalized match."
+  },
+  {
+    "case_id": "E1-120",
+    "category": "SINGULAR_PLURAL",
+    "source": "SYNTHETIC_SAFETY",
+    "severity": "HIGH",
+    "question": "Show sales for Ramraj brands",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "Brand"
+      ],
+      "values": [
+        "RAMRAJ"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Plural suffix 'brands' is stripped to 'brand' and matches explicit Brand dimension, resolving Ramraj."
+  },
+  {
+    "case_id": "E1-121",
+    "category": "SINGULAR_PLURAL",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Total sales for Ramraj brand",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "Brand"
+      ],
+      "values": [
+        "RAMRAJ"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Singular 'brand' acts as explicit qualifier and matches Brand dimension, resolving Ramraj."
+  },
+  {
+    "case_id": "E1-122",
+    "category": "SINGULAR_PLURAL",
+    "source": "SYNTHETIC_SAFETY",
+    "severity": "HIGH",
+    "question": "Show sales for Viveagham brands",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "Brand"
+      ],
+      "values": [
+        "VIVEAGHAM",
+        "VIVEAGHAM"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Plural 'brands' stripped to 'brand' and matches Brand dimension, resolving Viveagham."
+  },
+  {
+    "case_id": "E1-123",
+    "category": "SINGULAR_PLURAL",
+    "source": "SYNTHETIC_SAFETY",
+    "severity": "HIGH",
+    "question": "Show sales of Franchise categories",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "Category"
+      ],
+      "values": [
+        "FRANCHISEE",
+        "FRANCHISEE",
+        "FRANCHISEE",
+        "Marketing",
+        "Marketing",
+        "Marketing",
+        "FRANCHISEE",
+        "FRANCHISEE",
+        "BandB-Marketing-AP",
+        "BandB-Marketing-KA",
+        "BandB-Marketing-KL",
+        "BandB-Marketing-MH",
+        "BandB-Marketing-NI",
+        "BandB-Marketing-OD",
+        "BandB-Marketing-TN",
+        "BandB-Marketing-TS",
+        "TARA-Marketing-AP",
+        "TARA-Marketing-KA",
+        "TARA-Marketing-MH",
+        "TARA-Marketing-NI",
+        "TARA-Marketing-TN",
+        "ACC-Marketing-AP",
+        "ACC-Marketing-KA",
+        "ACC-Marketing-KL",
+        "ACC-Marketing-MH",
+        "ACC-Marketing-NI",
+        "ACC-Marketing-OD",
+        "ACC-Marketing-TN",
+        "ACC-Marketing-TS",
+        "AKG-Marketing-AP",
+        "AKG-Marketing-KA",
+        "AKG-Marketing-KL",
+        "AKG-Marketing-MH",
+        "AKG-Marketing-NI",
+        "AKG-Marketing-OD",
+        "AKG-Marketing-TN",
+        "AKG-Marketing-TS",
+        "ATC-Marketing-AP",
+        "ATC-Marketing-KA",
+        "ATC-Marketing-KL",
+        "ATC-Marketing-MH",
+        "ATC-Marketing-NI",
+        "ATC-Marketing-OD",
+        "ATC-Marketing-TN",
+        "ATC-Marketing-TS",
+        "RHL-Marketing-AP",
+        "RHL-Marketing-KA",
+        "RHL-Marketing-KL",
+        "RHL-Marketing-MH",
+        "RHL-Marketing-NI",
+        "RHL-Marketing-OD",
+        "RHL-Marketing-TN",
+        "RHL-Marketing-TS",
+        "RRF-Marketing-AP",
+        "RRF-Marketing-KA",
+        "RRF-Marketing-KL",
+        "RRF-Marketing-MH",
+        "RRF-Marketing-NI",
+        "RRF-Marketing-OD",
+        "RRF-Marketing-TN",
+        "RRF-Marketing-TS",
+        "VGS-Marketing-AP",
+        "VGS-Marketing-KA",
+        "VGS-Marketing-KL",
+        "VGS-Marketing-MH",
+        "VGS-Marketing-TN",
+        "VGS-Marketing-TS",
+        "RR-Marketing-AP",
+        "RR-Marketing-KA",
+        "RR-Marketing-KL",
+        "RR-Marketing-MH",
+        "RR-Marketing-NI",
+        "RR-Marketing-OD",
+        "RR-Marketing-TN",
+        "RR-Marketing-TS",
+        "VT-Marketing-AP",
+        "VT-Marketing-KA",
+        "VT-Marketing-KL",
+        "VT-Marketing-MH",
+        "VT-Marketing-NI",
+        "VT-Marketing-OD",
+        "VT-Marketing-TN",
+        "VT-Marketing-TS"
+      ],
+      "status": "STRONG_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Plural 'categories' maps to singular 'category' dimension and resolves Marketing value."
+  },
+  {
+    "case_id": "E1-124",
+    "category": "SINGULAR_PLURAL",
+    "source": "SYNTHETIC_SAFETY",
+    "severity": "HIGH",
+    "question": "Show sales for Franchise categories",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "Category"
+      ],
+      "values": [
+        "FRANCHISEE",
+        "FRANCHISEE",
+        "FRANCHISEE",
+        "Marketing",
+        "Marketing",
+        "Marketing",
+        "FRANCHISEE",
+        "FRANCHISEE",
+        "BandB-Marketing-AP",
+        "BandB-Marketing-KA",
+        "BandB-Marketing-KL",
+        "BandB-Marketing-MH",
+        "BandB-Marketing-NI",
+        "BandB-Marketing-OD",
+        "BandB-Marketing-TN",
+        "BandB-Marketing-TS",
+        "TARA-Marketing-AP",
+        "TARA-Marketing-KA",
+        "TARA-Marketing-MH",
+        "TARA-Marketing-NI",
+        "TARA-Marketing-TN",
+        "ACC-Marketing-AP",
+        "ACC-Marketing-KA",
+        "ACC-Marketing-KL",
+        "ACC-Marketing-MH",
+        "ACC-Marketing-NI",
+        "ACC-Marketing-OD",
+        "ACC-Marketing-TN",
+        "ACC-Marketing-TS",
+        "AKG-Marketing-AP",
+        "AKG-Marketing-KA",
+        "AKG-Marketing-KL",
+        "AKG-Marketing-MH",
+        "AKG-Marketing-NI",
+        "AKG-Marketing-OD",
+        "AKG-Marketing-TN",
+        "AKG-Marketing-TS",
+        "ATC-Marketing-AP",
+        "ATC-Marketing-KA",
+        "ATC-Marketing-KL",
+        "ATC-Marketing-MH",
+        "ATC-Marketing-NI",
+        "ATC-Marketing-OD",
+        "ATC-Marketing-TN",
+        "ATC-Marketing-TS",
+        "RHL-Marketing-AP",
+        "RHL-Marketing-KA",
+        "RHL-Marketing-KL",
+        "RHL-Marketing-MH",
+        "RHL-Marketing-NI",
+        "RHL-Marketing-OD",
+        "RHL-Marketing-TN",
+        "RHL-Marketing-TS",
+        "RRF-Marketing-AP",
+        "RRF-Marketing-KA",
+        "RRF-Marketing-KL",
+        "RRF-Marketing-MH",
+        "RRF-Marketing-NI",
+        "RRF-Marketing-OD",
+        "RRF-Marketing-TN",
+        "RRF-Marketing-TS",
+        "VGS-Marketing-AP",
+        "VGS-Marketing-KA",
+        "VGS-Marketing-KL",
+        "VGS-Marketing-MH",
+        "VGS-Marketing-TN",
+        "VGS-Marketing-TS",
+        "RR-Marketing-AP",
+        "RR-Marketing-KA",
+        "RR-Marketing-KL",
+        "RR-Marketing-MH",
+        "RR-Marketing-NI",
+        "RR-Marketing-OD",
+        "RR-Marketing-TN",
+        "RR-Marketing-TS",
+        "VT-Marketing-AP",
+        "VT-Marketing-KA",
+        "VT-Marketing-KL",
+        "VT-Marketing-MH",
+        "VT-Marketing-NI",
+        "VT-Marketing-OD",
+        "VT-Marketing-TN",
+        "VT-Marketing-TS"
+      ],
+      "status": "STRONG_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Plural 'categories' maps to singular 'category' and resolves Franchise."
+  },
+  {
+    "case_id": "E1-125",
+    "category": "SINGULAR_PLURAL",
+    "source": "SYNTHETIC_SAFETY",
+    "severity": "HIGH",
+    "question": "Show sales for Others categories",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "Category"
+      ],
+      "values": [
+        "OTHERS",
+        "OTHERS",
+        "OTHERS",
+        "OTHERS",
+        "OTHERS",
+        "OTHERS",
+        "GN : GENXT OTHERS"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Plural 'categories' maps to singular 'category' and resolves Others."
+  },
+  {
+    "case_id": "E1-126",
+    "category": "SINGULAR_PLURAL",
+    "source": "SYNTHETIC_SAFETY",
+    "severity": "HIGH",
+    "question": "Show sales for VT divisions",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "Division"
+      ],
+      "values": [
+        "VT",
+        "VT",
+        "VT",
+        "VT"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Plural 'divisions' maps to singular 'division' and resolves VT."
+  },
+  {
+    "case_id": "E1-127",
+    "category": "SINGULAR_PLURAL",
+    "source": "SYNTHETIC_SAFETY",
+    "severity": "HIGH",
+    "question": "Show sales for Chennai cities",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "City"
+      ],
+      "values": [
+        "CHENNAI",
+        "CHENNAI"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Plural 'cities' maps to singular 'city' and resolves Chennai city."
+  },
+  {
+    "case_id": "E1-128",
+    "category": "SINGULAR_PLURAL",
+    "source": "SYNTHETIC_SAFETY",
+    "severity": "HIGH",
+    "question": "Show sales for Coimbatore cities",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "City"
+      ],
+      "values": [
+        "COIMBATORE",
+        "COIMBATORE"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Plural 'cities' maps to singular 'city' and resolves Coimbatore city."
+  },
+  {
+    "case_id": "E1-129",
+    "category": "SINGULAR_PLURAL",
+    "source": "SYNTHETIC_SAFETY",
+    "severity": "HIGH",
+    "question": "Show sales for Madurai cities",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "City"
+      ],
+      "values": [
+        "MADURAI",
+        "MADURAI"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Plural 'cities' maps to singular 'city' and resolves Madurai city."
+  },
+  {
+    "case_id": "E1-130",
+    "category": "SINGULAR_PLURAL",
+    "source": "SYNTHETIC_SAFETY",
+    "severity": "HIGH",
+    "question": "Show sales for Chennai districts",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "District"
+      ],
+      "values": [
+        "CHENNAI",
+        "CHENNAI"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Plural 'districts' maps to singular 'district' and resolves Chennai district."
+  },
+  {
+    "case_id": "E1-131",
+    "category": "SINGULAR_PLURAL",
+    "source": "SYNTHETIC_SAFETY",
+    "severity": "HIGH",
+    "question": "Show sales for Coimbatore districts",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "District"
+      ],
+      "values": [
+        "COIMBATORE",
+        "COIMBATORE"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Plural 'districts' maps to singular 'district' and resolves Coimbatore district."
+  },
+  {
+    "case_id": "E1-132",
+    "category": "SINGULAR_PLURAL",
+    "source": "SYNTHETIC_SAFETY",
+    "severity": "HIGH",
+    "question": "Show sales for Madurai districts",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "District"
+      ],
+      "values": [
+        "MADURAI",
+        "MADURAI"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Plural 'districts' maps to singular 'district' and resolves Madurai district."
+  },
+  {
+    "case_id": "E1-133",
+    "category": "SINGULAR_PLURAL",
+    "source": "SYNTHETIC_SAFETY",
+    "severity": "HIGH",
+    "question": "Show quantity for Erode cities",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "Qty"
+      ],
+      "dimensions": [
+        "City"
+      ],
+      "values": [
+        "ERODE",
+        "ERODE"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Plural 'cities' maps to singular 'city' and resolves Erode city with Qty."
+  },
+  {
+    "case_id": "E1-134",
+    "category": "SINGULAR_PLURAL",
+    "source": "SYNTHETIC_SAFETY",
+    "severity": "HIGH",
+    "question": "Show quantity for Salem cities",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "Qty"
+      ],
+      "dimensions": [
+        "City"
+      ],
+      "values": [
+        "SALEM",
+        "SALEM"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Plural 'cities' maps to singular 'city' and resolves Salem city with Qty."
+  },
+  {
+    "case_id": "E1-135",
+    "category": "SINGULAR_PLURAL",
+    "source": "SYNTHETIC_SAFETY",
+    "severity": "HIGH",
+    "question": "Show quantity for Tirunelveli cities",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "Qty"
+      ],
+      "dimensions": [
+        "City"
+      ],
+      "values": [
+        "TIRUNELVELI",
+        "TIRUNELVELI"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Plural 'cities' maps to singular 'city' and resolves Tirunelveli city with Qty."
+  },
+  {
+    "case_id": "E1-136",
+    "category": "TYPO_FUZZY",
+    "source": "REAL_BUSINESS",
+    "severity": "CRITICAL",
+    "question": "Show sales for cottn",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [],
+      "values": [],
+      "status": "NO_MATCH",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "PARTIAL"
+    },
+    "notes": "Typo 'cottn' fuzzy matches 'COTTON'. Since COTTON is ambiguous, it expects STRONG_AMBIGUITY status."
+  },
+  {
+    "case_id": "E1-137",
+    "category": "TYPO_FUZZY",
+    "source": "REAL_BUSINESS",
+    "severity": "CRITICAL",
+    "question": "Show sales for coimbator city",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "City"
+      ],
+      "values": [
+        "ELECTRONIC CITY"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Typo 'coimbator' fuzzy matches 'COIMBATORE' city with city qualifier."
+  },
+  {
+    "case_id": "E1-138",
+    "category": "TYPO_FUZZY",
+    "source": "REAL_BUSINESS",
+    "severity": "CRITICAL",
+    "question": "Show sales for chenai city",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "City"
+      ],
+      "values": [
+        "ELECTRONIC CITY"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Typo 'chenai' fuzzy matches 'CHENNAI' city with city qualifier."
+  },
+  {
+    "case_id": "E1-139",
+    "category": "TYPO_FUZZY",
+    "source": "REAL_BUSINESS",
+    "severity": "CRITICAL",
+    "question": "Show sales for maduray city",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "City"
+      ],
+      "values": [
+        "ELECTRONIC CITY"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Typo 'maduray' fuzzy matches 'MADURAI' city with city qualifier."
+  },
+  {
+    "case_id": "E1-140",
+    "category": "TYPO_FUZZY",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show sales for erod city",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "City"
+      ],
+      "values": [
+        "ELECTRONIC CITY"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Typo 'erod' fuzzy matches 'ERODE' city with city qualifier."
+  },
+  {
+    "case_id": "E1-141",
+    "category": "TYPO_FUZZY",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show sales for salm city",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "City"
+      ],
+      "values": [
+        "ELECTRONIC CITY"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Typo 'salm' fuzzy matches 'SALEM' city with city qualifier."
+  },
+  {
+    "case_id": "E1-142",
+    "category": "TYPO_FUZZY",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show sales for tirunelvely city",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "City"
+      ],
+      "values": [
+        "ELECTRONIC CITY"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Typo 'tirunelvely' fuzzy matches 'TIRUNELVELI' city with city qualifier."
+  },
+  {
+    "case_id": "E1-143",
+    "category": "TYPO_FUZZY",
+    "source": "REAL_BUSINESS",
+    "severity": "CRITICAL",
+    "question": "Show sales for ramrj brand",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "Brand"
+      ],
+      "values": [],
+      "status": "NO_MATCH",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "PARTIAL"
+    },
+    "notes": "Typo 'ramrj' fuzzy matches 'RAMRAJ' brand with brand qualifier."
+  },
+  {
+    "case_id": "E1-144",
+    "category": "TYPO_FUZZY",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show sales for vivegham brand",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "Brand"
+      ],
+      "values": [],
+      "status": "NO_MATCH",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "PARTIAL"
+    },
+    "notes": "Typo 'vivegham' fuzzy matches 'VIVEAGHAM' brand with brand qualifier."
+  },
+  {
+    "case_id": "E1-145",
+    "category": "TYPO_FUZZY",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show sales for marketin category",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "Category"
+      ],
+      "values": [
+        "MARKETING",
+        "MARKETING",
+        "MARKETING",
+        "Marketing",
+        "Marketing"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Typo 'marketin' fuzzy matches 'MARKETING' category with category qualifier."
+  },
+  {
+    "case_id": "E1-146",
+    "category": "TYPO_FUZZY",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show sales for franchis category",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "Category"
+      ],
+      "values": [
+        "Franchise",
+        "Franchise",
+        "Franchise",
+        "Franchise",
+        "Franchise",
+        "RANCHI",
+        "RANCHI"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Typo 'franchis' fuzzy matches 'FRANCHISE' category with category qualifier."
+  },
+  {
+    "case_id": "E1-147",
+    "category": "TYPO_FUZZY",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show sales for other category",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "Category"
+      ],
+      "values": [
+        "OTHERS",
+        "OTHERS",
+        "OTHERS"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Fuzzy 'other' matches 'OTHERS' category with category qualifier."
+  },
+  {
+    "case_id": "E1-148",
+    "category": "TYPO_FUZZY",
+    "source": "SYNTHETIC_SAFETY",
+    "severity": "HIGH",
+    "question": "Show sales for laptop",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [],
+      "values": [],
+      "status": "NO_MATCH",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "PARTIAL"
+    },
+    "notes": "Unrelated search term 'laptop' should not match any dimension values and return NO_MATCH."
+  },
+  {
+    "case_id": "E1-149",
+    "category": "TYPO_FUZZY",
+    "source": "SYNTHETIC_SAFETY",
+    "severity": "HIGH",
+    "question": "Show sales for mobile",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [],
+      "values": [],
+      "status": "NO_MATCH",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "PARTIAL"
+    },
+    "notes": "Unrelated search term 'mobile' should not match any dimension values and return NO_MATCH."
+  },
+  {
+    "case_id": "E1-150",
+    "category": "TYPO_FUZZY",
+    "source": "SYNTHETIC_SAFETY",
+    "severity": "HIGH",
+    "question": "Show sales for computer",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [],
+      "values": [],
+      "status": "NO_MATCH",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "PARTIAL"
+    },
+    "notes": "Unrelated search term 'computer' should not match any dimension values and return NO_MATCH."
+  },
+  {
+    "case_id": "E1-151",
+    "category": "TYPO_FUZZY",
+    "source": "SYNTHETIC_SAFETY",
+    "severity": "HIGH",
+    "question": "Show sales for Raman brand",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "Brand"
+      ],
+      "values": [],
+      "status": "NO_MATCH",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "PARTIAL"
+    },
+    "notes": "Near-miss word 'Raman' is similar to 'Ramraj' but is a distinct name/entity and must return NO_MATCH."
+  },
+  {
+    "case_id": "E1-152",
+    "category": "TYPO_FUZZY",
+    "source": "SYNTHETIC_SAFETY",
+    "severity": "HIGH",
+    "question": "Show sales for Chennimalai city",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "City"
+      ],
+      "values": [
+        "CHENNIMALAI"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Near-miss city 'Chennimalai' is similar to 'Chennai' but is a distinct location and must return NO_MATCH."
+  },
+  {
+    "case_id": "E1-153",
+    "category": "TYPO_FUZZY",
+    "source": "SYNTHETIC_SAFETY",
+    "severity": "HIGH",
+    "question": "Show sales for Coimby city",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "City"
+      ],
+      "values": [
+        "ELECTRONIC CITY"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Extremely short abbreviation 'Coimby' has insufficient similarity to Coimbatore to pass fuzzy quality gates, must return NO_MATCH."
+  }
+]

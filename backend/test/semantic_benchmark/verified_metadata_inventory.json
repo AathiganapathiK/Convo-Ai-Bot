@@ -1,0 +1,222 @@
+{
+  "datasource": {
+    "connection_id": "F82C2F8D-0BD6-40E2-8C8B-FF1D69E317D5",
+    "connection_name": "Chatbot",
+    "db_type": "sqlserver",
+    "database_name": "Chatbot"
+  },
+  "summary": {
+    "total_metrics": 23,
+    "total_dimensions": 98,
+    "total_indexed_values": 8360,
+    "unique_indexed_values": 5514,
+    "duplicate_value_count": 1619,
+    "table_count": 3
+  },
+  "tables": [
+    {
+      "table_name": "PBI_ENES_ORDER_PENDING_SUMMARY",
+      "column_count": 21,
+      "description": "Order pending summary fact table"
+    },
+    {
+      "table_name": "PBI_OUTSTANDING_ENES_SUMMARY",
+      "column_count": 34,
+      "description": "Accounts receivable / outstanding summary fact table"
+    },
+    {
+      "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY",
+      "column_count": 38,
+      "description": "5-year sales summary fact table"
+    }
+  ],
+  "sample_metrics": [
+    {
+      "business_name": "Amt",
+      "metric_name": "amt",
+      "table_name": "PBI_ENES_ORDER_PENDING_SUMMARY",
+      "column_name": "Amt",
+      "aggregation_type": "SUM"
+    },
+    {
+      "business_name": "billamt",
+      "metric_name": "billamt",
+      "table_name": "PBI_OUTSTANDING_ENES_SUMMARY",
+      "column_name": "billamt",
+      "aggregation_type": "SUM"
+    },
+    {
+      "business_name": "C Y",
+      "metric_name": "cy",
+      "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY",
+      "column_name": "CY",
+      "aggregation_type": "SUM"
+    },
+    {
+      "business_name": "due",
+      "metric_name": "due",
+      "table_name": "PBI_ENES_ORDER_PENDING_SUMMARY",
+      "column_name": "due",
+      "aggregation_type": "SUM"
+    },
+    {
+      "business_name": "pendamt",
+      "metric_name": "pendamt",
+      "table_name": "PBI_OUTSTANDING_ENES_SUMMARY",
+      "column_name": "pendamt",
+      "aggregation_type": "SUM"
+    },
+    {
+      "business_name": "Qty",
+      "metric_name": "qty",
+      "table_name": "PBI_ENES_ORDER_PENDING_SUMMARY",
+      "column_name": "Qty",
+      "aggregation_type": "SUM"
+    }
+  ],
+  "sample_dimensions": [
+    {
+      "business_name": "Brand",
+      "table_name": "PBI_ENES_ORDER_PENDING_SUMMARY",
+      "column_name": "Brand",
+      "semantic_category": "Product"
+    },
+    {
+      "business_name": "City",
+      "table_name": "PBI_OUTSTANDING_ENES_SUMMARY",
+      "column_name": "City",
+      "semantic_category": "Geography"
+    },
+    {
+      "business_name": "District",
+      "table_name": "PBI_OUTSTANDING_ENES_SUMMARY",
+      "column_name": "District",
+      "semantic_category": "Geography"
+    },
+    {
+      "business_name": "Division",
+      "table_name": "PBI_ENES_ORDER_PENDING_SUMMARY",
+      "column_name": "Division",
+      "semantic_category": "Organization"
+    },
+    {
+      "business_name": "Category",
+      "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY",
+      "column_name": "Category",
+      "semantic_category": "Product"
+    },
+    {
+      "business_name": "Card Name",
+      "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY",
+      "column_name": "CardName",
+      "semantic_category": "Finance"
+    }
+  ],
+  "important_duplicate_values": [
+    {
+      "value": "CHENNAI",
+      "dimensions": ["City", "District"],
+      "dimension_count": 2,
+      "note": "Matches both City and District geographical dimensions"
+    },
+    {
+      "value": "COIMBATORE",
+      "dimensions": ["City", "District"],
+      "dimension_count": 2,
+      "note": "Matches both City and District geographical dimensions"
+    },
+    {
+      "value": "MADURAI",
+      "dimensions": ["City", "District"],
+      "dimension_count": 2,
+      "note": "Matches both City and District geographical dimensions"
+    },
+    {
+      "value": "RAMRAJ",
+      "dimensions": ["Brand", "Prod Grp1"],
+      "dimension_count": 2,
+      "note": "Matches both Brand and Product Group dimensions"
+    },
+    {
+      "value": "COTTON",
+      "dimensions": ["Brand", "Prod Grp1"],
+      "dimension_count": 2,
+      "note": "Matches product material keywords across product dimensions"
+    },
+    {
+      "value": "VT",
+      "dimensions": ["Division", "btype"],
+      "dimension_count": 2,
+      "note": "Matches Division code and business type code"
+    }
+  ],
+  "verified_synonyms": {
+    "Card Code": ["Party code", "Customer code", "Customer id"],
+    "Card Name": ["Party name", "Customer Name", "Customer"],
+    "Category": ["Marketing", "Franchise", "Others"],
+    "Division": ["Unit", "Division"],
+    "Doc Date": ["date", "dt", "day"],
+    "Created Date": ["date", "dt", "day"]
+  },
+  "regression_test_cases": [
+    {
+      "source_file": "test_phase1d_2_e_clarification.py",
+      "query": "pant",
+      "expected_status": "STRONG_AMBIGUITY",
+      "reason": "Matches multiple product group candidates (LS ZARI COTTON, LS COTTON BREEZE, MENS PYJAMA PANT)"
+    },
+    {
+      "source_file": "test_phase1d_6_d3_selection_matching.py",
+      "query": "MENS PYJAMA PANT",
+      "expected_status": "SINGLE_MATCH",
+      "reason": "Exact option selection from clarification list"
+    },
+    {
+      "source_file": "test_phase1d_5_b1_explicit_dimension_context.py",
+      "query": "brand Ramraj",
+      "expected_status": "SINGLE_MATCH",
+      "reason": "Explicit dimension prefix 'brand' disambiguates 'Ramraj' to Brand dimension"
+    },
+    {
+      "source_file": "test_phase1d_6_c_partial_coverage_safety.py",
+      "query": "children wear",
+      "expected_status": "NO_MATCH",
+      "reason": "Partial coverage safety gate blocks unmapped token 'wear'"
+    },
+    {
+      "source_file": "test_phase1d_6_c_partial_coverage_safety.py",
+      "query": "cotton pant",
+      "expected_status": "SINGLE_MATCH",
+      "reason": "Full query token coverage across matching candidate"
+    }
+  ],
+  "context_test_cases": [
+    {
+      "source_file": "test_phase1d_5_b2_followup_dimension_context.py",
+      "turn_1": "Show sales for Chennai city",
+      "turn_2": "for coimbatore",
+      "expected_turn_2": {
+        "metric": "Sales",
+        "dimension": "City",
+        "value": "Coimbatore",
+        "followup_context_applied": true
+      }
+    },
+    {
+      "source_file": "test_phase1d_5_c_integration_gaps.py",
+      "turn_1": "qty Coimbatore",
+      "turn_2": "amt Coimbatore",
+      "expected_turn_2": {
+        "metric_shift": true,
+        "new_metric": "Amt",
+        "dimension": "City",
+        "value": "Coimbatore"
+      }
+    }
+  ],
+  "limitations": [
+    "Numeric columns (e.g. Sno, OrderNo) auto-indexed as metrics when they are identifiers",
+    "5-year sales summary table uses abbreviated column names (CY, PY, PPY, PPPY, PPPPY) requiring semantic mapping",
+    "Temporal macro expressions (e.g. 'same period last year') require advanced temporal strategy pipeline"
+  ]
+}

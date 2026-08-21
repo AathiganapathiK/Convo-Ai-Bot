@@ -51,7 +51,8 @@ class GroqProvider(
         self,
         model: str,
         messages: list,
-        temperature: float = 0
+        temperature: float = 0,
+        timeout: float = 10.0
     ):
 
 
@@ -62,6 +63,7 @@ class GroqProvider(
             .create(
                 model=model,
                 messages=messages,
-                temperature=temperature
+                temperature=temperature,
+                timeout=timeout
             )
         )

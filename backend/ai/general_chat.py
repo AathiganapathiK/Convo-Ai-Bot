@@ -1,10 +1,6 @@
-from groq import Groq
 import os
 import core.config
-
-client = Groq(
-    api_key=os.getenv("GROQ_API_KEY")
-)
+from ai.providers.provider_factory import ProviderFactory
 
 def generate_general_response(
     question: str
@@ -24,16 +20,19 @@ User:
 {question}
 """
 
-    response = client.chat.completions.create(
-        model="llama-3.3-70b-versatile",
-        temperature=0.5,
-        max_tokens=60,
+    provider_type = os.getenv("DEFAULT_PROVIDER", "groq")
+    model_name = os.getenv("DEFAULT_MODEL", "qwen2.5:7b")
+    
+    provider = ProviderFactory.get_provider(provider_type)
+    response = provider.chat_completion(
+        model=model_name,
         messages=[
             {
                 "role": "user",
                 "content": prompt
             }
-        ]
+        ],
+        temperature=0.5
     )
     
     content = ""

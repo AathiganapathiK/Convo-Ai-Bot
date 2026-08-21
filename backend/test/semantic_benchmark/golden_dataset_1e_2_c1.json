@@ -1,0 +1,969 @@
+[
+  {
+    "case_id": "E1-006",
+    "category": "SIMPLE_METRIC",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show sales",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [],
+      "values": [],
+      "status": "NO_MATCH",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "PARTIAL"
+    },
+    "notes": "Verified metric query for Sales without filters."
+  },
+  {
+    "case_id": "E1-007",
+    "category": "SIMPLE_METRIC",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Total Qty",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "Qty"
+      ],
+      "dimensions": [],
+      "values": [],
+      "status": "NO_MATCH",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "PARTIAL"
+    },
+    "notes": "Verified metric query for aggregated total Sales."
+  },
+  {
+    "case_id": "E1-008",
+    "category": "SIMPLE_METRIC",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Qty summary",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "Qty"
+      ],
+      "dimensions": [],
+      "values": [],
+      "status": "NO_MATCH",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "PARTIAL"
+    },
+    "notes": "Verified metric query requesting overall Sales summary."
+  },
+  {
+    "case_id": "E1-009",
+    "category": "SIMPLE_METRIC",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show quantity",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "Qty"
+      ],
+      "dimensions": [],
+      "values": [],
+      "status": "NO_MATCH",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "PARTIAL"
+    },
+    "notes": "Verified metric query for overall sales Quantity."
+  },
+  {
+    "case_id": "E1-010",
+    "category": "SIMPLE_METRIC",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Total quantity",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "Qty"
+      ],
+      "dimensions": [],
+      "values": [],
+      "status": "NO_MATCH",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "PARTIAL"
+    },
+    "notes": "Verified metric query for aggregated Quantity."
+  },
+  {
+    "case_id": "E1-011",
+    "category": "SIMPLE_METRIC",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show amount",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "Amt"
+      ],
+      "dimensions": [],
+      "values": [],
+      "status": "NO_MATCH",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "PARTIAL"
+    },
+    "notes": "Verified metric query for order Amount."
+  },
+  {
+    "case_id": "E1-012",
+    "category": "SIMPLE_METRIC",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Total amount",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "Amt"
+      ],
+      "dimensions": [],
+      "values": [],
+      "status": "NO_MATCH",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "PARTIAL"
+    },
+    "notes": "Verified metric query for aggregated total Amount."
+  },
+  {
+    "case_id": "E1-013",
+    "category": "SIMPLE_METRIC",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show pending amount",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "pendamt"
+      ],
+      "dimensions": [],
+      "values": [],
+      "status": "NO_MATCH",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "PARTIAL"
+    },
+    "notes": "Verified metric query for outstanding Pending Amount."
+  },
+  {
+    "case_id": "E1-014",
+    "category": "SIMPLE_METRIC",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Total pending amount",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "pendamt"
+      ],
+      "dimensions": [],
+      "values": [],
+      "status": "NO_MATCH",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "PARTIAL"
+    },
+    "notes": "Verified metric query for aggregated Pending Amount."
+  },
+  {
+    "case_id": "E1-015",
+    "category": "SIMPLE_METRIC",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show bill amount",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "Amt"
+      ],
+      "dimensions": [],
+      "values": [],
+      "status": "NO_MATCH",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "PARTIAL"
+    },
+    "notes": "Verified metric query for outstanding Bill Amount."
+  },
+  {
+    "case_id": "E1-016",
+    "category": "SIMPLE_METRIC",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Total bill amount",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "Amt"
+      ],
+      "dimensions": [],
+      "values": [],
+      "status": "NO_MATCH",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "PARTIAL"
+    },
+    "notes": "Verified metric query for aggregated Bill Amount."
+  },
+  {
+    "case_id": "E1-017",
+    "category": "SIMPLE_METRIC",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show due amount",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "due"
+      ],
+      "dimensions": [],
+      "values": [
+        "NO DUE",
+        "OVER DUE",
+        "Due Today",
+        "Future Due",
+        "Current Due (1-7)",
+        "Delayed Due (16-30)",
+        "Critical Due (31-60)"
+      ],
+      "status": "PARTIAL_MATCH",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Verified metric query for order Due amount."
+  },
+  {
+    "case_id": "E1-018",
+    "category": "SIMPLE_METRIC",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Total due amount",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "due"
+      ],
+      "dimensions": [],
+      "values": [
+        "Current Due (1-7)",
+        "Delayed Due (16-30)",
+        "Critical Due (31-60)"
+      ],
+      "status": "SINGLE_MATCH",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Verified metric query for aggregated Due amount."
+  },
+  {
+    "case_id": "E1-019",
+    "category": "SIMPLE_METRIC",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show payment amount",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "Amt"
+      ],
+      "dimensions": [],
+      "values": [
+        "FULL PAYMENT",
+        "PARTIAL PAYMENT"
+      ],
+      "status": "PARTIAL_MATCH",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Verified metric query for Payment Amount."
+  },
+  {
+    "case_id": "E1-020",
+    "category": "SIMPLE_METRIC",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show due days",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "due"
+      ],
+      "dimensions": [],
+      "values": [
+        "Current Due (1-7)",
+        "Delayed Due (16-30)",
+        "Critical Due (31-60)"
+      ],
+      "status": "PARTIAL_MATCH",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Verified metric query for outstanding Due Days."
+  },
+  {
+    "case_id": "E1-021",
+    "category": "SIMPLE_METRIC",
+    "source": "REAL_BUSINESS",
+    "severity": "MEDIUM",
+    "question": "Average due days",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "due"
+      ],
+      "dimensions": [],
+      "values": [
+        "Current Due (1-7)",
+        "Delayed Due (16-30)",
+        "Critical Due (31-60)",
+        "Future Due",
+        "Due Today"
+      ],
+      "status": "SINGLE_MATCH",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Verified metric query for average Due Days."
+  },
+  {
+    "case_id": "E1-022",
+    "category": "SIMPLE_METRIC",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Current year sales",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "createddate Year"
+      ],
+      "values": [
+        "Current Due (1-7)"
+      ],
+      "status": "PARTIAL_MATCH",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Verified metric query for Current Year sales."
+  },
+  {
+    "case_id": "E1-023",
+    "category": "SIMPLE_METRIC",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Previous year sales",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "createddate Year"
+      ],
+      "values": [],
+      "status": "NO_MATCH",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "PARTIAL"
+    },
+    "notes": "Verified metric query for Previous Year sales."
+  },
+  {
+    "case_id": "E1-024",
+    "category": "METRIC_DIMENSION_VALUE",
+    "source": "REAL_BUSINESS",
+    "severity": "CRITICAL",
+    "question": "Show sales for Chennai city",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "City"
+      ],
+      "values": [
+        "CHENNAI"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Explicit City qualifier disambiguates verified Chennai value."
+  },
+  {
+    "case_id": "E1-025",
+    "category": "METRIC_DIMENSION_VALUE",
+    "source": "REAL_BUSINESS",
+    "severity": "CRITICAL",
+    "question": "Qty in Coimbatore city",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "Qty"
+      ],
+      "dimensions": [
+        "City"
+      ],
+      "values": [
+        "COIMBATORE"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Explicit City qualifier disambiguates verified Coimbatore value."
+  },
+  {
+    "case_id": "E1-026",
+    "category": "METRIC_DIMENSION_VALUE",
+    "source": "REAL_BUSINESS",
+    "severity": "CRITICAL",
+    "question": "Show sales for Madurai city",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "City"
+      ],
+      "values": [
+        "MADURAI"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Explicit City qualifier disambiguates verified Madurai value."
+  },
+  {
+    "case_id": "E1-027",
+    "category": "METRIC_DIMENSION_VALUE",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "sales for Erode city",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "City"
+      ],
+      "values": [
+        "ERODE"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Explicit City qualifier disambiguates verified Erode value."
+  },
+  {
+    "case_id": "E1-028",
+    "category": "METRIC_DIMENSION_VALUE",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show sales for Salem city",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "City"
+      ],
+      "values": [
+        "SALEM"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Explicit City qualifier disambiguates verified Salem value."
+  },
+  {
+    "case_id": "E1-029",
+    "category": "METRIC_DIMENSION_VALUE",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "sales in Tirunelveli city",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "City"
+      ],
+      "values": [
+        "TIRUNELVELI"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Explicit City qualifier disambiguates verified Tirunelveli value."
+  },
+  {
+    "case_id": "E1-030",
+    "category": "METRIC_DIMENSION_VALUE",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show quantity for Chennai city",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "Qty"
+      ],
+      "dimensions": [
+        "City"
+      ],
+      "values": [
+        "CHENNAI"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Metric Qty + City dimension + CHENNAI value."
+  },
+  {
+    "case_id": "E1-031",
+    "category": "METRIC_DIMENSION_VALUE",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Quantity in Coimbatore city",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "Qty"
+      ],
+      "dimensions": [
+        "City"
+      ],
+      "values": [
+        "COIMBATORE"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Metric Qty + City dimension + COIMBATORE value."
+  },
+  {
+    "case_id": "E1-032",
+    "category": "METRIC_DIMENSION_VALUE",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show pending amount for Chennai city",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "pendamt"
+      ],
+      "dimensions": [
+        "City"
+      ],
+      "values": [
+        "CHENNAI"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Metric pendamt + City dimension + CHENNAI value."
+  },
+  {
+    "case_id": "E1-033",
+    "category": "METRIC_DIMENSION_VALUE",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Pending amount in Madurai city",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "pendamt"
+      ],
+      "dimensions": [
+        "City"
+      ],
+      "values": [
+        "MADURAI"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Metric pendamt + City dimension + MADURAI value."
+  },
+  {
+    "case_id": "E1-034",
+    "category": "METRIC_DIMENSION_VALUE",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show bill amount for Coimbatore city",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "Amt"
+      ],
+      "dimensions": [
+        "City"
+      ],
+      "values": [
+        "COIMBATORE"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Metric billamt + City dimension + COIMBATORE value."
+  },
+  {
+    "case_id": "E1-035",
+    "category": "METRIC_DIMENSION_VALUE",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show due amount for Chennai city",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "due"
+      ],
+      "dimensions": [
+        "City"
+      ],
+      "values": [
+        "CHENNAI"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Metric due + City dimension + CHENNAI value."
+  },
+  {
+    "case_id": "E1-036",
+    "category": "METRIC_DIMENSION_VALUE",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show sales for Chennai district",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "District"
+      ],
+      "values": [
+        "CHENNAI"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Explicit District qualifier disambiguates verified Chennai value to District."
+  },
+  {
+    "case_id": "E1-037",
+    "category": "METRIC_DIMENSION_VALUE",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "sales in Coimbatore district",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "District"
+      ],
+      "values": [
+        "COIMBATORE"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Explicit District qualifier disambiguates verified Coimbatore value to District."
+  },
+  {
+    "case_id": "E1-038",
+    "category": "METRIC_DIMENSION_VALUE",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show sales for Madurai district",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "District"
+      ],
+      "values": [
+        "MADURAI"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Explicit District qualifier disambiguates verified Madurai value to District."
+  },
+  {
+    "case_id": "E1-039",
+    "category": "METRIC_DIMENSION_VALUE",
+    "source": "REAL_BUSINESS",
+    "severity": "CRITICAL",
+    "question": "Show sales for brand Ramraj",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "Brand"
+      ],
+      "values": [
+        "RAMRAJ"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Explicit Brand qualifier disambiguates verified Ramraj value to Brand."
+  },
+  {
+    "case_id": "E1-040",
+    "category": "METRIC_DIMENSION_VALUE",
+    "source": "REAL_BUSINESS",
+    "severity": "CRITICAL",
+    "question": "sales for Ramraj brand",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "Brand"
+      ],
+      "values": [
+        "RAMRAJ"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Explicit Brand qualifier suffix disambiguates verified Ramraj value to Brand."
+  },
+  {
+    "case_id": "E1-041",
+    "category": "METRIC_DIMENSION_VALUE",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show quantity for brand Ramraj",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "Qty"
+      ],
+      "dimensions": [
+        "Brand"
+      ],
+      "values": [
+        "RAMRAJ"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Metric Qty + Brand dimension + RAMRAJ value."
+  },
+  {
+    "case_id": "E1-042",
+    "category": "METRIC_DIMENSION_VALUE",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show sales of category Franchise",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "Category"
+      ],
+      "values": [
+        "FRANCHISEE",
+        "FRANCHISEE",
+        "FRANCHISEE"
+      ],
+      "status": "STRONG_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Explicit Category dimension + MARKETING value."
+  },
+  {
+    "case_id": "E1-043",
+    "category": "METRIC_DIMENSION_VALUE",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show sales for category Marketing",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "Category"
+      ],
+      "values": [
+        "MARKETING",
+        "MARKETING",
+        "MARKETING"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Explicit Category dimension + FRANCHISE value."
+  },
+  {
+    "case_id": "E1-044",
+    "category": "METRIC_DIMENSION_VALUE",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show sales for category Others",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "Category"
+      ],
+      "values": [
+        "OTHERS",
+        "OTHERS",
+        "OTHERS"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Explicit Category dimension + OTHERS value."
+  },
+  {
+    "case_id": "E1-045",
+    "category": "METRIC_DIMENSION_VALUE",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show quantity for category Marketing",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "Qty"
+      ],
+      "dimensions": [
+        "Category"
+      ],
+      "values": [
+        "MARKETING",
+        "MARKETING",
+        "MARKETING"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Metric Qty + Category dimension + MARKETING value."
+  }
+]

@@ -1,0 +1,2075 @@
+============================================================
+APP_RUNTIME (raw): None
+Runtime selected : local
+Configuration    : D:\Projects\Ramraj-AI-Chatbot\backend\.local.env
+DB_HOST          : 192.168.0.187
+============================================================
+DATABASE_url mssql+pyodbc:///?odbc_connect=DRIVER%3D%7BODBC+Driver+18+for+SQL+Server%7D%3BSERVER%3D192.168.0.187%2C1433%3BDATABASE%3DRR_platform%3BUID%3DIntern_Chatbot%3BPWD%3DKgdt%26LPD148%5EHp%3BTrustServerCertificate%3Dyes%3B
+================================================================================
+SHORT TOKEN SAFETY AUDIT
+================================================================================
+
+==================================================
+QUESTION: "t"
+==================================================
+
+1. Singular/plural candidates BEFORE containment:
+  - Value: TN4-CHN-T
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['t']
+    Matched Val Tokens: ['tn4', 'chn', 't']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: TN4-CHN-T
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['t']
+    Matched Val Tokens: ['tn4', 'chn', 't']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: T RAMANATHAPURAM
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['t']
+    Matched Val Tokens: ['t', 'ramanathapuram']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: T.N.PALAYAM
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['t']
+    Matched Val Tokens: ['t', 'n', 'palayam']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: T.NAGAR
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['t']
+    Matched Val Tokens: ['t', 'nagar']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: T.NARASAPURAM
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['t']
+    Matched Val Tokens: ['t', 'narasapuram']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: T.NARASIPURA
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['t']
+    Matched Val Tokens: ['t', 'narasipura']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: T.PALUR
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['t']
+    Matched Val Tokens: ['t', 'palur']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: T.RAMANATHAPURAM
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['t']
+    Matched Val Tokens: ['t', 'ramanathapuram']
+    Survived Containment: False
+    Classification: NOISE
+
+  - Value: A--T-SHIRT
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['t']
+    Matched Val Tokens: ['t', 'shirt']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: EXPERT TERRA.T TRACK
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['t']
+    Matched Val Tokens: ['expert', 'terra', 't', 'track']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: LITTLE STAR-T (2PCS)
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['t']
+    Matched Val Tokens: ['little', 'star', 't', '(2pcs)']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: UNIFORM T SHIRT
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['t']
+    Matched Val Tokens: ['uniform', 't', 'shirt']
+    Survived Containment: True
+    Classification: LEGITIMATE
+
+2. Comparison: Singular/Plural vs Fuzzy + Token Gate:
+  Singular/Plural candidates count: 12
+  Fuzzy + Token Gate candidates count: 0
+  Both matched: [] (total: 0)
+  Only SP matched: ['T.NAGAR', 'T.PALUR', 'A--T-SHIRT', 'T.NARASIPURA', 'T.NARASAPURAM', 'LITTLE STAR-T (2PCS)', 'TN4-CHN-T', 'T.RAMANATHAPURAM', 'UNIFORM T SHIRT', 'EXPERT TERRA.T TRACK'] (total: 12)
+  Only Fuzzy matched: [] (total: 0)
+
+3. Final survivors (after containment & ranking):
+  1. T.NAGAR | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  2. T.PALUR | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  3. A--T-SHIRT | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  4. T.NARASIPURA | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  5. T.NARASAPURAM | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  6. T RAMANATHAPURAM | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  7. TN4-CHN-T | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  8. TN4-CHN-T | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  9. T.N.PALAYAM | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  10. UNIFORM T SHIRT | conf=0.95 | type=SINGULAR_PLURAL | class=LEGITIMATE
+  11. EXPERT TERRA.T TRACK | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  12. LITTLE STAR-T (2PCS) | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+
+==================================================
+QUESTION: "r"
+==================================================
+
+1. Singular/plural candidates BEFORE containment:
+  - Value: AP16-VSKP-R
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['r']
+    Matched Val Tokens: ['ap16', 'vskp', 'r']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: KA19-MYS-R
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['r']
+    Matched Val Tokens: ['ka19', 'mys', 'r']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: TS24_WGL-R
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['r']
+    Matched Val Tokens: ['ts24', 'wgl', 'r']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: AP16-VSKP-R
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['r']
+    Matched Val Tokens: ['ap16', 'vskp', 'r']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: KA19-MYS-R
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['r']
+    Matched Val Tokens: ['ka19', 'mys', 'r']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: TS24_WGL-R
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['r']
+    Matched Val Tokens: ['ts24', 'wgl', 'r']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: M.G.R.NAGAR
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['r']
+    Matched Val Tokens: ['m', 'g', 'r', 'nagar']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: R.S.MANGALAM
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['r']
+    Matched Val Tokens: ['r', 's', 'mangalam']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: S R PURAM
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['r']
+    Matched Val Tokens: ['s', 'r', 'puram']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: UNIBRO R.N PLAIN
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['r']
+    Matched Val Tokens: ['unibro', 'r', 'n', 'plain']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: UNIBRO R.N PLAIN(W)
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['r']
+    Matched Val Tokens: ['unibro', 'r', 'n', 'plain(w)']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: UNIBRO R.NECK SAVER PACK
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['r']
+    Matched Val Tokens: ['unibro', 'r', 'neck', 'saver', 'pack']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: UNIBRO R.NECK VALUE PACK
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['r']
+    Matched Val Tokens: ['unibro', 'r', 'neck', 'pack']
+    Survived Containment: True
+    Classification: NOISE
+
+2. Comparison: Singular/Plural vs Fuzzy + Token Gate:
+  Singular/Plural candidates count: 10
+  Fuzzy + Token Gate candidates count: 0
+  Both matched: [] (total: 0)
+  Only SP matched: ['KA19-MYS-R', 'UNIBRO R.N PLAIN(W)', 'R.S.MANGALAM', 'UNIBRO R.NECK SAVER PACK', 'UNIBRO R.N PLAIN', 'UNIBRO R.NECK VALUE PACK', 'AP16-VSKP-R', 'M.G.R.NAGAR', 'TS24_WGL-R', 'S R PURAM'] (total: 10)
+  Only Fuzzy matched: [] (total: 0)
+
+3. Final survivors (after containment & ranking):
+  1. S R PURAM | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  2. KA19-MYS-R | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  3. KA19-MYS-R | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  4. TS24_WGL-R | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  5. TS24_WGL-R | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  6. AP16-VSKP-R | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  7. AP16-VSKP-R | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  8. R.S.MANGALAM | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  9. M.G.R.NAGAR | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  10. UNIBRO R.N PLAIN | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  11. UNIBRO R.N PLAIN(W) | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  12. UNIBRO R.NECK VALUE PACK | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  13. UNIBRO R.NECK SAVER PACK | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+
+==================================================
+QUESTION: "a"
+==================================================
+
+1. Singular/plural candidates BEFORE containment:
+  None
+2. Comparison: Singular/Plural vs Fuzzy + Token Gate:
+  Singular/Plural candidates count: 0
+  Fuzzy + Token Gate candidates count: 0
+  Both matched: [] (total: 0)
+  Only SP matched: [] (total: 0)
+  Only Fuzzy matched: [] (total: 0)
+
+3. Final survivors (after containment & ranking):
+  None
+
+==================================================
+QUESTION: "m"
+==================================================
+
+1. Singular/plural candidates BEFORE containment:
+  - Value: M.C.ROAD
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['m']
+    Matched Val Tokens: ['m', 'c', 'road']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: M.G.R.NAGAR
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['m']
+    Matched Val Tokens: ['m', 'g', 'r', 'nagar']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: M.KUNNATHUR
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['m']
+    Matched Val Tokens: ['m', 'kunnathur']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: M--MASK
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['m']
+    Matched Val Tokens: ['m', 'mask']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: AIR MODAL M.TRUNK
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['m']
+    Matched Val Tokens: ['air', 'modal', 'm', 'trunk']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: BAHAMA D.M STP
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['m']
+    Matched Val Tokens: ['bahama', 'd', 'm', 'stp']
+    Survived Containment: True
+    Classification: NOISE
+
+2. Comparison: Singular/Plural vs Fuzzy + Token Gate:
+  Singular/Plural candidates count: 6
+  Fuzzy + Token Gate candidates count: 0
+  Both matched: [] (total: 0)
+  Only SP matched: ['AIR MODAL M.TRUNK', 'M.KUNNATHUR', 'M.G.R.NAGAR', 'M.C.ROAD', 'BAHAMA D.M STP', 'M--MASK'] (total: 6)
+  Only Fuzzy matched: [] (total: 0)
+
+3. Final survivors (after containment & ranking):
+  1. M--MASK | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  2. M.KUNNATHUR | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  3. M.C.ROAD | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  4. M.G.R.NAGAR | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  5. BAHAMA D.M STP | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  6. AIR MODAL M.TRUNK | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+
+==================================================
+QUESTION: "an"
+==================================================
+
+1. Singular/plural candidates BEFORE containment:
+  None
+2. Comparison: Singular/Plural vs Fuzzy + Token Gate:
+  Singular/Plural candidates count: 0
+  Fuzzy + Token Gate candidates count: 0
+  Both matched: [] (total: 0)
+  Only SP matched: [] (total: 0)
+  Only Fuzzy matched: [] (total: 0)
+
+3. Final survivors (after containment & ranking):
+  1. AN | conf=1.00 | type=EXACT | class=LEGITIMATE
+  2. AN | conf=1.00 | type=EXACT | class=LEGITIMATE
+  3. AN | conf=1.00 | type=EXACT | class=LEGITIMATE
+
+==================================================
+QUESTION: "ch"
+==================================================
+
+1. Singular/plural candidates BEFORE containment:
+  - Value: CH
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ch']
+    Matched Val Tokens: ['ch']
+    Survived Containment: True
+    Classification: LEGITIMATE
+
+  - Value: CH
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ch']
+    Matched Val Tokens: ['ch']
+    Survived Containment: True
+    Classification: LEGITIMATE
+
+2. Comparison: Singular/Plural vs Fuzzy + Token Gate:
+  Singular/Plural candidates count: 1
+  Fuzzy + Token Gate candidates count: 4
+  Both matched: ['CH'] (total: 1)
+  Only SP matched: [] (total: 0)
+  Only Fuzzy matched: ['TN4-CHN-T', 'RJ12-CHU', 'TN3-CHN-SS'] (total: 3)
+
+3. Final survivors (after containment & ranking):
+  1. CH | conf=1.00 | type=EXACT | class=LEGITIMATE
+  2. CH | conf=1.00 | type=EXACT | class=LEGITIMATE
+
+==================================================
+QUESTION: "ld"
+==================================================
+
+1. Singular/plural candidates BEFORE containment:
+  - Value: LD
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ld']
+    Matched Val Tokens: ['ld']
+    Survived Containment: True
+    Classification: LEGITIMATE
+
+2. Comparison: Singular/Plural vs Fuzzy + Token Gate:
+  Singular/Plural candidates count: 1
+  Fuzzy + Token Gate candidates count: 3
+  Both matched: ['LD'] (total: 1)
+  Only SP matched: [] (total: 0)
+  Only Fuzzy matched: ['MH23-BLD', 'BR11-NLD'] (total: 2)
+
+3. Final survivors (after containment & ranking):
+  1. LD | conf=1.00 | type=EXACT | class=LEGITIMATE
+
+==================================================
+QUESTION: "rm"
+==================================================
+
+1. Singular/plural candidates BEFORE containment:
+  - Value: RM
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['rm']
+    Matched Val Tokens: ['rm']
+    Survived Containment: True
+    Classification: LEGITIMATE
+
+  - Value: RM
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['rm']
+    Matched Val Tokens: ['rm']
+    Survived Containment: True
+    Classification: LEGITIMATE
+
+  - Value: RM
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['rm']
+    Matched Val Tokens: ['rm']
+    Survived Containment: True
+    Classification: LEGITIMATE
+
+  - Value: RM
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['rm']
+    Matched Val Tokens: ['rm']
+    Survived Containment: True
+    Classification: LEGITIMATE
+
+  - Value: RM : BELT
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['rm']
+    Matched Val Tokens: ['rm', ':', 'belt']
+    Survived Containment: True
+    Classification: NOISE
+
+2. Comparison: Singular/Plural vs Fuzzy + Token Gate:
+  Singular/Plural candidates count: 2
+  Fuzzy + Token Gate candidates count: 2
+  Both matched: ['RM'] (total: 1)
+  Only SP matched: ['RM : BELT'] (total: 1)
+  Only Fuzzy matched: ['KA11-RMR'] (total: 1)
+
+3. Final survivors (after containment & ranking):
+  1. RM | conf=1.00 | type=EXACT | class=LEGITIMATE
+  2. RM | conf=1.00 | type=EXACT | class=LEGITIMATE
+  3. RM | conf=1.00 | type=EXACT | class=LEGITIMATE
+  4. RM | conf=1.00 | type=EXACT | class=LEGITIMATE
+  5. RM : BELT | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+
+==================================================
+QUESTION: "ap"
+==================================================
+
+1. Singular/plural candidates BEFORE containment:
+  - Value: AP-F
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ap']
+    Matched Val Tokens: ['ap', 'f']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: AP-F
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ap']
+    Matched Val Tokens: ['ap', 'f']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: GRN-AP
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ap']
+    Matched Val Tokens: ['grn', 'ap']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: ACC-Exp-Corp-AP
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ap']
+    Matched Val Tokens: ['acc', 'exp', 'corp', 'ap']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: ACC-Franchise-AP
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ap']
+    Matched Val Tokens: ['acc', 'franchise', 'ap']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: ACC-Marketing-AP
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ap']
+    Matched Val Tokens: ['acc', 'marketing', 'ap']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: ACC-Showroom-AP
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ap']
+    Matched Val Tokens: ['acc', 'showroom', 'ap']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: AKG-Franchise-AP
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ap']
+    Matched Val Tokens: ['akg', 'franchise', 'ap']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: AKG-Marketing-AP
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ap']
+    Matched Val Tokens: ['akg', 'marketing', 'ap']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: AKG-Showroom-AP
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ap']
+    Matched Val Tokens: ['akg', 'showroom', 'ap']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: ATC-Exp-Corp-AP
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ap']
+    Matched Val Tokens: ['atc', 'exp', 'corp', 'ap']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: ATC-Franchise-AP
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ap']
+    Matched Val Tokens: ['atc', 'franchise', 'ap']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: ATC-General-AP
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ap']
+    Matched Val Tokens: ['atc', 'general', 'ap']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: ATC-Marketing-AP
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ap']
+    Matched Val Tokens: ['atc', 'marketing', 'ap']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: ATC-Showroom-AP
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ap']
+    Matched Val Tokens: ['atc', 'showroom', 'ap']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: BandB-Marketing-AP
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ap']
+    Matched Val Tokens: ['bandb', 'marketing', 'ap']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: BandB-Showroom-AP
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ap']
+    Matched Val Tokens: ['bandb', 'showroom', 'ap']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: RHL-Exp-Corp-AP
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ap']
+    Matched Val Tokens: ['rhl', 'exp', 'corp', 'ap']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: RHL-Franchise-AP
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ap']
+    Matched Val Tokens: ['rhl', 'franchise', 'ap']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: RHL-General-AP
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ap']
+    Matched Val Tokens: ['rhl', 'general', 'ap']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: RHL-Marketing-AP
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ap']
+    Matched Val Tokens: ['rhl', 'marketing', 'ap']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: RHL-Showroom-AP
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ap']
+    Matched Val Tokens: ['rhl', 'showroom', 'ap']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: RRF-Exp-Corp-AP
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ap']
+    Matched Val Tokens: ['rrf', 'exp', 'corp', 'ap']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: RRF-Franchise-AP
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ap']
+    Matched Val Tokens: ['rrf', 'franchise', 'ap']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: RRF-Marketing-AP
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ap']
+    Matched Val Tokens: ['rrf', 'marketing', 'ap']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: RR-Franchise-AP
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ap']
+    Matched Val Tokens: ['rr', 'franchise', 'ap']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: RRF-Showroom-AP
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ap']
+    Matched Val Tokens: ['rrf', 'showroom', 'ap']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: RR-Marketing-AP
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ap']
+    Matched Val Tokens: ['rr', 'marketing', 'ap']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: RR-Showroom-AP
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ap']
+    Matched Val Tokens: ['rr', 'showroom', 'ap']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: TARA-Franchise-AP
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ap']
+    Matched Val Tokens: ['tara', 'franchise', 'ap']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: TARA-Marketing-AP
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ap']
+    Matched Val Tokens: ['tara', 'marketing', 'ap']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: TARA-Showroom-AP
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ap']
+    Matched Val Tokens: ['tara', 'showroom', 'ap']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: VGS-General-AP
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ap']
+    Matched Val Tokens: ['vgs', 'general', 'ap']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: VGS-Marketing-AP
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ap']
+    Matched Val Tokens: ['vgs', 'marketing', 'ap']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: VGS-Showroom-AP
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ap']
+    Matched Val Tokens: ['vgs', 'showroom', 'ap']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: VT-Franchise-AP
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ap']
+    Matched Val Tokens: ['vt', 'franchise', 'ap']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: VT-Marketing-AP
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ap']
+    Matched Val Tokens: ['vt', 'marketing', 'ap']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: VT-Showroom-AP
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ap']
+    Matched Val Tokens: ['vt', 'showroom', 'ap']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: AP
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ap']
+    Matched Val Tokens: ['ap']
+    Survived Containment: True
+    Classification: LEGITIMATE
+
+  - Value: AP
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ap']
+    Matched Val Tokens: ['ap']
+    Survived Containment: True
+    Classification: LEGITIMATE
+
+  - Value: AP
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ap']
+    Matched Val Tokens: ['ap']
+    Survived Containment: True
+    Classification: LEGITIMATE
+
+  - Value: AP
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ap']
+    Matched Val Tokens: ['ap']
+    Survived Containment: True
+    Classification: LEGITIMATE
+
+  - Value: AP
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ap']
+    Matched Val Tokens: ['ap']
+    Survived Containment: True
+    Classification: LEGITIMATE
+
+  - Value: AP
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ap']
+    Matched Val Tokens: ['ap']
+    Survived Containment: True
+    Classification: LEGITIMATE
+
+  - Value: AP
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ap']
+    Matched Val Tokens: ['ap']
+    Survived Containment: True
+    Classification: LEGITIMATE
+
+  - Value: AP
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ap']
+    Matched Val Tokens: ['ap']
+    Survived Containment: True
+    Classification: LEGITIMATE
+
+2. Comparison: Singular/Plural vs Fuzzy + Token Gate:
+  Singular/Plural candidates count: 38
+  Fuzzy + Token Gate candidates count: 1
+  Both matched: ['AP'] (total: 1)
+  Only SP matched: ['VGS-Showroom-AP', 'ATC-General-AP', 'ATC-Marketing-AP', 'RHL-Exp-Corp-AP', 'RR-Franchise-AP', 'VGS-General-AP', 'RR-Marketing-AP', 'ACC-Franchise-AP', 'RRF-Exp-Corp-AP', 'AP-F'] (total: 37)
+  Only Fuzzy matched: [] (total: 0)
+
+3. Final survivors (after containment & ranking):
+  1. AP | conf=1.00 | type=EXACT | class=LEGITIMATE
+  2. AP | conf=1.00 | type=EXACT | class=LEGITIMATE
+  3. AP | conf=1.00 | type=EXACT | class=LEGITIMATE
+  4. AP | conf=1.00 | type=EXACT | class=LEGITIMATE
+  5. AP | conf=1.00 | type=EXACT | class=LEGITIMATE
+  6. AP | conf=1.00 | type=EXACT | class=LEGITIMATE
+  7. AP | conf=1.00 | type=EXACT | class=LEGITIMATE
+  8. AP | conf=1.00 | type=EXACT | class=LEGITIMATE
+  9. AP-F | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  10. AP-F | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  11. GRN-AP | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  12. ATC-General-AP | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  13. RHL-General-AP | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  14. RR-Showroom-AP | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  15. VGS-General-AP | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  16. VT-Showroom-AP | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  17. ACC-Showroom-AP | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  18. AKG-Showroom-AP | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  19. ATC-Showroom-AP | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  20. RHL-Showroom-AP | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  21. RR-Franchise-AP | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  22. RR-Marketing-AP | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  23. RRF-Showroom-AP | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  24. VGS-Showroom-AP | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  25. VT-Franchise-AP | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  26. VT-Marketing-AP | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  27. ACC-Franchise-AP | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  28. ACC-Marketing-AP | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  29. AKG-Franchise-AP | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  30. AKG-Marketing-AP | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  31. ATC-Franchise-AP | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  32. ATC-Marketing-AP | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  33. RHL-Franchise-AP | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  34. RHL-Marketing-AP | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  35. RRF-Franchise-AP | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  36. RRF-Marketing-AP | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  37. TARA-Showroom-AP | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  38. VGS-Marketing-AP | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  39. BandB-Showroom-AP | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  40. TARA-Franchise-AP | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  41. TARA-Marketing-AP | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  42. BandB-Marketing-AP | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  43. ACC-Exp-Corp-AP | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  44. ATC-Exp-Corp-AP | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  45. RHL-Exp-Corp-AP | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  46. RRF-Exp-Corp-AP | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+
+==================================================
+QUESTION: "ts"
+==================================================
+
+1. Singular/plural candidates BEFORE containment:
+  - Value: TS-F
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ts']
+    Matched Val Tokens: ['ts', 'f']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: COM-TS
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ts']
+    Matched Val Tokens: ['com', 'ts']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: GRN-TS
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ts']
+    Matched Val Tokens: ['grn', 'ts']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: TS-F
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ts']
+    Matched Val Tokens: ['ts', 'f']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: ACC-Exp-Corp-TS
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ts']
+    Matched Val Tokens: ['acc', 'exp', 'corp', 'ts']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: ACC-Franchise-TS
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ts']
+    Matched Val Tokens: ['acc', 'franchise', 'ts']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: ACC-Marketing-TS
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ts']
+    Matched Val Tokens: ['acc', 'marketing', 'ts']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: ACC-Showroom-TS
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ts']
+    Matched Val Tokens: ['acc', 'showroom', 'ts']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: AKG-Franchise-TS
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ts']
+    Matched Val Tokens: ['akg', 'franchise', 'ts']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: AKG-Marketing-TS
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ts']
+    Matched Val Tokens: ['akg', 'marketing', 'ts']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: AKG-Showroom-TS
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ts']
+    Matched Val Tokens: ['akg', 'showroom', 'ts']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: ATC-Exp-Corp-TS
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ts']
+    Matched Val Tokens: ['atc', 'exp', 'corp', 'ts']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: ATC-Franchise-TS
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ts']
+    Matched Val Tokens: ['atc', 'franchise', 'ts']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: ATC-Marketing-TS
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ts']
+    Matched Val Tokens: ['atc', 'marketing', 'ts']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: ATC-Showroom-TS
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ts']
+    Matched Val Tokens: ['atc', 'showroom', 'ts']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: BandB-Marketing-TS
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ts']
+    Matched Val Tokens: ['bandb', 'marketing', 'ts']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: BandB-Showroom-TS
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ts']
+    Matched Val Tokens: ['bandb', 'showroom', 'ts']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: RHL-Exp-Corp-TS
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ts']
+    Matched Val Tokens: ['rhl', 'exp', 'corp', 'ts']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: RHL-Franchise-TS
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ts']
+    Matched Val Tokens: ['rhl', 'franchise', 'ts']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: RHL-General-TS
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ts']
+    Matched Val Tokens: ['rhl', 'general', 'ts']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: RHL-Marketing-TS
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ts']
+    Matched Val Tokens: ['rhl', 'marketing', 'ts']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: RHL-Showroom-TS
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ts']
+    Matched Val Tokens: ['rhl', 'showroom', 'ts']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: RRF-Franchise-TS
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ts']
+    Matched Val Tokens: ['rrf', 'franchise', 'ts']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: RRF-Marketing-TS
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ts']
+    Matched Val Tokens: ['rrf', 'marketing', 'ts']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: RR-Franchise-TS
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ts']
+    Matched Val Tokens: ['rr', 'franchise', 'ts']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: RRF-Showroom-TS
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ts']
+    Matched Val Tokens: ['rrf', 'showroom', 'ts']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: RR-Marketing-TS
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ts']
+    Matched Val Tokens: ['rr', 'marketing', 'ts']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: RR-Showroom-TS
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ts']
+    Matched Val Tokens: ['rr', 'showroom', 'ts']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: TARA-Franchise-TS
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ts']
+    Matched Val Tokens: ['tara', 'franchise', 'ts']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: TARA-Showroom-TS
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ts']
+    Matched Val Tokens: ['tara', 'showroom', 'ts']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: VGS-Marketing-TS
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ts']
+    Matched Val Tokens: ['vgs', 'marketing', 'ts']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: VT-Franchise-TS
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ts']
+    Matched Val Tokens: ['vt', 'franchise', 'ts']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: VT-Marketing-TS
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ts']
+    Matched Val Tokens: ['vt', 'marketing', 'ts']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: VT-Showroom-TS
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ts']
+    Matched Val Tokens: ['vt', 'showroom', 'ts']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: TS
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ts']
+    Matched Val Tokens: ['ts']
+    Survived Containment: True
+    Classification: LEGITIMATE
+
+  - Value: TS
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ts']
+    Matched Val Tokens: ['ts']
+    Survived Containment: True
+    Classification: LEGITIMATE
+
+  - Value: TS
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ts']
+    Matched Val Tokens: ['ts']
+    Survived Containment: True
+    Classification: LEGITIMATE
+
+  - Value: TS
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ts']
+    Matched Val Tokens: ['ts']
+    Survived Containment: True
+    Classification: LEGITIMATE
+
+  - Value: TS
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ts']
+    Matched Val Tokens: ['ts']
+    Survived Containment: True
+    Classification: LEGITIMATE
+
+  - Value: TS
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ts']
+    Matched Val Tokens: ['ts']
+    Survived Containment: True
+    Classification: LEGITIMATE
+
+  - Value: TS
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ts']
+    Matched Val Tokens: ['ts']
+    Survived Containment: True
+    Classification: LEGITIMATE
+
+  - Value: TS
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ts']
+    Matched Val Tokens: ['ts']
+    Survived Containment: True
+    Classification: LEGITIMATE
+
+2. Comparison: Singular/Plural vs Fuzzy + Token Gate:
+  Singular/Plural candidates count: 34
+  Fuzzy + Token Gate candidates count: 1
+  Both matched: ['TS'] (total: 1)
+  Only SP matched: ['RRF-Franchise-TS', 'ATC-Exp-Corp-TS', 'ATC-Showroom-TS', 'VT-Marketing-TS', 'RR-Franchise-TS', 'RR-Showroom-TS', 'ACC-Exp-Corp-TS', 'AKG-Franchise-TS', 'TARA-Showroom-TS', 'BandB-Marketing-TS'] (total: 33)
+  Only Fuzzy matched: [] (total: 0)
+
+3. Final survivors (after containment & ranking):
+  1. TS | conf=1.00 | type=EXACT | class=LEGITIMATE
+  2. TS | conf=1.00 | type=EXACT | class=LEGITIMATE
+  3. TS | conf=1.00 | type=EXACT | class=LEGITIMATE
+  4. TS | conf=1.00 | type=EXACT | class=LEGITIMATE
+  5. TS | conf=1.00 | type=EXACT | class=LEGITIMATE
+  6. TS | conf=1.00 | type=EXACT | class=LEGITIMATE
+  7. TS | conf=1.00 | type=EXACT | class=LEGITIMATE
+  8. TS | conf=1.00 | type=EXACT | class=LEGITIMATE
+  9. TS-F | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  10. TS-F | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  11. COM-TS | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  12. GRN-TS | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  13. RHL-General-TS | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  14. RR-Showroom-TS | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  15. VT-Showroom-TS | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  16. ACC-Showroom-TS | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  17. AKG-Showroom-TS | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  18. ATC-Showroom-TS | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  19. RHL-Showroom-TS | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  20. RR-Franchise-TS | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  21. RR-Marketing-TS | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  22. RRF-Showroom-TS | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  23. VT-Franchise-TS | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  24. VT-Marketing-TS | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  25. ACC-Franchise-TS | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  26. ACC-Marketing-TS | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  27. AKG-Franchise-TS | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  28. AKG-Marketing-TS | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  29. ATC-Franchise-TS | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  30. ATC-Marketing-TS | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  31. RHL-Franchise-TS | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  32. RHL-Marketing-TS | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  33. RRF-Franchise-TS | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  34. RRF-Marketing-TS | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  35. TARA-Showroom-TS | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  36. VGS-Marketing-TS | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  37. BandB-Showroom-TS | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  38. TARA-Franchise-TS | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  39. BandB-Marketing-TS | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  40. ACC-Exp-Corp-TS | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  41. ATC-Exp-Corp-TS | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  42. RHL-Exp-Corp-TS | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+
+==================================================
+QUESTION: "t shirt"
+==================================================
+
+1. Singular/plural candidates BEFORE containment:
+  - Value: TN4-CHN-T
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['t', 'shirt']
+    Matched Val Tokens: ['tn4', 'chn', 't']
+    Survived Containment: False
+    Classification: NOISE
+
+  - Value: TN4-CHN-T
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['t', 'shirt']
+    Matched Val Tokens: ['tn4', 'chn', 't']
+    Survived Containment: False
+    Classification: NOISE
+
+  - Value: VIVEAGHAM COLOUR SHIRT
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['t', 'shirt']
+    Matched Val Tokens: ['viveagham', 'colour', 'shirt']
+    Survived Containment: False
+    Classification: NOISE
+
+  - Value: VIVEAGHAM WHITE SHIRT
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['t', 'shirt']
+    Matched Val Tokens: ['viveagham', 'white', 'shirt']
+    Survived Containment: False
+    Classification: NOISE
+
+  - Value: T.N.PALAYAM
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['t', 'shirt']
+    Matched Val Tokens: ['t', 'n', 'palayam']
+    Survived Containment: False
+    Classification: NOISE
+
+  - Value: VIVEAGHAM COLOUR SHIRT
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['t', 'shirt']
+    Matched Val Tokens: ['viveagham', 'colour', 'shirt']
+    Survived Containment: False
+    Classification: NOISE
+
+  - Value: ASHAI SILK SHIRT
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['t', 'shirt']
+    Matched Val Tokens: ['ashai', 'silk', 'shirt']
+    Survived Containment: False
+    Classification: NOISE
+
+  - Value: A--T-SHIRT
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['t', 'shirt']
+    Matched Val Tokens: ['t', 'shirt']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: CCB MANOHARAM SHIRT
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['t', 'shirt']
+    Matched Val Tokens: ['ccb', 'manoharam', 'shirt']
+    Survived Containment: False
+    Classification: NOISE
+
+  - Value: CULTURE CLUB TRAIL SHIRT
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['t', 'shirt']
+    Matched Val Tokens: ['culture', 'club', 'trail', 'shirt']
+    Survived Containment: False
+    Classification: NOISE
+
+  - Value: LS CREAM SHIRT
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['t', 'shirt']
+    Matched Val Tokens: ['ls', 'cream', 'shirt']
+    Survived Containment: False
+    Classification: NOISE
+
+  - Value: LS WHITE SHIRT
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['t', 'shirt']
+    Matched Val Tokens: ['ls', 'white', 'shirt']
+    Survived Containment: False
+    Classification: NOISE
+
+  - Value: LS WHITE SHIRT PC VER-II
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['t', 'shirt']
+    Matched Val Tokens: ['ls', 'white', 'shirt', 'pc', 'ver', 'ii']
+    Survived Containment: False
+    Classification: NOISE
+
+  - Value: WHITE SHIRT 100% COTTON
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['t', 'shirt']
+    Matched Val Tokens: ['white', 'shirt', '100%', 'cotton']
+    Survived Containment: False
+    Classification: NOISE
+
+  - Value: EXPERT TERRA.T TRACK
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['t', 'shirt']
+    Matched Val Tokens: ['expert', 'terra', 't', 'track']
+    Survived Containment: False
+    Classification: NOISE
+
+  - Value: LITTLE STAR-T (2PCS)
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['t', 'shirt']
+    Matched Val Tokens: ['little', 'star', 't', '(2pcs)']
+    Survived Containment: False
+    Classification: NOISE
+
+  - Value: UNIBRO FLUID SHIRT
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['t', 'shirt']
+    Matched Val Tokens: ['unibro', 'fluid', 'shirt']
+    Survived Containment: False
+    Classification: NOISE
+
+  - Value: UNIFORM T SHIRT
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['t', 'shirt']
+    Matched Val Tokens: ['uniform', 't', 'shirt']
+    Survived Containment: True
+    Classification: LEGITIMATE
+
+2. Comparison: Singular/Plural vs Fuzzy + Token Gate:
+  Singular/Plural candidates count: 16
+  Fuzzy + Token Gate candidates count: 7
+  Both matched: ['UNIFORM T SHIRT', 'VIVEAGHAM WHITE SHIRT', 'VIVEAGHAM COLOUR SHIRT'] (total: 3)
+  Only SP matched: ['CCB MANOHARAM SHIRT', 'CULTURE CLUB TRAIL SHIRT', 'LS WHITE SHIRT PC VER-II', 'LITTLE STAR-T (2PCS)', 'A--T-SHIRT', 'TN4-CHN-T', 'LS WHITE SHIRT', 'WHITE SHIRT 100% COTTON', 'UNIBRO FLUID SHIRT', 'EXPERT TERRA.T TRACK'] (total: 13)
+  Only Fuzzy matched: ['ADD SHIRT', 'ARISER SHIRT', 'RAMRAJ SHIRT', 'UATHAYAM SHIRTING'] (total: 4)
+
+3. Final survivors (after containment & ranking):
+  1. A--T-SHIRT | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  2. UNIFORM T SHIRT | conf=0.95 | type=SINGULAR_PLURAL | class=LEGITIMATE
+
+==================================================
+QUESTION: "t shrt"
+==================================================
+
+1. Singular/plural candidates BEFORE containment:
+  - Value: TN4-CHN-T
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['t', 'shrt']
+    Matched Val Tokens: ['tn4', 'chn', 't']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: TN4-CHN-T
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['t', 'shrt']
+    Matched Val Tokens: ['tn4', 'chn', 't']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: T.N.PALAYAM
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['t', 'shrt']
+    Matched Val Tokens: ['t', 'n', 'palayam']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: EXPERT TERRA.T TRACK
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['t', 'shrt']
+    Matched Val Tokens: ['expert', 'terra', 't', 'track']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: LITTLE STAR-T (2PCS)
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['t', 'shrt']
+    Matched Val Tokens: ['little', 'star', 't', '(2pcs)']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: UNIFORM T SHIRT
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['t', 'shrt']
+    Matched Val Tokens: ['uniform', 't', 'shirt']
+    Survived Containment: True
+    Classification: LEGITIMATE
+
+2. Comparison: Singular/Plural vs Fuzzy + Token Gate:
+  Singular/Plural candidates count: 5
+  Fuzzy + Token Gate candidates count: 1
+  Both matched: ['UNIFORM T SHIRT'] (total: 1)
+  Only SP matched: ['TN4-CHN-T', 'EXPERT TERRA.T TRACK', 'LITTLE STAR-T (2PCS)', 'T.N.PALAYAM'] (total: 4)
+  Only Fuzzy matched: [] (total: 0)
+
+3. Final survivors (after containment & ranking):
+  1. TN4-CHN-T | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  2. TN4-CHN-T | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  3. T.N.PALAYAM | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  4. UNIFORM T SHIRT | conf=0.95 | type=SINGULAR_PLURAL | class=LEGITIMATE
+  5. EXPERT TERRA.T TRACK | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  6. LITTLE STAR-T (2PCS) | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+
+==================================================
+QUESTION: "an shirt"
+==================================================
+
+1. Singular/plural candidates BEFORE containment:
+  - Value: ADD SHIRT
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['shirt']
+    Matched Val Tokens: ['add', 'shirt']
+    Survived Containment: True
+    Classification: LEGITIMATE
+
+  - Value: ARISER SHIRT
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['shirt']
+    Matched Val Tokens: ['ariser', 'shirt']
+    Survived Containment: True
+    Classification: LEGITIMATE
+
+  - Value: RAMRAJ SHIRT
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['shirt']
+    Matched Val Tokens: ['ramraj', 'shirt']
+    Survived Containment: True
+    Classification: LEGITIMATE
+
+  - Value: VIVEAGHAM COLOUR SHIRT
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['shirt']
+    Matched Val Tokens: ['viveagham', 'colour', 'shirt']
+    Survived Containment: True
+    Classification: LEGITIMATE
+
+  - Value: VIVEAGHAM WHITE SHIRT
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['shirt']
+    Matched Val Tokens: ['viveagham', 'white', 'shirt']
+    Survived Containment: True
+    Classification: LEGITIMATE
+
+  - Value: RAMRAJ SHIRT
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['shirt']
+    Matched Val Tokens: ['ramraj', 'shirt']
+    Survived Containment: True
+    Classification: LEGITIMATE
+
+  - Value: VIVEAGA SHIRT
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['shirt']
+    Matched Val Tokens: ['viveaga', 'shirt']
+    Survived Containment: True
+    Classification: LEGITIMATE
+
+  - Value: VIVEAGA SHIRTS
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['shirt']
+    Matched Val Tokens: ['viveaga', 'shirts']
+    Survived Containment: True
+    Classification: LEGITIMATE
+
+  - Value: VIVEAGHAM COLOUR SHIRT
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['shirt']
+    Matched Val Tokens: ['viveagham', 'colour', 'shirt']
+    Survived Containment: True
+    Classification: LEGITIMATE
+
+  - Value: VIVEAGHAM SHIRT
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['shirt']
+    Matched Val Tokens: ['viveagham', 'shirt']
+    Survived Containment: True
+    Classification: LEGITIMATE
+
+  - Value: ASHAI SILK SHIRT
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['shirt']
+    Matched Val Tokens: ['ashai', 'silk', 'shirt']
+    Survived Containment: True
+    Classification: LEGITIMATE
+
+  - Value: A--T-SHIRT
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['shirt']
+    Matched Val Tokens: ['t', 'shirt']
+    Survived Containment: True
+    Classification: LEGITIMATE
+
+  - Value: CCB MANOHARAM SHIRT
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['shirt']
+    Matched Val Tokens: ['ccb', 'manoharam', 'shirt']
+    Survived Containment: True
+    Classification: LEGITIMATE
+
+  - Value: C--SHIRT
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['shirt']
+    Matched Val Tokens: ['c', 'shirt']
+    Survived Containment: True
+    Classification: LEGITIMATE
+
+  - Value: CULTURE CLUB TRAIL SHIRT
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['shirt']
+    Matched Val Tokens: ['culture', 'club', 'trail', 'shirt']
+    Survived Containment: True
+    Classification: LEGITIMATE
+
+  - Value: LS CREAM SHIRT
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['shirt']
+    Matched Val Tokens: ['ls', 'cream', 'shirt']
+    Survived Containment: True
+    Classification: LEGITIMATE
+
+  - Value: LS WHITE SHIRT
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['shirt']
+    Matched Val Tokens: ['ls', 'white', 'shirt']
+    Survived Containment: True
+    Classification: LEGITIMATE
+
+  - Value: LS WHITE SHIRT PC VER-II
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['shirt']
+    Matched Val Tokens: ['ls', 'white', 'shirt', 'pc', 'ver', 'ii']
+    Survived Containment: True
+    Classification: LEGITIMATE
+
+  - Value: TRAIL SHIRT
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['shirt']
+    Matched Val Tokens: ['trail', 'shirt']
+    Survived Containment: True
+    Classification: LEGITIMATE
+
+  - Value: VAIBHAV SHIRT
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['shirt']
+    Matched Val Tokens: ['vaibhav', 'shirt']
+    Survived Containment: True
+    Classification: LEGITIMATE
+
+  - Value: WHITE SHIRT 100% COTTON
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['shirt']
+    Matched Val Tokens: ['white', 'shirt', '100%', 'cotton']
+    Survived Containment: True
+    Classification: LEGITIMATE
+
+  - Value: ETHER SHIRT
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['shirt']
+    Matched Val Tokens: ['ether', 'shirt']
+    Survived Containment: True
+    Classification: LEGITIMATE
+
+  - Value: UNIBRO FLUID SHIRT
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['shirt']
+    Matched Val Tokens: ['unibro', 'fluid', 'shirt']
+    Survived Containment: True
+    Classification: LEGITIMATE
+
+  - Value: UNIFORM T SHIRT
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['shirt']
+    Matched Val Tokens: ['uniform', 't', 'shirt']
+    Survived Containment: True
+    Classification: LEGITIMATE
+
+2. Comparison: Singular/Plural vs Fuzzy + Token Gate:
+  Singular/Plural candidates count: 22
+  Fuzzy + Token Gate candidates count: 5
+  Both matched: ['ADD SHIRT', 'VIVEAGHAM COLOUR SHIRT', 'ARISER SHIRT', 'RAMRAJ SHIRT'] (total: 4)
+  Only SP matched: ['CCB MANOHARAM SHIRT', 'CULTURE CLUB TRAIL SHIRT', 'LS WHITE SHIRT PC VER-II', 'A--T-SHIRT', 'VIVEAGA SHIRTS', 'VIVEAGA SHIRT', 'UNIFORM T SHIRT', 'LS WHITE SHIRT', 'ETHER SHIRT', 'TRAIL SHIRT'] (total: 18)
+  Only Fuzzy matched: ['UATHAYAM SHIRTING'] (total: 1)
+
+3. Final survivors (after containment & ranking):
+  1. AN | conf=1.00 | type=EXACT | class=NOISE
+  2. AN | conf=1.00 | type=EXACT | class=NOISE
+  3. AN | conf=1.00 | type=EXACT | class=NOISE
+  4. C--SHIRT | conf=0.95 | type=SINGULAR_PLURAL | class=LEGITIMATE
+  5. ADD SHIRT | conf=0.95 | type=SINGULAR_PLURAL | class=LEGITIMATE
+  6. A--T-SHIRT | conf=0.95 | type=SINGULAR_PLURAL | class=LEGITIMATE
+  7. ETHER SHIRT | conf=0.95 | type=SINGULAR_PLURAL | class=LEGITIMATE
+  8. TRAIL SHIRT | conf=0.95 | type=SINGULAR_PLURAL | class=LEGITIMATE
+  9. ARISER SHIRT | conf=0.95 | type=SINGULAR_PLURAL | class=LEGITIMATE
+  10. RAMRAJ SHIRT | conf=0.95 | type=SINGULAR_PLURAL | class=LEGITIMATE
+  11. RAMRAJ SHIRT | conf=0.95 | type=SINGULAR_PLURAL | class=LEGITIMATE
+  12. VAIBHAV SHIRT | conf=0.95 | type=SINGULAR_PLURAL | class=LEGITIMATE
+  13. VIVEAGA SHIRT | conf=0.95 | type=SINGULAR_PLURAL | class=LEGITIMATE
+  14. VIVEAGA SHIRTS | conf=0.95 | type=SINGULAR_PLURAL | class=LEGITIMATE
+  15. VIVEAGHAM SHIRT | conf=0.95 | type=SINGULAR_PLURAL | class=LEGITIMATE
+  16. LS CREAM SHIRT | conf=0.95 | type=SINGULAR_PLURAL | class=LEGITIMATE
+  17. LS WHITE SHIRT | conf=0.95 | type=SINGULAR_PLURAL | class=LEGITIMATE
+  18. UNIFORM T SHIRT | conf=0.95 | type=SINGULAR_PLURAL | class=LEGITIMATE
+  19. ASHAI SILK SHIRT | conf=0.95 | type=SINGULAR_PLURAL | class=LEGITIMATE
+  20. UNIBRO FLUID SHIRT | conf=0.95 | type=SINGULAR_PLURAL | class=LEGITIMATE
+  21. CCB MANOHARAM SHIRT | conf=0.95 | type=SINGULAR_PLURAL | class=LEGITIMATE
+  22. VIVEAGHAM WHITE SHIRT | conf=0.95 | type=SINGULAR_PLURAL | class=LEGITIMATE
+  23. VIVEAGHAM COLOUR SHIRT | conf=0.95 | type=SINGULAR_PLURAL | class=LEGITIMATE
+  24. VIVEAGHAM COLOUR SHIRT | conf=0.95 | type=SINGULAR_PLURAL | class=LEGITIMATE
+  25. WHITE SHIRT 100% COTTON | conf=0.95 | type=SINGULAR_PLURAL | class=LEGITIMATE
+  26. CULTURE CLUB TRAIL SHIRT | conf=0.95 | type=SINGULAR_PLURAL | class=LEGITIMATE
+  27. LS WHITE SHIRT PC VER-II | conf=0.95 | type=SINGULAR_PLURAL | class=LEGITIMATE
+
+==================================================
+QUESTION: "ch shirt"
+==================================================
+
+1. Singular/plural candidates BEFORE containment:
+  - Value: VIVEAGHAM COLOUR SHIRT
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ch', 'shirt']
+    Matched Val Tokens: ['viveagham', 'colour', 'shirt']
+    Survived Containment: True
+    Classification: LEGITIMATE
+
+  - Value: VIVEAGHAM WHITE SHIRT
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ch', 'shirt']
+    Matched Val Tokens: ['viveagham', 'white', 'shirt']
+    Survived Containment: True
+    Classification: LEGITIMATE
+
+  - Value: VIVEAGHAM COLOUR SHIRT
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ch', 'shirt']
+    Matched Val Tokens: ['viveagham', 'colour', 'shirt']
+    Survived Containment: True
+    Classification: LEGITIMATE
+
+  - Value: ASHAI SILK SHIRT
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ch', 'shirt']
+    Matched Val Tokens: ['ashai', 'silk', 'shirt']
+    Survived Containment: True
+    Classification: LEGITIMATE
+
+  - Value: CCB MANOHARAM SHIRT
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ch', 'shirt']
+    Matched Val Tokens: ['ccb', 'manoharam', 'shirt']
+    Survived Containment: True
+    Classification: LEGITIMATE
+
+  - Value: CULTURE CLUB TRAIL SHIRT
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ch', 'shirt']
+    Matched Val Tokens: ['culture', 'club', 'trail', 'shirt']
+    Survived Containment: True
+    Classification: LEGITIMATE
+
+  - Value: LS CREAM SHIRT
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ch', 'shirt']
+    Matched Val Tokens: ['ls', 'cream', 'shirt']
+    Survived Containment: True
+    Classification: LEGITIMATE
+
+  - Value: LS WHITE SHIRT
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ch', 'shirt']
+    Matched Val Tokens: ['ls', 'white', 'shirt']
+    Survived Containment: True
+    Classification: LEGITIMATE
+
+  - Value: LS WHITE SHIRT PC VER-II
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ch', 'shirt']
+    Matched Val Tokens: ['ls', 'white', 'shirt', 'pc', 'ver', 'ii']
+    Survived Containment: True
+    Classification: LEGITIMATE
+
+  - Value: WHITE SHIRT 100% COTTON
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ch', 'shirt']
+    Matched Val Tokens: ['white', 'shirt', '100%', 'cotton']
+    Survived Containment: True
+    Classification: LEGITIMATE
+
+  - Value: UNIBRO FLUID SHIRT
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ch', 'shirt']
+    Matched Val Tokens: ['unibro', 'fluid', 'shirt']
+    Survived Containment: True
+    Classification: LEGITIMATE
+
+  - Value: UNIFORM T SHIRT
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ch', 'shirt']
+    Matched Val Tokens: ['uniform', 't', 'shirt']
+    Survived Containment: True
+    Classification: LEGITIMATE
+
+  - Value: CH
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ch', 'shirt']
+    Matched Val Tokens: ['ch']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: CH
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['ch', 'shirt']
+    Matched Val Tokens: ['ch']
+    Survived Containment: True
+    Classification: NOISE
+
+2. Comparison: Singular/Plural vs Fuzzy + Token Gate:
+  Singular/Plural candidates count: 12
+  Fuzzy + Token Gate candidates count: 9
+  Both matched: ['CH', 'VIVEAGHAM COLOUR SHIRT'] (total: 2)
+  Only SP matched: ['CCB MANOHARAM SHIRT', 'CULTURE CLUB TRAIL SHIRT', 'LS WHITE SHIRT PC VER-II', 'UNIFORM T SHIRT', 'LS WHITE SHIRT', 'WHITE SHIRT 100% COTTON', 'UNIBRO FLUID SHIRT', 'VIVEAGHAM WHITE SHIRT', 'LS CREAM SHIRT', 'ASHAI SILK SHIRT'] (total: 10)
+  Only Fuzzy matched: ['ARISER SHIRT', 'TN3-CHN-SS', 'TN4-CHN-T', 'RJ12-CHU', 'RAMRAJ SHIRT', 'UATHAYAM SHIRTING', 'ADD SHIRT'] (total: 7)
+
+3. Final survivors (after containment & ranking):
+  1. CH | conf=1.00 | type=EXACT | class=NOISE
+  2. CH | conf=1.00 | type=EXACT | class=NOISE
+  3. LS CREAM SHIRT | conf=0.95 | type=SINGULAR_PLURAL | class=LEGITIMATE
+  4. LS WHITE SHIRT | conf=0.95 | type=SINGULAR_PLURAL | class=LEGITIMATE
+  5. UNIFORM T SHIRT | conf=0.95 | type=SINGULAR_PLURAL | class=LEGITIMATE
+  6. ASHAI SILK SHIRT | conf=0.95 | type=SINGULAR_PLURAL | class=LEGITIMATE
+  7. UNIBRO FLUID SHIRT | conf=0.95 | type=SINGULAR_PLURAL | class=LEGITIMATE
+  8. CCB MANOHARAM SHIRT | conf=0.95 | type=SINGULAR_PLURAL | class=LEGITIMATE
+  9. VIVEAGHAM WHITE SHIRT | conf=0.95 | type=SINGULAR_PLURAL | class=LEGITIMATE
+  10. VIVEAGHAM COLOUR SHIRT | conf=0.95 | type=SINGULAR_PLURAL | class=LEGITIMATE
+  11. VIVEAGHAM COLOUR SHIRT | conf=0.95 | type=SINGULAR_PLURAL | class=LEGITIMATE
+  12. WHITE SHIRT 100% COTTON | conf=0.95 | type=SINGULAR_PLURAL | class=LEGITIMATE
+  13. CULTURE CLUB TRAIL SHIRT | conf=0.95 | type=SINGULAR_PLURAL | class=LEGITIMATE
+  14. LS WHITE SHIRT PC VER-II | conf=0.95 | type=SINGULAR_PLURAL | class=LEGITIMATE
+
+==================================================
+QUESTION: "rm shirt"
+==================================================
+
+1. Singular/plural candidates BEFORE containment:
+  - Value: VIVEAGHAM COLOUR SHIRT
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['rm', 'shirt']
+    Matched Val Tokens: ['viveagham', 'colour', 'shirt']
+    Survived Containment: True
+    Classification: LEGITIMATE
+
+  - Value: VIVEAGHAM WHITE SHIRT
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['rm', 'shirt']
+    Matched Val Tokens: ['viveagham', 'white', 'shirt']
+    Survived Containment: True
+    Classification: LEGITIMATE
+
+  - Value: RM
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['rm', 'shirt']
+    Matched Val Tokens: ['rm']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: RM
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['rm', 'shirt']
+    Matched Val Tokens: ['rm']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: RM
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['rm', 'shirt']
+    Matched Val Tokens: ['rm']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: RM
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['rm', 'shirt']
+    Matched Val Tokens: ['rm']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: VIVEAGHAM COLOUR SHIRT
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['rm', 'shirt']
+    Matched Val Tokens: ['viveagham', 'colour', 'shirt']
+    Survived Containment: True
+    Classification: LEGITIMATE
+
+  - Value: ASHAI SILK SHIRT
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['rm', 'shirt']
+    Matched Val Tokens: ['ashai', 'silk', 'shirt']
+    Survived Containment: True
+    Classification: LEGITIMATE
+
+  - Value: CCB MANOHARAM SHIRT
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['rm', 'shirt']
+    Matched Val Tokens: ['ccb', 'manoharam', 'shirt']
+    Survived Containment: True
+    Classification: LEGITIMATE
+
+  - Value: CULTURE CLUB TRAIL SHIRT
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['rm', 'shirt']
+    Matched Val Tokens: ['culture', 'club', 'trail', 'shirt']
+    Survived Containment: True
+    Classification: LEGITIMATE
+
+  - Value: LS CREAM SHIRT
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['rm', 'shirt']
+    Matched Val Tokens: ['ls', 'cream', 'shirt']
+    Survived Containment: True
+    Classification: LEGITIMATE
+
+  - Value: LS WHITE SHIRT
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['rm', 'shirt']
+    Matched Val Tokens: ['ls', 'white', 'shirt']
+    Survived Containment: True
+    Classification: LEGITIMATE
+
+  - Value: LS WHITE SHIRT PC VER-II
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['rm', 'shirt']
+    Matched Val Tokens: ['ls', 'white', 'shirt', 'pc', 'ver', 'ii']
+    Survived Containment: True
+    Classification: LEGITIMATE
+
+  - Value: WHITE SHIRT 100% COTTON
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['rm', 'shirt']
+    Matched Val Tokens: ['white', 'shirt', '100%', 'cotton']
+    Survived Containment: True
+    Classification: LEGITIMATE
+
+  - Value: RM : BELT
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['rm', 'shirt']
+    Matched Val Tokens: ['rm', ':', 'belt']
+    Survived Containment: True
+    Classification: NOISE
+
+  - Value: UNIBRO FLUID SHIRT
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['rm', 'shirt']
+    Matched Val Tokens: ['unibro', 'fluid', 'shirt']
+    Survived Containment: True
+    Classification: LEGITIMATE
+
+  - Value: UNIFORM T SHIRT
+    Match Type: SINGULAR_PLURAL
+    Confidence: 0.95
+    Matched Q Tokens: ['rm', 'shirt']
+    Matched Val Tokens: ['uniform', 't', 'shirt']
+    Survived Containment: True
+    Classification: LEGITIMATE
+
+2. Comparison: Singular/Plural vs Fuzzy + Token Gate:
+  Singular/Plural candidates count: 13
+  Fuzzy + Token Gate candidates count: 7
+  Both matched: ['RM', 'VIVEAGHAM COLOUR SHIRT'] (total: 2)
+  Only SP matched: ['CCB MANOHARAM SHIRT', 'CULTURE CLUB TRAIL SHIRT', 'LS WHITE SHIRT PC VER-II', 'RM : BELT', 'UNIFORM T SHIRT', 'LS WHITE SHIRT', 'WHITE SHIRT 100% COTTON', 'UNIBRO FLUID SHIRT', 'VIVEAGHAM WHITE SHIRT', 'LS CREAM SHIRT'] (total: 11)
+  Only Fuzzy matched: ['ARISER SHIRT', 'KA11-RMR', 'RAMRAJ SHIRT', 'UATHAYAM SHIRTING', 'ADD SHIRT'] (total: 5)
+
+3. Final survivors (after containment & ranking):
+  1. RM | conf=1.00 | type=EXACT | class=NOISE
+  2. RM | conf=1.00 | type=EXACT | class=NOISE
+  3. RM | conf=1.00 | type=EXACT | class=NOISE
+  4. RM | conf=1.00 | type=EXACT | class=NOISE
+  5. RM : BELT | conf=0.95 | type=SINGULAR_PLURAL | class=NOISE
+  6. LS CREAM SHIRT | conf=0.95 | type=SINGULAR_PLURAL | class=LEGITIMATE
+  7. LS WHITE SHIRT | conf=0.95 | type=SINGULAR_PLURAL | class=LEGITIMATE
+  8. UNIFORM T SHIRT | conf=0.95 | type=SINGULAR_PLURAL | class=LEGITIMATE
+  9. ASHAI SILK SHIRT | conf=0.95 | type=SINGULAR_PLURAL | class=LEGITIMATE
+  10. UNIBRO FLUID SHIRT | conf=0.95 | type=SINGULAR_PLURAL | class=LEGITIMATE
+  11. CCB MANOHARAM SHIRT | conf=0.95 | type=SINGULAR_PLURAL | class=LEGITIMATE
+  12. VIVEAGHAM WHITE SHIRT | conf=0.95 | type=SINGULAR_PLURAL | class=LEGITIMATE
+  13. VIVEAGHAM COLOUR SHIRT | conf=0.95 | type=SINGULAR_PLURAL | class=LEGITIMATE
+  14. VIVEAGHAM COLOUR SHIRT | conf=0.95 | type=SINGULAR_PLURAL | class=LEGITIMATE
+  15. WHITE SHIRT 100% COTTON | conf=0.95 | type=SINGULAR_PLURAL | class=LEGITIMATE
+  16. CULTURE CLUB TRAIL SHIRT | conf=0.95 | type=SINGULAR_PLURAL | class=LEGITIMATE
+  17. LS WHITE SHIRT PC VER-II | conf=0.95 | type=SINGULAR_PLURAL | class=LEGITIMATE

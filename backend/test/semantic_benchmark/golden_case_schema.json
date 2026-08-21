@@ -1,0 +1,198 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "GoldenRetrievalBenchmarkCaseSchema",
+  "description": "Canonical JSON Schema for Phase 1E Golden Retrieval Benchmark Cases",
+  "type": "object",
+  "required": [
+    "case_id",
+    "category",
+    "source",
+    "severity",
+    "question",
+    "conversation",
+    "datasource_ref",
+    "expected",
+    "notes"
+  ],
+  "properties": {
+    "case_id": {
+      "type": "string",
+      "pattern": "^E1-[0-9]{3,}$",
+      "description": "Unique case identifier (e.g. E1-001, E1-002)"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "SIMPLE_METRIC",
+        "METRIC_DIMENSION_VALUE",
+        "EXPLICIT_DIMENSION",
+        "MULTI_DIMENSION",
+        "AMBIGUOUS_VALUES",
+        "PARTIAL_COVERAGE",
+        "SINGULAR_PLURAL",
+        "TYPO_FUZZY",
+        "FOLLOW_UP",
+        "METRIC_SHIFT",
+        "ENTITY_TOPIC_SHIFT",
+        "NO_MATCH_ADVERSARIAL",
+        "TEMPORAL_QUESTIONS"
+      ],
+      "description": "One of the 13 verified business question benchmark categories"
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "REAL_BUSINESS",
+        "REGRESSION",
+        "SYNTHETIC_SAFETY"
+      ],
+      "description": "Source tier classification: REAL_BUSINESS, REGRESSION, or SYNTHETIC_SAFETY"
+    },
+    "severity": {
+      "type": "string",
+      "enum": [
+        "CRITICAL",
+        "HIGH",
+        "MEDIUM",
+        "LOW"
+      ],
+      "description": "Business impact severity rating upon retrieval failure"
+    },
+    "question": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The natural language user query being evaluated"
+    },
+    "conversation": {
+      "type": "array",
+      "description": "List of prior conversation turn objects for multi-turn evaluation (empty [] for single turn)",
+      "items": {
+        "type": "object",
+        "required": [
+          "turn",
+          "question"
+        ],
+        "properties": {
+          "turn": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "1-indexed turn position"
+          },
+          "question": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Prior turn question text"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "datasource_ref": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Logical datasource identifier (e.g. 'Chatbot'); must not contain credentials or physical table names"
+    },
+    "expected": {
+      "type": "object",
+      "description": "Expected ground-truth business semantic resolution",
+      "required": [
+        "metrics",
+        "dimensions",
+        "values",
+        "status",
+        "retrieval_status",
+        "followup_context_applied"
+      ],
+      "properties": {
+        "metrics": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "List of expected business metric names (e.g. ['Sales', 'Qty'])"
+        },
+        "dimensions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "List of expected business dimension names (e.g. ['City', 'Brand'])"
+        },
+        "values": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "List of expected resolved entity values (e.g. ['CHENNAI'])"
+        },
+        "status": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            "NO_MATCH",
+            "SINGLE_MATCH",
+            "WEAK_AMBIGUITY",
+            "STRONG_AMBIGUITY",
+            "PARTIAL_MATCH",
+            null
+          ],
+          "description": "dimension/value ambiguity resolution status"
+        },
+        "followup_context_applied": {
+          "type": "boolean",
+          "description": "Whether previous turn context inheritance must be applied"
+        },
+        "dominant_candidate": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Optional dominant candidate string when ambiguity is present"
+        },
+        "implementation_status": {
+          "type": "string",
+          "enum": [
+            "CURRENTLY_IMPLEMENTED",
+            "FUTURE_PHASE"
+          ],
+          "description": "Optional implementation status of the capability (defaults to CURRENTLY_IMPLEMENTED if omitted)"
+        },
+        "retrieval_status": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            "COMPLETE",
+            "PARTIAL",
+            "INSUFFICIENT",
+            null
+          ],
+          "description": "overall semantic retrieval status"
+        }
+      },
+      "additionalProperties": false
+    },
+    "allowed_variations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Optional list of acceptable question phrase variations"
+    },
+    "must_not": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Optional list of terms or entity mappings that must NOT be present in resolution"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Human-readable explanation of why this golden expectation is correct"
+    }
+  },
+  "additionalProperties": false
+}

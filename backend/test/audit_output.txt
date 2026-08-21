@@ -1,0 +1,2448 @@
+============================================================
+PHASE 1D.1 — AMBIGUITY DETECTION AUDIT
+============================================================
+Connection ID: F82C2F8D-0BD6-40E2-8C8B-FF1D69E317D5
+Fuzzy Cutoff: 85
+Total Cached Dimension Values: 8360
+============================================================
+
+--------------------------------------------------------------------------------
+QUESTION #1: "show sales for coimbatore" (GROUP A: CLEAR SINGLE MATCH)
+--------------------------------------------------------------------------------
+B. EXTRACTED PHRASES:
+  ['coimbatore']
+
+C. MATCHER OUTPUT:
+  * ExactMatcher: 2 matches
+    - value: 'COIMBATORE'
+      match_type: EXACT
+      confidence: 1.00
+      normalized_value: 'coimbatore'
+      dimension_id: A626D0AA-ACCC-4EE6-B967-3EE5BE1A0438
+      business_name: 'City'
+      table: 'PBI_OUTSTANDING_ENES_SUMMARY'
+      column: 'City'
+      matched_question_tokens: ['coimbatore']
+      matched_value_tokens: ['coimbatore']
+    - value: 'COIMBATORE'
+      match_type: EXACT
+      confidence: 1.00
+      normalized_value: 'coimbatore'
+      dimension_id: CDEE68A3-8268-41FA-B8BB-F332B1FF08EA
+      business_name: 'District'
+      table: 'PBI_OUTSTANDING_ENES_SUMMARY'
+      column: 'District'
+      matched_question_tokens: ['coimbatore']
+      matched_value_tokens: ['coimbatore']
+  * NormalizedMatcher: 2 matches
+    - value: 'COIMBATORE'
+      match_type: NORMALIZED
+      confidence: 0.98
+      normalized_value: 'coimbatore'
+      dimension_id: A626D0AA-ACCC-4EE6-B967-3EE5BE1A0438
+      business_name: 'City'
+      table: 'PBI_OUTSTANDING_ENES_SUMMARY'
+      column: 'City'
+      matched_question_tokens: ['coimbatore']
+      matched_value_tokens: ['coimbatore']
+    - value: 'COIMBATORE'
+      match_type: NORMALIZED
+      confidence: 0.98
+      normalized_value: 'coimbatore'
+      dimension_id: CDEE68A3-8268-41FA-B8BB-F332B1FF08EA
+      business_name: 'District'
+      table: 'PBI_OUTSTANDING_ENES_SUMMARY'
+      column: 'District'
+      matched_question_tokens: ['coimbatore']
+      matched_value_tokens: ['coimbatore']
+  * SingularPluralMatcher: 2 matches
+    - value: 'COIMBATORE'
+      match_type: SINGULAR_PLURAL
+      confidence: 0.95
+      normalized_value: 'coimbatore'
+      dimension_id: A626D0AA-ACCC-4EE6-B967-3EE5BE1A0438
+      business_name: 'City'
+      table: 'PBI_OUTSTANDING_ENES_SUMMARY'
+      column: 'City'
+      matched_question_tokens: ['coimbatore']
+      matched_value_tokens: ['coimbatore']
+    - value: 'COIMBATORE'
+      match_type: SINGULAR_PLURAL
+      confidence: 0.95
+      normalized_value: 'coimbatore'
+      dimension_id: CDEE68A3-8268-41FA-B8BB-F332B1FF08EA
+      business_name: 'District'
+      table: 'PBI_OUTSTANDING_ENES_SUMMARY'
+      column: 'District'
+      matched_question_tokens: ['coimbatore']
+      matched_value_tokens: ['coimbatore']
+  * FuzzyMatcher: 2 matches
+    - value: 'COIMBATORE'
+      match_type: FUZZY
+      confidence: 1.00
+      normalized_value: 'coimbatore'
+      dimension_id: A626D0AA-ACCC-4EE6-B967-3EE5BE1A0438
+      business_name: 'City'
+      table: 'PBI_OUTSTANDING_ENES_SUMMARY'
+      column: 'City'
+      matched_question_tokens: ['coimbatore']
+      matched_value_tokens: ['coimbatore']
+    - value: 'COIMBATORE'
+      match_type: FUZZY
+      confidence: 1.00
+      normalized_value: 'coimbatore'
+      dimension_id: CDEE68A3-8268-41FA-B8BB-F332B1FF08EA
+      business_name: 'District'
+      table: 'PBI_OUTSTANDING_ENES_SUMMARY'
+      column: 'District'
+      matched_question_tokens: ['coimbatore']
+      matched_value_tokens: ['coimbatore']
+
+D. PIPELINE OUTPUT:
+  Total raw matches collected: 8
+    1. 'COIMBATORE' (EXACT, conf: 1.00, dim: 'City')
+    2. 'COIMBATORE' (EXACT, conf: 1.00, dim: 'District')
+    3. 'COIMBATORE' (NORMALIZED, conf: 0.98, dim: 'City')
+    4. 'COIMBATORE' (NORMALIZED, conf: 0.98, dim: 'District')
+    5. 'COIMBATORE' (SINGULAR_PLURAL, conf: 0.95, dim: 'City')
+    6. 'COIMBATORE' (SINGULAR_PLURAL, conf: 0.95, dim: 'District')
+    7. 'COIMBATORE' (FUZZY, conf: 1.00, dim: 'City')
+    8. 'COIMBATORE' (FUZZY, conf: 1.00, dim: 'District')
+
+E. RESOLVER PROCESSING:
+  Candidates received by DimensionValueResolver: 8
+  * Duplicate consolidation: 8 -> 2
+    - Consolidate: 'COIMBATORE' (NORMALIZED) removed because 'COIMBATORE' (EXACT) has lower match type priority (NORMALIZED < EXACT)
+    - Consolidate: 'COIMBATORE' (NORMALIZED) removed because 'COIMBATORE' (EXACT) has lower match type priority (NORMALIZED < EXACT)
+    - Consolidate: 'COIMBATORE' (SINGULAR_PLURAL) removed because 'COIMBATORE' (EXACT) has lower match type priority (SINGULAR_PLURAL < EXACT)
+    - Consolidate: 'COIMBATORE' (SINGULAR_PLURAL) removed because 'COIMBATORE' (EXACT) has lower match type priority (SINGULAR_PLURAL < EXACT)
+    - Consolidate: 'COIMBATORE' (FUZZY) removed because 'COIMBATORE' (EXACT) has lower match type priority (FUZZY < EXACT)
+    - Consolidate: 'COIMBATORE' (FUZZY) removed because 'COIMBATORE' (EXACT) has lower match type priority (FUZZY < EXACT)
+  * Containment removal: 2 -> 2
+  * Candidates remaining after resolver processing: 2
+    - 'COIMBATORE' (dim: 'City')
+    - 'COIMBATORE' (dim: 'District')
+
+F. FINAL RANKING:
+  Rank #1:
+    value: 'COIMBATORE'
+    match_type: EXACT
+    confidence: 1.00
+    coverage: 1.00
+    token_distance: 0
+    length_difference: 0
+    semantic_dimension: 'City' (ID: A626D0AA-ACCC-4EE6-B967-3EE5BE1A0438)
+    table: 'PBI_OUTSTANDING_ENES_SUMMARY'
+    column: 'City'
+  Rank #2:
+    value: 'COIMBATORE'
+    match_type: EXACT
+    confidence: 1.00
+    coverage: 1.00
+    token_distance: 0
+    length_difference: 0
+    semantic_dimension: 'District' (ID: CDEE68A3-8268-41FA-B8BB-F332B1FF08EA)
+    table: 'PBI_OUTSTANDING_ENES_SUMMARY'
+    column: 'District'
+
+G. AMBIGUITY CLASSIFICATION:
+  AMBIGUOUS_CROSS_DIMENSION
+
+H. SPECIAL ANALYSIS:
+  1. Number of candidates: 2
+  2. Number of distinct semantic dimensions: 2 (['District', 'City'])
+  3. Number of distinct tables: 1 (['PBI_OUTSTANDING_ENES_SUMMARY'])
+  4. Match-type distribution: {'EXACT': 2}
+  5. Confidence range: 1.00 - 1.00
+  6. Score/confidence gap between rank #1 and rank #2: 0.00
+  7. Rank #1 clearly dominant: False
+  8. Candidates share the same semantic dimension: False
+  9. Candidates share the same column: False
+  10. Genuinely different possible interpretations: Yes
+  --> AMBIGUITY STRENGTH: Strong Ambiguity
+
+--------------------------------------------------------------------------------
+QUESTION #2: "show sales for chennai" (GROUP A: CLEAR SINGLE MATCH)
+--------------------------------------------------------------------------------
+B. EXTRACTED PHRASES:
+  ['chennai']
+
+C. MATCHER OUTPUT:
+  * ExactMatcher: 2 matches
+    - value: 'CHENNAI'
+      match_type: EXACT
+      confidence: 1.00
+      normalized_value: 'chennai'
+      dimension_id: A626D0AA-ACCC-4EE6-B967-3EE5BE1A0438
+      business_name: 'City'
+      table: 'PBI_OUTSTANDING_ENES_SUMMARY'
+      column: 'City'
+      matched_question_tokens: ['chennai']
+      matched_value_tokens: ['chennai']
+    - value: 'CHENNAI'
+      match_type: EXACT
+      confidence: 1.00
+      normalized_value: 'chennai'
+      dimension_id: CDEE68A3-8268-41FA-B8BB-F332B1FF08EA
+      business_name: 'District'
+      table: 'PBI_OUTSTANDING_ENES_SUMMARY'
+      column: 'District'
+      matched_question_tokens: ['chennai']
+      matched_value_tokens: ['chennai']
+  * NormalizedMatcher: 2 matches
+    - value: 'CHENNAI'
+      match_type: NORMALIZED
+      confidence: 0.98
+      normalized_value: 'chennai'
+      dimension_id: A626D0AA-ACCC-4EE6-B967-3EE5BE1A0438
+      business_name: 'City'
+      table: 'PBI_OUTSTANDING_ENES_SUMMARY'
+      column: 'City'
+      matched_question_tokens: ['chennai']
+      matched_value_tokens: ['chennai']
+    - value: 'CHENNAI'
+      match_type: NORMALIZED
+      confidence: 0.98
+      normalized_value: 'chennai'
+      dimension_id: CDEE68A3-8268-41FA-B8BB-F332B1FF08EA
+      business_name: 'District'
+      table: 'PBI_OUTSTANDING_ENES_SUMMARY'
+      column: 'District'
+      matched_question_tokens: ['chennai']
+      matched_value_tokens: ['chennai']
+  * SingularPluralMatcher: 2 matches
+    - value: 'CHENNAI'
+      match_type: SINGULAR_PLURAL
+      confidence: 0.95
+      normalized_value: 'chennai'
+      dimension_id: A626D0AA-ACCC-4EE6-B967-3EE5BE1A0438
+      business_name: 'City'
+      table: 'PBI_OUTSTANDING_ENES_SUMMARY'
+      column: 'City'
+      matched_question_tokens: ['chennai']
+      matched_value_tokens: ['chennai']
+    - value: 'CHENNAI'
+      match_type: SINGULAR_PLURAL
+      confidence: 0.95
+      normalized_value: 'chennai'
+      dimension_id: CDEE68A3-8268-41FA-B8BB-F332B1FF08EA
+      business_name: 'District'
+      table: 'PBI_OUTSTANDING_ENES_SUMMARY'
+      column: 'District'
+      matched_question_tokens: ['chennai']
+      matched_value_tokens: ['chennai']
+  * FuzzyMatcher: 2 matches
+    - value: 'CHENNAI'
+      match_type: FUZZY
+      confidence: 1.00
+      normalized_value: 'chennai'
+      dimension_id: A626D0AA-ACCC-4EE6-B967-3EE5BE1A0438
+      business_name: 'City'
+      table: 'PBI_OUTSTANDING_ENES_SUMMARY'
+      column: 'City'
+      matched_question_tokens: ['chennai']
+      matched_value_tokens: ['chennai']
+    - value: 'CHENNAI'
+      match_type: FUZZY
+      confidence: 1.00
+      normalized_value: 'chennai'
+      dimension_id: CDEE68A3-8268-41FA-B8BB-F332B1FF08EA
+      business_name: 'District'
+      table: 'PBI_OUTSTANDING_ENES_SUMMARY'
+      column: 'District'
+      matched_question_tokens: ['chennai']
+      matched_value_tokens: ['chennai']
+
+D. PIPELINE OUTPUT:
+  Total raw matches collected: 8
+    1. 'CHENNAI' (EXACT, conf: 1.00, dim: 'City')
+    2. 'CHENNAI' (EXACT, conf: 1.00, dim: 'District')
+    3. 'CHENNAI' (NORMALIZED, conf: 0.98, dim: 'City')
+    4. 'CHENNAI' (NORMALIZED, conf: 0.98, dim: 'District')
+    5. 'CHENNAI' (SINGULAR_PLURAL, conf: 0.95, dim: 'City')
+    6. 'CHENNAI' (SINGULAR_PLURAL, conf: 0.95, dim: 'District')
+    7. 'CHENNAI' (FUZZY, conf: 1.00, dim: 'City')
+    8. 'CHENNAI' (FUZZY, conf: 1.00, dim: 'District')
+
+E. RESOLVER PROCESSING:
+  Candidates received by DimensionValueResolver: 8
+  * Duplicate consolidation: 8 -> 2
+    - Consolidate: 'CHENNAI' (NORMALIZED) removed because 'CHENNAI' (EXACT) has lower match type priority (NORMALIZED < EXACT)
+    - Consolidate: 'CHENNAI' (NORMALIZED) removed because 'CHENNAI' (EXACT) has lower match type priority (NORMALIZED < EXACT)
+    - Consolidate: 'CHENNAI' (SINGULAR_PLURAL) removed because 'CHENNAI' (EXACT) has lower match type priority (SINGULAR_PLURAL < EXACT)
+    - Consolidate: 'CHENNAI' (SINGULAR_PLURAL) removed because 'CHENNAI' (EXACT) has lower match type priority (SINGULAR_PLURAL < EXACT)
+    - Consolidate: 'CHENNAI' (FUZZY) removed because 'CHENNAI' (EXACT) has lower match type priority (FUZZY < EXACT)
+    - Consolidate: 'CHENNAI' (FUZZY) removed because 'CHENNAI' (EXACT) has lower match type priority (FUZZY < EXACT)
+  * Containment removal: 2 -> 2
+  * Candidates remaining after resolver processing: 2
+    - 'CHENNAI' (dim: 'City')
+    - 'CHENNAI' (dim: 'District')
+
+F. FINAL RANKING:
+  Rank #1:
+    value: 'CHENNAI'
+    match_type: EXACT
+    confidence: 1.00
+    coverage: 1.00
+    token_distance: 0
+    length_difference: 0
+    semantic_dimension: 'City' (ID: A626D0AA-ACCC-4EE6-B967-3EE5BE1A0438)
+    table: 'PBI_OUTSTANDING_ENES_SUMMARY'
+    column: 'City'
+  Rank #2:
+    value: 'CHENNAI'
+    match_type: EXACT
+    confidence: 1.00
+    coverage: 1.00
+    token_distance: 0
+    length_difference: 0
+    semantic_dimension: 'District' (ID: CDEE68A3-8268-41FA-B8BB-F332B1FF08EA)
+    table: 'PBI_OUTSTANDING_ENES_SUMMARY'
+    column: 'District'
+
+G. AMBIGUITY CLASSIFICATION:
+  AMBIGUOUS_CROSS_DIMENSION
+
+H. SPECIAL ANALYSIS:
+  1. Number of candidates: 2
+  2. Number of distinct semantic dimensions: 2 (['District', 'City'])
+  3. Number of distinct tables: 1 (['PBI_OUTSTANDING_ENES_SUMMARY'])
+  4. Match-type distribution: {'EXACT': 2}
+  5. Confidence range: 1.00 - 1.00
+  6. Score/confidence gap between rank #1 and rank #2: 0.00
+  7. Rank #1 clearly dominant: False
+  8. Candidates share the same semantic dimension: False
+  9. Candidates share the same column: False
+  10. Genuinely different possible interpretations: Yes
+  --> AMBIGUITY STRENGTH: Strong Ambiguity
+
+--------------------------------------------------------------------------------
+QUESTION #3: "show sales for banian" (GROUP A: CLEAR SINGLE MATCH)
+--------------------------------------------------------------------------------
+B. EXTRACTED PHRASES:
+  ['banian']
+
+C. MATCHER OUTPUT:
+  * ExactMatcher: 0 matches
+  * NormalizedMatcher: 0 matches
+  * SingularPluralMatcher: 1 matches
+    - value: 'BANIANS'
+      match_type: SINGULAR_PLURAL
+      confidence: 0.95
+      normalized_value: 'banians'
+      dimension_id: 9B0F3C4C-303F-4A94-9CC5-83C9D2D40614
+      business_name: 'Prod Grp1'
+      table: 'QB_MDJMD_SALES_5YRS_SUMMARY'
+      column: 'ProdGrp1'
+      matched_question_tokens: ['banian']
+      matched_value_tokens: ['banians']
+  * FuzzyMatcher: 5 matches
+    - value: '1 BANIAN'
+      match_type: FUZZY
+      confidence: 0.95
+      normalized_value: '1 banian'
+      dimension_id: DCBA558A-C4F4-409C-AF0C-A8B3E95B0DAF
+      business_name: 'Prod Grp2'
+      table: 'QB_MDJMD_SALES_5YRS_SUMMARY'
+      column: 'ProdGrp2'
+      matched_question_tokens: ['banian']
+      matched_value_tokens: ['1', 'banian']
+    - value: 'BANIANS'
+      match_type: FUZZY
+      confidence: 0.92
+      normalized_value: 'banians'
+      dimension_id: 9B0F3C4C-303F-4A94-9CC5-83C9D2D40614
+      business_name: 'Prod Grp1'
+      table: 'QB_MDJMD_SALES_5YRS_SUMMARY'
+      column: 'ProdGrp1'
+      matched_question_tokens: ['banian']
+      matched_value_tokens: ['banians']
+    - value: 'ADVERTISEMENT BANIAN'
+      match_type: FUZZY
+      confidence: 0.90
+      normalized_value: 'advertisement banian'
+      dimension_id: 9E300C66-9E1B-41C1-8C2F-8DB60900A92A
+      business_name: 'Prod Grp3'
+      table: 'QB_MDJMD_SALES_5YRS_SUMMARY'
+      column: 'ProdGrp3'
+      matched_question_tokens: ['banian']
+      matched_value_tokens: ['advertisement', 'banian']
+    - value: 'SECONDS_ RN BANIAN'
+      match_type: FUZZY
+      confidence: 0.90
+      normalized_value: 'seconds rn banian'
+      dimension_id: 9E300C66-9E1B-41C1-8C2F-8DB60900A92A
+      business_name: 'Prod Grp3'
+      table: 'QB_MDJMD_SALES_5YRS_SUMMARY'
+      column: 'ProdGrp3'
+      matched_question_tokens: ['banian']
+      matched_value_tokens: ['seconds', 'rn', 'banian']
+    - value: 'SECONDS_ RNBS BANIAN'
+      match_type: FUZZY
+      confidence: 0.90
+      normalized_value: 'seconds rnbs banian'
+      dimension_id: 9E300C66-9E1B-41C1-8C2F-8DB60900A92A
+      business_name: 'Prod Grp3'
+      table: 'QB_MDJMD_SALES_5YRS_SUMMARY'
+      column: 'ProdGrp3'
+      matched_question_tokens: ['banian']
+      matched_value_tokens: ['seconds', 'rnbs', 'banian']
+
+D. PIPELINE OUTPUT:
+  Total raw matches collected: 6
+    1. 'BANIANS' (SINGULAR_PLURAL, conf: 0.95, dim: 'Prod Grp1')
+    2. '1 BANIAN' (FUZZY, conf: 0.95, dim: 'Prod Grp2')
+    3. 'BANIANS' (FUZZY, conf: 0.92, dim: 'Prod Grp1')
+    4. 'ADVERTISEMENT BANIAN' (FUZZY, conf: 0.90, dim: 'Prod Grp3')
+    5. 'SECONDS_ RN BANIAN' (FUZZY, conf: 0.90, dim: 'Prod Grp3')
+    6. 'SECONDS_ RNBS BANIAN' (FUZZY, conf: 0.90, dim: 'Prod Grp3')
+
+E. RESOLVER PROCESSING:
+  Candidates received by DimensionValueResolver: 6
+  * Duplicate consolidation: 6 -> 5
+    - Consolidate: 'BANIANS' (FUZZY) removed because 'BANIANS' (SINGULAR_PLURAL) has lower match type priority (FUZZY < SINGULAR_PLURAL)
+  * Containment removal: 5 -> 1
+    - Suppressed: 'ADVERTISEMENT BANIAN' (FUZZY) removed by kept 'BANIANS' (SINGULAR_PLURAL) | Reason: Rule 1: Direct match on same span 'banian' suppresses fuzzy match
+    - Suppressed: 'SECONDS_ RNBS BANIAN' (FUZZY) removed by kept 'BANIANS' (SINGULAR_PLURAL) | Reason: Rule 1: Direct match on same span 'banian' suppresses fuzzy match
+    - Suppressed: 'SECONDS_ RN BANIAN' (FUZZY) removed by kept 'BANIANS' (SINGULAR_PLURAL) | Reason: Rule 1: Direct match on same span 'banian' suppresses fuzzy match
+    - Suppressed: '1 BANIAN' (FUZZY) removed by kept 'BANIANS' (SINGULAR_PLURAL) | Reason: Rule 1: Direct match on same span 'banian' suppresses fuzzy match
+  * Candidates remaining after resolver processing: 1
+    - 'BANIANS' (dim: 'Prod Grp1')
+
+F. FINAL RANKING:
+  Rank #1:
+    value: 'BANIANS'
+    match_type: SINGULAR_PLURAL
+    confidence: 0.95
+    coverage: 1.00
+    token_distance: 0
+    length_difference: 1
+    semantic_dimension: 'Prod Grp1' (ID: 9B0F3C4C-303F-4A94-9CC5-83C9D2D40614)
+    table: 'QB_MDJMD_SALES_5YRS_SUMMARY'
+    column: 'ProdGrp1'
+
+G. AMBIGUITY CLASSIFICATION:
+  SINGLE_MATCH
+
+--------------------------------------------------------------------------------
+QUESTION #4: "show sales for banians" (GROUP A: CLEAR SINGLE MATCH)
+--------------------------------------------------------------------------------
+B. EXTRACTED PHRASES:
+  ['banians']
+
+C. MATCHER OUTPUT:
+  * ExactMatcher: 1 matches
+    - value: 'BANIANS'
+      match_type: EXACT
+      confidence: 1.00
+      normalized_value: 'banians'
+      dimension_id: 9B0F3C4C-303F-4A94-9CC5-83C9D2D40614
+      business_name: 'Prod Grp1'
+      table: 'QB_MDJMD_SALES_5YRS_SUMMARY'
+      column: 'ProdGrp1'
+      matched_question_tokens: ['banians']
+      matched_value_tokens: ['banians']
+  * NormalizedMatcher: 1 matches
+    - value: 'BANIANS'
+      match_type: NORMALIZED
+      confidence: 0.98
+      normalized_value: 'banians'
+      dimension_id: 9B0F3C4C-303F-4A94-9CC5-83C9D2D40614
+      business_name: 'Prod Grp1'
+      table: 'QB_MDJMD_SALES_5YRS_SUMMARY'
+      column: 'ProdGrp1'
+      matched_question_tokens: ['banians']
+      matched_value_tokens: ['banians']
+  * SingularPluralMatcher: 1 matches
+    - value: 'BANIANS'
+      match_type: SINGULAR_PLURAL
+      confidence: 0.95
+      normalized_value: 'banians'
+      dimension_id: 9B0F3C4C-303F-4A94-9CC5-83C9D2D40614
+      business_name: 'Prod Grp1'
+      table: 'QB_MDJMD_SALES_5YRS_SUMMARY'
+      column: 'ProdGrp1'
+      matched_question_tokens: ['banians']
+      matched_value_tokens: ['banians']
+  * FuzzyMatcher: 1 matches
+    - value: 'BANIANS'
+      match_type: FUZZY
+      confidence: 1.00
+      normalized_value: 'banians'
+      dimension_id: 9B0F3C4C-303F-4A94-9CC5-83C9D2D40614
+      business_name: 'Prod Grp1'
+      table: 'QB_MDJMD_SALES_5YRS_SUMMARY'
+      column: 'ProdGrp1'
+      matched_question_tokens: ['banians']
+      matched_value_tokens: ['banians']
+
+D. PIPELINE OUTPUT:
+  Total raw matches collected: 4
+    1. 'BANIANS' (EXACT, conf: 1.00, dim: 'Prod Grp1')
+    2. 'BANIANS' (NORMALIZED, conf: 0.98, dim: 'Prod Grp1')
+    3. 'BANIANS' (SINGULAR_PLURAL, conf: 0.95, dim: 'Prod Grp1')
+    4. 'BANIANS' (FUZZY, conf: 1.00, dim: 'Prod Grp1')
+
+E. RESOLVER PROCESSING:
+  Candidates received by DimensionValueResolver: 4
+  * Duplicate consolidation: 4 -> 1
+    - Consolidate: 'BANIANS' (NORMALIZED) removed because 'BANIANS' (EXACT) has lower match type priority (NORMALIZED < EXACT)
+    - Consolidate: 'BANIANS' (SINGULAR_PLURAL) removed because 'BANIANS' (EXACT) has lower match type priority (SINGULAR_PLURAL < EXACT)
+    - Consolidate: 'BANIANS' (FUZZY) removed because 'BANIANS' (EXACT) has lower match type priority (FUZZY < EXACT)
+  * Containment removal: 1 -> 1
+  * Candidates remaining after resolver processing: 1
+    - 'BANIANS' (dim: 'Prod Grp1')
+
+F. FINAL RANKING:
+  Rank #1:
+    value: 'BANIANS'
+    match_type: EXACT
+    confidence: 1.00
+    coverage: 1.00
+    token_distance: 0
+    length_difference: 0
+    semantic_dimension: 'Prod Grp1' (ID: 9B0F3C4C-303F-4A94-9CC5-83C9D2D40614)
+    table: 'QB_MDJMD_SALES_5YRS_SUMMARY'
+    column: 'ProdGrp1'
+
+G. AMBIGUITY CLASSIFICATION:
+  SINGLE_MATCH
+
+--------------------------------------------------------------------------------
+QUESTION #5: "show sales for pant" (GROUP B: KNOWN AMBIGUITY)
+--------------------------------------------------------------------------------
+B. EXTRACTED PHRASES:
+  ['pant']
+
+C. MATCHER OUTPUT:
+  * ExactMatcher: 0 matches
+  * NormalizedMatcher: 0 matches
+  * SingularPluralMatcher: 0 matches
+  * FuzzyMatcher: 2 matches
+    - value: 'LINEN PANT'
+      match_type: FUZZY
+      confidence: 0.90
+      normalized_value: 'linen pant'
+      dimension_id: 47489775-A75B-44F1-BA91-932589BA7944
+      business_name: 'Brand'
+      table: 'PBI_ENES_ORDER_PENDING_SUMMARY'
+      column: 'Brand'
+      matched_question_tokens: ['pant']
+      matched_value_tokens: ['linen', 'pant']
+    - value: 'RAMRAJ PANT'
+      match_type: FUZZY
+      confidence: 0.90
+      normalized_value: 'ramraj pant'
+      dimension_id: 47489775-A75B-44F1-BA91-932589BA7944
+      business_name: 'Brand'
+      table: 'PBI_ENES_ORDER_PENDING_SUMMARY'
+      column: 'Brand'
+      matched_question_tokens: ['pant']
+      matched_value_tokens: ['ramraj', 'pant']
+
+D. PIPELINE OUTPUT:
+  Total raw matches collected: 2
+    1. 'LINEN PANT' (FUZZY, conf: 0.90, dim: 'Brand')
+    2. 'RAMRAJ PANT' (FUZZY, conf: 0.90, dim: 'Brand')
+
+E. RESOLVER PROCESSING:
+  Candidates received by DimensionValueResolver: 2
+  * Duplicate consolidation: 2 -> 2
+  * Containment removal: 2 -> 2
+  * Candidates remaining after resolver processing: 2
+    - 'RAMRAJ PANT' (dim: 'Brand')
+    - 'LINEN PANT' (dim: 'Brand')
+
+F. FINAL RANKING:
+  Rank #1:
+    value: 'LINEN PANT'
+    match_type: FUZZY
+    confidence: 0.90
+    coverage: 1.00
+    token_distance: 1
+    length_difference: 6
+    semantic_dimension: 'Brand' (ID: 47489775-A75B-44F1-BA91-932589BA7944)
+    table: 'PBI_ENES_ORDER_PENDING_SUMMARY'
+    column: 'Brand'
+  Rank #2:
+    value: 'RAMRAJ PANT'
+    match_type: FUZZY
+    confidence: 0.90
+    coverage: 1.00
+    token_distance: 1
+    length_difference: 7
+    semantic_dimension: 'Brand' (ID: 47489775-A75B-44F1-BA91-932589BA7944)
+    table: 'PBI_ENES_ORDER_PENDING_SUMMARY'
+    column: 'Brand'
+
+G. AMBIGUITY CLASSIFICATION:
+  AMBIGUOUS_SAME_DIMENSION
+
+H. SPECIAL ANALYSIS:
+  1. Number of candidates: 2
+  2. Number of distinct semantic dimensions: 1 (['Brand'])
+  3. Number of distinct tables: 1 (['PBI_ENES_ORDER_PENDING_SUMMARY'])
+  4. Match-type distribution: {'FUZZY': 2}
+  5. Confidence range: 0.90 - 0.90
+  6. Score/confidence gap between rank #1 and rank #2: 0.00
+  7. Rank #1 clearly dominant: False
+  8. Candidates share the same semantic dimension: True
+  9. Candidates share the same column: True
+  10. Genuinely different possible interpretations: Yes
+  --> AMBIGUITY STRENGTH: Strong Ambiguity
+
+--------------------------------------------------------------------------------
+QUESTION #6: "show sales for shirt" (GROUP B: KNOWN AMBIGUITY)
+--------------------------------------------------------------------------------
+B. EXTRACTED PHRASES:
+  ['shirt']
+
+C. MATCHER OUTPUT:
+  * ExactMatcher: 0 matches
+  * NormalizedMatcher: 0 matches
+  * SingularPluralMatcher: 0 matches
+  * FuzzyMatcher: 5 matches
+    - value: 'ADD SHIRT'
+      match_type: FUZZY
+      confidence: 0.90
+      normalized_value: 'add shirt'
+      dimension_id: 47489775-A75B-44F1-BA91-932589BA7944
+      business_name: 'Brand'
+      table: 'PBI_ENES_ORDER_PENDING_SUMMARY'
+      column: 'Brand'
+      matched_question_tokens: ['shirt']
+      matched_value_tokens: ['add', 'shirt']
+    - value: 'ARISER SHIRT'
+      match_type: FUZZY
+      confidence: 0.90
+      normalized_value: 'ariser shirt'
+      dimension_id: 47489775-A75B-44F1-BA91-932589BA7944
+      business_name: 'Brand'
+      table: 'PBI_ENES_ORDER_PENDING_SUMMARY'
+      column: 'Brand'
+      matched_question_tokens: ['shirt']
+      matched_value_tokens: ['ariser', 'shirt']
+    - value: 'RAMRAJ SHIRT'
+      match_type: FUZZY
+      confidence: 0.90
+      normalized_value: 'ramraj shirt'
+      dimension_id: 47489775-A75B-44F1-BA91-932589BA7944
+      business_name: 'Brand'
+      table: 'PBI_ENES_ORDER_PENDING_SUMMARY'
+      column: 'Brand'
+      matched_question_tokens: ['shirt']
+      matched_value_tokens: ['ramraj', 'shirt']
+    - value: 'UATHAYAM SHIRTING'
+      match_type: FUZZY
+      confidence: 0.90
+      normalized_value: 'uathayam shirting'
+      dimension_id: 47489775-A75B-44F1-BA91-932589BA7944
+      business_name: 'Brand'
+      table: 'PBI_ENES_ORDER_PENDING_SUMMARY'
+      column: 'Brand'
+      matched_question_tokens: ['shirt']
+      matched_value_tokens: ['uathayam', 'shirting']
+    - value: 'VIVEAGHAM COLOUR SHIRT'
+      match_type: FUZZY
+      confidence: 0.90
+      normalized_value: 'viveagham colour shirt'
+      dimension_id: 47489775-A75B-44F1-BA91-932589BA7944
+      business_name: 'Brand'
+      table: 'PBI_ENES_ORDER_PENDING_SUMMARY'
+      column: 'Brand'
+      matched_question_tokens: ['shirt']
+      matched_value_tokens: ['viveagham', 'colour', 'shirt']
+
+D. PIPELINE OUTPUT:
+  Total raw matches collected: 5
+    1. 'ADD SHIRT' (FUZZY, conf: 0.90, dim: 'Brand')
+    2. 'ARISER SHIRT' (FUZZY, conf: 0.90, dim: 'Brand')
+    3. 'RAMRAJ SHIRT' (FUZZY, conf: 0.90, dim: 'Brand')
+    4. 'UATHAYAM SHIRTING' (FUZZY, conf: 0.90, dim: 'Brand')
+    5. 'VIVEAGHAM COLOUR SHIRT' (FUZZY, conf: 0.90, dim: 'Brand')
+
+E. RESOLVER PROCESSING:
+  Candidates received by DimensionValueResolver: 5
+  * Duplicate consolidation: 5 -> 5
+  * Containment removal: 5 -> 5
+  * Candidates remaining after resolver processing: 5
+    - 'VIVEAGHAM COLOUR SHIRT' (dim: 'Brand')
+    - 'UATHAYAM SHIRTING' (dim: 'Brand')
+    - 'ARISER SHIRT' (dim: 'Brand')
+    - 'RAMRAJ SHIRT' (dim: 'Brand')
+    - 'ADD SHIRT' (dim: 'Brand')
+
+F. FINAL RANKING:
+  Rank #1:
+    value: 'ADD SHIRT'
+    match_type: FUZZY
+    confidence: 0.90
+    coverage: 1.00
+    token_distance: 1
+    length_difference: 4
+    semantic_dimension: 'Brand' (ID: 47489775-A75B-44F1-BA91-932589BA7944)
+    table: 'PBI_ENES_ORDER_PENDING_SUMMARY'
+    column: 'Brand'
+  Rank #2:
+    value: 'ARISER SHIRT'
+    match_type: FUZZY
+    confidence: 0.90
+    coverage: 1.00
+    token_distance: 1
+    length_difference: 7
+    semantic_dimension: 'Brand' (ID: 47489775-A75B-44F1-BA91-932589BA7944)
+    table: 'PBI_ENES_ORDER_PENDING_SUMMARY'
+    column: 'Brand'
+  Rank #3:
+    value: 'RAMRAJ SHIRT'
+    match_type: FUZZY
+    confidence: 0.90
+    coverage: 1.00
+    token_distance: 1
+    length_difference: 7
+    semantic_dimension: 'Brand' (ID: 47489775-A75B-44F1-BA91-932589BA7944)
+    table: 'PBI_ENES_ORDER_PENDING_SUMMARY'
+    column: 'Brand'
+  Rank #4:
+    value: 'VIVEAGHAM COLOUR SHIRT'
+    match_type: FUZZY
+    confidence: 0.90
+    coverage: 1.00
+    token_distance: 2
+    length_difference: 17
+    semantic_dimension: 'Brand' (ID: 47489775-A75B-44F1-BA91-932589BA7944)
+    table: 'PBI_ENES_ORDER_PENDING_SUMMARY'
+    column: 'Brand'
+  Rank #5:
+    value: 'UATHAYAM SHIRTING'
+    match_type: FUZZY
+    confidence: 0.90
+    coverage: 0.00
+    token_distance: 1
+    length_difference: 12
+    semantic_dimension: 'Brand' (ID: 47489775-A75B-44F1-BA91-932589BA7944)
+    table: 'PBI_ENES_ORDER_PENDING_SUMMARY'
+    column: 'Brand'
+
+G. AMBIGUITY CLASSIFICATION:
+  AMBIGUOUS_SAME_DIMENSION
+
+H. SPECIAL ANALYSIS:
+  1. Number of candidates: 5
+  2. Number of distinct semantic dimensions: 1 (['Brand'])
+  3. Number of distinct tables: 1 (['PBI_ENES_ORDER_PENDING_SUMMARY'])
+  4. Match-type distribution: {'FUZZY': 5}
+  5. Confidence range: 0.90 - 0.90
+  6. Score/confidence gap between rank #1 and rank #2: 0.00
+  7. Rank #1 clearly dominant: False
+  8. Candidates share the same semantic dimension: True
+  9. Candidates share the same column: True
+  10. Genuinely different possible interpretations: Yes
+  --> AMBIGUITY STRENGTH: False Ambiguity
+
+--------------------------------------------------------------------------------
+QUESTION #7: "show sales for cotton pant" (GROUP B: KNOWN AMBIGUITY)
+--------------------------------------------------------------------------------
+B. EXTRACTED PHRASES:
+  ['cotton pant', 'cotton', 'pant']
+
+C. MATCHER OUTPUT:
+  * ExactMatcher: 0 matches
+  * NormalizedMatcher: 0 matches
+  * SingularPluralMatcher: 0 matches
+  * FuzzyMatcher: 8 matches
+    - value: 'COTTON BREEZE KURTA'
+      match_type: FUZZY
+      confidence: 0.90
+      normalized_value: 'cotton breeze kurta'
+      dimension_id: DCBA558A-C4F4-409C-AF0C-A8B3E95B0DAF
+      business_name: 'Prod Grp2'
+      table: 'QB_MDJMD_SALES_5YRS_SUMMARY'
+      column: 'ProdGrp2'
+      matched_question_tokens: ['cotton']
+      matched_value_tokens: ['cotton', 'breeze', 'kurta']
+    - value: 'LS PANT'
+      match_type: FUZZY
+      confidence: 0.85
+      normalized_value: 'ls pant'
+      dimension_id: DCBA558A-C4F4-409C-AF0C-A8B3E95B0DAF
+      business_name: 'Prod Grp2'
+      table: 'QB_MDJMD_SALES_5YRS_SUMMARY'
+      column: 'ProdGrp2'
+      matched_question_tokens: ['cotton', 'pant']
+      matched_value_tokens: ['ls', 'pant']
+    - value: 'LS COTTON BREEZE'
+      match_type: FUZZY
+      confidence: 0.90
+      normalized_value: 'ls cotton breeze'
+      dimension_id: DCBA558A-C4F4-409C-AF0C-A8B3E95B0DAF
+      business_name: 'Prod Grp2'
+      table: 'QB_MDJMD_SALES_5YRS_SUMMARY'
+      column: 'ProdGrp2'
+      matched_question_tokens: ['cotton']
+      matched_value_tokens: ['ls', 'cotton', 'breeze']
+    - value: 'LS ZARI COTTON'
+      match_type: FUZZY
+      confidence: 0.90
+      normalized_value: 'ls zari cotton'
+      dimension_id: DCBA558A-C4F4-409C-AF0C-A8B3E95B0DAF
+      business_name: 'Prod Grp2'
+      table: 'QB_MDJMD_SALES_5YRS_SUMMARY'
+      column: 'ProdGrp2'
+      matched_question_tokens: ['cotton']
+      matched_value_tokens: ['ls', 'zari', 'cotton']
+    - value: 'WHITE SHIRT 100% COTTON'
+      match_type: FUZZY
+      confidence: 0.90
+      normalized_value: 'white shirt 100% cotton'
+      dimension_id: DCBA558A-C4F4-409C-AF0C-A8B3E95B0DAF
+      business_name: 'Prod Grp2'
+      table: 'QB_MDJMD_SALES_5YRS_SUMMARY'
+      column: 'ProdGrp2'
+      matched_question_tokens: ['cotton']
+      matched_value_tokens: ['white', 'shirt', '100%', 'cotton']
+    - value: 'DHOTI : 3.80MT KL COTTON KARA'
+      match_type: FUZZY
+      confidence: 0.90
+      normalized_value: 'dhoti : 3 80mt kl cotton kara'
+      dimension_id: 9E300C66-9E1B-41C1-8C2F-8DB60900A92A
+      business_name: 'Prod Grp3'
+      table: 'QB_MDJMD_SALES_5YRS_SUMMARY'
+      column: 'ProdGrp3'
+      matched_question_tokens: ['cotton']
+      matched_value_tokens: ['dhoti', ':', '3', '80mt', 'kl', 'cotton', 'kara']
+    - value: 'LINEN PANT'
+      match_type: FUZZY
+      confidence: 0.90
+      normalized_value: 'linen pant'
+      dimension_id: 47489775-A75B-44F1-BA91-932589BA7944
+      business_name: 'Brand'
+      table: 'PBI_ENES_ORDER_PENDING_SUMMARY'
+      column: 'Brand'
+      matched_question_tokens: ['pant']
+      matched_value_tokens: ['linen', 'pant']
+    - value: 'RAMRAJ PANT'
+      match_type: FUZZY
+      confidence: 0.90
+      normalized_value: 'ramraj pant'
+      dimension_id: 47489775-A75B-44F1-BA91-932589BA7944
+      business_name: 'Brand'
+      table: 'PBI_ENES_ORDER_PENDING_SUMMARY'
+      column: 'Brand'
+      matched_question_tokens: ['pant']
+      matched_value_tokens: ['ramraj', 'pant']
+
+D. PIPELINE OUTPUT:
+  Total raw matches collected: 8
+    1. 'COTTON BREEZE KURTA' (FUZZY, conf: 0.90, dim: 'Prod Grp2')
+    2. 'LS PANT' (FUZZY, conf: 0.85, dim: 'Prod Grp2')
+    3. 'LS COTTON BREEZE' (FUZZY, conf: 0.90, dim: 'Prod Grp2')
+    4. 'LS ZARI COTTON' (FUZZY, conf: 0.90, dim: 'Prod Grp2')
+    5. 'WHITE SHIRT 100% COTTON' (FUZZY, conf: 0.90, dim: 'Prod Grp2')
+    6. 'DHOTI : 3.80MT KL COTTON KARA' (FUZZY, conf: 0.90, dim: 'Prod Grp3')
+    7. 'LINEN PANT' (FUZZY, conf: 0.90, dim: 'Brand')
+    8. 'RAMRAJ PANT' (FUZZY, conf: 0.90, dim: 'Brand')
+
+E. RESOLVER PROCESSING:
+  Candidates received by DimensionValueResolver: 8
+  * Duplicate consolidation: 8 -> 8
+  * Containment removal: 8 -> 1
+    - Suppressed: 'DHOTI : 3.80MT KL COTTON KARA' (FUZZY) removed by kept 'LS PANT' (FUZZY) | Reason: Rule 2: Match span 'cotton' is contained in longer span 'cotton pant'
+    - Suppressed: 'WHITE SHIRT 100% COTTON' (FUZZY) removed by kept 'LS PANT' (FUZZY) | Reason: Rule 2: Match span 'cotton' is contained in longer span 'cotton pant'
+    - Suppressed: 'COTTON BREEZE KURTA' (FUZZY) removed by kept 'LS PANT' (FUZZY) | Reason: Rule 2: Match span 'cotton' is contained in longer span 'cotton pant'
+    - Suppressed: 'LS COTTON BREEZE' (FUZZY) removed by kept 'LS PANT' (FUZZY) | Reason: Rule 2: Match span 'cotton' is contained in longer span 'cotton pant'
+    - Suppressed: 'LS ZARI COTTON' (FUZZY) removed by kept 'LS PANT' (FUZZY) | Reason: Rule 2: Match span 'cotton' is contained in longer span 'cotton pant'
+    - Suppressed: 'RAMRAJ PANT' (FUZZY) removed by kept 'LS PANT' (FUZZY) | Reason: Rule 2: Match span 'pant' is contained in longer span 'cotton pant'
+    - Suppressed: 'LINEN PANT' (FUZZY) removed by kept 'LS PANT' (FUZZY) | Reason: Rule 2: Match span 'pant' is contained in longer span 'cotton pant'
+  * Candidates remaining after resolver processing: 1
+    - 'LS PANT' (dim: 'Prod Grp2')
+
+F. FINAL RANKING:
+  Rank #1:
+    value: 'LS PANT'
+    match_type: FUZZY
+    confidence: 0.85
+    coverage: 0.50
+    token_distance: 0
+    length_difference: 4
+    semantic_dimension: 'Prod Grp2' (ID: DCBA558A-C4F4-409C-AF0C-A8B3E95B0DAF)
+    table: 'QB_MDJMD_SALES_5YRS_SUMMARY'
+    column: 'ProdGrp2'
+
+G. AMBIGUITY CLASSIFICATION:
+  SINGLE_MATCH
+
+--------------------------------------------------------------------------------
+QUESTION #8: "show sales for formal shirt" (GROUP B: KNOWN AMBIGUITY)
+--------------------------------------------------------------------------------
+B. EXTRACTED PHRASES:
+  ['formal shirt', 'formal', 'shirt']
+
+C. MATCHER OUTPUT:
+  * ExactMatcher: 0 matches
+  * NormalizedMatcher: 0 matches
+  * SingularPluralMatcher: 0 matches
+  * FuzzyMatcher: 6 matches
+    - value: 'VIVEAGHAM COLOUR SHIRT'
+      match_type: FUZZY
+      confidence: 0.90
+      normalized_value: 'viveagham colour shirt'
+      dimension_id: 47489775-A75B-44F1-BA91-932589BA7944
+      business_name: 'Brand'
+      table: 'PBI_ENES_ORDER_PENDING_SUMMARY'
+      column: 'Brand'
+      matched_question_tokens: ['shirt']
+      matched_value_tokens: ['viveagham', 'colour', 'shirt']
+    - value: 'FORMAL SOCKS DESIGN FULL'
+      match_type: FUZZY
+      confidence: 0.90
+      normalized_value: 'formal socks design full'
+      dimension_id: 9E300C66-9E1B-41C1-8C2F-8DB60900A92A
+      business_name: 'Prod Grp3'
+      table: 'QB_MDJMD_SALES_5YRS_SUMMARY'
+      column: 'ProdGrp3'
+      matched_question_tokens: ['formal']
+      matched_value_tokens: ['formal', 'socks', 'design', 'full']
+    - value: 'ADD SHIRT'
+      match_type: FUZZY
+      confidence: 0.90
+      normalized_value: 'add shirt'
+      dimension_id: 47489775-A75B-44F1-BA91-932589BA7944
+      business_name: 'Brand'
+      table: 'PBI_ENES_ORDER_PENDING_SUMMARY'
+      column: 'Brand'
+      matched_question_tokens: ['shirt']
+      matched_value_tokens: ['add', 'shirt']
+    - value: 'ARISER SHIRT'
+      match_type: FUZZY
+      confidence: 0.90
+      normalized_value: 'ariser shirt'
+      dimension_id: 47489775-A75B-44F1-BA91-932589BA7944
+      business_name: 'Brand'
+      table: 'PBI_ENES_ORDER_PENDING_SUMMARY'
+      column: 'Brand'
+      matched_question_tokens: ['shirt']
+      matched_value_tokens: ['ariser', 'shirt']
+    - value: 'RAMRAJ SHIRT'
+      match_type: FUZZY
+      confidence: 0.90
+      normalized_value: 'ramraj shirt'
+      dimension_id: 47489775-A75B-44F1-BA91-932589BA7944
+      business_name: 'Brand'
+      table: 'PBI_ENES_ORDER_PENDING_SUMMARY'
+      column: 'Brand'
+      matched_question_tokens: ['shirt']
+      matched_value_tokens: ['ramraj', 'shirt']
+    - value: 'UATHAYAM SHIRTING'
+      match_type: FUZZY
+      confidence: 0.90
+      normalized_value: 'uathayam shirting'
+      dimension_id: 47489775-A75B-44F1-BA91-932589BA7944
+      business_name: 'Brand'
+      table: 'PBI_ENES_ORDER_PENDING_SUMMARY'
+      column: 'Brand'
+      matched_question_tokens: ['shirt']
+      matched_value_tokens: ['uathayam', 'shirting']
+
+D. PIPELINE OUTPUT:
+  Total raw matches collected: 6
+    1. 'VIVEAGHAM COLOUR SHIRT' (FUZZY, conf: 0.90, dim: 'Brand')
+    2. 'FORMAL SOCKS DESIGN FULL' (FUZZY, conf: 0.90, dim: 'Prod Grp3')
+    3. 'ADD SHIRT' (FUZZY, conf: 0.90, dim: 'Brand')
+    4. 'ARISER SHIRT' (FUZZY, conf: 0.90, dim: 'Brand')
+    5. 'RAMRAJ SHIRT' (FUZZY, conf: 0.90, dim: 'Brand')
+    6. 'UATHAYAM SHIRTING' (FUZZY, conf: 0.90, dim: 'Brand')
+
+E. RESOLVER PROCESSING:
+  Candidates received by DimensionValueResolver: 6
+  * Duplicate consolidation: 6 -> 6
+  * Containment removal: 6 -> 6
+  * Candidates remaining after resolver processing: 6
+    - 'FORMAL SOCKS DESIGN FULL' (dim: 'Prod Grp3')
+    - 'VIVEAGHAM COLOUR SHIRT' (dim: 'Brand')
+    - 'UATHAYAM SHIRTING' (dim: 'Brand')
+    - 'ARISER SHIRT' (dim: 'Brand')
+    - 'RAMRAJ SHIRT' (dim: 'Brand')
+    - 'ADD SHIRT' (dim: 'Brand')
+
+F. FINAL RANKING:
+  Rank #1:
+    value: 'ARISER SHIRT'
+    match_type: FUZZY
+    confidence: 0.90
+    coverage: 0.50
+    token_distance: 0
+    length_difference: 0
+    semantic_dimension: 'Brand' (ID: 47489775-A75B-44F1-BA91-932589BA7944)
+    table: 'PBI_ENES_ORDER_PENDING_SUMMARY'
+    column: 'Brand'
+  Rank #2:
+    value: 'RAMRAJ SHIRT'
+    match_type: FUZZY
+    confidence: 0.90
+    coverage: 0.50
+    token_distance: 0
+    length_difference: 0
+    semantic_dimension: 'Brand' (ID: 47489775-A75B-44F1-BA91-932589BA7944)
+    table: 'PBI_ENES_ORDER_PENDING_SUMMARY'
+    column: 'Brand'
+  Rank #3:
+    value: 'ADD SHIRT'
+    match_type: FUZZY
+    confidence: 0.90
+    coverage: 0.50
+    token_distance: 0
+    length_difference: 3
+    semantic_dimension: 'Brand' (ID: 47489775-A75B-44F1-BA91-932589BA7944)
+    table: 'PBI_ENES_ORDER_PENDING_SUMMARY'
+    column: 'Brand'
+  Rank #4:
+    value: 'VIVEAGHAM COLOUR SHIRT'
+    match_type: FUZZY
+    confidence: 0.90
+    coverage: 0.50
+    token_distance: 1
+    length_difference: 10
+    semantic_dimension: 'Brand' (ID: 47489775-A75B-44F1-BA91-932589BA7944)
+    table: 'PBI_ENES_ORDER_PENDING_SUMMARY'
+    column: 'Brand'
+  Rank #5:
+    value: 'FORMAL SOCKS DESIGN FULL'
+    match_type: FUZZY
+    confidence: 0.90
+    coverage: 0.50
+    token_distance: 2
+    length_difference: 12
+    semantic_dimension: 'Prod Grp3' (ID: 9E300C66-9E1B-41C1-8C2F-8DB60900A92A)
+    table: 'QB_MDJMD_SALES_5YRS_SUMMARY'
+    column: 'ProdGrp3'
+  Rank #6:
+    value: 'UATHAYAM SHIRTING'
+    match_type: FUZZY
+    confidence: 0.90
+    coverage: 0.00
+    token_distance: 0
+    length_difference: 5
+    semantic_dimension: 'Brand' (ID: 47489775-A75B-44F1-BA91-932589BA7944)
+    table: 'PBI_ENES_ORDER_PENDING_SUMMARY'
+    column: 'Brand'
+
+G. AMBIGUITY CLASSIFICATION:
+  AMBIGUOUS_CROSS_DIMENSION
+
+H. SPECIAL ANALYSIS:
+  1. Number of candidates: 6
+  2. Number of distinct semantic dimensions: 2 (['Prod Grp3', 'Brand'])
+  3. Number of distinct tables: 2 (['QB_MDJMD_SALES_5YRS_SUMMARY', 'PBI_ENES_ORDER_PENDING_SUMMARY'])
+  4. Match-type distribution: {'FUZZY': 6}
+  5. Confidence range: 0.90 - 0.90
+  6. Score/confidence gap between rank #1 and rank #2: 0.00
+  7. Rank #1 clearly dominant: False
+  8. Candidates share the same semantic dimension: False
+  9. Candidates share the same column: False
+  10. Genuinely different possible interpretations: Yes
+  --> AMBIGUITY STRENGTH: False Ambiguity
+
+--------------------------------------------------------------------------------
+QUESTION #9: "show sales for banain" (GROUP C: TYPO / FUZZY AMBIGUITY)
+--------------------------------------------------------------------------------
+B. EXTRACTED PHRASES:
+  ['banain']
+
+C. MATCHER OUTPUT:
+  * ExactMatcher: 0 matches
+  * NormalizedMatcher: 0 matches
+  * SingularPluralMatcher: 0 matches
+  * FuzzyMatcher: 0 matches
+
+D. PIPELINE OUTPUT:
+  Total raw matches collected: 0
+
+E. RESOLVER PROCESSING:
+  Candidates received by DimensionValueResolver: 0
+  * Duplicate consolidation: 0 -> 0
+  * Containment removal: 0 -> 0
+  * Candidates remaining after resolver processing: 0
+
+F. FINAL RANKING:
+
+G. AMBIGUITY CLASSIFICATION:
+  NO_MATCH
+
+--------------------------------------------------------------------------------
+QUESTION #10: "show sales for t shrt" (GROUP C: TYPO / FUZZY AMBIGUITY)
+--------------------------------------------------------------------------------
+B. EXTRACTED PHRASES:
+  ['t shrt', 't', 'shrt']
+
+C. MATCHER OUTPUT:
+  * ExactMatcher: 0 matches
+  * NormalizedMatcher: 0 matches
+  * SingularPluralMatcher: 0 matches
+  * FuzzyMatcher: 1 matches
+    - value: 'UNIFORM T SHIRT'
+      match_type: FUZZY
+      confidence: 0.85
+      normalized_value: 'uniform t shirt'
+      dimension_id: 9E300C66-9E1B-41C1-8C2F-8DB60900A92A
+      business_name: 'Prod Grp3'
+      table: 'QB_MDJMD_SALES_5YRS_SUMMARY'
+      column: 'ProdGrp3'
+      matched_question_tokens: ['t', 'shrt']
+      matched_value_tokens: ['uniform', 't', 'shirt']
+
+D. PIPELINE OUTPUT:
+  Total raw matches collected: 1
+    1. 'UNIFORM T SHIRT' (FUZZY, conf: 0.85, dim: 'Prod Grp3')
+
+E. RESOLVER PROCESSING:
+  Candidates received by DimensionValueResolver: 1
+  * Duplicate consolidation: 1 -> 1
+  * Containment removal: 1 -> 1
+  * Candidates remaining after resolver processing: 1
+    - 'UNIFORM T SHIRT' (dim: 'Prod Grp3')
+
+F. FINAL RANKING:
+  Rank #1:
+    value: 'UNIFORM T SHIRT'
+    match_type: FUZZY
+    confidence: 0.85
+    coverage: 0.50
+    token_distance: 1
+    length_difference: 9
+    semantic_dimension: 'Prod Grp3' (ID: 9E300C66-9E1B-41C1-8C2F-8DB60900A92A)
+    table: 'QB_MDJMD_SALES_5YRS_SUMMARY'
+    column: 'ProdGrp3'
+
+G. AMBIGUITY CLASSIFICATION:
+  SINGLE_MATCH
+
+--------------------------------------------------------------------------------
+QUESTION #11: "show sales for cottn pant" (GROUP C: TYPO / FUZZY AMBIGUITY)
+--------------------------------------------------------------------------------
+B. EXTRACTED PHRASES:
+  ['cottn pant', 'cottn', 'pant']
+
+C. MATCHER OUTPUT:
+  * ExactMatcher: 0 matches
+  * NormalizedMatcher: 0 matches
+  * SingularPluralMatcher: 0 matches
+  * FuzzyMatcher: 2 matches
+    - value: 'LINEN PANT'
+      match_type: FUZZY
+      confidence: 0.90
+      normalized_value: 'linen pant'
+      dimension_id: 47489775-A75B-44F1-BA91-932589BA7944
+      business_name: 'Brand'
+      table: 'PBI_ENES_ORDER_PENDING_SUMMARY'
+      column: 'Brand'
+      matched_question_tokens: ['pant']
+      matched_value_tokens: ['linen', 'pant']
+    - value: 'RAMRAJ PANT'
+      match_type: FUZZY
+      confidence: 0.90
+      normalized_value: 'ramraj pant'
+      dimension_id: 47489775-A75B-44F1-BA91-932589BA7944
+      business_name: 'Brand'
+      table: 'PBI_ENES_ORDER_PENDING_SUMMARY'
+      column: 'Brand'
+      matched_question_tokens: ['pant']
+      matched_value_tokens: ['ramraj', 'pant']
+
+D. PIPELINE OUTPUT:
+  Total raw matches collected: 2
+    1. 'LINEN PANT' (FUZZY, conf: 0.90, dim: 'Brand')
+    2. 'RAMRAJ PANT' (FUZZY, conf: 0.90, dim: 'Brand')
+
+E. RESOLVER PROCESSING:
+  Candidates received by DimensionValueResolver: 2
+  * Duplicate consolidation: 2 -> 2
+  * Containment removal: 2 -> 2
+  * Candidates remaining after resolver processing: 2
+    - 'RAMRAJ PANT' (dim: 'Brand')
+    - 'LINEN PANT' (dim: 'Brand')
+
+F. FINAL RANKING:
+  Rank #1:
+    value: 'LINEN PANT'
+    match_type: FUZZY
+    confidence: 0.90
+    coverage: 0.50
+    token_distance: 0
+    length_difference: 0
+    semantic_dimension: 'Brand' (ID: 47489775-A75B-44F1-BA91-932589BA7944)
+    table: 'PBI_ENES_ORDER_PENDING_SUMMARY'
+    column: 'Brand'
+  Rank #2:
+    value: 'RAMRAJ PANT'
+    match_type: FUZZY
+    confidence: 0.90
+    coverage: 0.50
+    token_distance: 0
+    length_difference: 1
+    semantic_dimension: 'Brand' (ID: 47489775-A75B-44F1-BA91-932589BA7944)
+    table: 'PBI_ENES_ORDER_PENDING_SUMMARY'
+    column: 'Brand'
+
+G. AMBIGUITY CLASSIFICATION:
+  AMBIGUOUS_SAME_DIMENSION
+
+H. SPECIAL ANALYSIS:
+  1. Number of candidates: 2
+  2. Number of distinct semantic dimensions: 1 (['Brand'])
+  3. Number of distinct tables: 1 (['PBI_ENES_ORDER_PENDING_SUMMARY'])
+  4. Match-type distribution: {'FUZZY': 2}
+  5. Confidence range: 0.90 - 0.90
+  6. Score/confidence gap between rank #1 and rank #2: 0.00
+  7. Rank #1 clearly dominant: False
+  8. Candidates share the same semantic dimension: True
+  9. Candidates share the same column: True
+  10. Genuinely different possible interpretations: Yes
+  --> AMBIGUITY STRENGTH: Strong Ambiguity
+
+--------------------------------------------------------------------------------
+QUESTION #12: "show sales for forml shirt" (GROUP C: TYPO / FUZZY AMBIGUITY)
+--------------------------------------------------------------------------------
+B. EXTRACTED PHRASES:
+  ['forml shirt', 'forml', 'shirt']
+
+C. MATCHER OUTPUT:
+  * ExactMatcher: 0 matches
+  * NormalizedMatcher: 0 matches
+  * SingularPluralMatcher: 0 matches
+  * FuzzyMatcher: 5 matches
+    - value: 'VIVEAGHAM COLOUR SHIRT'
+      match_type: FUZZY
+      confidence: 0.90
+      normalized_value: 'viveagham colour shirt'
+      dimension_id: 47489775-A75B-44F1-BA91-932589BA7944
+      business_name: 'Brand'
+      table: 'PBI_ENES_ORDER_PENDING_SUMMARY'
+      column: 'Brand'
+      matched_question_tokens: ['shirt']
+      matched_value_tokens: ['viveagham', 'colour', 'shirt']
+    - value: 'ADD SHIRT'
+      match_type: FUZZY
+      confidence: 0.90
+      normalized_value: 'add shirt'
+      dimension_id: 47489775-A75B-44F1-BA91-932589BA7944
+      business_name: 'Brand'
+      table: 'PBI_ENES_ORDER_PENDING_SUMMARY'
+      column: 'Brand'
+      matched_question_tokens: ['shirt']
+      matched_value_tokens: ['add', 'shirt']
+    - value: 'ARISER SHIRT'
+      match_type: FUZZY
+      confidence: 0.90
+      normalized_value: 'ariser shirt'
+      dimension_id: 47489775-A75B-44F1-BA91-932589BA7944
+      business_name: 'Brand'
+      table: 'PBI_ENES_ORDER_PENDING_SUMMARY'
+      column: 'Brand'
+      matched_question_tokens: ['shirt']
+      matched_value_tokens: ['ariser', 'shirt']
+    - value: 'RAMRAJ SHIRT'
+      match_type: FUZZY
+      confidence: 0.90
+      normalized_value: 'ramraj shirt'
+      dimension_id: 47489775-A75B-44F1-BA91-932589BA7944
+      business_name: 'Brand'
+      table: 'PBI_ENES_ORDER_PENDING_SUMMARY'
+      column: 'Brand'
+      matched_question_tokens: ['shirt']
+      matched_value_tokens: ['ramraj', 'shirt']
+    - value: 'UATHAYAM SHIRTING'
+      match_type: FUZZY
+      confidence: 0.90
+      normalized_value: 'uathayam shirting'
+      dimension_id: 47489775-A75B-44F1-BA91-932589BA7944
+      business_name: 'Brand'
+      table: 'PBI_ENES_ORDER_PENDING_SUMMARY'
+      column: 'Brand'
+      matched_question_tokens: ['shirt']
+      matched_value_tokens: ['uathayam', 'shirting']
+
+D. PIPELINE OUTPUT:
+  Total raw matches collected: 5
+    1. 'VIVEAGHAM COLOUR SHIRT' (FUZZY, conf: 0.90, dim: 'Brand')
+    2. 'ADD SHIRT' (FUZZY, conf: 0.90, dim: 'Brand')
+    3. 'ARISER SHIRT' (FUZZY, conf: 0.90, dim: 'Brand')
+    4. 'RAMRAJ SHIRT' (FUZZY, conf: 0.90, dim: 'Brand')
+    5. 'UATHAYAM SHIRTING' (FUZZY, conf: 0.90, dim: 'Brand')
+
+E. RESOLVER PROCESSING:
+  Candidates received by DimensionValueResolver: 5
+  * Duplicate consolidation: 5 -> 5
+  * Containment removal: 5 -> 5
+  * Candidates remaining after resolver processing: 5
+    - 'VIVEAGHAM COLOUR SHIRT' (dim: 'Brand')
+    - 'UATHAYAM SHIRTING' (dim: 'Brand')
+    - 'ARISER SHIRT' (dim: 'Brand')
+    - 'RAMRAJ SHIRT' (dim: 'Brand')
+    - 'ADD SHIRT' (dim: 'Brand')
+
+F. FINAL RANKING:
+  Rank #1:
+    value: 'ARISER SHIRT'
+    match_type: FUZZY
+    confidence: 0.90
+    coverage: 0.50
+    token_distance: 0
+    length_difference: 1
+    semantic_dimension: 'Brand' (ID: 47489775-A75B-44F1-BA91-932589BA7944)
+    table: 'PBI_ENES_ORDER_PENDING_SUMMARY'
+    column: 'Brand'
+  Rank #2:
+    value: 'RAMRAJ SHIRT'
+    match_type: FUZZY
+    confidence: 0.90
+    coverage: 0.50
+    token_distance: 0
+    length_difference: 1
+    semantic_dimension: 'Brand' (ID: 47489775-A75B-44F1-BA91-932589BA7944)
+    table: 'PBI_ENES_ORDER_PENDING_SUMMARY'
+    column: 'Brand'
+  Rank #3:
+    value: 'ADD SHIRT'
+    match_type: FUZZY
+    confidence: 0.90
+    coverage: 0.50
+    token_distance: 0
+    length_difference: 2
+    semantic_dimension: 'Brand' (ID: 47489775-A75B-44F1-BA91-932589BA7944)
+    table: 'PBI_ENES_ORDER_PENDING_SUMMARY'
+    column: 'Brand'
+  Rank #4:
+    value: 'VIVEAGHAM COLOUR SHIRT'
+    match_type: FUZZY
+    confidence: 0.90
+    coverage: 0.50
+    token_distance: 1
+    length_difference: 11
+    semantic_dimension: 'Brand' (ID: 47489775-A75B-44F1-BA91-932589BA7944)
+    table: 'PBI_ENES_ORDER_PENDING_SUMMARY'
+    column: 'Brand'
+  Rank #5:
+    value: 'UATHAYAM SHIRTING'
+    match_type: FUZZY
+    confidence: 0.90
+    coverage: 0.00
+    token_distance: 0
+    length_difference: 6
+    semantic_dimension: 'Brand' (ID: 47489775-A75B-44F1-BA91-932589BA7944)
+    table: 'PBI_ENES_ORDER_PENDING_SUMMARY'
+    column: 'Brand'
+
+G. AMBIGUITY CLASSIFICATION:
+  AMBIGUOUS_SAME_DIMENSION
+
+H. SPECIAL ANALYSIS:
+  1. Number of candidates: 5
+  2. Number of distinct semantic dimensions: 1 (['Brand'])
+  3. Number of distinct tables: 1 (['PBI_ENES_ORDER_PENDING_SUMMARY'])
+  4. Match-type distribution: {'FUZZY': 5}
+  5. Confidence range: 0.90 - 0.90
+  6. Score/confidence gap between rank #1 and rank #2: 0.00
+  7. Rank #1 clearly dominant: False
+  8. Candidates share the same semantic dimension: True
+  9. Candidates share the same column: True
+  10. Genuinely different possible interpretations: Yes
+  --> AMBIGUITY STRENGTH: False Ambiguity
+
+--------------------------------------------------------------------------------
+QUESTION #13: "show sales for pant" (GROUP D: SINGULAR / PLURAL)
+--------------------------------------------------------------------------------
+B. EXTRACTED PHRASES:
+  ['pant']
+
+C. MATCHER OUTPUT:
+  * ExactMatcher: 0 matches
+  * NormalizedMatcher: 0 matches
+  * SingularPluralMatcher: 0 matches
+  * FuzzyMatcher: 2 matches
+    - value: 'LINEN PANT'
+      match_type: FUZZY
+      confidence: 0.90
+      normalized_value: 'linen pant'
+      dimension_id: 47489775-A75B-44F1-BA91-932589BA7944
+      business_name: 'Brand'
+      table: 'PBI_ENES_ORDER_PENDING_SUMMARY'
+      column: 'Brand'
+      matched_question_tokens: ['pant']
+      matched_value_tokens: ['linen', 'pant']
+    - value: 'RAMRAJ PANT'
+      match_type: FUZZY
+      confidence: 0.90
+      normalized_value: 'ramraj pant'
+      dimension_id: 47489775-A75B-44F1-BA91-932589BA7944
+      business_name: 'Brand'
+      table: 'PBI_ENES_ORDER_PENDING_SUMMARY'
+      column: 'Brand'
+      matched_question_tokens: ['pant']
+      matched_value_tokens: ['ramraj', 'pant']
+
+D. PIPELINE OUTPUT:
+  Total raw matches collected: 2
+    1. 'LINEN PANT' (FUZZY, conf: 0.90, dim: 'Brand')
+    2. 'RAMRAJ PANT' (FUZZY, conf: 0.90, dim: 'Brand')
+
+E. RESOLVER PROCESSING:
+  Candidates received by DimensionValueResolver: 2
+  * Duplicate consolidation: 2 -> 2
+  * Containment removal: 2 -> 2
+  * Candidates remaining after resolver processing: 2
+    - 'RAMRAJ PANT' (dim: 'Brand')
+    - 'LINEN PANT' (dim: 'Brand')
+
+F. FINAL RANKING:
+  Rank #1:
+    value: 'LINEN PANT'
+    match_type: FUZZY
+    confidence: 0.90
+    coverage: 1.00
+    token_distance: 1
+    length_difference: 6
+    semantic_dimension: 'Brand' (ID: 47489775-A75B-44F1-BA91-932589BA7944)
+    table: 'PBI_ENES_ORDER_PENDING_SUMMARY'
+    column: 'Brand'
+  Rank #2:
+    value: 'RAMRAJ PANT'
+    match_type: FUZZY
+    confidence: 0.90
+    coverage: 1.00
+    token_distance: 1
+    length_difference: 7
+    semantic_dimension: 'Brand' (ID: 47489775-A75B-44F1-BA91-932589BA7944)
+    table: 'PBI_ENES_ORDER_PENDING_SUMMARY'
+    column: 'Brand'
+
+G. AMBIGUITY CLASSIFICATION:
+  AMBIGUOUS_SAME_DIMENSION
+
+H. SPECIAL ANALYSIS:
+  1. Number of candidates: 2
+  2. Number of distinct semantic dimensions: 1 (['Brand'])
+  3. Number of distinct tables: 1 (['PBI_ENES_ORDER_PENDING_SUMMARY'])
+  4. Match-type distribution: {'FUZZY': 2}
+  5. Confidence range: 0.90 - 0.90
+  6. Score/confidence gap between rank #1 and rank #2: 0.00
+  7. Rank #1 clearly dominant: False
+  8. Candidates share the same semantic dimension: True
+  9. Candidates share the same column: True
+  10. Genuinely different possible interpretations: Yes
+  --> AMBIGUITY STRENGTH: Strong Ambiguity
+
+--------------------------------------------------------------------------------
+QUESTION #14: "show sales for pants" (GROUP D: SINGULAR / PLURAL)
+--------------------------------------------------------------------------------
+B. EXTRACTED PHRASES:
+  ['pants']
+
+C. MATCHER OUTPUT:
+  * ExactMatcher: 0 matches
+  * NormalizedMatcher: 0 matches
+  * SingularPluralMatcher: 0 matches
+  * FuzzyMatcher: 0 matches
+
+D. PIPELINE OUTPUT:
+  Total raw matches collected: 0
+
+E. RESOLVER PROCESSING:
+  Candidates received by DimensionValueResolver: 0
+  * Duplicate consolidation: 0 -> 0
+  * Containment removal: 0 -> 0
+  * Candidates remaining after resolver processing: 0
+
+F. FINAL RANKING:
+
+G. AMBIGUITY CLASSIFICATION:
+  NO_MATCH
+
+--------------------------------------------------------------------------------
+QUESTION #15: "show sales for banian" (GROUP D: SINGULAR / PLURAL)
+--------------------------------------------------------------------------------
+B. EXTRACTED PHRASES:
+  ['banian']
+
+C. MATCHER OUTPUT:
+  * ExactMatcher: 0 matches
+  * NormalizedMatcher: 0 matches
+  * SingularPluralMatcher: 1 matches
+    - value: 'BANIANS'
+      match_type: SINGULAR_PLURAL
+      confidence: 0.95
+      normalized_value: 'banians'
+      dimension_id: 9B0F3C4C-303F-4A94-9CC5-83C9D2D40614
+      business_name: 'Prod Grp1'
+      table: 'QB_MDJMD_SALES_5YRS_SUMMARY'
+      column: 'ProdGrp1'
+      matched_question_tokens: ['banian']
+      matched_value_tokens: ['banians']
+  * FuzzyMatcher: 5 matches
+    - value: '1 BANIAN'
+      match_type: FUZZY
+      confidence: 0.95
+      normalized_value: '1 banian'
+      dimension_id: DCBA558A-C4F4-409C-AF0C-A8B3E95B0DAF
+      business_name: 'Prod Grp2'
+      table: 'QB_MDJMD_SALES_5YRS_SUMMARY'
+      column: 'ProdGrp2'
+      matched_question_tokens: ['banian']
+      matched_value_tokens: ['1', 'banian']
+    - value: 'BANIANS'
+      match_type: FUZZY
+      confidence: 0.92
+      normalized_value: 'banians'
+      dimension_id: 9B0F3C4C-303F-4A94-9CC5-83C9D2D40614
+      business_name: 'Prod Grp1'
+      table: 'QB_MDJMD_SALES_5YRS_SUMMARY'
+      column: 'ProdGrp1'
+      matched_question_tokens: ['banian']
+      matched_value_tokens: ['banians']
+    - value: 'ADVERTISEMENT BANIAN'
+      match_type: FUZZY
+      confidence: 0.90
+      normalized_value: 'advertisement banian'
+      dimension_id: 9E300C66-9E1B-41C1-8C2F-8DB60900A92A
+      business_name: 'Prod Grp3'
+      table: 'QB_MDJMD_SALES_5YRS_SUMMARY'
+      column: 'ProdGrp3'
+      matched_question_tokens: ['banian']
+      matched_value_tokens: ['advertisement', 'banian']
+    - value: 'SECONDS_ RN BANIAN'
+      match_type: FUZZY
+      confidence: 0.90
+      normalized_value: 'seconds rn banian'
+      dimension_id: 9E300C66-9E1B-41C1-8C2F-8DB60900A92A
+      business_name: 'Prod Grp3'
+      table: 'QB_MDJMD_SALES_5YRS_SUMMARY'
+      column: 'ProdGrp3'
+      matched_question_tokens: ['banian']
+      matched_value_tokens: ['seconds', 'rn', 'banian']
+    - value: 'SECONDS_ RNBS BANIAN'
+      match_type: FUZZY
+      confidence: 0.90
+      normalized_value: 'seconds rnbs banian'
+      dimension_id: 9E300C66-9E1B-41C1-8C2F-8DB60900A92A
+      business_name: 'Prod Grp3'
+      table: 'QB_MDJMD_SALES_5YRS_SUMMARY'
+      column: 'ProdGrp3'
+      matched_question_tokens: ['banian']
+      matched_value_tokens: ['seconds', 'rnbs', 'banian']
+
+D. PIPELINE OUTPUT:
+  Total raw matches collected: 6
+    1. 'BANIANS' (SINGULAR_PLURAL, conf: 0.95, dim: 'Prod Grp1')
+    2. '1 BANIAN' (FUZZY, conf: 0.95, dim: 'Prod Grp2')
+    3. 'BANIANS' (FUZZY, conf: 0.92, dim: 'Prod Grp1')
+    4. 'ADVERTISEMENT BANIAN' (FUZZY, conf: 0.90, dim: 'Prod Grp3')
+    5. 'SECONDS_ RN BANIAN' (FUZZY, conf: 0.90, dim: 'Prod Grp3')
+    6. 'SECONDS_ RNBS BANIAN' (FUZZY, conf: 0.90, dim: 'Prod Grp3')
+
+E. RESOLVER PROCESSING:
+  Candidates received by DimensionValueResolver: 6
+  * Duplicate consolidation: 6 -> 5
+    - Consolidate: 'BANIANS' (FUZZY) removed because 'BANIANS' (SINGULAR_PLURAL) has lower match type priority (FUZZY < SINGULAR_PLURAL)
+  * Containment removal: 5 -> 1
+    - Suppressed: 'ADVERTISEMENT BANIAN' (FUZZY) removed by kept 'BANIANS' (SINGULAR_PLURAL) | Reason: Rule 1: Direct match on same span 'banian' suppresses fuzzy match
+    - Suppressed: 'SECONDS_ RNBS BANIAN' (FUZZY) removed by kept 'BANIANS' (SINGULAR_PLURAL) | Reason: Rule 1: Direct match on same span 'banian' suppresses fuzzy match
+    - Suppressed: 'SECONDS_ RN BANIAN' (FUZZY) removed by kept 'BANIANS' (SINGULAR_PLURAL) | Reason: Rule 1: Direct match on same span 'banian' suppresses fuzzy match
+    - Suppressed: '1 BANIAN' (FUZZY) removed by kept 'BANIANS' (SINGULAR_PLURAL) | Reason: Rule 1: Direct match on same span 'banian' suppresses fuzzy match
+  * Candidates remaining after resolver processing: 1
+    - 'BANIANS' (dim: 'Prod Grp1')
+
+F. FINAL RANKING:
+  Rank #1:
+    value: 'BANIANS'
+    match_type: SINGULAR_PLURAL
+    confidence: 0.95
+    coverage: 1.00
+    token_distance: 0
+    length_difference: 1
+    semantic_dimension: 'Prod Grp1' (ID: 9B0F3C4C-303F-4A94-9CC5-83C9D2D40614)
+    table: 'QB_MDJMD_SALES_5YRS_SUMMARY'
+    column: 'ProdGrp1'
+
+G. AMBIGUITY CLASSIFICATION:
+  SINGLE_MATCH
+
+--------------------------------------------------------------------------------
+QUESTION #16: "show sales for banians" (GROUP D: SINGULAR / PLURAL)
+--------------------------------------------------------------------------------
+B. EXTRACTED PHRASES:
+  ['banians']
+
+C. MATCHER OUTPUT:
+  * ExactMatcher: 1 matches
+    - value: 'BANIANS'
+      match_type: EXACT
+      confidence: 1.00
+      normalized_value: 'banians'
+      dimension_id: 9B0F3C4C-303F-4A94-9CC5-83C9D2D40614
+      business_name: 'Prod Grp1'
+      table: 'QB_MDJMD_SALES_5YRS_SUMMARY'
+      column: 'ProdGrp1'
+      matched_question_tokens: ['banians']
+      matched_value_tokens: ['banians']
+  * NormalizedMatcher: 1 matches
+    - value: 'BANIANS'
+      match_type: NORMALIZED
+      confidence: 0.98
+      normalized_value: 'banians'
+      dimension_id: 9B0F3C4C-303F-4A94-9CC5-83C9D2D40614
+      business_name: 'Prod Grp1'
+      table: 'QB_MDJMD_SALES_5YRS_SUMMARY'
+      column: 'ProdGrp1'
+      matched_question_tokens: ['banians']
+      matched_value_tokens: ['banians']
+  * SingularPluralMatcher: 1 matches
+    - value: 'BANIANS'
+      match_type: SINGULAR_PLURAL
+      confidence: 0.95
+      normalized_value: 'banians'
+      dimension_id: 9B0F3C4C-303F-4A94-9CC5-83C9D2D40614
+      business_name: 'Prod Grp1'
+      table: 'QB_MDJMD_SALES_5YRS_SUMMARY'
+      column: 'ProdGrp1'
+      matched_question_tokens: ['banians']
+      matched_value_tokens: ['banians']
+  * FuzzyMatcher: 1 matches
+    - value: 'BANIANS'
+      match_type: FUZZY
+      confidence: 1.00
+      normalized_value: 'banians'
+      dimension_id: 9B0F3C4C-303F-4A94-9CC5-83C9D2D40614
+      business_name: 'Prod Grp1'
+      table: 'QB_MDJMD_SALES_5YRS_SUMMARY'
+      column: 'ProdGrp1'
+      matched_question_tokens: ['banians']
+      matched_value_tokens: ['banians']
+
+D. PIPELINE OUTPUT:
+  Total raw matches collected: 4
+    1. 'BANIANS' (EXACT, conf: 1.00, dim: 'Prod Grp1')
+    2. 'BANIANS' (NORMALIZED, conf: 0.98, dim: 'Prod Grp1')
+    3. 'BANIANS' (SINGULAR_PLURAL, conf: 0.95, dim: 'Prod Grp1')
+    4. 'BANIANS' (FUZZY, conf: 1.00, dim: 'Prod Grp1')
+
+E. RESOLVER PROCESSING:
+  Candidates received by DimensionValueResolver: 4
+  * Duplicate consolidation: 4 -> 1
+    - Consolidate: 'BANIANS' (NORMALIZED) removed because 'BANIANS' (EXACT) has lower match type priority (NORMALIZED < EXACT)
+    - Consolidate: 'BANIANS' (SINGULAR_PLURAL) removed because 'BANIANS' (EXACT) has lower match type priority (SINGULAR_PLURAL < EXACT)
+    - Consolidate: 'BANIANS' (FUZZY) removed because 'BANIANS' (EXACT) has lower match type priority (FUZZY < EXACT)
+  * Containment removal: 1 -> 1
+  * Candidates remaining after resolver processing: 1
+    - 'BANIANS' (dim: 'Prod Grp1')
+
+F. FINAL RANKING:
+  Rank #1:
+    value: 'BANIANS'
+    match_type: EXACT
+    confidence: 1.00
+    coverage: 1.00
+    token_distance: 0
+    length_difference: 0
+    semantic_dimension: 'Prod Grp1' (ID: 9B0F3C4C-303F-4A94-9CC5-83C9D2D40614)
+    table: 'QB_MDJMD_SALES_5YRS_SUMMARY'
+    column: 'ProdGrp1'
+
+G. AMBIGUITY CLASSIFICATION:
+  SINGLE_MATCH
+
+--------------------------------------------------------------------------------
+QUESTION #17: "show sales for tamil nadu" (GROUP E: MULTI-DIMENSION / POSSIBLE CROSS-DIMENSION AMBIGUITY)
+--------------------------------------------------------------------------------
+B. EXTRACTED PHRASES:
+  ['tamil nadu', 'tamil', 'nadu']
+
+C. MATCHER OUTPUT:
+  * ExactMatcher: 0 matches
+  * NormalizedMatcher: 0 matches
+  * SingularPluralMatcher: 0 matches
+  * FuzzyMatcher: 0 matches
+
+D. PIPELINE OUTPUT:
+  Total raw matches collected: 0
+
+E. RESOLVER PROCESSING:
+  Candidates received by DimensionValueResolver: 0
+  * Duplicate consolidation: 0 -> 0
+  * Containment removal: 0 -> 0
+  * Candidates remaining after resolver processing: 0
+
+F. FINAL RANKING:
+
+G. AMBIGUITY CLASSIFICATION:
+  NO_MATCH
+
+--------------------------------------------------------------------------------
+QUESTION #18: "show sales for nadu" (GROUP E: MULTI-DIMENSION / POSSIBLE CROSS-DIMENSION AMBIGUITY)
+--------------------------------------------------------------------------------
+B. EXTRACTED PHRASES:
+  ['nadu']
+
+C. MATCHER OUTPUT:
+  * ExactMatcher: 0 matches
+  * NormalizedMatcher: 0 matches
+  * SingularPluralMatcher: 0 matches
+  * FuzzyMatcher: 0 matches
+
+D. PIPELINE OUTPUT:
+  Total raw matches collected: 0
+
+E. RESOLVER PROCESSING:
+  Candidates received by DimensionValueResolver: 0
+  * Duplicate consolidation: 0 -> 0
+  * Containment removal: 0 -> 0
+  * Candidates remaining after resolver processing: 0
+
+F. FINAL RANKING:
+
+G. AMBIGUITY CLASSIFICATION:
+  NO_MATCH
+
+--------------------------------------------------------------------------------
+QUESTION #19: "show sales for ch" (GROUP E: MULTI-DIMENSION / POSSIBLE CROSS-DIMENSION AMBIGUITY)
+--------------------------------------------------------------------------------
+B. EXTRACTED PHRASES:
+  ['ch']
+
+C. MATCHER OUTPUT:
+  * ExactMatcher: 2 matches
+    - value: 'CH'
+      match_type: EXACT
+      confidence: 1.00
+      normalized_value: 'ch'
+      dimension_id: 4312457A-47FF-4D88-9D22-008E8552C075
+      business_name: 'State1'
+      table: 'QB_MDJMD_SALES_5YRS_SUMMARY'
+      column: 'State1'
+      matched_question_tokens: ['ch']
+      matched_value_tokens: ['ch']
+    - value: 'CH'
+      match_type: EXACT
+      confidence: 1.00
+      normalized_value: 'ch'
+      dimension_id: F324DA6E-28D3-4E36-9BE6-08427AD0A6C5
+      business_name: 'state1'
+      table: 'PBI_OUTSTANDING_ENES_SUMMARY'
+      column: 'state1'
+      matched_question_tokens: ['ch']
+      matched_value_tokens: ['ch']
+  * NormalizedMatcher: 2 matches
+    - value: 'CH'
+      match_type: NORMALIZED
+      confidence: 0.98
+      normalized_value: 'ch'
+      dimension_id: 4312457A-47FF-4D88-9D22-008E8552C075
+      business_name: 'State1'
+      table: 'QB_MDJMD_SALES_5YRS_SUMMARY'
+      column: 'State1'
+      matched_question_tokens: ['ch']
+      matched_value_tokens: ['ch']
+    - value: 'CH'
+      match_type: NORMALIZED
+      confidence: 0.98
+      normalized_value: 'ch'
+      dimension_id: F324DA6E-28D3-4E36-9BE6-08427AD0A6C5
+      business_name: 'state1'
+      table: 'PBI_OUTSTANDING_ENES_SUMMARY'
+      column: 'state1'
+      matched_question_tokens: ['ch']
+      matched_value_tokens: ['ch']
+  * SingularPluralMatcher: 2 matches
+    - value: 'CH'
+      match_type: SINGULAR_PLURAL
+      confidence: 0.95
+      normalized_value: 'ch'
+      dimension_id: 4312457A-47FF-4D88-9D22-008E8552C075
+      business_name: 'State1'
+      table: 'QB_MDJMD_SALES_5YRS_SUMMARY'
+      column: 'State1'
+      matched_question_tokens: ['ch']
+      matched_value_tokens: ['ch']
+    - value: 'CH'
+      match_type: SINGULAR_PLURAL
+      confidence: 0.95
+      normalized_value: 'ch'
+      dimension_id: F324DA6E-28D3-4E36-9BE6-08427AD0A6C5
+      business_name: 'state1'
+      table: 'PBI_OUTSTANDING_ENES_SUMMARY'
+      column: 'state1'
+      matched_question_tokens: ['ch']
+      matched_value_tokens: ['ch']
+  * FuzzyMatcher: 5 matches
+    - value: 'CH'
+      match_type: FUZZY
+      confidence: 1.00
+      normalized_value: 'ch'
+      dimension_id: 4312457A-47FF-4D88-9D22-008E8552C075
+      business_name: 'State1'
+      table: 'QB_MDJMD_SALES_5YRS_SUMMARY'
+      column: 'State1'
+      matched_question_tokens: ['ch']
+      matched_value_tokens: ['ch']
+    - value: 'CH'
+      match_type: FUZZY
+      confidence: 1.00
+      normalized_value: 'ch'
+      dimension_id: F324DA6E-28D3-4E36-9BE6-08427AD0A6C5
+      business_name: 'state1'
+      table: 'PBI_OUTSTANDING_ENES_SUMMARY'
+      column: 'state1'
+      matched_question_tokens: ['ch']
+      matched_value_tokens: ['ch']
+    - value: 'RJ12-CHU'
+      match_type: FUZZY
+      confidence: 0.90
+      normalized_value: 'rj12 chu'
+      dimension_id: ACCEDA18-4800-45F6-9FB5-C2DDDC7D11F9
+      business_name: 'Area Code'
+      table: 'PBI_OUTSTANDING_ENES_SUMMARY'
+      column: 'AreaCode'
+      matched_question_tokens: ['ch']
+      matched_value_tokens: ['rj12', 'chu']
+    - value: 'TN3-CHN-SS'
+      match_type: FUZZY
+      confidence: 0.90
+      normalized_value: 'tn3 chn ss'
+      dimension_id: ACCEDA18-4800-45F6-9FB5-C2DDDC7D11F9
+      business_name: 'Area Code'
+      table: 'PBI_OUTSTANDING_ENES_SUMMARY'
+      column: 'AreaCode'
+      matched_question_tokens: ['ch']
+      matched_value_tokens: ['tn3', 'chn', 'ss']
+    - value: 'TN4-CHN-T'
+      match_type: FUZZY
+      confidence: 0.90
+      normalized_value: 'tn4 chn t'
+      dimension_id: ACCEDA18-4800-45F6-9FB5-C2DDDC7D11F9
+      business_name: 'Area Code'
+      table: 'PBI_OUTSTANDING_ENES_SUMMARY'
+      column: 'AreaCode'
+      matched_question_tokens: ['ch']
+      matched_value_tokens: ['tn4', 'chn', 't']
+
+D. PIPELINE OUTPUT:
+  Total raw matches collected: 11
+    1. 'CH' (EXACT, conf: 1.00, dim: 'State1')
+    2. 'CH' (EXACT, conf: 1.00, dim: 'state1')
+    3. 'CH' (NORMALIZED, conf: 0.98, dim: 'State1')
+    4. 'CH' (NORMALIZED, conf: 0.98, dim: 'state1')
+    5. 'CH' (SINGULAR_PLURAL, conf: 0.95, dim: 'State1')
+    6. 'CH' (SINGULAR_PLURAL, conf: 0.95, dim: 'state1')
+    7. 'CH' (FUZZY, conf: 1.00, dim: 'State1')
+    8. 'CH' (FUZZY, conf: 1.00, dim: 'state1')
+    9. 'RJ12-CHU' (FUZZY, conf: 0.90, dim: 'Area Code')
+    10. 'TN3-CHN-SS' (FUZZY, conf: 0.90, dim: 'Area Code')
+    11. 'TN4-CHN-T' (FUZZY, conf: 0.90, dim: 'Area Code')
+
+E. RESOLVER PROCESSING:
+  Candidates received by DimensionValueResolver: 11
+  * Duplicate consolidation: 11 -> 5
+    - Consolidate: 'CH' (NORMALIZED) removed because 'CH' (EXACT) has lower match type priority (NORMALIZED < EXACT)
+    - Consolidate: 'CH' (NORMALIZED) removed because 'CH' (EXACT) has lower match type priority (NORMALIZED < EXACT)
+    - Consolidate: 'CH' (SINGULAR_PLURAL) removed because 'CH' (EXACT) has lower match type priority (SINGULAR_PLURAL < EXACT)
+    - Consolidate: 'CH' (SINGULAR_PLURAL) removed because 'CH' (EXACT) has lower match type priority (SINGULAR_PLURAL < EXACT)
+    - Consolidate: 'CH' (FUZZY) removed because 'CH' (EXACT) has lower match type priority (FUZZY < EXACT)
+    - Consolidate: 'CH' (FUZZY) removed because 'CH' (EXACT) has lower match type priority (FUZZY < EXACT)
+  * Containment removal: 5 -> 2
+    - Suppressed: 'TN3-CHN-SS' (FUZZY) removed by kept 'CH' (EXACT) | Reason: Rule 1: Direct match on same span 'ch' suppresses fuzzy match
+    - Suppressed: 'TN4-CHN-T' (FUZZY) removed by kept 'CH' (EXACT) | Reason: Rule 1: Direct match on same span 'ch' suppresses fuzzy match
+    - Suppressed: 'RJ12-CHU' (FUZZY) removed by kept 'CH' (EXACT) | Reason: Rule 1: Direct match on same span 'ch' suppresses fuzzy match
+  * Candidates remaining after resolver processing: 2
+    - 'CH' (dim: 'State1')
+    - 'CH' (dim: 'state1')
+
+F. FINAL RANKING:
+  Rank #1:
+    value: 'CH'
+    match_type: EXACT
+    confidence: 1.00
+    coverage: 1.00
+    token_distance: 0
+    length_difference: 0
+    semantic_dimension: 'State1' (ID: 4312457A-47FF-4D88-9D22-008E8552C075)
+    table: 'QB_MDJMD_SALES_5YRS_SUMMARY'
+    column: 'State1'
+  Rank #2:
+    value: 'CH'
+    match_type: EXACT
+    confidence: 1.00
+    coverage: 1.00
+    token_distance: 0
+    length_difference: 0
+    semantic_dimension: 'state1' (ID: F324DA6E-28D3-4E36-9BE6-08427AD0A6C5)
+    table: 'PBI_OUTSTANDING_ENES_SUMMARY'
+    column: 'state1'
+
+G. AMBIGUITY CLASSIFICATION:
+  AMBIGUOUS_CROSS_DIMENSION
+
+H. SPECIAL ANALYSIS:
+  1. Number of candidates: 2
+  2. Number of distinct semantic dimensions: 2 (['State1', 'state1'])
+  3. Number of distinct tables: 2 (['QB_MDJMD_SALES_5YRS_SUMMARY', 'PBI_OUTSTANDING_ENES_SUMMARY'])
+  4. Match-type distribution: {'EXACT': 2}
+  5. Confidence range: 1.00 - 1.00
+  6. Score/confidence gap between rank #1 and rank #2: 0.00
+  7. Rank #1 clearly dominant: False
+  8. Candidates share the same semantic dimension: False
+  9. Candidates share the same column: False
+  10. Genuinely different possible interpretations: Yes
+  --> AMBIGUITY STRENGTH: Strong Ambiguity
+
+--------------------------------------------------------------------------------
+QUESTION #20: "show sales for rm" (GROUP E: MULTI-DIMENSION / POSSIBLE CROSS-DIMENSION AMBIGUITY)
+--------------------------------------------------------------------------------
+B. EXTRACTED PHRASES:
+  ['rm']
+
+C. MATCHER OUTPUT:
+  * ExactMatcher: 4 matches
+    - value: 'RM'
+      match_type: EXACT
+      confidence: 1.00
+      normalized_value: 'rm'
+      dimension_id: E400E64B-B295-4271-94F9-2D6B2AF00077
+      business_name: 'btype'
+      table: 'PBI_OUTSTANDING_ENES_SUMMARY'
+      column: 'btype'
+      matched_question_tokens: ['rm']
+      matched_value_tokens: ['rm']
+    - value: 'RM'
+      match_type: EXACT
+      confidence: 1.00
+      normalized_value: 'rm'
+      dimension_id: 71D39287-7BCD-4E3F-A36D-C2870BF82C0F
+      business_name: 'M K T  R M'
+      table: 'PBI_ENES_ORDER_PENDING_SUMMARY'
+      column: 'MKT_RM'
+      matched_question_tokens: ['rm']
+      matched_value_tokens: ['rm']
+    - value: 'RM'
+      match_type: EXACT
+      confidence: 1.00
+      normalized_value: 'rm'
+      dimension_id: D3112199-AAB0-45F6-AA93-7ACE2F13CDDB
+      business_name: 'M K T R M'
+      table: 'QB_MDJMD_SALES_5YRS_SUMMARY'
+      column: 'MKTRM'
+      matched_question_tokens: ['rm']
+      matched_value_tokens: ['rm']
+    - value: 'RM'
+      match_type: EXACT
+      confidence: 1.00
+      normalized_value: 'rm'
+      dimension_id: 6FD3E2D7-C64F-4FF4-A592-E13332956BCB
+      business_name: 'Mkt  R M'
+      table: 'PBI_OUTSTANDING_ENES_SUMMARY'
+      column: 'Mkt_RM'
+      matched_question_tokens: ['rm']
+      matched_value_tokens: ['rm']
+  * NormalizedMatcher: 4 matches
+    - value: 'RM'
+      match_type: NORMALIZED
+      confidence: 0.98
+      normalized_value: 'rm'
+      dimension_id: E400E64B-B295-4271-94F9-2D6B2AF00077
+      business_name: 'btype'
+      table: 'PBI_OUTSTANDING_ENES_SUMMARY'
+      column: 'btype'
+      matched_question_tokens: ['rm']
+      matched_value_tokens: ['rm']
+    - value: 'RM'
+      match_type: NORMALIZED
+      confidence: 0.98
+      normalized_value: 'rm'
+      dimension_id: 71D39287-7BCD-4E3F-A36D-C2870BF82C0F
+      business_name: 'M K T  R M'
+      table: 'PBI_ENES_ORDER_PENDING_SUMMARY'
+      column: 'MKT_RM'
+      matched_question_tokens: ['rm']
+      matched_value_tokens: ['rm']
+    - value: 'RM'
+      match_type: NORMALIZED
+      confidence: 0.98
+      normalized_value: 'rm'
+      dimension_id: D3112199-AAB0-45F6-AA93-7ACE2F13CDDB
+      business_name: 'M K T R M'
+      table: 'QB_MDJMD_SALES_5YRS_SUMMARY'
+      column: 'MKTRM'
+      matched_question_tokens: ['rm']
+      matched_value_tokens: ['rm']
+    - value: 'RM'
+      match_type: NORMALIZED
+      confidence: 0.98
+      normalized_value: 'rm'
+      dimension_id: 6FD3E2D7-C64F-4FF4-A592-E13332956BCB
+      business_name: 'Mkt  R M'
+      table: 'PBI_OUTSTANDING_ENES_SUMMARY'
+      column: 'Mkt_RM'
+      matched_question_tokens: ['rm']
+      matched_value_tokens: ['rm']
+  * SingularPluralMatcher: 4 matches
+    - value: 'RM'
+      match_type: SINGULAR_PLURAL
+      confidence: 0.95
+      normalized_value: 'rm'
+      dimension_id: E400E64B-B295-4271-94F9-2D6B2AF00077
+      business_name: 'btype'
+      table: 'PBI_OUTSTANDING_ENES_SUMMARY'
+      column: 'btype'
+      matched_question_tokens: ['rm']
+      matched_value_tokens: ['rm']
+    - value: 'RM'
+      match_type: SINGULAR_PLURAL
+      confidence: 0.95
+      normalized_value: 'rm'
+      dimension_id: 71D39287-7BCD-4E3F-A36D-C2870BF82C0F
+      business_name: 'M K T  R M'
+      table: 'PBI_ENES_ORDER_PENDING_SUMMARY'
+      column: 'MKT_RM'
+      matched_question_tokens: ['rm']
+      matched_value_tokens: ['rm']
+    - value: 'RM'
+      match_type: SINGULAR_PLURAL
+      confidence: 0.95
+      normalized_value: 'rm'
+      dimension_id: D3112199-AAB0-45F6-AA93-7ACE2F13CDDB
+      business_name: 'M K T R M'
+      table: 'QB_MDJMD_SALES_5YRS_SUMMARY'
+      column: 'MKTRM'
+      matched_question_tokens: ['rm']
+      matched_value_tokens: ['rm']
+    - value: 'RM'
+      match_type: SINGULAR_PLURAL
+      confidence: 0.95
+      normalized_value: 'rm'
+      dimension_id: 6FD3E2D7-C64F-4FF4-A592-E13332956BCB
+      business_name: 'Mkt  R M'
+      table: 'PBI_OUTSTANDING_ENES_SUMMARY'
+      column: 'Mkt_RM'
+      matched_question_tokens: ['rm']
+      matched_value_tokens: ['rm']
+  * FuzzyMatcher: 5 matches
+    - value: 'RM'
+      match_type: FUZZY
+      confidence: 1.00
+      normalized_value: 'rm'
+      dimension_id: E400E64B-B295-4271-94F9-2D6B2AF00077
+      business_name: 'btype'
+      table: 'PBI_OUTSTANDING_ENES_SUMMARY'
+      column: 'btype'
+      matched_question_tokens: ['rm']
+      matched_value_tokens: ['rm']
+    - value: 'RM'
+      match_type: FUZZY
+      confidence: 1.00
+      normalized_value: 'rm'
+      dimension_id: 71D39287-7BCD-4E3F-A36D-C2870BF82C0F
+      business_name: 'M K T  R M'
+      table: 'PBI_ENES_ORDER_PENDING_SUMMARY'
+      column: 'MKT_RM'
+      matched_question_tokens: ['rm']
+      matched_value_tokens: ['rm']
+    - value: 'RM'
+      match_type: FUZZY
+      confidence: 1.00
+      normalized_value: 'rm'
+      dimension_id: D3112199-AAB0-45F6-AA93-7ACE2F13CDDB
+      business_name: 'M K T R M'
+      table: 'QB_MDJMD_SALES_5YRS_SUMMARY'
+      column: 'MKTRM'
+      matched_question_tokens: ['rm']
+      matched_value_tokens: ['rm']
+    - value: 'RM'
+      match_type: FUZZY
+      confidence: 1.00
+      normalized_value: 'rm'
+      dimension_id: 6FD3E2D7-C64F-4FF4-A592-E13332956BCB
+      business_name: 'Mkt  R M'
+      table: 'PBI_OUTSTANDING_ENES_SUMMARY'
+      column: 'Mkt_RM'
+      matched_question_tokens: ['rm']
+      matched_value_tokens: ['rm']
+    - value: 'KA11-RMR'
+      match_type: FUZZY
+      confidence: 0.90
+      normalized_value: 'ka11 rmr'
+      dimension_id: ACCEDA18-4800-45F6-9FB5-C2DDDC7D11F9
+      business_name: 'Area Code'
+      table: 'PBI_OUTSTANDING_ENES_SUMMARY'
+      column: 'AreaCode'
+      matched_question_tokens: ['rm']
+      matched_value_tokens: ['ka11', 'rmr']
+
+D. PIPELINE OUTPUT:
+  Total raw matches collected: 17
+    1. 'RM' (EXACT, conf: 1.00, dim: 'btype')
+    2. 'RM' (EXACT, conf: 1.00, dim: 'M K T  R M')
+    3. 'RM' (EXACT, conf: 1.00, dim: 'M K T R M')
+    4. 'RM' (EXACT, conf: 1.00, dim: 'Mkt  R M')
+    5. 'RM' (NORMALIZED, conf: 0.98, dim: 'btype')
+    6. 'RM' (NORMALIZED, conf: 0.98, dim: 'M K T  R M')
+    7. 'RM' (NORMALIZED, conf: 0.98, dim: 'M K T R M')
+    8. 'RM' (NORMALIZED, conf: 0.98, dim: 'Mkt  R M')
+    9. 'RM' (SINGULAR_PLURAL, conf: 0.95, dim: 'btype')
+    10. 'RM' (SINGULAR_PLURAL, conf: 0.95, dim: 'M K T  R M')
+    11. 'RM' (SINGULAR_PLURAL, conf: 0.95, dim: 'M K T R M')
+    12. 'RM' (SINGULAR_PLURAL, conf: 0.95, dim: 'Mkt  R M')
+    13. 'RM' (FUZZY, conf: 1.00, dim: 'btype')
+    14. 'RM' (FUZZY, conf: 1.00, dim: 'M K T  R M')
+    15. 'RM' (FUZZY, conf: 1.00, dim: 'M K T R M')
+    16. 'RM' (FUZZY, conf: 1.00, dim: 'Mkt  R M')
+    17. 'KA11-RMR' (FUZZY, conf: 0.90, dim: 'Area Code')
+
+E. RESOLVER PROCESSING:
+  Candidates received by DimensionValueResolver: 17
+  * Duplicate consolidation: 17 -> 5
+    - Consolidate: 'RM' (NORMALIZED) removed because 'RM' (EXACT) has lower match type priority (NORMALIZED < EXACT)
+    - Consolidate: 'RM' (NORMALIZED) removed because 'RM' (EXACT) has lower match type priority (NORMALIZED < EXACT)
+    - Consolidate: 'RM' (NORMALIZED) removed because 'RM' (EXACT) has lower match type priority (NORMALIZED < EXACT)
+    - Consolidate: 'RM' (NORMALIZED) removed because 'RM' (EXACT) has lower match type priority (NORMALIZED < EXACT)
+    - Consolidate: 'RM' (SINGULAR_PLURAL) removed because 'RM' (EXACT) has lower match type priority (SINGULAR_PLURAL < EXACT)
+    - Consolidate: 'RM' (SINGULAR_PLURAL) removed because 'RM' (EXACT) has lower match type priority (SINGULAR_PLURAL < EXACT)
+    - Consolidate: 'RM' (SINGULAR_PLURAL) removed because 'RM' (EXACT) has lower match type priority (SINGULAR_PLURAL < EXACT)
+    - Consolidate: 'RM' (SINGULAR_PLURAL) removed because 'RM' (EXACT) has lower match type priority (SINGULAR_PLURAL < EXACT)
+    - Consolidate: 'RM' (FUZZY) removed because 'RM' (EXACT) has lower match type priority (FUZZY < EXACT)
+    - Consolidate: 'RM' (FUZZY) removed because 'RM' (EXACT) has lower match type priority (FUZZY < EXACT)
+    - Consolidate: 'RM' (FUZZY) removed because 'RM' (EXACT) has lower match type priority (FUZZY < EXACT)
+    - Consolidate: 'RM' (FUZZY) removed because 'RM' (EXACT) has lower match type priority (FUZZY < EXACT)
+  * Containment removal: 5 -> 4
+    - Suppressed: 'KA11-RMR' (FUZZY) removed by kept 'RM' (EXACT) | Reason: Rule 1: Direct match on same span 'rm' suppresses fuzzy match
+  * Candidates remaining after resolver processing: 4
+    - 'RM' (dim: 'btype')
+    - 'RM' (dim: 'M K T  R M')
+    - 'RM' (dim: 'M K T R M')
+    - 'RM' (dim: 'Mkt  R M')
+
+F. FINAL RANKING:
+  Rank #1:
+    value: 'RM'
+    match_type: EXACT
+    confidence: 1.00
+    coverage: 1.00
+    token_distance: 0
+    length_difference: 0
+    semantic_dimension: 'btype' (ID: E400E64B-B295-4271-94F9-2D6B2AF00077)
+    table: 'PBI_OUTSTANDING_ENES_SUMMARY'
+    column: 'btype'
+  Rank #2:
+    value: 'RM'
+    match_type: EXACT
+    confidence: 1.00
+    coverage: 1.00
+    token_distance: 0
+    length_difference: 0
+    semantic_dimension: 'M K T  R M' (ID: 71D39287-7BCD-4E3F-A36D-C2870BF82C0F)
+    table: 'PBI_ENES_ORDER_PENDING_SUMMARY'
+    column: 'MKT_RM'
+  Rank #3:
+    value: 'RM'
+    match_type: EXACT
+    confidence: 1.00
+    coverage: 1.00
+    token_distance: 0
+    length_difference: 0
+    semantic_dimension: 'M K T R M' (ID: D3112199-AAB0-45F6-AA93-7ACE2F13CDDB)
+    table: 'QB_MDJMD_SALES_5YRS_SUMMARY'
+    column: 'MKTRM'
+  Rank #4:
+    value: 'RM'
+    match_type: EXACT
+    confidence: 1.00
+    coverage: 1.00
+    token_distance: 0
+    length_difference: 0
+    semantic_dimension: 'Mkt  R M' (ID: 6FD3E2D7-C64F-4FF4-A592-E13332956BCB)
+    table: 'PBI_OUTSTANDING_ENES_SUMMARY'
+    column: 'Mkt_RM'
+
+G. AMBIGUITY CLASSIFICATION:
+  AMBIGUOUS_CROSS_DIMENSION
+
+H. SPECIAL ANALYSIS:
+  1. Number of candidates: 4
+  2. Number of distinct semantic dimensions: 4 (['btype', 'Mkt  R M', 'M K T  R M', 'M K T R M'])
+  3. Number of distinct tables: 3 (['QB_MDJMD_SALES_5YRS_SUMMARY', 'PBI_OUTSTANDING_ENES_SUMMARY', 'PBI_ENES_ORDER_PENDING_SUMMARY'])
+  4. Match-type distribution: {'EXACT': 4}
+  5. Confidence range: 1.00 - 1.00
+  6. Score/confidence gap between rank #1 and rank #2: 0.00
+  7. Rank #1 clearly dominant: False
+  8. Candidates share the same semantic dimension: False
+  9. Candidates share the same column: False
+  10. Genuinely different possible interpretations: Yes
+  --> AMBIGUITY STRENGTH: Strong Ambiguity
+
+--------------------------------------------------------------------------------
+QUESTION #21: "show sales for an" (GROUP E: MULTI-DIMENSION / POSSIBLE CROSS-DIMENSION AMBIGUITY)
+--------------------------------------------------------------------------------
+B. EXTRACTED PHRASES:
+  []
+
+C. MATCHER OUTPUT:
+  * ExactMatcher: 3 matches
+    - value: 'AN'
+      match_type: EXACT
+      confidence: 1.00
+      normalized_value: 'an'
+      dimension_id: F324DA6E-28D3-4E36-9BE6-08427AD0A6C5
+      business_name: 'state1'
+      table: 'PBI_OUTSTANDING_ENES_SUMMARY'
+      column: 'state1'
+      matched_question_tokens: []
+      matched_value_tokens: []
+    - value: 'AN'
+      match_type: EXACT
+      confidence: 1.00
+      normalized_value: 'an'
+      dimension_id: 4312457A-47FF-4D88-9D22-008E8552C075
+      business_name: 'State1'
+      table: 'QB_MDJMD_SALES_5YRS_SUMMARY'
+      column: 'State1'
+      matched_question_tokens: []
+      matched_value_tokens: []
+    - value: 'AN'
+      match_type: EXACT
+      confidence: 1.00
+      normalized_value: 'an'
+      dimension_id: 7B64FE7E-CBCA-4881-9940-52C8E9621F81
+      business_name: 'state1'
+      table: 'PBI_ENES_ORDER_PENDING_SUMMARY'
+      column: 'state1'
+      matched_question_tokens: []
+      matched_value_tokens: []
+  * NormalizedMatcher: 3 matches
+    - value: 'AN'
+      match_type: NORMALIZED
+      confidence: 0.98
+      normalized_value: 'an'
+      dimension_id: F324DA6E-28D3-4E36-9BE6-08427AD0A6C5
+      business_name: 'state1'
+      table: 'PBI_OUTSTANDING_ENES_SUMMARY'
+      column: 'state1'
+      matched_question_tokens: []
+      matched_value_tokens: []
+    - value: 'AN'
+      match_type: NORMALIZED
+      confidence: 0.98
+      normalized_value: 'an'
+      dimension_id: 4312457A-47FF-4D88-9D22-008E8552C075
+      business_name: 'State1'
+      table: 'QB_MDJMD_SALES_5YRS_SUMMARY'
+      column: 'State1'
+      matched_question_tokens: []
+      matched_value_tokens: []
+    - value: 'AN'
+      match_type: NORMALIZED
+      confidence: 0.98
+      normalized_value: 'an'
+      dimension_id: 7B64FE7E-CBCA-4881-9940-52C8E9621F81
+      business_name: 'state1'
+      table: 'PBI_ENES_ORDER_PENDING_SUMMARY'
+      column: 'state1'
+      matched_question_tokens: []
+      matched_value_tokens: []
+  * SingularPluralMatcher: 0 matches
+  * FuzzyMatcher: 0 matches
+
+D. PIPELINE OUTPUT:
+  Total raw matches collected: 6
+    1. 'AN' (EXACT, conf: 1.00, dim: 'state1')
+    2. 'AN' (EXACT, conf: 1.00, dim: 'State1')
+    3. 'AN' (EXACT, conf: 1.00, dim: 'state1')
+    4. 'AN' (NORMALIZED, conf: 0.98, dim: 'state1')
+    5. 'AN' (NORMALIZED, conf: 0.98, dim: 'State1')
+    6. 'AN' (NORMALIZED, conf: 0.98, dim: 'state1')
+
+E. RESOLVER PROCESSING:
+  Candidates received by DimensionValueResolver: 6
+  * Duplicate consolidation: 6 -> 3
+    - Consolidate: 'AN' (NORMALIZED) removed because 'AN' (EXACT) has lower match type priority (NORMALIZED < EXACT)
+    - Consolidate: 'AN' (NORMALIZED) removed because 'AN' (EXACT) has lower match type priority (NORMALIZED < EXACT)
+    - Consolidate: 'AN' (NORMALIZED) removed because 'AN' (EXACT) has lower match type priority (NORMALIZED < EXACT)
+  * Containment removal: 3 -> 3
+  * Candidates remaining after resolver processing: 3
+    - 'AN' (dim: 'state1')
+    - 'AN' (dim: 'State1')
+    - 'AN' (dim: 'state1')
+
+F. FINAL RANKING:
+  Rank #1:
+    value: 'AN'
+    match_type: EXACT
+    confidence: 1.00
+    coverage: 0.00
+    token_distance: 0
+    length_difference: 2
+    semantic_dimension: 'state1' (ID: F324DA6E-28D3-4E36-9BE6-08427AD0A6C5)
+    table: 'PBI_OUTSTANDING_ENES_SUMMARY'
+    column: 'state1'
+  Rank #2:
+    value: 'AN'
+    match_type: EXACT
+    confidence: 1.00
+    coverage: 0.00
+    token_distance: 0
+    length_difference: 2
+    semantic_dimension: 'State1' (ID: 4312457A-47FF-4D88-9D22-008E8552C075)
+    table: 'QB_MDJMD_SALES_5YRS_SUMMARY'
+    column: 'State1'
+  Rank #3:
+    value: 'AN'
+    match_type: EXACT
+    confidence: 1.00
+    coverage: 0.00
+    token_distance: 0
+    length_difference: 2
+    semantic_dimension: 'state1' (ID: 7B64FE7E-CBCA-4881-9940-52C8E9621F81)
+    table: 'PBI_ENES_ORDER_PENDING_SUMMARY'
+    column: 'state1'
+
+G. AMBIGUITY CLASSIFICATION:
+  AMBIGUOUS_CROSS_DIMENSION
+
+H. SPECIAL ANALYSIS:
+  1. Number of candidates: 3
+  2. Number of distinct semantic dimensions: 2 (['State1', 'state1'])
+  3. Number of distinct tables: 3 (['QB_MDJMD_SALES_5YRS_SUMMARY', 'PBI_OUTSTANDING_ENES_SUMMARY', 'PBI_ENES_ORDER_PENDING_SUMMARY'])
+  4. Match-type distribution: {'EXACT': 3}
+  5. Confidence range: 1.00 - 1.00
+  6. Score/confidence gap between rank #1 and rank #2: 0.00
+  7. Rank #1 clearly dominant: False
+  8. Candidates share the same semantic dimension: False
+  9. Candidates share the same column: False
+  10. Genuinely different possible interpretations: Yes
+  --> AMBIGUITY STRENGTH: False Ambiguity
+
+--------------------------------------------------------------------------------
+QUESTION #22: "show sales for laptop" (GROUP F: NOISE / NO-MATCH)
+--------------------------------------------------------------------------------
+B. EXTRACTED PHRASES:
+  ['laptop']
+
+C. MATCHER OUTPUT:
+  * ExactMatcher: 0 matches
+  * NormalizedMatcher: 0 matches
+  * SingularPluralMatcher: 0 matches
+  * FuzzyMatcher: 0 matches
+
+D. PIPELINE OUTPUT:
+  Total raw matches collected: 0
+
+E. RESOLVER PROCESSING:
+  Candidates received by DimensionValueResolver: 0
+  * Duplicate consolidation: 0 -> 0
+  * Containment removal: 0 -> 0
+  * Candidates remaining after resolver processing: 0
+
+F. FINAL RANKING:
+
+G. AMBIGUITY CLASSIFICATION:
+  NO_MATCH
+
+--------------------------------------------------------------------------------
+QUESTION #23: "show sales for banana" (GROUP F: NOISE / NO-MATCH)
+--------------------------------------------------------------------------------
+B. EXTRACTED PHRASES:
+  ['banana']
+
+C. MATCHER OUTPUT:
+  * ExactMatcher: 0 matches
+  * NormalizedMatcher: 0 matches
+  * SingularPluralMatcher: 0 matches
+  * FuzzyMatcher: 0 matches
+
+D. PIPELINE OUTPUT:
+  Total raw matches collected: 0
+
+E. RESOLVER PROCESSING:
+  Candidates received by DimensionValueResolver: 0
+  * Duplicate consolidation: 0 -> 0
+  * Containment removal: 0 -> 0
+  * Candidates remaining after resolver processing: 0
+
+F. FINAL RANKING:
+
+G. AMBIGUITY CLASSIFICATION:
+  NO_MATCH
+
+--------------------------------------------------------------------------------
+QUESTION #24: "show sales for hospital" (GROUP F: NOISE / NO-MATCH)
+--------------------------------------------------------------------------------
+B. EXTRACTED PHRASES:
+  ['hospital']
+
+C. MATCHER OUTPUT:
+  * ExactMatcher: 0 matches
+  * NormalizedMatcher: 0 matches
+  * SingularPluralMatcher: 0 matches
+  * FuzzyMatcher: 0 matches
+
+D. PIPELINE OUTPUT:
+  Total raw matches collected: 0
+
+E. RESOLVER PROCESSING:
+  Candidates received by DimensionValueResolver: 0
+  * Duplicate consolidation: 0 -> 0
+  * Containment removal: 0 -> 0
+  * Candidates remaining after resolver processing: 0
+
+F. FINAL RANKING:
+
+G. AMBIGUITY CLASSIFICATION:
+  NO_MATCH
+
+--------------------------------------------------------------------------------
+QUESTION #25: "show sales for xyzabc" (GROUP F: NOISE / NO-MATCH)
+--------------------------------------------------------------------------------
+B. EXTRACTED PHRASES:
+  ['xyzabc']
+
+C. MATCHER OUTPUT:
+  * ExactMatcher: 0 matches
+  * NormalizedMatcher: 0 matches
+  * SingularPluralMatcher: 0 matches
+  * FuzzyMatcher: 0 matches
+
+D. PIPELINE OUTPUT:
+  Total raw matches collected: 0
+
+E. RESOLVER PROCESSING:
+  Candidates received by DimensionValueResolver: 0
+  * Duplicate consolidation: 0 -> 0
+  * Containment removal: 0 -> 0
+  * Candidates remaining after resolver processing: 0
+
+F. FINAL RANKING:
+
+G. AMBIGUITY CLASSIFICATION:
+  NO_MATCH
+
+--------------------------------------------------------------------------------
+QUESTION #26: "show sales for pantxyz" (GROUP F: NOISE / NO-MATCH)
+--------------------------------------------------------------------------------
+B. EXTRACTED PHRASES:
+  ['pantxyz']
+
+C. MATCHER OUTPUT:
+  * ExactMatcher: 0 matches
+  * NormalizedMatcher: 0 matches
+  * SingularPluralMatcher: 0 matches
+  * FuzzyMatcher: 0 matches
+
+D. PIPELINE OUTPUT:
+  Total raw matches collected: 0
+
+E. RESOLVER PROCESSING:
+  Candidates received by DimensionValueResolver: 0
+  * Duplicate consolidation: 0 -> 0
+  * Containment removal: 0 -> 0
+  * Candidates remaining after resolver processing: 0
+
+F. FINAL RANKING:
+
+G. AMBIGUITY CLASSIFICATION:
+  NO_MATCH

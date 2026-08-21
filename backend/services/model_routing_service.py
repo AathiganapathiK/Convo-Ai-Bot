@@ -3,6 +3,9 @@ from sqlalchemy import text
 from database import engine
 
 
+# DEPRECATED: ModelRoutingService is deprecated.
+# Routing and fallback failovers are now dynamically handled at runtime by FallbackService 
+# and LLMExecutionService utilizing the llm_fallbacks list mapping.
 class ModelRoutingService:
 
     @staticmethod

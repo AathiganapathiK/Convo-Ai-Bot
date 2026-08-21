@@ -81,6 +81,16 @@ class LLMExecutionService:
                     time.time() - start_time
                 ) * 1000
 
+                # TEMP_PIPELINE_TRACE_REMOVE_LATER
+                try:
+                    from semantic.diagnostic_trace import PipelineDiagnosticTracer
+                    if purpose == "sql_generation":
+                        PipelineDiagnosticTracer.record_timing("ollama", response_ms / 1000.0)
+                    elif purpose == "business_summary":
+                        PipelineDiagnosticTracer.record_timing("summary_llm", response_ms / 1000.0)
+                except Exception:
+                    pass
+
                 ProviderHealthService.mark_success(
                     model_config[
                         "provider_type"

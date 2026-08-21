@@ -1,0 +1,358 @@
+================================================================================
+ISSUE 1 — CONTAINMENT SUPPRESSION: Trace for 'cotton pant'
+================================================================================
+
+--- ALL CANDIDATES PRODUCED BEFORE CONTAINMENT ---
+value: COTTON BREEZE KURTA
+  matched_question_tokens: ['cotton']
+  match_type: FUZZY
+  confidence: 0.90
+  dimension_id: DCBA558A-C4F4-409C-AF0C-A8B3E95B0DAF
+  dimension_name: Prod Grp2
+  table: QB_MDJMD_SALES_5YRS_SUMMARY
+  column: ProdGrp2
+
+value: LS PANT
+  matched_question_tokens: ['cotton', 'pant']
+  match_type: FUZZY
+  confidence: 0.85
+  dimension_id: DCBA558A-C4F4-409C-AF0C-A8B3E95B0DAF
+  dimension_name: Prod Grp2
+  table: QB_MDJMD_SALES_5YRS_SUMMARY
+  column: ProdGrp2
+
+value: LS COTTON BREEZE
+  matched_question_tokens: ['cotton']
+  match_type: FUZZY
+  confidence: 0.90
+  dimension_id: DCBA558A-C4F4-409C-AF0C-A8B3E95B0DAF
+  dimension_name: Prod Grp2
+  table: QB_MDJMD_SALES_5YRS_SUMMARY
+  column: ProdGrp2
+
+value: LS ZARI COTTON
+  matched_question_tokens: ['cotton']
+  match_type: FUZZY
+  confidence: 0.90
+  dimension_id: DCBA558A-C4F4-409C-AF0C-A8B3E95B0DAF
+  dimension_name: Prod Grp2
+  table: QB_MDJMD_SALES_5YRS_SUMMARY
+  column: ProdGrp2
+
+value: WHITE SHIRT 100% COTTON
+  matched_question_tokens: ['cotton']
+  match_type: FUZZY
+  confidence: 0.90
+  dimension_id: DCBA558A-C4F4-409C-AF0C-A8B3E95B0DAF
+  dimension_name: Prod Grp2
+  table: QB_MDJMD_SALES_5YRS_SUMMARY
+  column: ProdGrp2
+
+value: DHOTI : 3.80MT KL COTTON KARA
+  matched_question_tokens: ['cotton']
+  match_type: FUZZY
+  confidence: 0.90
+  dimension_id: 9E300C66-9E1B-41C1-8C2F-8DB60900A92A
+  dimension_name: Prod Grp3
+  table: QB_MDJMD_SALES_5YRS_SUMMARY
+  column: ProdGrp3
+
+value: LINEN PANT
+  matched_question_tokens: ['pant']
+  match_type: FUZZY
+  confidence: 0.90
+  dimension_id: 47489775-A75B-44F1-BA91-932589BA7944
+  dimension_name: Brand
+  table: PBI_ENES_ORDER_PENDING_SUMMARY
+  column: Brand
+
+value: RAMRAJ PANT
+  matched_question_tokens: ['pant']
+  match_type: FUZZY
+  confidence: 0.90
+  dimension_id: 47489775-A75B-44F1-BA91-932589BA7944
+  dimension_name: Brand
+  table: PBI_ENES_ORDER_PENDING_SUMMARY
+  column: Brand
+
+Are LS PANT, LINEN PANT, RAMRAJ PANT all produced? LS PANT: True, LINEN PANT: True, RAMRAJ PANT: True
+
+--- TRACING CONTAINMENT DECISIONS IN _remove_contained_matches() ---
+
+Sorted matches by span length descending:
+  - LS PANT (FUZZY) span=['cotton', 'pant']
+  - DHOTI : 3.80MT KL COTTON KARA (FUZZY) span=['cotton']
+  - WHITE SHIRT 100% COTTON (FUZZY) span=['cotton']
+  - COTTON BREEZE KURTA (FUZZY) span=['cotton']
+  - LS COTTON BREEZE (FUZZY) span=['cotton']
+  - LS ZARI COTTON (FUZZY) span=['cotton']
+  - RAMRAJ PANT (FUZZY) span=['pant']
+  - LINEN PANT (FUZZY) span=['pant']
+
+REMOVED:
+candidate = DHOTI : 3.80MT KL COTTON KARA
+candidate_span = ['cotton']
+candidate_confidence = 0.90
+SUPPRESSED_BY:
+candidate = LS PANT
+suppressor_span = ['cotton', 'pant']
+suppressor_confidence = 0.85
+RULE: Rule 2: Strict contiguous sublist containment (candidate span length < suppressor span length and candidate span is a contiguous sublist of suppressor span)
+
+REMOVED:
+candidate = WHITE SHIRT 100% COTTON
+candidate_span = ['cotton']
+candidate_confidence = 0.90
+SUPPRESSED_BY:
+candidate = LS PANT
+suppressor_span = ['cotton', 'pant']
+suppressor_confidence = 0.85
+RULE: Rule 2: Strict contiguous sublist containment (candidate span length < suppressor span length and candidate span is a contiguous sublist of suppressor span)
+
+REMOVED:
+candidate = COTTON BREEZE KURTA
+candidate_span = ['cotton']
+candidate_confidence = 0.90
+SUPPRESSED_BY:
+candidate = LS PANT
+suppressor_span = ['cotton', 'pant']
+suppressor_confidence = 0.85
+RULE: Rule 2: Strict contiguous sublist containment (candidate span length < suppressor span length and candidate span is a contiguous sublist of suppressor span)
+
+REMOVED:
+candidate = LS COTTON BREEZE
+candidate_span = ['cotton']
+candidate_confidence = 0.90
+SUPPRESSED_BY:
+candidate = LS PANT
+suppressor_span = ['cotton', 'pant']
+suppressor_confidence = 0.85
+RULE: Rule 2: Strict contiguous sublist containment (candidate span length < suppressor span length and candidate span is a contiguous sublist of suppressor span)
+
+REMOVED:
+candidate = LS ZARI COTTON
+candidate_span = ['cotton']
+candidate_confidence = 0.90
+SUPPRESSED_BY:
+candidate = LS PANT
+suppressor_span = ['cotton', 'pant']
+suppressor_confidence = 0.85
+RULE: Rule 2: Strict contiguous sublist containment (candidate span length < suppressor span length and candidate span is a contiguous sublist of suppressor span)
+
+REMOVED:
+candidate = RAMRAJ PANT
+candidate_span = ['pant']
+candidate_confidence = 0.90
+SUPPRESSED_BY:
+candidate = LS PANT
+suppressor_span = ['cotton', 'pant']
+suppressor_confidence = 0.85
+RULE: Rule 2: Strict contiguous sublist containment (candidate span length < suppressor span length and candidate span is a contiguous sublist of suppressor span)
+
+REMOVED:
+candidate = LINEN PANT
+candidate_span = ['pant']
+candidate_confidence = 0.90
+SUPPRESSED_BY:
+candidate = LS PANT
+suppressor_span = ['cotton', 'pant']
+suppressor_confidence = 0.85
+RULE: Rule 2: Strict contiguous sublist containment (candidate span length < suppressor span length and candidate span is a contiguous sublist of suppressor span)
+
+--- RESOLVER FINAL SURVIVORS ---
+  - LS PANT (FUZZY, conf=0.85)
+
+================================================================================
+ISSUE 2 — PLURAL MATCHING: Trace for pant, pants, banian, banians
+================================================================================
+
+Query: 'pant'
+----------------------------------------
+  Candidate Value: 'LINEN PANT'
+    query tokens: ['pant']
+    candidate tokens: ['linen', 'pant']
+    singularized query tokens: ['pant']
+    singularized candidate tokens: ['linen', 'pant']
+    comparison: matches_tokens check -> check if candidate singulars ['linen', 'pant'] is sublist of query singulars ['pant']
+    condition passes/fails: FAIL
+    RESULT: MatchResult IS NOT produced (Sublist check failed)
+
+  Candidate Value: 'RAMRAJ PANT'
+    query tokens: ['pant']
+    candidate tokens: ['ramraj', 'pant']
+    singularized query tokens: ['pant']
+    singularized candidate tokens: ['ramraj', 'pant']
+    comparison: matches_tokens check -> check if candidate singulars ['ramraj', 'pant'] is sublist of query singulars ['pant']
+    condition passes/fails: FAIL
+    RESULT: MatchResult IS NOT produced (Sublist check failed)
+
+  Candidate Value: 'BANIANS'
+    query tokens: ['pant']
+    candidate tokens: ['banians']
+    singularized query tokens: ['pant']
+    singularized candidate tokens: ['banian']
+    comparison: matches_tokens check -> check if candidate singulars ['banian'] is sublist of query singulars ['pant']
+    condition passes/fails: FAIL
+    RESULT: MatchResult IS NOT produced (Sublist check failed)
+
+  Candidate Value: 'LINEN PANT'
+    query tokens: ['pant']
+    candidate tokens: ['linen', 'pant']
+    singularized query tokens: ['pant']
+    singularized candidate tokens: ['linen', 'pant']
+    comparison: matches_tokens check -> check if candidate singulars ['linen', 'pant'] is sublist of query singulars ['pant']
+    condition passes/fails: FAIL
+    RESULT: MatchResult IS NOT produced (Sublist check failed)
+
+  Candidate Value: 'RAMRAJ PANT'
+    query tokens: ['pant']
+    candidate tokens: ['ramraj', 'pant']
+    singularized query tokens: ['pant']
+    singularized candidate tokens: ['ramraj', 'pant']
+    comparison: matches_tokens check -> check if candidate singulars ['ramraj', 'pant'] is sublist of query singulars ['pant']
+    condition passes/fails: FAIL
+    RESULT: MatchResult IS NOT produced (Sublist check failed)
+
+
+Query: 'pants'
+----------------------------------------
+  Candidate Value: 'LINEN PANT'
+    query tokens: ['pants']
+    candidate tokens: ['linen', 'pant']
+    singularized query tokens: ['pant']
+    singularized candidate tokens: ['linen', 'pant']
+    comparison: matches_tokens check -> check if candidate singulars ['linen', 'pant'] is sublist of query singulars ['pant']
+    condition passes/fails: FAIL
+    RESULT: MatchResult IS NOT produced (Sublist check failed)
+
+  Candidate Value: 'RAMRAJ PANT'
+    query tokens: ['pants']
+    candidate tokens: ['ramraj', 'pant']
+    singularized query tokens: ['pant']
+    singularized candidate tokens: ['ramraj', 'pant']
+    comparison: matches_tokens check -> check if candidate singulars ['ramraj', 'pant'] is sublist of query singulars ['pant']
+    condition passes/fails: FAIL
+    RESULT: MatchResult IS NOT produced (Sublist check failed)
+
+  Candidate Value: 'BANIANS'
+    query tokens: ['pants']
+    candidate tokens: ['banians']
+    singularized query tokens: ['pant']
+    singularized candidate tokens: ['banian']
+    comparison: matches_tokens check -> check if candidate singulars ['banian'] is sublist of query singulars ['pant']
+    condition passes/fails: FAIL
+    RESULT: MatchResult IS NOT produced (Sublist check failed)
+
+  Candidate Value: 'LINEN PANT'
+    query tokens: ['pants']
+    candidate tokens: ['linen', 'pant']
+    singularized query tokens: ['pant']
+    singularized candidate tokens: ['linen', 'pant']
+    comparison: matches_tokens check -> check if candidate singulars ['linen', 'pant'] is sublist of query singulars ['pant']
+    condition passes/fails: FAIL
+    RESULT: MatchResult IS NOT produced (Sublist check failed)
+
+  Candidate Value: 'RAMRAJ PANT'
+    query tokens: ['pants']
+    candidate tokens: ['ramraj', 'pant']
+    singularized query tokens: ['pant']
+    singularized candidate tokens: ['ramraj', 'pant']
+    comparison: matches_tokens check -> check if candidate singulars ['ramraj', 'pant'] is sublist of query singulars ['pant']
+    condition passes/fails: FAIL
+    RESULT: MatchResult IS NOT produced (Sublist check failed)
+
+
+Query: 'banian'
+----------------------------------------
+  Candidate Value: 'LINEN PANT'
+    query tokens: ['banian']
+    candidate tokens: ['linen', 'pant']
+    singularized query tokens: ['banian']
+    singularized candidate tokens: ['linen', 'pant']
+    comparison: matches_tokens check -> check if candidate singulars ['linen', 'pant'] is sublist of query singulars ['banian']
+    condition passes/fails: FAIL
+    RESULT: MatchResult IS NOT produced (Sublist check failed)
+
+  Candidate Value: 'RAMRAJ PANT'
+    query tokens: ['banian']
+    candidate tokens: ['ramraj', 'pant']
+    singularized query tokens: ['banian']
+    singularized candidate tokens: ['ramraj', 'pant']
+    comparison: matches_tokens check -> check if candidate singulars ['ramraj', 'pant'] is sublist of query singulars ['banian']
+    condition passes/fails: FAIL
+    RESULT: MatchResult IS NOT produced (Sublist check failed)
+
+  Candidate Value: 'BANIANS'
+    query tokens: ['banian']
+    candidate tokens: ['banians']
+    singularized query tokens: ['banian']
+    singularized candidate tokens: ['banian']
+    comparison: matches_tokens check -> check if candidate singulars ['banian'] is sublist of query singulars ['banian']
+    condition passes/fails: PASS
+    RESULT: MatchResult IS produced (Morphological singular/plural match)
+
+  Candidate Value: 'LINEN PANT'
+    query tokens: ['banian']
+    candidate tokens: ['linen', 'pant']
+    singularized query tokens: ['banian']
+    singularized candidate tokens: ['linen', 'pant']
+    comparison: matches_tokens check -> check if candidate singulars ['linen', 'pant'] is sublist of query singulars ['banian']
+    condition passes/fails: FAIL
+    RESULT: MatchResult IS NOT produced (Sublist check failed)
+
+  Candidate Value: 'RAMRAJ PANT'
+    query tokens: ['banian']
+    candidate tokens: ['ramraj', 'pant']
+    singularized query tokens: ['banian']
+    singularized candidate tokens: ['ramraj', 'pant']
+    comparison: matches_tokens check -> check if candidate singulars ['ramraj', 'pant'] is sublist of query singulars ['banian']
+    condition passes/fails: FAIL
+    RESULT: MatchResult IS NOT produced (Sublist check failed)
+
+
+Query: 'banians'
+----------------------------------------
+  Candidate Value: 'LINEN PANT'
+    query tokens: ['banians']
+    candidate tokens: ['linen', 'pant']
+    singularized query tokens: ['banian']
+    singularized candidate tokens: ['linen', 'pant']
+    comparison: matches_tokens check -> check if candidate singulars ['linen', 'pant'] is sublist of query singulars ['banian']
+    condition passes/fails: FAIL
+    RESULT: MatchResult IS NOT produced (Sublist check failed)
+
+  Candidate Value: 'RAMRAJ PANT'
+    query tokens: ['banians']
+    candidate tokens: ['ramraj', 'pant']
+    singularized query tokens: ['banian']
+    singularized candidate tokens: ['ramraj', 'pant']
+    comparison: matches_tokens check -> check if candidate singulars ['ramraj', 'pant'] is sublist of query singulars ['banian']
+    condition passes/fails: FAIL
+    RESULT: MatchResult IS NOT produced (Sublist check failed)
+
+  Candidate Value: 'BANIANS'
+    query tokens: ['banians']
+    candidate tokens: ['banians']
+    singularized query tokens: ['banian']
+    singularized candidate tokens: ['banian']
+    comparison: matches_tokens check -> check if candidate singulars ['banian'] is sublist of query singulars ['banian']
+    condition passes/fails: PASS
+    RESULT: MatchResult IS produced (Morphological singular/plural match)
+
+  Candidate Value: 'LINEN PANT'
+    query tokens: ['banians']
+    candidate tokens: ['linen', 'pant']
+    singularized query tokens: ['banian']
+    singularized candidate tokens: ['linen', 'pant']
+    comparison: matches_tokens check -> check if candidate singulars ['linen', 'pant'] is sublist of query singulars ['banian']
+    condition passes/fails: FAIL
+    RESULT: MatchResult IS NOT produced (Sublist check failed)
+
+  Candidate Value: 'RAMRAJ PANT'
+    query tokens: ['banians']
+    candidate tokens: ['ramraj', 'pant']
+    singularized query tokens: ['banian']
+    singularized candidate tokens: ['ramraj', 'pant']
+    comparison: matches_tokens check -> check if candidate singulars ['ramraj', 'pant'] is sublist of query singulars ['banian']
+    condition passes/fails: FAIL
+    RESULT: MatchResult IS NOT produced (Sublist check failed)

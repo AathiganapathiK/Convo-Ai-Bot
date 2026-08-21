@@ -32,6 +32,8 @@ from services.llm_execution_service import (
 
 logger = logging.getLogger(__name__)
 
+# DEPRECATED: get_intent_provider() is deprecated.
+# Unused at runtime because execution routes through LLMExecutionService.execute(purpose="intent").
 def get_intent_provider():
 
     provider_config = (
@@ -159,6 +161,8 @@ def _llm_stage(question: str, company_id: Optional[str] = None) -> str:
     Stage 2: Groq LLM classifier fallback.
     Returns "ANALYTICS" or "GENERAL".
     """
+    # DEPRECATED: get_intent_provider() query is unused at execution time.
+    # LLMExecutionService.execute handles fallback and routing internally using llm_fallbacks.
     provider, model_name = (
         get_intent_provider()
     )

@@ -1,0 +1,323 @@
+============================================================
+APP_RUNTIME (raw): None
+Runtime selected : local
+Configuration    : D:\Projects\Ramraj-AI-Chatbot\backend\.local.env
+DB_HOST          : 192.168.0.187
+============================================================
+DATABASE_url mssql+pyodbc:///?odbc_connect=DRIVER%3D%7BODBC+Driver+18+for+SQL+Server%7D%3BSERVER%3D192.168.0.187%2C1433%3BDATABASE%3DRR_platform%3BUID%3DIntern_Chatbot%3BPWD%3DKgdt%26LPD148%5EHp%3BTrustServerCertificate%3Dyes%3B
+==================================================
+PHASE 1C CANDIDATE QUALITY AUDIT REPORT
+Connection ID: F82C2F8D-0BD6-40E2-8C8B-FF1D69E317D5
+Total Indexed Values: 8360
+==================================================
+
+### STEP 1: Metadata Inspection for Target Candidates
+------------------------------------------------------------
+Question                : pant
+Candidate Value         : LINEN PANT
+Score/Confidence        : 90.0%
+Matched Phrase          : pant
+Matched Q Tokens        : ['pant']
+Semantic Dimension ID   : 47489775-A75B-44F1-BA91-932589BA7944
+Business Name           : Brand
+Table Name              : PBI_ENES_ORDER_PENDING_SUMMARY
+Column Name             : Brand
+Normalized Value        : linen pant
+Match Type              : FUZZY
+----------------------------------------
+Question                : pant
+Candidate Value         : RAMRAJ PANT
+Score/Confidence        : 90.0%
+Matched Phrase          : pant
+Matched Q Tokens        : ['pant']
+Semantic Dimension ID   : 47489775-A75B-44F1-BA91-932589BA7944
+Business Name           : Brand
+Table Name              : PBI_ENES_ORDER_PENDING_SUMMARY
+Column Name             : Brand
+Normalized Value        : ramraj pant
+Match Type              : FUZZY
+----------------------------------------
+Question                : pant
+Candidate Value         : VEPPANTHATTAI
+Score/Confidence        : 90.0%
+Matched Phrase          : pant
+Matched Q Tokens        : ['pant']
+Semantic Dimension ID   : A626D0AA-ACCC-4EE6-B967-3EE5BE1A0438
+Business Name           : City
+Table Name              : PBI_OUTSTANDING_ENES_SUMMARY
+Column Name             : City
+Normalized Value        : veppanthattai
+Match Type              : FUZZY
+----------------------------------------
+Question                : pant
+Candidate Value         : PANTHEERANKAVU
+Score/Confidence        : 90.0%
+Matched Phrase          : pant
+Matched Q Tokens        : ['pant']
+Semantic Dimension ID   : A626D0AA-ACCC-4EE6-B967-3EE5BE1A0438
+Business Name           : City
+Table Name              : PBI_OUTSTANDING_ENES_SUMMARY
+Column Name             : City
+Normalized Value        : pantheerankavu
+Match Type              : FUZZY
+----------------------------------------
+Question                : pant
+Candidate Value         : IYYAPPANTHANGAL
+Score/Confidence        : 90.0%
+Matched Phrase          : pant
+Matched Q Tokens        : ['pant']
+Semantic Dimension ID   : A626D0AA-ACCC-4EE6-B967-3EE5BE1A0438
+Business Name           : City
+Table Name              : PBI_OUTSTANDING_ENES_SUMMARY
+Column Name             : City
+Normalized Value        : iyyappanthangal
+Match Type              : FUZZY
+----------------------------------------
+Question                : cotton pant
+Candidate Value         : AN
+Score/Confidence        : 90.0%
+Matched Phrase          : cotton pant
+Matched Q Tokens        : ['cotton', 'pant']
+Semantic Dimension ID   : F324DA6E-28D3-4E36-9BE6-08427AD0A6C5
+Business Name           : state1
+Table Name              : PBI_OUTSTANDING_ENES_SUMMARY
+Column Name             : state1
+Normalized Value        : an
+Match Type              : FUZZY
+----------------------------------------
+Question                : cotton pant
+Candidate Value         : AN
+Score/Confidence        : 90.0%
+Matched Phrase          : cotton pant
+Matched Q Tokens        : ['cotton', 'pant']
+Semantic Dimension ID   : 4312457A-47FF-4D88-9D22-008E8552C075
+Business Name           : State1
+Table Name              : QB_MDJMD_SALES_5YRS_SUMMARY
+Column Name             : State1
+Normalized Value        : an
+Match Type              : FUZZY
+----------------------------------------
+Question                : cotton pant
+Candidate Value         : AN
+Score/Confidence        : 90.0%
+Matched Phrase          : cotton pant
+Matched Q Tokens        : ['cotton', 'pant']
+Semantic Dimension ID   : 7B64FE7E-CBCA-4881-9940-52C8E9621F81
+Business Name           : state1
+Table Name              : PBI_ENES_ORDER_PENDING_SUMMARY
+Column Name             : state1
+Normalized Value        : an
+Match Type              : FUZZY
+----------------------------------------
+Question                : cotton pant
+Candidate Value         : LS PANT
+Score/Confidence        : 85.5%
+Matched Phrase          : cotton pant
+Matched Q Tokens        : ['cotton', 'pant']
+Semantic Dimension ID   : DCBA558A-C4F4-409C-AF0C-A8B3E95B0DAF
+Business Name           : Prod Grp2
+Table Name              : QB_MDJMD_SALES_5YRS_SUMMARY
+Column Name             : ProdGrp2
+Normalized Value        : ls pant
+Match Type              : FUZZY
+----------------------------------------
+
+### STEP 2: Dimension Context Analysis
+------------------------------------------------------------
+Analyzing dimension relevance for target candidates in question 'show sales for pant':
+  Candidate: LINEN PANT           | Dimension: Brand           | Relevant: NO
+  Candidate: RAMRAJ PANT          | Dimension: Brand           | Relevant: NO
+  Candidate: VEPPANTHATTAI        | Dimension: City            | Relevant: NO (Location-based)
+  Candidate: PANTHEERANKAVU       | Dimension: City            | Relevant: NO (Location-based)
+  Candidate: IYYAPPANTHANGAL      | Dimension: City            | Relevant: NO (Location-based)
+
+### STEP 3: Phrase Specificity and Top 10 Fuzzy Candidates
+------------------------------------------------------------
+
+Question: "pant" (1 active tokens)
+  Score: 90.0% | Matched Phrase: pant            | Value: LINEN PANT                     | Dimension: Brand
+  Score: 90.0% | Matched Phrase: pant            | Value: RAMRAJ PANT                    | Dimension: Brand
+  Score: 90.0% | Matched Phrase: pant            | Value: VEPPANTHATTAI                  | Dimension: City
+  Score: 90.0% | Matched Phrase: pant            | Value: PANTHEERANKAVU                 | Dimension: City
+  Score: 90.0% | Matched Phrase: pant            | Value: IYYAPPANTHANGAL                | Dimension: City
+
+Question: "pants" (1 active tokens)
+  Score: 90.0% | Matched Phrase: pants           | Value: TS                             | Dimension: S T A T
+  Score: 90.0% | Matched Phrase: pants           | Value: TS                             | Dimension: State Code
+  Score: 90.0% | Matched Phrase: pants           | Value: AN                             | Dimension: state1
+  Score: 90.0% | Matched Phrase: pants           | Value: AN                             | Dimension: State1
+  Score: 90.0% | Matched Phrase: pants           | Value: AN                             | Dimension: state1
+
+Question: "cotton pant" (2 active tokens)
+  Score: 90.0% | Matched Phrase: cotton pant     | Value: AN                             | Dimension: state1
+  Score: 90.0% | Matched Phrase: cotton pant     | Value: AN                             | Dimension: State1
+  Score: 90.0% | Matched Phrase: cotton pant     | Value: AN                             | Dimension: state1
+  Score: 85.5% | Matched Phrase: cotton pant     | Value: LS PANT                        | Dimension: Prod Grp2
+
+Question: "cotton pants" (2 active tokens)
+  Score: 90.0% | Matched Phrase: cotton pants    | Value: TS                             | Dimension: S T A T
+  Score: 90.0% | Matched Phrase: cotton pants    | Value: TS                             | Dimension: State Code
+  Score: 90.0% | Matched Phrase: cotton pants    | Value: AN                             | Dimension: state1
+  Score: 90.0% | Matched Phrase: cotton pants    | Value: AN                             | Dimension: State1
+  Score: 90.0% | Matched Phrase: cotton pants    | Value: AN                             | Dimension: state1
+
+Question: "formal shirt" (2 active tokens)
+  Score: 90.0% | Matched Phrase: formal shirt    | Value: RM                             | Dimension: btype
+  Score: 90.0% | Matched Phrase: formal shirt    | Value: RM                             | Dimension: M K T  R M
+  Score: 90.0% | Matched Phrase: formal shirt    | Value: RM                             | Dimension: M K T R M
+  Score: 90.0% | Matched Phrase: formal shirt    | Value: RM                             | Dimension: Mkt  R M
+
+Question: "shirt" (1 active tokens)
+  Score: 90.0% | Matched Phrase: shirt           | Value: ADD SHIRT                      | Dimension: Brand
+  Score: 90.0% | Matched Phrase: shirt           | Value: ARISER SHIRT                   | Dimension: Brand
+  Score: 90.0% | Matched Phrase: shirt           | Value: RAMRAJ SHIRT                   | Dimension: Brand
+  Score: 90.0% | Matched Phrase: shirt           | Value: VIVEAGHAM COLOUR SHIRT         | Dimension: Brand
+  Score: 90.0% | Matched Phrase: shirt           | Value: UATHAYAM SHIRTING              | Dimension: Brand
+
+Question: "tamil" (1 active tokens)
+  No fuzzy candidates resolved.
+
+Question: "tamil nadu" (2 active tokens)
+  Score: 90.0% | Matched Phrase: nadu            | Value: NADUVANNUR                     | Dimension: City
+  Score: 90.0% | Matched Phrase: nadu            | Value: ORATHANADU                     | Dimension: City
+  Score: 90.0% | Matched Phrase: nadu            | Value: NADUPALAYAM                    | Dimension: City
+  Score: 90.0% | Matched Phrase: nadu            | Value: PALNADU                        | Dimension: City
+  Score: 90.0% | Matched Phrase: nadu            | Value: NADUVEERAPPATTU                | Dimension: City
+
+Question: "wear" (1 active tokens)
+  Score: 90.0% | Matched Phrase: wear            | Value: ETHNIC WEAR                    | Dimension: Prod Grp2
+  Score: 90.0% | Matched Phrase: wear            | Value: N--NIGHT WEARS                 | Dimension: Prod Grp2
+
+Question: "mens wear" (2 active tokens)
+  Score: 85.5% | Matched Phrase: mens wear       | Value: VVM MENS MATCHING              | Dimension: Prod Grp2
+
+Question: "child wear" (2 active tokens)
+  Score: 90.0% | Matched Phrase: child wear      | Value: CH                             | Dimension: State1
+  Score: 90.0% | Matched Phrase: child wear      | Value: CH                             | Dimension: state1
+  Score: 90.0% | Matched Phrase: child wear      | Value: LD                             | Dimension: State1
+
+### STEP 4: Direct vs Fuzzy Match Overlap
+------------------------------------------------------------
+
+Question: "pant"
+  No direct matches found.
+  Fuzzy Matches (5):
+    - Value: LINEN PANT | Span: ['pant']
+    - Value: RAMRAJ PANT | Span: ['pant']
+    - Value: VEPPANTHATTAI | Span: ['pant']
+    - Value: PANTHEERANKAVU | Span: ['pant']
+    - Value: IYYAPPANTHANGAL | Span: ['pant']
+
+Question: "pants"
+  No direct matches found.
+  Fuzzy Matches (5):
+    - Value: TS | Span: ['pants']
+    - Value: TS | Span: ['pants']
+    - Value: AN | Span: ['pants']
+    - Value: AN | Span: ['pants']
+    - Value: AN | Span: ['pants']
+
+Question: "cotton pant"
+  No direct matches found.
+  Fuzzy Matches (4):
+    - Value: AN | Span: ['cotton', 'pant']
+    - Value: AN | Span: ['cotton', 'pant']
+    - Value: AN | Span: ['cotton', 'pant']
+    - Value: LS PANT | Span: ['cotton', 'pant']
+
+Question: "cotton pants"
+  No direct matches found.
+  Fuzzy Matches (5):
+    - Value: TS | Span: ['cotton', 'pants']
+    - Value: TS | Span: ['cotton', 'pants']
+    - Value: AN | Span: ['cotton', 'pants']
+    - Value: AN | Span: ['cotton', 'pants']
+    - Value: AN | Span: ['cotton', 'pants']
+
+Question: "formal shirt"
+  No direct matches found.
+  Fuzzy Matches (4):
+    - Value: RM | Span: ['formal', 'shirt']
+    - Value: RM | Span: ['formal', 'shirt']
+    - Value: RM | Span: ['formal', 'shirt']
+    - Value: RM | Span: ['formal', 'shirt']
+
+Question: "shirt"
+  No direct matches found.
+  Fuzzy Matches (5):
+    - Value: ADD SHIRT | Span: ['shirt']
+    - Value: ARISER SHIRT | Span: ['shirt']
+    - Value: RAMRAJ SHIRT | Span: ['shirt']
+    - Value: VIVEAGHAM COLOUR SHIRT | Span: ['shirt']
+    - Value: UATHAYAM SHIRTING | Span: ['shirt']
+
+Question: "tamil"
+  No direct matches found.
+
+Question: "tamil nadu"
+  No direct matches found.
+  Fuzzy Matches (5):
+    - Value: NADUVANNUR | Span: ['nadu']
+    - Value: ORATHANADU | Span: ['nadu']
+    - Value: NADUPALAYAM | Span: ['nadu']
+    - Value: PALNADU | Span: ['nadu']
+    - Value: NADUVEERAPPATTU | Span: ['nadu']
+
+Question: "wear"
+  No direct matches found.
+  Fuzzy Matches (2):
+    - Value: ETHNIC WEAR | Span: ['wear']
+    - Value: N--NIGHT WEARS | Span: ['wear']
+
+Question: "mens wear"
+  No direct matches found.
+  Fuzzy Matches (1):
+    - Value: VVM MENS MATCHING | Span: ['mens', 'wear']
+
+Question: "child wear"
+  No direct matches found.
+  Fuzzy Matches (3):
+    - Value: CH | Span: ['child', 'wear']
+    - Value: CH | Span: ['child', 'wear']
+    - Value: LD | Span: ['child', 'wear']
+
+### STEP 5: Score Distribution by Phrase Length
+------------------------------------------------------------
+1-Token Phrases     : Count=22   | Avg=90.0% | Min=90.0% | Max=90.0%
+2-Token Phrases     : Count=22   | Avg=89.6% | Min=85.5% | Max=90.0%
+3-Token Phrases     : Count=9    | Avg=91.2% | Min=85.5% | Max=100.0%
+
+### STEP 6: Strategy Simulation
+------------------------------------------------------------
+
+Query: "pant"
+  Raw Candidates Count (Strategy A): 5
+    - LINEN PANT                     | Score: 90.0% | Dimension: Brand
+    - RAMRAJ PANT                    | Score: 90.0% | Dimension: Brand
+    - VEPPANTHATTAI                  | Score: 90.0% | Dimension: City
+    - PANTHEERANKAVU                 | Score: 90.0% | Dimension: City
+    - IYYAPPANTHANGAL                | Score: 90.0% | Dimension: City
+  Simulated Counts:
+    Strategy A (Current)           : 5
+    Strategy B (Token Overlap)     : 2
+    Strategy C (Cutoff Shift)      : 5
+    Strategy D (Dimension Filter)  : 2
+    Strategy E (Combined B + D)    : 2
+  Strategy E Resolved Candidates:
+    - LINEN PANT                     | Score: 90.0% | Dimension: Brand
+    - RAMRAJ PANT                    | Score: 90.0% | Dimension: Brand
+
+Query: "cotton pant"
+  Raw Candidates Count (Strategy A): 4
+    - AN                             | Score: 90.0% | Dimension: state1
+    - AN                             | Score: 90.0% | Dimension: State1
+    - AN                             | Score: 90.0% | Dimension: state1
+    - LS PANT                        | Score: 85.5% | Dimension: Prod Grp2
+  Simulated Counts:
+    Strategy A (Current)           : 4
+    Strategy B (Token Overlap)     : 1
+    Strategy C (Cutoff Shift)      : 4
+    Strategy D (Dimension Filter)  : 4
+    Strategy E (Combined B + D)    : 1
+  Strategy E Resolved Candidates:
+    - LS PANT                        | Score: 85.5% | Dimension: Prod Grp2

@@ -9,6 +9,7 @@ class BaseProvider(ABC):
         self,
         model: str,
         messages: list,
-        temperature: float = 0
+        temperature: float = 0,
+        timeout: float = 10.0
     ):
         pass

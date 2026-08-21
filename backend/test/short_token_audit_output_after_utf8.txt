@@ -1,0 +1,9 @@
+============================================================
+APP_RUNTIME (raw): None
+Runtime selected : local
+Configuration    : D:\Projects\Ramraj-AI-Chatbot\backend\.local.env
+DB_HOST          : 192.168.0.187
+============================================================
+DATABASE_url mssql+pyodbc:///?odbc_connect=DRIVER%3D%7BODBC+Driver+18+for+SQL+Server%7D%3BSERVER%3D192.168.0.187%2C1433%3BDATABASE%3DRR_platform%3BUID%3DIntern_Chatbot%3BPWD%3DKgdt%26LPD148%5EHp%3BTrustServerCertificate%3Dyes%3B
+Error loading dimension values: (pyodbc.OperationalError) ('08001', '[08001] [Microsoft][ODBC Driver 18 for SQL Server]TCP Provider: The wait operation timed out.\r\n (258) (SQLDriverConnect); [08001] [Microsoft][ODBC Driver 18 for SQL Server]Login timeout expired (0); [08001] [Microsoft][ODBC Driver 18 for SQL Server]A network-related or instance-specific error has occurred while establishing a connection to 192.168.0.187,1433. Server is not found or not accessible. Check if instance name is correct and if SQL Server is configured to allow remote connections. For more information see SQL Server Books Online. (258)')
+(Background on this error at: https://sqlalche.me/e/20/e3q8)

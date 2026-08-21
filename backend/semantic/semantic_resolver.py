@@ -81,27 +81,29 @@ def _get_match_info(technical_name: str, business_name: str, synonyms: str, ques
     tech_norm = _normalize_string(technical_name)
     bus_norm = _normalize_string(business_name)
     
+    matches = []
+    
     # Priority 1: Exact technical name equals complete user phrase
     if tech_norm and q_norm == tech_norm:
-        return 50000, len(q_norm), [(0, len(q_norm))], "Technical Name", technical_name
+        matches.append((50000, len(q_norm), [(0, len(q_norm))], "Technical Name", technical_name))
         
     # Priority 2: Exact business name equals complete user phrase
     if bus_norm and q_norm == bus_norm:
-        return 40000, len(q_norm), [(0, len(q_norm))], "Business Name", business_name
+        matches.append((40000, len(q_norm), [(0, len(q_norm))], "Business Name", business_name))
         
     # Priority 3: Exact business phrase contained in the question
     bus_phrase_spans = _find_phrase_spans(bus_norm, q_norm)
     if bus_phrase_spans:
-        return 30000, len(bus_norm), bus_phrase_spans, "Business Name", business_name
+        matches.append((30000, len(bus_norm), bus_phrase_spans, "Business Name", business_name))
         
     # Priority 4: Whole-word technical name match
     tech_phrase_spans = _find_phrase_spans(tech_norm, q_norm)
     if tech_phrase_spans:
-        return 20000, len(tech_norm), tech_phrase_spans, "Technical Name", technical_name
+        matches.append((20000, len(tech_norm), tech_phrase_spans, "Technical Name", technical_name))
         
     tech_word_spans = _find_whole_word_match_spans(technical_name, q_norm)
     if tech_word_spans:
-        return 20000, len(tech_norm), tech_word_spans, "Technical Name", technical_name
+        matches.append((20000, len(tech_norm), tech_word_spans, "Technical Name", technical_name))
         
     # Priority 5: Whole-word business name match (with noise word filtering)
     bus_words = _get_words(business_name)
@@ -112,11 +114,11 @@ def _get_match_info(technical_name: str, business_name: str, synonyms: str, ques
         core_bus_name = " ".join(core_bus_words)
         core_spans = _find_whole_word_match_spans(core_bus_name, q_norm)
         if core_spans:
-            return 15000, len(core_bus_name), core_spans, "Business Name", business_name
+            matches.append((15000, len(core_bus_name), core_spans, "Business Name", business_name))
 
     bus_word_spans = _find_whole_word_match_spans(business_name, q_norm)
     if bus_word_spans:
-        return 10000, len(bus_norm), bus_word_spans, "Business Name", business_name
+        matches.append((10000, len(bus_norm), bus_word_spans, "Business Name", business_name))
 
     # Priority 6: Database Synonym match
     if synonyms:
@@ -124,7 +126,7 @@ def _get_match_info(technical_name: str, business_name: str, synonyms: str, ques
         for synonym in synonym_list:
             synonym_spans = _find_phrase_spans(synonym, q_norm)
             if synonym_spans:
-                return 9000, len(synonym), synonym_spans, "Synonym", synonym
+                matches.append((9000, len(synonym), synonym_spans, "Synonym", synonym))
                 
     # Priority 7: Stemmed & Domain Synonym Overlap Match
     q_tokens = _get_words(question)
@@ -143,15 +145,20 @@ def _get_match_info(technical_name: str, business_name: str, synonyms: str, ques
 
     if match_ratio >= 0.5:
         score = int(match_ratio * 8000)
-        return (
-                score,
-                len(matched_stems),
-                [(0, len(q_norm))],
-                "Stem Overlap",
-                business_name,
-            )
+        matches.append((
+            score,
+            len(matched_stems),
+            [(0, len(q_norm))],
+            "Stem Overlap",
+            business_name,
+        ))
 
-    return 0, 0, [], None, None
+    if not matches:
+        return 0, 0, [], None, None
+
+    # Sort matches by matched length desc, then score desc
+    matches.sort(key=lambda x: (x[1], x[0]), reverse=True)
+    return matches[0]
 
 
 class SemanticResolver:
@@ -262,12 +269,12 @@ class SemanticResolver:
 
     @staticmethod
     def _remove_overlaps(candidates):
-        """
-        Deterministic overlap resolution.
-        Sorts candidates by score (desc), then by length (desc), and discards overlapping matches.
-        """
-        # Sort candidates: primary by score desc, secondary by matched length desc
-        candidates.sort(key=lambda x: (x["score"], x["length"]), reverse=True)
+        # Sort candidates:
+        # 1. Base score (integer part of score) descending
+        # 2. Type is metric descending (metrics first to prevent dimensions from discarding them)
+        # 3. Full score descending (tie-breaker for table-boosted dimensions)
+        # 4. Matched length descending
+        candidates.sort(key=lambda x: (int(x["score"]), x["type"] == "metric", x["score"], x["length"]), reverse=True)
 
         selected_candidates = []
         global_selected_spans = []
@@ -290,7 +297,7 @@ class SemanticResolver:
         return selected_candidates
 
     @staticmethod
-    def resolve(connection_id, question):
+    def resolve(connection_id, question, clarified_candidate=None, previous_semantic_context=None):
         print("Entered: resolve")
         print(f"connection_id = {connection_id}")
         """
@@ -435,6 +442,48 @@ class SemanticResolver:
                         "aggregation_type": candidate["aggregation_type"]
                     })
 
+        # Apply temporal intent metric binding
+        from semantic.temporal.detector import TemporalDetector
+        from semantic.temporal.enums import TimeIntentType
+
+        try:
+            temporal_intent = TemporalDetector().detect(question)
+        except Exception:
+            temporal_intent = None
+
+        intent_type = getattr(temporal_intent, "intent_type", None)
+        intent_cls = temporal_intent.__class__.__name__ if temporal_intent else ""
+
+        if intent_type in (TimeIntentType.PREVIOUS_YEAR, "PREVIOUS_YEAR") or intent_cls == "PreviousYearIntent":
+            for m in metric_objects:
+                if m.get("column_name") == "CY" and m.get("table_name") == "QB_MDJMD_SALES_5YRS_SUMMARY":
+                    m["metric_name"] = "py"
+                    m["business_name"] = "P Y"
+                    m["column_name"] = "PY"
+            metrics = [m["business_name"] for m in metric_objects]
+
+        elif intent_type in (TimeIntentType.YEAR_COMPARISON, "YEAR_COMPARISON") or intent_cls == "YearComparisonIntent":
+            has_cy = any(m.get("column_name") == "CY" for m in metric_objects)
+            has_py = any(m.get("column_name") == "PY" for m in metric_objects)
+            if (has_cy or has_py) and not (has_cy and has_py):
+                if has_cy and not has_py:
+                    metric_objects.append({
+                        "metric_name": "py",
+                        "business_name": "P Y",
+                        "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY",
+                        "column_name": "PY",
+                        "aggregation_type": "SUM"
+                    })
+                elif has_py and not has_cy:
+                    metric_objects.append({
+                        "metric_name": "cy",
+                        "business_name": "C Y",
+                        "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY",
+                        "column_name": "CY",
+                        "aggregation_type": "SUM"
+                    })
+            metrics = [m["business_name"] for m in metric_objects]
+
         dimension_objects = []
         seen_dim_keys = set()
         for candidate in selected_candidates:
@@ -450,10 +499,30 @@ class SemanticResolver:
                         "semantic_category": candidate.get("semantic_category")
                     })
 
+        dimension_context = [
+            {
+                "dimension_name": cand.get("dimension_name"),
+                "business_name": cand.get("business_name"),
+                "table_name": cand.get("table_name"),
+                "column_name": cand.get("column_name"),
+                "matched_text": cand.get("matched_text"),
+                "spans": cand.get("spans")
+            }
+            for cand in candidates
+            if cand.get("type") == "dimension"
+        ]
+
         value_matches = DimensionValueResolver.resolve(
             connection_id,
-            question
+            question,
+            clarified_candidate=clarified_candidate,
+            dimension_context=dimension_context,
+            previous_semantic_context=previous_semantic_context,
+            current_metrics=metric_objects,
+            all_metrics=metric_rows,
+            all_dimensions=dimension_rows
         )
+
         # --------------------------------------------------
         # Retrieval Statistics
         # --------------------------------------------------
@@ -548,6 +617,15 @@ class SemanticResolver:
             2
         )
 
+        followup_context = getattr(value_matches, "followup_context", None)
+        if followup_context is None:
+            followup_context = getattr(DimensionValueResolver, "last_followup_context", None)
+        if followup_context is None:
+            followup_context = {
+                "applied": False,
+                "reason": "NO_ELIGIBLE_PREVIOUS_CONTEXT"
+            }
+
         return {
 
             "metrics": metrics,
@@ -559,6 +637,8 @@ class SemanticResolver:
             "dimension_objects": dimension_objects,
 
             "value_matches": value_matches,
+
+            "followup_context": followup_context,
 
             "retrieval": {
 
@@ -579,6 +659,8 @@ class SemanticResolver:
                 "confidence": confidence
 
             },
+
+            "ambiguity_result": getattr(value_matches, "resolution_result", None) or DimensionValueResolver.last_resolution_result,
 
             "debug": {
 

@@ -1,0 +1,1702 @@
+============================================================
+APP_RUNTIME (raw): None
+Runtime selected : local
+Configuration    : D:\Projects\Ramraj-AI-Chatbot\backend\.local.env
+DB_HOST          : 192.168.0.187
+============================================================
+DATABASE_url mssql+pyodbc:///?odbc_connect=DRIVER%3D%7BODBC+Driver+18+for+SQL+Server%7D%3BSERVER%3D192.168.0.187%2C1433%3BDATABASE%3DRR_platform%3BUID%3DIntern_Chatbot%3BPWD%3DKgdt%26LPD148%5EHp%3BTrustServerCertificate%3Dyes%3B
+================================================================================
+PARTIAL COVERAGE FORENSIC AUDIT (REAL DATA)
+================================================================================
+
+========================================
+QUESTION:
+    pant
+
+QUERY TOKENS:
+    ['pant']
+
+MEANINGFUL QUERY TOKENS:
+    ['pant']
+
+FINAL STATUS:
+    STRONG_AMBIGUITY
+DOMINANT MATCH:
+    None
+
+CANDIDATES:
+
+  #1 CANDIDATE:
+    B--PANT
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/1
+  MATCHED QUERY TOKENS:
+    ['pant']
+  UNMATCHED QUERY TOKENS:
+    []
+  DIMENSION:
+    Prod Grp2
+
+  #2 CANDIDATE:
+    LS PANT
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/1
+  MATCHED QUERY TOKENS:
+    ['pant']
+  UNMATCHED QUERY TOKENS:
+    []
+  DIMENSION:
+    Prod Grp2
+
+  #3 CANDIDATE:
+    DHOTI PANT
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/1
+  MATCHED QUERY TOKENS:
+    ['pant']
+  UNMATCHED QUERY TOKENS:
+    []
+  DIMENSION:
+    Prod Grp2
+
+  #4 CANDIDATE:
+    LINEN PANT
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/1
+  MATCHED QUERY TOKENS:
+    ['pant']
+  UNMATCHED QUERY TOKENS:
+    []
+  DIMENSION:
+    Brand
+
+  #5 CANDIDATE:
+    LINEN PANT
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/1
+  MATCHED QUERY TOKENS:
+    ['pant']
+  UNMATCHED QUERY TOKENS:
+    []
+  DIMENSION:
+    Prod Grp1
+
+  #6 CANDIDATE:
+    RAMRAJ PANT
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/1
+  MATCHED QUERY TOKENS:
+    ['pant']
+  UNMATCHED QUERY TOKENS:
+    []
+  DIMENSION:
+    Brand
+
+  #7 CANDIDATE:
+    RAMRAJ PANT
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/1
+  MATCHED QUERY TOKENS:
+    ['pant']
+  UNMATCHED QUERY TOKENS:
+    []
+  DIMENSION:
+    Prod Grp1
+
+  #8 CANDIDATE:
+    MENS PYJAMA PANT
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/1
+  MATCHED QUERY TOKENS:
+    ['pant']
+  UNMATCHED QUERY TOKENS:
+    []
+  DIMENSION:
+    Prod Grp2
+
+  #9 CANDIDATE:
+    UNIBRO TRACK PANT
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/1
+  MATCHED QUERY TOKENS:
+    ['pant']
+  UNMATCHED QUERY TOKENS:
+    []
+  DIMENSION:
+    Prod Grp3
+
+  #10 CANDIDATE:
+    UNIBRO JOGGER PANT
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/1
+  MATCHED QUERY TOKENS:
+    ['pant']
+  UNMATCHED QUERY TOKENS:
+    []
+  DIMENSION:
+    Prod Grp3
+
+  #11 CANDIDATE:
+    UNIBRO JOGGER PANT V2
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/1
+  MATCHED QUERY TOKENS:
+    ['pant']
+  UNMATCHED QUERY TOKENS:
+    []
+  DIMENSION:
+    Prod Grp3
+
+========================================
+QUESTION:
+    shirt
+
+QUERY TOKENS:
+    ['shirt']
+
+MEANINGFUL QUERY TOKENS:
+    ['shirt']
+
+FINAL STATUS:
+    STRONG_AMBIGUITY
+DOMINANT MATCH:
+    None
+
+CANDIDATES:
+
+  #1 CANDIDATE:
+    C--SHIRT
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/1
+  MATCHED QUERY TOKENS:
+    ['shirt']
+  UNMATCHED QUERY TOKENS:
+    []
+  DIMENSION:
+    Prod Grp2
+
+  #2 CANDIDATE:
+    ADD SHIRT
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/1
+  MATCHED QUERY TOKENS:
+    ['shirt']
+  UNMATCHED QUERY TOKENS:
+    []
+  DIMENSION:
+    Brand
+
+  #3 CANDIDATE:
+    A--T-SHIRT
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/1
+  MATCHED QUERY TOKENS:
+    ['shirt']
+  UNMATCHED QUERY TOKENS:
+    []
+  DIMENSION:
+    Prod Grp2
+
+  #4 CANDIDATE:
+    ETHER SHIRT
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/1
+  MATCHED QUERY TOKENS:
+    ['shirt']
+  UNMATCHED QUERY TOKENS:
+    []
+  DIMENSION:
+    Prod Grp3
+
+  #5 CANDIDATE:
+    TRAIL SHIRT
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/1
+  MATCHED QUERY TOKENS:
+    ['shirt']
+  UNMATCHED QUERY TOKENS:
+    []
+  DIMENSION:
+    Prod Grp2
+
+  #6 CANDIDATE:
+    ARISER SHIRT
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/1
+  MATCHED QUERY TOKENS:
+    ['shirt']
+  UNMATCHED QUERY TOKENS:
+    []
+  DIMENSION:
+    Brand
+
+  #7 CANDIDATE:
+    RAMRAJ SHIRT
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/1
+  MATCHED QUERY TOKENS:
+    ['shirt']
+  UNMATCHED QUERY TOKENS:
+    []
+  DIMENSION:
+    Brand
+
+  #8 CANDIDATE:
+    RAMRAJ SHIRT
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/1
+  MATCHED QUERY TOKENS:
+    ['shirt']
+  UNMATCHED QUERY TOKENS:
+    []
+  DIMENSION:
+    Prod Grp1
+
+  #9 CANDIDATE:
+    VAIBHAV SHIRT
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/1
+  MATCHED QUERY TOKENS:
+    ['shirt']
+  UNMATCHED QUERY TOKENS:
+    []
+  DIMENSION:
+    Prod Grp2
+
+  #10 CANDIDATE:
+    VIVEAGA SHIRT
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/1
+  MATCHED QUERY TOKENS:
+    ['shirt']
+  UNMATCHED QUERY TOKENS:
+    []
+  DIMENSION:
+    Prod Grp1
+
+  #11 CANDIDATE:
+    VIVEAGA SHIRTS
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/1
+  MATCHED QUERY TOKENS:
+    ['shirt']
+  UNMATCHED QUERY TOKENS:
+    []
+  DIMENSION:
+    Prod Grp1
+
+  #12 CANDIDATE:
+    VIVEAGHAM SHIRT
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/1
+  MATCHED QUERY TOKENS:
+    ['shirt']
+  UNMATCHED QUERY TOKENS:
+    []
+  DIMENSION:
+    Prod Grp1
+
+  #13 CANDIDATE:
+    LS CREAM SHIRT
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/1
+  MATCHED QUERY TOKENS:
+    ['shirt']
+  UNMATCHED QUERY TOKENS:
+    []
+  DIMENSION:
+    Prod Grp2
+
+  #14 CANDIDATE:
+    LS WHITE SHIRT
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/1
+  MATCHED QUERY TOKENS:
+    ['shirt']
+  UNMATCHED QUERY TOKENS:
+    []
+  DIMENSION:
+    Prod Grp2
+
+  #15 CANDIDATE:
+    UNIFORM T SHIRT
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/1
+  MATCHED QUERY TOKENS:
+    ['shirt']
+  UNMATCHED QUERY TOKENS:
+    []
+  DIMENSION:
+    Prod Grp3
+
+  #16 CANDIDATE:
+    ASHAI SILK SHIRT
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/1
+  MATCHED QUERY TOKENS:
+    ['shirt']
+  UNMATCHED QUERY TOKENS:
+    []
+  DIMENSION:
+    Prod Grp2
+
+  #17 CANDIDATE:
+    UNIBRO FLUID SHIRT
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/1
+  MATCHED QUERY TOKENS:
+    ['shirt']
+  UNMATCHED QUERY TOKENS:
+    []
+  DIMENSION:
+    Prod Grp3
+
+  #18 CANDIDATE:
+    CCB MANOHARAM SHIRT
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/1
+  MATCHED QUERY TOKENS:
+    ['shirt']
+  UNMATCHED QUERY TOKENS:
+    []
+  DIMENSION:
+    Prod Grp2
+
+  #19 CANDIDATE:
+    VIVEAGHAM WHITE SHIRT
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/1
+  MATCHED QUERY TOKENS:
+    ['shirt']
+  UNMATCHED QUERY TOKENS:
+    []
+  DIMENSION:
+    Brand
+
+  #20 CANDIDATE:
+    VIVEAGHAM COLOUR SHIRT
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/1
+  MATCHED QUERY TOKENS:
+    ['shirt']
+  UNMATCHED QUERY TOKENS:
+    []
+  DIMENSION:
+    Brand
+
+  #21 CANDIDATE:
+    VIVEAGHAM COLOUR SHIRT
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/1
+  MATCHED QUERY TOKENS:
+    ['shirt']
+  UNMATCHED QUERY TOKENS:
+    []
+  DIMENSION:
+    Prod Grp1
+
+  #22 CANDIDATE:
+    WHITE SHIRT 100% COTTON
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/1
+  MATCHED QUERY TOKENS:
+    ['shirt']
+  UNMATCHED QUERY TOKENS:
+    []
+  DIMENSION:
+    Prod Grp2
+
+  #23 CANDIDATE:
+    CULTURE CLUB TRAIL SHIRT
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/1
+  MATCHED QUERY TOKENS:
+    ['shirt']
+  UNMATCHED QUERY TOKENS:
+    []
+  DIMENSION:
+    Prod Grp2
+
+  #24 CANDIDATE:
+    LS WHITE SHIRT PC VER-II
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/1
+  MATCHED QUERY TOKENS:
+    ['shirt']
+  UNMATCHED QUERY TOKENS:
+    []
+  DIMENSION:
+    Prod Grp2
+
+========================================
+QUESTION:
+    banian
+
+QUERY TOKENS:
+    ['banian']
+
+MEANINGFUL QUERY TOKENS:
+    ['banian']
+
+FINAL STATUS:
+    STRONG_AMBIGUITY
+DOMINANT MATCH:
+    None
+
+CANDIDATES:
+
+  #1 CANDIDATE:
+    BANIANS
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/1
+  MATCHED QUERY TOKENS:
+    ['banian']
+  UNMATCHED QUERY TOKENS:
+    []
+  DIMENSION:
+    Prod Grp1
+
+  #2 CANDIDATE:
+    1 BANIAN
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/1
+  MATCHED QUERY TOKENS:
+    ['banian']
+  UNMATCHED QUERY TOKENS:
+    []
+  DIMENSION:
+    Prod Grp2
+
+  #3 CANDIDATE:
+    ADVERTISEMENT BANIAN
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/1
+  MATCHED QUERY TOKENS:
+    ['banian']
+  UNMATCHED QUERY TOKENS:
+    []
+  DIMENSION:
+    Prod Grp3
+
+  #4 CANDIDATE:
+    SECONDS_ RN BANIAN
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/1
+  MATCHED QUERY TOKENS:
+    ['banian']
+  UNMATCHED QUERY TOKENS:
+    []
+  DIMENSION:
+    Prod Grp3
+
+  #5 CANDIDATE:
+    SECONDS_ RNS BANIAN
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/1
+  MATCHED QUERY TOKENS:
+    ['banian']
+  UNMATCHED QUERY TOKENS:
+    []
+  DIMENSION:
+    Prod Grp3
+
+  #6 CANDIDATE:
+    SECONDS_KIDS BANIAN
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/1
+  MATCHED QUERY TOKENS:
+    ['banian']
+  UNMATCHED QUERY TOKENS:
+    []
+  DIMENSION:
+    Prod Grp3
+
+  #7 CANDIDATE:
+    SECONDS_ RNBS BANIAN
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/1
+  MATCHED QUERY TOKENS:
+    ['banian']
+  UNMATCHED QUERY TOKENS:
+    []
+  DIMENSION:
+    Prod Grp3
+
+========================================
+QUESTION:
+    children wear
+
+QUERY TOKENS:
+    ['children', 'wear']
+
+MEANINGFUL QUERY TOKENS:
+    ['children', 'wear']
+
+FINAL STATUS:
+    SINGLE_MATCH
+DOMINANT MATCH:
+    N--NIGHT WEARS
+
+CANDIDATES:
+
+    !!! PARTIAL SINGLE MATCH !!!
+
+  #1 CANDIDATE:
+    N--NIGHT WEARS
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/2
+  MATCHED QUERY TOKENS:
+    ['wear']
+  UNMATCHED QUERY TOKENS:
+    ['children']
+  DIMENSION:
+    Prod Grp2
+
+========================================
+QUESTION:
+    formal shirt
+
+QUERY TOKENS:
+    ['formal', 'shirt']
+
+MEANINGFUL QUERY TOKENS:
+    ['formal', 'shirt']
+
+FINAL STATUS:
+    STRONG_AMBIGUITY
+DOMINANT MATCH:
+    None
+
+CANDIDATES:
+
+  #1 CANDIDATE:
+    LS CREAM SHIRT
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/2
+  MATCHED QUERY TOKENS:
+    ['shirt']
+  UNMATCHED QUERY TOKENS:
+    ['formal']
+  DIMENSION:
+    Prod Grp2
+
+  #2 CANDIDATE:
+    LS WHITE SHIRT
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/2
+  MATCHED QUERY TOKENS:
+    ['shirt']
+  UNMATCHED QUERY TOKENS:
+    ['formal']
+  DIMENSION:
+    Prod Grp2
+
+  #3 CANDIDATE:
+    UNIFORM T SHIRT
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/2
+  MATCHED QUERY TOKENS:
+    ['shirt']
+  UNMATCHED QUERY TOKENS:
+    ['formal']
+  DIMENSION:
+    Prod Grp3
+
+  #4 CANDIDATE:
+    ASHAI SILK SHIRT
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/2
+  MATCHED QUERY TOKENS:
+    ['shirt']
+  UNMATCHED QUERY TOKENS:
+    ['formal']
+  DIMENSION:
+    Prod Grp2
+
+  #5 CANDIDATE:
+    UNIBRO FLUID SHIRT
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/2
+  MATCHED QUERY TOKENS:
+    ['shirt']
+  UNMATCHED QUERY TOKENS:
+    ['formal']
+  DIMENSION:
+    Prod Grp3
+
+  #6 CANDIDATE:
+    CCB MANOHARAM SHIRT
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/2
+  MATCHED QUERY TOKENS:
+    ['shirt']
+  UNMATCHED QUERY TOKENS:
+    ['formal']
+  DIMENSION:
+    Prod Grp2
+
+  #7 CANDIDATE:
+    VIVEAGHAM WHITE SHIRT
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/2
+  MATCHED QUERY TOKENS:
+    ['shirt']
+  UNMATCHED QUERY TOKENS:
+    ['formal']
+  DIMENSION:
+    Brand
+
+  #8 CANDIDATE:
+    VIVEAGHAM COLOUR SHIRT
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/2
+  MATCHED QUERY TOKENS:
+    ['shirt']
+  UNMATCHED QUERY TOKENS:
+    ['formal']
+  DIMENSION:
+    Brand
+
+  #9 CANDIDATE:
+    VIVEAGHAM COLOUR SHIRT
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/2
+  MATCHED QUERY TOKENS:
+    ['shirt']
+  UNMATCHED QUERY TOKENS:
+    ['formal']
+  DIMENSION:
+    Prod Grp1
+
+  #10 CANDIDATE:
+    FORMAL SOCKS SOLID FULL
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/2
+  MATCHED QUERY TOKENS:
+    ['formal']
+  UNMATCHED QUERY TOKENS:
+    ['shirt']
+  DIMENSION:
+    Prod Grp3
+
+  #11 CANDIDATE:
+    WHITE SHIRT 100% COTTON
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/2
+  MATCHED QUERY TOKENS:
+    ['shirt']
+  UNMATCHED QUERY TOKENS:
+    ['formal']
+  DIMENSION:
+    Prod Grp2
+
+  #12 CANDIDATE:
+    CULTURE CLUB TRAIL SHIRT
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/2
+  MATCHED QUERY TOKENS:
+    ['shirt']
+  UNMATCHED QUERY TOKENS:
+    ['formal']
+  DIMENSION:
+    Prod Grp2
+
+  #13 CANDIDATE:
+    FORMAL SOCKS DESIGN FULL
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/2
+  MATCHED QUERY TOKENS:
+    ['formal']
+  UNMATCHED QUERY TOKENS:
+    ['shirt']
+  DIMENSION:
+    Prod Grp3
+
+  #14 CANDIDATE:
+    FORMAL SOCKS SOLID ANKLE
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/2
+  MATCHED QUERY TOKENS:
+    ['formal']
+  UNMATCHED QUERY TOKENS:
+    ['shirt']
+  DIMENSION:
+    Prod Grp3
+
+  #15 CANDIDATE:
+    LS WHITE SHIRT PC VER-II
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/2
+  MATCHED QUERY TOKENS:
+    ['shirt']
+  UNMATCHED QUERY TOKENS:
+    ['formal']
+  DIMENSION:
+    Prod Grp2
+
+========================================
+QUESTION:
+    cotton pant
+
+QUERY TOKENS:
+    ['cotton', 'pant']
+
+MEANINGFUL QUERY TOKENS:
+    ['cotton', 'pant']
+
+FINAL STATUS:
+    STRONG_AMBIGUITY
+DOMINANT MATCH:
+    None
+
+CANDIDATES:
+
+  #1 CANDIDATE:
+    LS ZARI COTTON
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/2
+  MATCHED QUERY TOKENS:
+    ['cotton']
+  UNMATCHED QUERY TOKENS:
+    ['pant']
+  DIMENSION:
+    Prod Grp2
+
+  #2 CANDIDATE:
+    LS COTTON BREEZE
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/2
+  MATCHED QUERY TOKENS:
+    ['cotton']
+  UNMATCHED QUERY TOKENS:
+    ['pant']
+  DIMENSION:
+    Prod Grp2
+
+  #3 CANDIDATE:
+    MENS PYJAMA PANT
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/2
+  MATCHED QUERY TOKENS:
+    ['pant']
+  UNMATCHED QUERY TOKENS:
+    ['cotton']
+  DIMENSION:
+    Prod Grp2
+
+  #4 CANDIDATE:
+    UNIBRO TRACK PANT
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/2
+  MATCHED QUERY TOKENS:
+    ['pant']
+  UNMATCHED QUERY TOKENS:
+    ['cotton']
+  DIMENSION:
+    Prod Grp3
+
+  #5 CANDIDATE:
+    UNIBRO JOGGER PANT
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/2
+  MATCHED QUERY TOKENS:
+    ['pant']
+  UNMATCHED QUERY TOKENS:
+    ['cotton']
+  DIMENSION:
+    Prod Grp3
+
+  #6 CANDIDATE:
+    COTTON BREEZE KURTA
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/2
+  MATCHED QUERY TOKENS:
+    ['cotton']
+  UNMATCHED QUERY TOKENS:
+    ['pant']
+  DIMENSION:
+    Prod Grp2
+
+  #7 CANDIDATE:
+    UNIBRO JOGGER PANT V2
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/2
+  MATCHED QUERY TOKENS:
+    ['pant']
+  UNMATCHED QUERY TOKENS:
+    ['cotton']
+  DIMENSION:
+    Prod Grp3
+
+  #8 CANDIDATE:
+    WHITE SHIRT 100% COTTON
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/2
+  MATCHED QUERY TOKENS:
+    ['cotton']
+  UNMATCHED QUERY TOKENS:
+    ['pant']
+  DIMENSION:
+    Prod Grp2
+
+  #9 CANDIDATE:
+    DHOTI : 3.80MT KL COTTON KARA
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/2
+  MATCHED QUERY TOKENS:
+    ['cotton']
+  UNMATCHED QUERY TOKENS:
+    ['pant']
+  DIMENSION:
+    Prod Grp3
+
+  #10 CANDIDATE:
+    LS PANT
+  MATCH TYPE:
+    FUZZY
+  CONFIDENCE:
+    0.85
+  ACTUAL QUERY COVERAGE:
+    1/2
+  MATCHED QUERY TOKENS:
+    ['pant']
+  UNMATCHED QUERY TOKENS:
+    ['cotton']
+  DIMENSION:
+    Prod Grp2
+
+========================================
+QUESTION:
+    pants
+
+QUERY TOKENS:
+    ['pants']
+
+MEANINGFUL QUERY TOKENS:
+    ['pants']
+
+FINAL STATUS:
+    STRONG_AMBIGUITY
+DOMINANT MATCH:
+    None
+
+CANDIDATES:
+
+  #1 CANDIDATE:
+    B--PANT
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/1
+  MATCHED QUERY TOKENS:
+    ['pants']
+  UNMATCHED QUERY TOKENS:
+    []
+  DIMENSION:
+    Prod Grp2
+
+  #2 CANDIDATE:
+    LS PANT
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/1
+  MATCHED QUERY TOKENS:
+    ['pants']
+  UNMATCHED QUERY TOKENS:
+    []
+  DIMENSION:
+    Prod Grp2
+
+  #3 CANDIDATE:
+    DHOTI PANT
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/1
+  MATCHED QUERY TOKENS:
+    ['pants']
+  UNMATCHED QUERY TOKENS:
+    []
+  DIMENSION:
+    Prod Grp2
+
+  #4 CANDIDATE:
+    LINEN PANT
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/1
+  MATCHED QUERY TOKENS:
+    ['pants']
+  UNMATCHED QUERY TOKENS:
+    []
+  DIMENSION:
+    Brand
+
+  #5 CANDIDATE:
+    LINEN PANT
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/1
+  MATCHED QUERY TOKENS:
+    ['pants']
+  UNMATCHED QUERY TOKENS:
+    []
+  DIMENSION:
+    Prod Grp1
+
+  #6 CANDIDATE:
+    RAMRAJ PANT
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/1
+  MATCHED QUERY TOKENS:
+    ['pants']
+  UNMATCHED QUERY TOKENS:
+    []
+  DIMENSION:
+    Brand
+
+  #7 CANDIDATE:
+    RAMRAJ PANT
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/1
+  MATCHED QUERY TOKENS:
+    ['pants']
+  UNMATCHED QUERY TOKENS:
+    []
+  DIMENSION:
+    Prod Grp1
+
+  #8 CANDIDATE:
+    MENS PYJAMA PANT
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/1
+  MATCHED QUERY TOKENS:
+    ['pants']
+  UNMATCHED QUERY TOKENS:
+    []
+  DIMENSION:
+    Prod Grp2
+
+  #9 CANDIDATE:
+    UNIBRO TRACK PANT
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/1
+  MATCHED QUERY TOKENS:
+    ['pants']
+  UNMATCHED QUERY TOKENS:
+    []
+  DIMENSION:
+    Prod Grp3
+
+  #10 CANDIDATE:
+    UNIBRO JOGGER PANT
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/1
+  MATCHED QUERY TOKENS:
+    ['pants']
+  UNMATCHED QUERY TOKENS:
+    []
+  DIMENSION:
+    Prod Grp3
+
+  #11 CANDIDATE:
+    UNIBRO JOGGER PANT V2
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/1
+  MATCHED QUERY TOKENS:
+    ['pants']
+  UNMATCHED QUERY TOKENS:
+    []
+  DIMENSION:
+    Prod Grp3
+
+========================================
+QUESTION:
+    banians
+
+QUERY TOKENS:
+    ['banians']
+
+MEANINGFUL QUERY TOKENS:
+    ['banians']
+
+FINAL STATUS:
+    WEAK_AMBIGUITY
+DOMINANT MATCH:
+    BANIANS
+
+CANDIDATES:
+
+  #1 CANDIDATE:
+    BANIANS
+  MATCH TYPE:
+    EXACT
+  CONFIDENCE:
+    1.00
+  ACTUAL QUERY COVERAGE:
+    1/1
+  MATCHED QUERY TOKENS:
+    ['banians']
+  UNMATCHED QUERY TOKENS:
+    []
+  DIMENSION:
+    Prod Grp1
+
+  #2 CANDIDATE:
+    1 BANIAN
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/1
+  MATCHED QUERY TOKENS:
+    ['banians']
+  UNMATCHED QUERY TOKENS:
+    []
+  DIMENSION:
+    Prod Grp2
+
+  #3 CANDIDATE:
+    ADVERTISEMENT BANIAN
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/1
+  MATCHED QUERY TOKENS:
+    ['banians']
+  UNMATCHED QUERY TOKENS:
+    []
+  DIMENSION:
+    Prod Grp3
+
+  #4 CANDIDATE:
+    SECONDS_ RN BANIAN
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/1
+  MATCHED QUERY TOKENS:
+    ['banians']
+  UNMATCHED QUERY TOKENS:
+    []
+  DIMENSION:
+    Prod Grp3
+
+  #5 CANDIDATE:
+    SECONDS_ RNS BANIAN
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/1
+  MATCHED QUERY TOKENS:
+    ['banians']
+  UNMATCHED QUERY TOKENS:
+    []
+  DIMENSION:
+    Prod Grp3
+
+  #6 CANDIDATE:
+    SECONDS_KIDS BANIAN
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/1
+  MATCHED QUERY TOKENS:
+    ['banians']
+  UNMATCHED QUERY TOKENS:
+    []
+  DIMENSION:
+    Prod Grp3
+
+  #7 CANDIDATE:
+    SECONDS_ RNBS BANIAN
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/1
+  MATCHED QUERY TOKENS:
+    ['banians']
+  UNMATCHED QUERY TOKENS:
+    []
+  DIMENSION:
+    Prod Grp3
+
+========================================
+QUESTION:
+    t shirt
+
+QUERY TOKENS:
+    ['t', 'shirt']
+
+MEANINGFUL QUERY TOKENS:
+    ['t', 'shirt']
+
+FINAL STATUS:
+    STRONG_AMBIGUITY
+DOMINANT MATCH:
+    None
+
+CANDIDATES:
+
+  #1 CANDIDATE:
+    A--T-SHIRT
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    2/2
+  MATCHED QUERY TOKENS:
+    ['t', 'shirt']
+  UNMATCHED QUERY TOKENS:
+    []
+  DIMENSION:
+    Prod Grp2
+
+  #2 CANDIDATE:
+    UNIFORM T SHIRT
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    2/2
+  MATCHED QUERY TOKENS:
+    ['t', 'shirt']
+  UNMATCHED QUERY TOKENS:
+    []
+  DIMENSION:
+    Prod Grp3
+
+========================================
+QUESTION:
+    women wear
+
+QUERY TOKENS:
+    ['women', 'wear']
+
+MEANINGFUL QUERY TOKENS:
+    ['women', 'wear']
+
+FINAL STATUS:
+    SINGLE_MATCH
+DOMINANT MATCH:
+    N--NIGHT WEARS
+
+CANDIDATES:
+
+    !!! PARTIAL SINGLE MATCH !!!
+
+  #1 CANDIDATE:
+    N--NIGHT WEARS
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/2
+  MATCHED QUERY TOKENS:
+    ['wear']
+  UNMATCHED QUERY TOKENS:
+    ['women']
+  DIMENSION:
+    Prod Grp2
+
+========================================
+QUESTION:
+    mens wear
+
+QUERY TOKENS:
+    ['mens', 'wear']
+
+MEANINGFUL QUERY TOKENS:
+    ['mens', 'wear']
+
+FINAL STATUS:
+    STRONG_AMBIGUITY
+DOMINANT MATCH:
+    None
+
+CANDIDATES:
+
+  #1 CANDIDATE:
+    MENS JOY SET
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/2
+  MATCHED QUERY TOKENS:
+    ['mens']
+  UNMATCHED QUERY TOKENS:
+    ['wear']
+  DIMENSION:
+    Prod Grp2
+
+  #2 CANDIDATE:
+    VVM MENS JARI
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/2
+  MATCHED QUERY TOKENS:
+    ['mens']
+  UNMATCHED QUERY TOKENS:
+    ['wear']
+  DIMENSION:
+    Prod Grp2
+
+  #3 CANDIDATE:
+    N--NIGHT WEARS
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/2
+  MATCHED QUERY TOKENS:
+    ['wear']
+  UNMATCHED QUERY TOKENS:
+    ['mens']
+  DIMENSION:
+    Prod Grp2
+
+  #4 CANDIDATE:
+    MENS PYJAMA PANT
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/2
+  MATCHED QUERY TOKENS:
+    ['mens']
+  UNMATCHED QUERY TOKENS:
+    ['wear']
+  DIMENSION:
+    Prod Grp2
+
+  #5 CANDIDATE:
+    RIGHT MAN PARAMAS
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/2
+  MATCHED QUERY TOKENS:
+    ['mens']
+  UNMATCHED QUERY TOKENS:
+    ['wear']
+  DIMENSION:
+    Prod Grp2
+
+  #6 CANDIDATE:
+    UATHAYAM MENS SET
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/2
+  MATCHED QUERY TOKENS:
+    ['mens']
+  UNMATCHED QUERY TOKENS:
+    ['wear']
+  DIMENSION:
+    Brand
+
+  #7 CANDIDATE:
+    VVM MENS MATCHING
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/2
+  MATCHED QUERY TOKENS:
+    ['mens']
+  UNMATCHED QUERY TOKENS:
+    ['wear']
+  DIMENSION:
+    Prod Grp2
+
+  #8 CANDIDATE:
+    ARISER MENS TROUSERS
+  MATCH TYPE:
+    SINGULAR_PLURAL
+  CONFIDENCE:
+    0.95
+  ACTUAL QUERY COVERAGE:
+    1/2
+  MATCHED QUERY TOKENS:
+    ['mens']
+  UNMATCHED QUERY TOKENS:
+    ['wear']
+  DIMENSION:
+    Brand
+
+================================================================================
+SYNTHETIC CONTRACT CASES
+================================================================================
+
+CASE A (formal shirt -> 1 candidate matching shirt):
+  Status: SINGLE_MATCH
+  Dominant: VIVEAGHAM COLOUR SHIRT
+  Coverage: 1/2
+
+CASE B (formal shirt -> formal 0.95 vs shirt 0.95):
+  Status: STRONG_AMBIGUITY
+  Dominant: None
+
+CASE C (cotton pant -> 2-token 0.90 vs 1-token 0.95):
+  Status: WEAK_AMBIGUITY
+  Dominant: COTTON PANT
+
+CASE D (cotton pant -> 1 candidate matching cotton):
+  Status: SINGLE_MATCH
+  Dominant: LS ZARI COTTON
+
+CASE E (cotton pant -> 1 candidate matching cotton pant):
+  Status: SINGLE_MATCH
+  Dominant: COTTON PANT
+
+CASE F (pant -> 1 candidate matching pant):
+  Status: SINGLE_MATCH
+  Dominant: RAMRAJ PANT
+
+================================================================================
+SUMMARY TABLE
+================================================================================
+| Query | Candidates | Coverage | Status | Partial Single? |
+|-------|------------|----------|--------|-----------------|
+| pant           | 11         | 1/1      | STRONG_AMBIGUITY | No              |
+| shirt          | 24         | 1/1      | STRONG_AMBIGUITY | No              |
+| banian         | 7          | 1/1      | STRONG_AMBIGUITY | No              |
+| children wear  | 1          | 1/2      | SINGLE_MATCH     | Yes             |
+| formal shirt   | 15         | 1/2      | STRONG_AMBIGUITY | No              |
+| cotton pant    | 10         | 1/2      | STRONG_AMBIGUITY | No              |
+| pants          | 11         | 1/1      | STRONG_AMBIGUITY | No              |
+| banians        | 7          | 1/1      | WEAK_AMBIGUITY   | No              |
+| t shirt        | 2          | 2/2      | STRONG_AMBIGUITY | No              |
+| women wear     | 1          | 1/2      | SINGLE_MATCH     | Yes             |
+| mens wear      | 8          | 1/2      | STRONG_AMBIGUITY | No              |

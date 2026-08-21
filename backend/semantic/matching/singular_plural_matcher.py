@@ -91,7 +91,39 @@ class SingularPluralMatcher(BaseMatcher):
 
     @staticmethod
     def matches_tokens(q_singulars: list[str], val_singulars: list[str]) -> bool:
-        return SingularPluralMatcher._is_sublist(val_singulars, q_singulars)
+        # Primary check: all candidate tokens form a contiguous sub-sequence
+        # inside the question tokens (original behaviour, preserved as-is).
+        if SingularPluralMatcher._is_sublist(val_singulars, q_singulars):
+            return True
+
+        # Fallback — asymmetric query: the query has FEWER tokens than the
+        # candidate value (e.g. query = ["pant"], candidate = ["linen", "pant"]).
+        #
+        # In this situation the sublist check always fails by construction
+        # (a longer list cannot be a sublist of a shorter one), but the query
+        # may still express morphological equivalence via a shared singular
+        # token.  We allow the match when at least one query singular token
+        # is an exact match for at least one candidate singular token.
+        #
+        # To prevent false positives from short-code noise (e.g., single-character
+        # or two-character abbreviations/codes like "t", "r", "ap", "ts"), we
+        # require the query tokens participating in the fallback to be at least
+        # 3 characters long.
+        if len(q_singulars) < len(val_singulars):
+            meaningful_query_tokens = [
+                token for token in q_singulars
+                if len(token) >= 3
+            ]
+
+            if not meaningful_query_tokens:
+                return False
+
+            return any(
+                token in meaningful_query_tokens
+                for token in val_singulars
+            )
+
+        return False
 
     def match(self, context: MatchingContext) -> List[MatchResult]:
         matches = []
@@ -143,7 +175,7 @@ class SingularPluralMatcher(BaseMatcher):
                 reason="Empty tokens after filtering"
             )
             
-        is_match = SingularPluralMatcher._is_sublist(val_sing, q_sing)
+        is_match = SingularPluralMatcher.matches_tokens(q_sing, val_sing)
         if is_match:
             return MatchResult(
                 matched=True,
@@ -153,7 +185,7 @@ class SingularPluralMatcher(BaseMatcher):
                 match_type=MatchType.SINGULAR_PLURAL,
                 matched_question_tokens=q_tokens,
                 matched_value_tokens=val_tokens,
-                reason="Sublist match found after singularization and stopword removal"
+                reason="Morphological singular/plural match"
             )
             
         return MatchResult(
@@ -164,5 +196,5 @@ class SingularPluralMatcher(BaseMatcher):
             match_type=MatchType.SINGULAR_PLURAL,
             matched_question_tokens=q_tokens,
             matched_value_tokens=val_tokens,
-            reason="No sublist match found"
+            reason="No match found"
         )

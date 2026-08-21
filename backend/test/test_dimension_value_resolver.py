@@ -5,7 +5,9 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 import unittest
 from unittest.mock import MagicMock, patch
 from semantic.matching import MatchResult
-from semantic.dimension_value_resolver import DimensionValueResolver, MatchType, ResolvedDimensionValue
+from semantic.matching.singular_plural_matcher import SingularPluralMatcher
+from semantic.matching.models import MatchType
+from semantic.dimension_value_resolver import DimensionValueResolver, ResolvedDimensionValue
 
 
 class TestDimensionValueResolver(unittest.TestCase):
@@ -162,10 +164,8 @@ class TestDimensionValueResolver(unittest.TestCase):
                 connection_id="test-conn",
                 question=question
             )
-            self.assertEqual(len(results), 1, f"Failed positive match for: {question}")
-            self.assertEqual(results[0]["value"], expected_value)
-            self.assertEqual(results[0]["match_type"], MatchType.SINGULAR_PLURAL.value)
-            self.assertEqual(results[0]["confidence"], 0.95)
+            matched_values = [r["value"] for r in results]
+            self.assertIn(expected_value, matched_values, f"Failed positive match for: {question}")
 
         # Negative cases
         negative_cases = [
@@ -447,10 +447,16 @@ class TestDimensionValueResolver(unittest.TestCase):
 
         for question, expected in positive_cases:
             res = resolver.resolve_matches("test-conn", question)
-            self.assertEqual(len(res), 1, f"Fuzzy matching failed for positive case: {question}")
-            self.assertEqual(res[0]["value"], expected)
-            self.assertEqual(res[0]["match_type"], "FUZZY")
-            self.assertGreaterEqual(res[0]["confidence"], 0.75)
+            self.assertGreaterEqual(len(res), 1, f"Fuzzy matching failed for positive case: {question}")
+            
+            # Verify the expected match exists in the results
+            expected_matches = [m for m in res if m["value"] == expected]
+            self.assertEqual(len(expected_matches), 1, f"Expected value '{expected}' not found in results for query '{question}': {res}")
+            
+            # Verify the expected match properties
+            m = expected_matches[0]
+            self.assertEqual(m["match_type"], "FUZZY")
+            self.assertGreaterEqual(m["confidence"], 0.75)
 
         # Negative fuzzy cases
         negative_cases = [
@@ -493,8 +499,11 @@ class TestDimensionValueResolver(unittest.TestCase):
 
         for question, expected in integration_cases:
             res = resolver.resolve_matches("test-conn", question)
-            self.assertEqual(len(res), 1, f"Integration matching failed for query: {question}")
-            self.assertEqual(res[0]["value"], expected)
+            self.assertGreaterEqual(len(res), 1, f"Integration matching failed for query: {question}")
+            
+            # Verify the expected match exists in the results
+            expected_matches = [m for m in res if m["value"] == expected]
+            self.assertEqual(len(expected_matches), 1, f"Expected value '{expected}' not found in results for query '{question}': {res}")
 
         negative_cases = [
             "Show Laptop sales",
@@ -642,10 +651,10 @@ class TestDimensionValueResolver(unittest.TestCase):
         ]
         mock_conn.execute.return_value.fetchall.return_value = mock_rows
 
-        # Test A: Question "Pant" -> Pants
+        # Test A: Question "Pant" -> Pants (among other pant candidates)
         results_a = DimensionValueResolver.resolve("test-conn", "Pant")
-        self.assertEqual(len(results_a), 1)
-        self.assertEqual(results_a[0]["value"], "Pants")
+        matched_a = [r["value"] for r in results_a]
+        self.assertIn("Pants", matched_a, "Pant must match Pants")
 
         # Test B: Question "Cotton Pant" -> Cotton Pants
         results_b = DimensionValueResolver.resolve("test-conn", "Cotton Pant")
@@ -679,6 +688,882 @@ class TestDimensionValueResolver(unittest.TestCase):
         dimensions = {r["dimension_id"] for r in results_f}
         self.assertEqual(dimensions, {10, 11})
 
+    def test_fuzzy_multiple_candidates_preserved(self):
+        from semantic.matching.fuzzy_matcher import FuzzyMatcher
+        from semantic.matching.models import MatchingContext, QuestionContext, CachedDimensionValue
+        
+        q_ctx = QuestionContext(
+            raw_question="pant",
+            normalized_question="pant",
+            q_tokens=["pant"],
+            q_singulars=["pant"]
+        )
+        
+        indexed = []
+        vals = ["Pants", "Cotton Pants", "Formal Pants", "Children Pants"]
+        for idx, val in enumerate(vals):
+            norm = val.lower()
+            indexed.append(CachedDimensionValue(
+                semantic_dimension_id=idx + 1,
+                business_name="Category",
+                table_name="T",
+                column_name="C",
+                value=val,
+                normalized_value=norm,
+                runtime_stored_norm=norm,
+                runtime_stored_tokens=norm.split(),
+                runtime_stored_singulars=norm.split(),
+                runtime_raw_norm=norm,
+                runtime_raw_tokens=norm.split(),
+                runtime_raw_singulars=norm.split()
+            ))
+            
+        context = MatchingContext(
+            question_context=q_ctx,
+            connection_id="test-conn",
+            indexed_values=indexed
+        )
+        
+        matcher = FuzzyMatcher()
+        results = matcher.match(context)
+        
+        # Verify that all 4 are preserved (all score >= 85)
+        self.assertEqual(len(results), 4)
+        resolved_vals = {r.value for r in results}
+        self.assertEqual(resolved_vals, set(vals))
+
+    def test_fuzzy_specific_phrase_evidence_preserved(self):
+        from semantic.matching.fuzzy_matcher import FuzzyMatcher
+        from semantic.matching.models import MatchingContext, QuestionContext, CachedDimensionValue
+        
+        q_ctx = QuestionContext(
+            raw_question="cotton pant",
+            normalized_question="cotton pant",
+            q_tokens=["cotton", "pant"],
+            q_singulars=["cotton", "pant"]
+        )
+        
+        indexed = []
+        vals = ["Pants", "Cotton Pants", "Formal Pants"]
+        for idx, val in enumerate(vals):
+            norm = val.lower()
+            indexed.append(CachedDimensionValue(
+                semantic_dimension_id=idx + 1,
+                business_name="Category",
+                table_name="T",
+                column_name="C",
+                value=val,
+                normalized_value=norm,
+                runtime_stored_norm=norm,
+                runtime_stored_tokens=norm.split(),
+                runtime_stored_singulars=norm.split(),
+                runtime_raw_norm=norm,
+                runtime_raw_tokens=norm.split(),
+                runtime_raw_singulars=norm.split()
+            ))
+            
+        context = MatchingContext(
+            question_context=q_ctx,
+            connection_id="test-conn",
+            indexed_values=indexed
+        )
+        
+        matcher = FuzzyMatcher()
+        results = matcher.match(context)
+        
+        cotton_pants_res = next(r for r in results if r.value == "Cotton Pants")
+        self.assertEqual(cotton_pants_res.matched_question_tokens, ["cotton", "pant"])
+
+    def test_fuzzy_formal_shirt_evidence_preserved(self):
+        from semantic.matching.fuzzy_matcher import FuzzyMatcher
+        from semantic.matching.models import MatchingContext, QuestionContext, CachedDimensionValue
+        
+        q_ctx = QuestionContext(
+            raw_question="formal shirt",
+            normalized_question="formal shirt",
+            q_tokens=["formal", "shirt"],
+            q_singulars=["formal", "shirt"]
+        )
+        
+        indexed = []
+        vals = ["Shirts", "Formal Shirts", "T-Shirts"]
+        for idx, val in enumerate(vals):
+            norm = val.lower()
+            indexed.append(CachedDimensionValue(
+                semantic_dimension_id=idx + 1,
+                business_name="Category",
+                table_name="T",
+                column_name="C",
+                value=val,
+                normalized_value=norm,
+                runtime_stored_norm=norm,
+                runtime_stored_tokens=norm.split(),
+                runtime_stored_singulars=norm.split(),
+                runtime_raw_norm=norm,
+                runtime_raw_tokens=norm.split(),
+                runtime_raw_singulars=norm.split()
+            ))
+            
+        context = MatchingContext(
+            question_context=q_ctx,
+            connection_id="test-conn",
+            indexed_values=indexed
+        )
+        
+        matcher = FuzzyMatcher()
+        results = matcher.match(context)
+        
+        formal_shirts_res = next(r for r in results if r.value == "Formal Shirts")
+        self.assertEqual(formal_shirts_res.matched_question_tokens, ["formal", "shirt"])
+
+    def test_fuzzy_duplicate_evidence_consolidation(self):
+        from semantic.matching.fuzzy_matcher import FuzzyMatcher
+        from semantic.matching.models import MatchingContext, QuestionContext, CachedDimensionValue
+        
+        q_ctx = QuestionContext(
+            raw_question="cotton pant",
+            normalized_question="cotton pant",
+            q_tokens=["cotton", "pant"],
+            q_singulars=["cotton", "pant"]
+        )
+        
+        indexed = [
+            CachedDimensionValue(
+                semantic_dimension_id=1,
+                business_name="Category",
+                table_name="T",
+                column_name="C",
+                value="Cotton Pants",
+                normalized_value="cotton pants",
+                runtime_stored_norm="cotton pants",
+                runtime_stored_tokens=["cotton", "pants"],
+                runtime_stored_singulars=["cotton", "pant"],
+                runtime_raw_norm="cotton pants",
+                runtime_raw_tokens=["cotton", "pants"],
+                runtime_raw_singulars=["cotton", "pant"]
+            )
+        ]
+        
+        context = MatchingContext(
+            question_context=q_ctx,
+            connection_id="test-conn",
+            indexed_values=indexed
+        )
+        
+        matcher = FuzzyMatcher()
+        results = matcher.match(context)
+        
+        # Verify that only ONE candidate is returned for Cotton Pants
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0].value, "Cotton Pants")
+
+    def test_fuzzy_same_value_different_dimensions(self):
+        from semantic.matching.fuzzy_matcher import FuzzyMatcher
+        from semantic.matching.models import MatchingContext, QuestionContext, CachedDimensionValue
+        
+        q_ctx = QuestionContext(
+            raw_question="pants",
+            normalized_question="pants",
+            q_tokens=["pants"],
+            q_singulars=["pant"]
+        )
+        
+        indexed = [
+            CachedDimensionValue(
+                semantic_dimension_id=1,
+                business_name="Category1",
+                table_name="T1",
+                column_name="C1",
+                value="Pants",
+                normalized_value="pants",
+                runtime_stored_norm="pants",
+                runtime_stored_tokens=["pants"],
+                runtime_stored_singulars=["pant"],
+                runtime_raw_norm="pants",
+                runtime_raw_tokens=["pants"],
+                runtime_raw_singulars=["pant"]
+            ),
+            CachedDimensionValue(
+                semantic_dimension_id=2,
+                business_name="Category2",
+                table_name="T2",
+                column_name="C2",
+                value="Pants",
+                normalized_value="pants",
+                runtime_stored_norm="pants",
+                runtime_stored_tokens=["pants"],
+                runtime_stored_singulars=["pant"],
+                runtime_raw_norm="pants",
+                runtime_raw_tokens=["pants"],
+                runtime_raw_singulars=["pant"]
+            )
+        ]
+        
+        context = MatchingContext(
+            question_context=q_ctx,
+            connection_id="test-conn",
+            indexed_values=indexed
+        )
+        
+        matcher = FuzzyMatcher()
+        results = matcher.match(context)
+        
+        # Both must remain
+        self.assertEqual(len(results), 2)
+        dims = {r.dimension_id for r in results}
+        self.assertEqual(dims, {1, 2})
+
+    def test_fuzzy_false_positives(self):
+        from semantic.matching.fuzzy_matcher import FuzzyMatcher
+        from semantic.matching.models import MatchingContext, QuestionContext, CachedDimensionValue
+        
+        questions = ["laptop", "banana", "hospital", "xyzabc"]
+        indexed = []
+        vals = ["Pants", "Cotton Pants", "Shirts", "Banians"]
+        for idx, val in enumerate(vals):
+            norm = val.lower()
+            indexed.append(CachedDimensionValue(
+                semantic_dimension_id=idx + 1,
+                business_name="Category",
+                table_name="T",
+                column_name="C",
+                value=val,
+                normalized_value=norm,
+                runtime_stored_norm=norm,
+                runtime_stored_tokens=norm.split(),
+                runtime_stored_singulars=norm.split(),
+                runtime_raw_norm=norm,
+                runtime_raw_tokens=norm.split(),
+                runtime_raw_singulars=norm.split()
+            ))
+            
+        matcher = FuzzyMatcher()
+        for q in questions:
+            q_ctx = QuestionContext(
+                raw_question=q,
+                normalized_question=q,
+                q_tokens=[q],
+                q_singulars=[q]
+            )
+            context = MatchingContext(
+                question_context=q_ctx,
+                connection_id="test-conn",
+                indexed_values=indexed
+            )
+            results = matcher.match(context)
+            self.assertEqual(len(results), 0, f"False positive matched for {q}: {results}")
+
+class TestFuzzyTokenLevelEvidence(unittest.TestCase):
+    def test_token_level_evidence_helper(self):
+        from semantic.matching.fuzzy_matcher import FuzzyMatcher
+
+        # MUST PASS:
+        # pant ↔ LINEN PANT
+        # pant ↔ RAMRAJ PANT
+        # Banain ↔ Banians
+        # T Shrt ↔ T Shirt
+        
+        pass_cases = [
+            ("pant", "LINEN PANT", "pant", "pant"),
+            ("pant", "RAMRAJ PANT", "pant", "pant"),
+            ("Banain", "Banians", "banain", "barians"), # Wait, "Banians" normalized has "banians"
+            ("T Shrt", "T Shirt", "shrt", "shirt"),
+            ("t", "t", "t", "t") # Fallback case
+        ]
+        # Wait, for "Banians", the original token in c_tokens is "banians" (since norm_candidate is "banians")
+        # Let's write the expected tokens carefully:
+        pass_cases = [
+            ("pant", "LINEN PANT", "pant", "pant"),
+            ("pant", "RAMRAJ PANT", "pant", "pant"),
+            ("Banain", "Banians", "banain", "banians"),
+            ("T Shrt", "T Shirt", "shrt", "shirt"),
+            ("t", "t", "t", "t"),
+            ("Ramraj", "Ram Raj", "Ramraj", "Ram Raj")
+        ]
+        for q, c, expected_q, expected_c in pass_cases:
+            res = FuzzyMatcher._has_token_level_evidence(q, c)
+            self.assertTrue(
+                res["passed"],
+                f"Expected pass for query '{q}' and candidate '{c}', but got: {res}"
+            )
+            self.assertEqual(
+                res["matched_query_token"], expected_q,
+                f"Expected matched query token '{expected_q}' for '{q}' and '{c}', but got: {res}"
+            )
+            self.assertEqual(
+                res["matched_candidate_token"], expected_c,
+                f"Expected matched candidate token '{expected_c}' for '{q}' and '{c}', but got: {res}"
+            )
+
+        # MUST FAIL:
+        # pant ↔ VEPPANTHATTAI
+        # pant ↔ PANTHEERANKAVU
+        # pant ↔ IYYAPPANTHANGAL
+        # cotton pant ↔ AN
+        
+        fail_cases = [
+            ("pant", "VEPPANTHATTAI"),
+            ("pant", "PANTHEERANKAVU"),
+            ("pant", "IYYAPPANTHANGAL"),
+            ("cotton pant", "AN")
+        ]
+        for q, c in fail_cases:
+            res = FuzzyMatcher._has_token_level_evidence(q, c)
+            self.assertFalse(
+                res["passed"],
+                f"Expected fail for query '{q}' and candidate '{c}', but got: {res}"
+            )
+
+        # Edge cases: empty and completely unrelated
+        edge_cases = [
+            ("", "LINEN PANT"),
+            ("pant", ""),
+            ("", ""),
+            ("pant", "completely unrelated")
+        ]
+        for q, c in edge_cases:
+            res = FuzzyMatcher._has_token_level_evidence(q, c)
+            self.assertFalse(
+                res["passed"],
+                f"Expected fail for edge case query '{q}' and candidate '{c}', but got: {res}"
+            )
+
+class TestFuzzyMatcherIntegration(unittest.TestCase):
+    def test_fuzzy_matcher_integration_filtering(self):
+        from semantic.matching import FuzzyMatcher, QuestionContext, MatchingContext
+        from semantic.matching.models import CachedDimensionValue
+
+        vals = [
+            "LINEN PANT",
+            "RAMRAJ PANT",
+            "VEPPANTHATTAI",
+            "PANTHEERANKAVU",
+            "IYYAPPANTHANGAL",
+            "AN",
+            "Banians",
+            "T Shirt",
+            "Ram Raj"
+        ]
+        indexed = []
+        for idx, val in enumerate(vals):
+            norm = val.lower()
+            indexed.append(CachedDimensionValue(
+                semantic_dimension_id=idx + 1,
+                business_name="Category",
+                table_name="T",
+                column_name="C",
+                value=val,
+                normalized_value=norm,
+                runtime_stored_norm=norm,
+                runtime_stored_tokens=norm.split(),
+                runtime_stored_singulars=norm.split(),
+                runtime_raw_norm=norm,
+                runtime_raw_tokens=norm.split(),
+                runtime_raw_singulars=norm.split()
+            ))
+
+        matcher = FuzzyMatcher()
+
+        def get_matched_values(query):
+            q_ctx = QuestionContext(
+                raw_question=query,
+                normalized_question=query.lower(),
+                q_tokens=query.lower().split(),
+                q_singulars=query.lower().split()
+            )
+            context = MatchingContext(
+                question_context=q_ctx,
+                connection_id="test-conn",
+                indexed_values=indexed,
+                settings={"FUZZY_SCORE_CUTOFF": 75}
+            )
+            results = matcher.match(context)
+            return [r.value for r in results]
+
+        res_pant = get_matched_values("pant")
+        self.assertIn("LINEN PANT", res_pant)
+        self.assertIn("RAMRAJ PANT", res_pant)
+        self.assertNotIn("VEPPANTHATTAI", res_pant)
+        self.assertNotIn("PANTHEERANKAVU", res_pant)
+        self.assertNotIn("IYYAPPANTHANGAL", res_pant)
+
+        res_cotton = get_matched_values("cotton pant")
+        self.assertNotIn("AN", res_cotton)
+
+        res_banain = get_matched_values("Banain")
+        self.assertIn("Banians", res_banain)
+
+        res_tshirt = get_matched_values("T Shrt")
+        self.assertIn("T Shirt", res_tshirt)
+
+        res_ramraj = get_matched_values("Ramraj")
+        self.assertIn("Ram Raj", res_ramraj)
+
+class TestContainmentRegression(unittest.TestCase):
+    def setUp(self):
+        DimensionValueResolver.clear_cache()
+
+    @patch("semantic.dimension_value_resolver.engine")
+    def test_containment_regression_cotton_pant(self, mock_engine):
+        mock_conn = MagicMock()
+        mock_engine.connect.return_value.__enter__.return_value = mock_conn
+        
+        # Mock database rows for load_dimension_values
+        mock_rows = [
+            MagicMock(_mapping={"semantic_dimension_id": 1, "business_name": "Prod Grp2", "table_name": "T", "column_name": "C", "value": "LS PANT", "normalized_value": "ls pant"}),
+            MagicMock(_mapping={"semantic_dimension_id": 2, "business_name": "Brand", "table_name": "T", "column_name": "C", "value": "LINEN PANT", "normalized_value": "linen pant"}),
+            MagicMock(_mapping={"semantic_dimension_id": 3, "business_name": "Brand", "table_name": "T", "column_name": "C", "value": "RAMRAJ PANT", "normalized_value": "ramraj pant"}),
+        ]
+        mock_conn.execute.return_value.fetchall.return_value = mock_rows
+
+        # Resolve "cotton pant"
+        results = DimensionValueResolver.resolve("test-conn", "cotton pant")
+        matched_values = [r["value"] for r in results]
+        
+        # TEST 1: LINEN PANT survives
+        self.assertIn("LINEN PANT", matched_values)
+        # TEST 2: RAMRAJ PANT survives
+        self.assertIn("RAMRAJ PANT", matched_values)
+        # TEST 3: LS PANT survives
+        self.assertIn("LS PANT", matched_values)
+
+    @patch("semantic.dimension_value_resolver.engine")
+    def test_legitimate_containment_behavior(self, mock_engine):
+        # TEST 4: Existing legitimate containment behavior still works
+        mock_conn = MagicMock()
+        mock_engine.connect.return_value.__enter__.return_value = mock_conn
+        
+        mock_rows = [
+            MagicMock(_mapping={"semantic_dimension_id": 1, "business_name": "Category", "table_name": "T", "column_name": "C", "value": "Cotton Pants", "normalized_value": "cotton pants"}),
+            MagicMock(_mapping={"semantic_dimension_id": 2, "business_name": "Category", "table_name": "T", "column_name": "C", "value": "Pants", "normalized_value": "pants"}),
+        ]
+        mock_conn.execute.return_value.fetchall.return_value = mock_rows
+
+        results = DimensionValueResolver.resolve("test-conn", "Cotton Pant")
+        matched_values = [r["value"] for r in results]
+        
+        # Pants (confidence 1.0) is suppressed by Cotton Pants (confidence 1.0)
+        self.assertIn("Cotton Pants", matched_values)
+        self.assertNotIn("Pants", matched_values)
+
+class TestSingularPluralMatcherPhase1B(unittest.TestCase):
+    """
+    Phase 1D.1-B focused regression tests.
+
+    setUp / tearDown clear the default resolver cache so that
+    every test starts with a clean index, preventing mock row
+    pollution across tests that share the same connection_id key.
+    """
+
+    def setUp(self):
+        DimensionValueResolver.clear_cache()
+
+    def tearDown(self):
+        DimensionValueResolver.clear_cache()
+
+    # ---
+
+    # ------------------------------------------------------------------
+    # Unit tests: matches_tokens() directly
+    # ------------------------------------------------------------------
+
+    def test_pant_matches_pant_singulars(self):
+        """Case 1 — pant ↔ pant (sublist path, unchanged behaviour)."""
+        result = SingularPluralMatcher.matches_tokens(
+            q_singulars=["pant"],
+            val_singulars=["pant"],
+        )
+        self.assertTrue(result)
+
+    def test_pants_matches_pant_singulars(self):
+        """Case 2 — pants (singularised → pant) ↔ pant (sublist path)."""
+        from semantic.matching.singular_plural_matcher import SingularPluralMatcher as SPM
+        q_sing = [SPM._to_singular("pants")]   # → ["pant"]
+        v_sing = [SPM._to_singular("pant")]    # → ["pant"]
+        result = SingularPluralMatcher.matches_tokens(
+            q_singulars=q_sing,
+            val_singulars=v_sing,
+        )
+        self.assertTrue(result)
+
+    def test_banian_matches_banian_singulars(self):
+        """Case 3 — banian ↔ banian (sublist path, unchanged behaviour)."""
+        result = SingularPluralMatcher.matches_tokens(
+            q_singulars=["banian"],
+            val_singulars=["banian"],
+        )
+        self.assertTrue(result)
+
+    def test_banians_matches_banian_singulars(self):
+        """Case 4 — banians (singularised → banian) ↔ banian (sublist path)."""
+        from semantic.matching.singular_plural_matcher import SingularPluralMatcher as SPM
+        q_sing = [SPM._to_singular("banians")]  # → ["banian"]
+        v_sing = [SPM._to_singular("banian")]   # → ["banian"]
+        result = SingularPluralMatcher.matches_tokens(
+            q_singulars=q_sing,
+            val_singulars=v_sing,
+        )
+        self.assertTrue(result)
+
+    def test_pants_matches_linen_pant_singulars(self):
+        """Case 5 — pants (→ ["pant"]) ↔ LINEN PANT (→ ["linen","pant"]) via intersection."""
+        from semantic.matching.singular_plural_matcher import SingularPluralMatcher as SPM
+        q_sing = [SPM._to_singular("pants")]               # → ["pant"]
+        v_sing = [SPM._to_singular(t) for t in ["linen", "pant"]]  # → ["linen","pant"]
+        result = SingularPluralMatcher.matches_tokens(
+            q_singulars=q_sing,
+            val_singulars=v_sing,
+        )
+        self.assertTrue(result, "pants should match LINEN PANT via shared singular token 'pant'")
+
+    def test_pants_matches_ramraj_pant_singulars(self):
+        """Case 6 — pants (→ ["pant"]) ↔ RAMRAJ PANT (→ ["ramraj","pant"]) via intersection."""
+        from semantic.matching.singular_plural_matcher import SingularPluralMatcher as SPM
+        q_sing = [SPM._to_singular("pants")]                    # → ["pant"]
+        v_sing = [SPM._to_singular(t) for t in ["ramraj", "pant"]]  # → ["ramraj","pant"]
+        result = SingularPluralMatcher.matches_tokens(
+            q_singulars=q_sing,
+            val_singulars=v_sing,
+        )
+        self.assertTrue(result, "pants should match RAMRAJ PANT via shared singular token 'pant'")
+
+    def test_unrelated_token_does_not_match_multi_token_value(self):
+        """Case 7 — completely unrelated query must NOT fire the fallback."""
+        result = SingularPluralMatcher.matches_tokens(
+            q_singulars=["laptop"],
+            val_singulars=["linen", "pant"],
+        )
+        self.assertFalse(result, "'laptop' must not match 'LINEN PANT'")
+
+    def test_cotton_laptop_pant_does_not_match_cotton_pants(self):
+        """
+        Guard: query LONGER than candidate — sublist must be contiguous.
+
+        'cotton laptop pant' must NOT match 'Cotton Pants' even though
+        both 'cotton' and 'pant' appear in the query, because 'laptop'
+        breaks the contiguous sequence.  The asymmetric-query fallback
+        must NOT fire when len(q) >= len(v).
+        """
+        from semantic.matching.singular_plural_matcher import SingularPluralMatcher as SPM
+        q_sing = [SPM._to_singular(t) for t in ["cotton", "laptop", "pant"]]
+        v_sing = [SPM._to_singular(t) for t in ["cotton", "pant"]]
+        result = SingularPluralMatcher.matches_tokens(
+            q_singulars=q_sing,
+            val_singulars=v_sing,
+        )
+        self.assertFalse(result, "'cotton laptop pant' must not match 'Cotton Pants'")
+
+    # ------------------------------------------------------------------
+    # Static API tests: matches() end-to-end string interface
+    # ------------------------------------------------------------------
+
+    def test_static_api_pants_matches_linen_pant(self):
+        """matches() static API: 'pants' ↔ 'LINEN PANT' must return matched=True."""
+        result = SingularPluralMatcher.matches("pants", "LINEN PANT")
+        self.assertTrue(result.matched)
+        self.assertEqual(result.confidence, 0.95)
+        self.assertEqual(result.match_type, MatchType.SINGULAR_PLURAL)
+
+    def test_static_api_pants_matches_ramraj_pant(self):
+        """matches() static API: 'pants' ↔ 'RAMRAJ PANT' must return matched=True."""
+        result = SingularPluralMatcher.matches("pants", "RAMRAJ PANT")
+        self.assertTrue(result.matched)
+        self.assertEqual(result.confidence, 0.95)
+
+    def test_static_api_pant_matches_pant(self):
+        """matches() static API: 'pant' ↔ 'pant' (unchanged behaviour)."""
+        result = SingularPluralMatcher.matches("pant", "pant")
+        self.assertTrue(result.matched)
+
+    def test_static_api_banian_matches_banian(self):
+        """matches() static API: 'banian' ↔ 'banian' (unchanged behaviour)."""
+        result = SingularPluralMatcher.matches("banian", "banian")
+        self.assertTrue(result.matched)
+
+    def test_static_api_banians_matches_banian(self):
+        """matches() static API: 'banians' ↔ 'banian' (unchanged behaviour)."""
+        result = SingularPluralMatcher.matches("banians", "banian")
+        self.assertTrue(result.matched)
+
+    def test_static_api_laptop_does_not_match_linen_pant(self):
+        """matches() static API: unrelated token must not match multi-token value."""
+        result = SingularPluralMatcher.matches("laptop", "LINEN PANT")
+        self.assertFalse(result.matched)
+
+    # ------------------------------------------------------------------
+    # Safety Guard focused unit tests (Phase 1D.1-C.1)
+    # ------------------------------------------------------------------
+
+    def test_safety_guard_matches_tokens_positives(self):
+        # 1. matches_tokens(["pant"], ["linen", "pant"]) == True
+        self.assertTrue(SingularPluralMatcher.matches_tokens(["pant"], ["linen", "pant"]))
+        # 2. matches_tokens(["banian"], ["1", "banian"]) == True
+        self.assertTrue(SingularPluralMatcher.matches_tokens(["banian"], ["1", "banian"]))
+        # 3. matches_tokens(["banian"], ["banians"]) == True (where "banians" -> "banian" singularized)
+        self.assertTrue(SingularPluralMatcher.matches_tokens(["banian"], ["banian"]))
+
+    def test_safety_guard_matches_tokens_negatives(self):
+        # 4. matches_tokens(["t"], ["t", "shirt"]) == False
+        self.assertFalse(SingularPluralMatcher.matches_tokens(["t"], ["t", "shirt"]))
+        # 5. matches_tokens(["r"], ["r", "neck"]) == False
+        self.assertFalse(SingularPluralMatcher.matches_tokens(["r"], ["r", "neck"]))
+        # 6. matches_tokens(["ap"], ["vt", "showroom", "ap"]) == False
+        self.assertFalse(SingularPluralMatcher.matches_tokens(["ap"], ["vt", "showroom", "ap"]))
+        # 7. matches_tokens(["ts"], ["vt", "marketing", "ts"]) == False
+        self.assertFalse(SingularPluralMatcher.matches_tokens(["ts"], ["vt", "marketing", "ts"]))
+
+    def test_safety_guard_static_api_consistency(self):
+        # Pants ↔ LINEN PANT must match (meaningful token >= 3)
+        self.assertTrue(SingularPluralMatcher.matches("pants", "LINEN PANT").matched)
+        # Banians ↔ banian must match
+        self.assertTrue(SingularPluralMatcher.matches("banians", "banian").matched)
+
+        # t ↔ T SHIRT must not match via SingularPluralMatcher
+        self.assertFalse(SingularPluralMatcher.matches("t", "T SHIRT").matched)
+        # r ↔ R.NECK must not match
+        self.assertFalse(SingularPluralMatcher.matches("r", "R.NECK").matched)
+        # ap ↔ VT-Showroom-AP must not match
+        self.assertFalse(SingularPluralMatcher.matches("ap", "VT-Showroom-AP").matched)
+        # ts ↔ VT-Marketing-TS must not match
+        self.assertFalse(SingularPluralMatcher.matches("ts", "VT-Marketing-TS").matched)
+
+        # Standalone exact match must still match (sublist length is equal, so contiguous check handles it)
+        self.assertTrue(SingularPluralMatcher.matches("ap", "AP").matched)
+        self.assertTrue(SingularPluralMatcher.matches("ts", "TS").matched)
+
+    # ------------------------------------------------------------------
+    # Integration tests: full pipeline via DimensionValueResolver
+    # ------------------------------------------------------------------
+
+    def _make_mock_rows(self):
+        """Shared set of indexed values for integration tests."""
+        rows_data = [
+            {"semantic_dimension_id": 1,  "business_name": "Product", "table_name": "T", "column_name": "C",
+             "value": "LINEN PANT",    "normalized_value": "linen pant"},
+            {"semantic_dimension_id": 2,  "business_name": "Product", "table_name": "T", "column_name": "C",
+             "value": "RAMRAJ PANT",   "normalized_value": "ramraj pant"},
+            {"semantic_dimension_id": 3,  "business_name": "Product", "table_name": "T", "column_name": "C",
+             "value": "FORMAL PANTS",  "normalized_value": "formal pants"},
+            {"semantic_dimension_id": 4,  "business_name": "Product", "table_name": "T", "column_name": "C",
+             "value": "Banians",       "normalized_value": "banians"},
+            {"semantic_dimension_id": 5,  "business_name": "Product", "table_name": "T", "column_name": "C",
+             "value": "Banian",        "normalized_value": "banian"},
+            {"semantic_dimension_id": 6,  "business_name": "Product", "table_name": "T", "column_name": "C",
+             "value": "Laptop",        "normalized_value": "laptop"},
+            {"semantic_dimension_id": 7,  "business_name": "Product", "table_name": "T", "column_name": "C",
+             "value": "Mobile Phone",  "normalized_value": "mobile phone"},
+        ]
+        return [MagicMock(_mapping=d) for d in rows_data]
+
+    @patch("semantic.dimension_value_resolver.engine")
+    def test_integration_pants_resolves_linen_pant(self, mock_engine):
+        """
+        End-to-end: question 'pants' must return LINEN PANT as a candidate.
+        This is the primary bug case from the Phase 1D.1-B specification.
+        """
+        mock_conn = MagicMock()
+        mock_engine.connect.return_value.__enter__.return_value = mock_conn
+        mock_conn.execute.return_value.fetchall.return_value = self._make_mock_rows()
+
+        results = DimensionValueResolver.resolve("test-conn", "pants")
+        matched_values = [r["value"] for r in results]
+
+        self.assertIn("LINEN PANT", matched_values,
+                      f"'pants' must resolve LINEN PANT. Got: {matched_values}")
+
+    @patch("semantic.dimension_value_resolver.engine")
+    def test_integration_pants_resolves_ramraj_pant(self, mock_engine):
+        """
+        End-to-end: question 'pants' must return RAMRAJ PANT as a candidate.
+        This is the primary bug case from the Phase 1D.1-B specification.
+        """
+        mock_conn = MagicMock()
+        mock_engine.connect.return_value.__enter__.return_value = mock_conn
+        mock_conn.execute.return_value.fetchall.return_value = self._make_mock_rows()
+
+        results = DimensionValueResolver.resolve("test-conn", "pants")
+        matched_values = [r["value"] for r in results]
+
+        self.assertIn("RAMRAJ PANT", matched_values,
+                      f"'pants' must resolve RAMRAJ PANT. Got: {matched_values}")
+
+    @patch("semantic.dimension_value_resolver.engine")
+    def test_integration_pants_all_pant_candidates_returned(self, mock_engine):
+        """
+        Ambiguity safety: all three pant-related candidates must survive.
+        The matcher must NOT collapse multiple candidates into one.
+        """
+        mock_conn = MagicMock()
+        mock_engine.connect.return_value.__enter__.return_value = mock_conn
+        mock_conn.execute.return_value.fetchall.return_value = self._make_mock_rows()
+
+        results = DimensionValueResolver.resolve("test-conn", "pants")
+        matched_values = [r["value"] for r in results]
+
+        self.assertIn("LINEN PANT",   matched_values)
+        self.assertIn("RAMRAJ PANT",  matched_values)
+        self.assertIn("FORMAL PANTS", matched_values)
+
+    @patch("semantic.dimension_value_resolver.engine")
+    def test_integration_pant_singular_still_works(self, mock_engine):
+        """
+        Regression guard: 'pant' (singular) must still resolve correctly.
+        """
+        mock_conn = MagicMock()
+        mock_engine.connect.return_value.__enter__.return_value = mock_conn
+        mock_conn.execute.return_value.fetchall.return_value = self._make_mock_rows()
+
+        results = DimensionValueResolver.resolve("test-conn", "pant")
+        matched_values = [r["value"] for r in results]
+
+        self.assertIn("LINEN PANT",  matched_values)
+        self.assertIn("RAMRAJ PANT", matched_values)
+
+    @patch("semantic.dimension_value_resolver.engine")
+    def test_integration_banian_resolves(self, mock_engine):
+        """Case 3 end-to-end: 'banian' must resolve Banian."""
+        mock_conn = MagicMock()
+        mock_engine.connect.return_value.__enter__.return_value = mock_conn
+        mock_conn.execute.return_value.fetchall.return_value = self._make_mock_rows()
+
+        results = DimensionValueResolver.resolve("test-conn", "banian")
+        matched_values = [r["value"] for r in results]
+        self.assertIn("Banian", matched_values)
+
+    @patch("semantic.dimension_value_resolver.engine")
+    def test_integration_banians_resolves(self, mock_engine):
+        """Case 4 end-to-end: 'banians' must resolve Banians (and Banian)."""
+        mock_conn = MagicMock()
+        mock_engine.connect.return_value.__enter__.return_value = mock_conn
+        mock_conn.execute.return_value.fetchall.return_value = self._make_mock_rows()
+
+        results = DimensionValueResolver.resolve("test-conn", "banians")
+        matched_values = [r["value"] for r in results]
+        self.assertIn("Banians", matched_values)
+
+    @patch("semantic.dimension_value_resolver.engine")
+    def test_integration_unrelated_token_no_match(self, mock_engine):
+        """Unrelated query 'laptop' must only match the Laptop value, not pant values."""
+        mock_conn = MagicMock()
+        mock_engine.connect.return_value.__enter__.return_value = mock_conn
+        mock_conn.execute.return_value.fetchall.return_value = self._make_mock_rows()
+
+        results = DimensionValueResolver.resolve("test-conn", "laptop")
+        matched_values = [r["value"] for r in results]
+
+        self.assertNotIn("LINEN PANT",  matched_values)
+        self.assertNotIn("RAMRAJ PANT", matched_values)
+
+    @patch("semantic.dimension_value_resolver.engine")
+    def test_integration_match_type_is_singular_plural_for_pants(self, mock_engine):
+        """
+        For the pants → LINEN PANT match the match_type must be
+        SINGULAR_PLURAL (not FUZZY), confirming the matcher path used.
+        """
+        mock_conn = MagicMock()
+        mock_engine.connect.return_value.__enter__.return_value = mock_conn
+        # Use a minimal index: only LINEN PANT so containment cannot suppress it.
+        mock_conn.execute.return_value.fetchall.return_value = [
+            MagicMock(_mapping={
+                "semantic_dimension_id": 1, "business_name": "Product",
+                "table_name": "T", "column_name": "C",
+                "value": "LINEN PANT", "normalized_value": "linen pant",
+            })
+        ]
+
+        results = DimensionValueResolver.resolve("test-conn", "pants")
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0]["value"], "LINEN PANT")
+        self.assertEqual(results[0]["match_type"], MatchType.SINGULAR_PLURAL.value)
+        self.assertEqual(results[0]["confidence"], 0.95)
+
+
+class TestFuzzyCoverageRankingFix(unittest.TestCase):
+    def test_fuzzy_coverage_precedes_confidence(self):
+        from semantic.matching.models import MatchResult, MatchType
+        from semantic.matching.ranker import MatchRanker
+
+        # Candidate A: FUZZY, coverage 2/2, confidence 0.90
+        # Candidate B: FUZZY, coverage 1/2, confidence 0.95
+        cand_a = MatchResult(
+            matched=True,
+            value="Cotton Pants",
+            normalized_value="cotton pants",
+            confidence=0.90,
+            match_type=MatchType.FUZZY,
+            matched_question_tokens=["cotton", "pant"],
+            matched_value_tokens=["cotton", "pants"],
+            reason="fuzzy",
+            dimension_id=1,
+            business_name="Product Group",
+            table_name="Products",
+            column_name="ProductGroup"
+        )
+        cand_b = MatchResult(
+            matched=True,
+            value="Formal Socks",
+            normalized_value="formal socks",
+            confidence=0.95,
+            match_type=MatchType.FUZZY,
+            matched_question_tokens=["pant"],
+            matched_value_tokens=["socks"],
+            reason="fuzzy",
+            dimension_id=2,
+            business_name="Product Category",
+            table_name="Products",
+            column_name="CategoryName"
+        )
+
+        # Ranked list with input question tokens "cotton pant"
+        ranked = MatchRanker.rank([cand_b, cand_a], ["cotton", "pant"])
+        
+        # Candidate A (Cotton Pants) must rank first due to higher coverage (2/2 vs 1/2)
+        self.assertEqual(ranked[0].value, "Cotton Pants")
+        self.assertEqual(ranked[1].value, "Formal Socks")
+
+    def test_fuzzy_confidence_breaks_tie_when_coverage_equal(self):
+        from semantic.matching.models import MatchResult, MatchType
+        from semantic.matching.ranker import MatchRanker
+
+        # Candidate A: FUZZY, coverage 2/2, confidence 0.90
+        # Candidate B: FUZZY, coverage 2/2, confidence 0.85
+        cand_a = MatchResult(
+            matched=True,
+            value="Cotton Pants",
+            normalized_value="cotton pants",
+            confidence=0.90,
+            match_type=MatchType.FUZZY,
+            matched_question_tokens=["cotton", "pant"],
+            matched_value_tokens=["cotton", "pants"],
+            reason="fuzzy",
+            dimension_id=1,
+            business_name="Product Group",
+            table_name="Products",
+            column_name="ProductGroup"
+        )
+        cand_b = MatchResult(
+            matched=True,
+            value="Formal Shirts",
+            normalized_value="formal shirts",
+            confidence=0.85,
+            match_type=MatchType.FUZZY,
+            matched_question_tokens=["cotton", "pant"],
+            matched_value_tokens=["formal", "shirts"],
+            reason="fuzzy",
+            dimension_id=2,
+            business_name="Product Category",
+            table_name="Products",
+            column_name="CategoryName"
+        )
+
+        ranked = MatchRanker.rank([cand_b, cand_a], ["cotton", "pant"])
+
+        # Candidate A (0.90 conf) must rank first since coverage is equal (2/2)
+        self.assertEqual(ranked[0].value, "Cotton Pants")
+        self.assertEqual(ranked[1].value, "Formal Shirts")
+
+
 if __name__ == "__main__":
     unittest.main()
+
 

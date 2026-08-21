@@ -1,0 +1,967 @@
+[
+  {
+    "case_id": "E1-046",
+    "category": "EXPLICIT_DIMENSION",
+    "source": "REAL_BUSINESS",
+    "severity": "CRITICAL",
+    "question": "Total sales for Chennai city",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "City"
+      ],
+      "values": [
+        "CHENNAI"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Explicit 'city' qualifier disambiguates Chennai to City dimension."
+  },
+  {
+    "case_id": "E1-047",
+    "category": "EXPLICIT_DIMENSION",
+    "source": "REAL_BUSINESS",
+    "severity": "CRITICAL",
+    "question": "Total sales in Coimbatore city",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "City"
+      ],
+      "values": [
+        "COIMBATORE"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Explicit 'city' qualifier disambiguates Coimbatore to City dimension."
+  },
+  {
+    "case_id": "E1-048",
+    "category": "EXPLICIT_DIMENSION",
+    "source": "REAL_BUSINESS",
+    "severity": "CRITICAL",
+    "question": "Total sales for Madurai city",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "City"
+      ],
+      "values": [
+        "MADURAI"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Explicit 'city' qualifier disambiguates Madurai to City dimension."
+  },
+  {
+    "case_id": "E1-049",
+    "category": "EXPLICIT_DIMENSION",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show sales for Erode city",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "City"
+      ],
+      "values": [
+        "ERODE"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Explicit 'city' qualifier disambiguates Erode to City dimension."
+  },
+  {
+    "case_id": "E1-050",
+    "category": "EXPLICIT_DIMENSION",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Qty in Salem city",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "Qty"
+      ],
+      "dimensions": [
+        "City"
+      ],
+      "values": [
+        "SALEM"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Explicit 'city' qualifier disambiguates Salem to City dimension."
+  },
+  {
+    "case_id": "E1-051",
+    "category": "EXPLICIT_DIMENSION",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show Qty for Tirunelveli city",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "Qty"
+      ],
+      "dimensions": [
+        "City"
+      ],
+      "values": [
+        "TIRUNELVELI"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Explicit 'city' qualifier disambiguates Tirunelveli to City dimension."
+  },
+  {
+    "case_id": "E1-052",
+    "category": "EXPLICIT_DIMENSION",
+    "source": "REAL_BUSINESS",
+    "severity": "CRITICAL",
+    "question": "Total sales for Chennai district",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "District"
+      ],
+      "values": [
+        "CHENNAI"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Explicit 'district' qualifier disambiguates Chennai to District dimension."
+  },
+  {
+    "case_id": "E1-053",
+    "category": "EXPLICIT_DIMENSION",
+    "source": "REAL_BUSINESS",
+    "severity": "CRITICAL",
+    "question": "Total sales in Coimbatore district",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "District"
+      ],
+      "values": [
+        "COIMBATORE"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Explicit 'district' qualifier disambiguates Coimbatore to District dimension."
+  },
+  {
+    "case_id": "E1-054",
+    "category": "EXPLICIT_DIMENSION",
+    "source": "REAL_BUSINESS",
+    "severity": "CRITICAL",
+    "question": "Total Qty for Madurai district",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "Qty"
+      ],
+      "dimensions": [
+        "District"
+      ],
+      "values": [
+        "MADURAI"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Explicit 'district' qualifier disambiguates Madurai to District dimension."
+  },
+  {
+    "case_id": "E1-055",
+    "category": "EXPLICIT_DIMENSION",
+    "source": "REAL_BUSINESS",
+    "severity": "CRITICAL",
+    "question": "Show sales for Ramraj brand",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "Brand"
+      ],
+      "values": [
+        "RAMRAJ"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Explicit 'brand' qualifier disambiguates Ramraj to Brand dimension."
+  },
+  {
+    "case_id": "E1-056",
+    "category": "EXPLICIT_DIMENSION",
+    "source": "REAL_BUSINESS",
+    "severity": "CRITICAL",
+    "question": "Qty for brand Ramraj",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "Qty"
+      ],
+      "dimensions": [
+        "Brand"
+      ],
+      "values": [
+        "RAMRAJ"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Explicit 'brand' prefix qualifier disambiguates Ramraj to Brand dimension."
+  },
+  {
+    "case_id": "E1-057",
+    "category": "EXPLICIT_DIMENSION",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show quantity for Ramraj brand",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "Qty"
+      ],
+      "dimensions": [
+        "Brand"
+      ],
+      "values": [
+        "RAMRAJ"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Explicit 'brand' qualifier with Qty metric."
+  },
+  {
+    "case_id": "E1-058",
+    "category": "EXPLICIT_DIMENSION",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show sales for Viveagham brand",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "Brand"
+      ],
+      "values": [
+        "VIVEAGHAM"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Explicit 'brand' qualifier disambiguates Viveagham to Brand dimension."
+  },
+  {
+    "case_id": "E1-059",
+    "category": "EXPLICIT_DIMENSION",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show sales of Marketing category",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "Category"
+      ],
+      "values": [
+        "MARKETING",
+        "MARKETING",
+        "MARKETING"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Explicit 'category' qualifier for Marketing category."
+  },
+  {
+    "case_id": "E1-060",
+    "category": "EXPLICIT_DIMENSION",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Pending amount for Franchise category",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "pendamt"
+      ],
+      "dimensions": [
+        "Category"
+      ],
+      "values": [
+        "FRANCHISEE",
+        "FRANCHISEE",
+        "FRANCHISEE"
+      ],
+      "status": "STRONG_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Explicit 'category' qualifier with pendamt metric."
+  },
+  {
+    "case_id": "E1-061",
+    "category": "EXPLICIT_DIMENSION",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show Qty for Marketing category",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "Qty"
+      ],
+      "dimensions": [
+        "Category"
+      ],
+      "values": [
+        "MARKETING",
+        "MARKETING",
+        "MARKETING"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Explicit 'category' qualifier for Franchise category."
+  },
+  {
+    "case_id": "E1-062",
+    "category": "EXPLICIT_DIMENSION",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show sales for Others category",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "Category"
+      ],
+      "values": [
+        "OTHERS",
+        "OTHERS",
+        "OTHERS"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Explicit 'category' qualifier for Others category."
+  },
+  {
+    "case_id": "E1-063",
+    "category": "EXPLICIT_DIMENSION",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show sales for VT division",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "Division"
+      ],
+      "values": [
+        "VT",
+        "VT",
+        "VT"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Explicit 'division' qualifier disambiguates VT to Division dimension."
+  },
+  {
+    "case_id": "E1-064",
+    "category": "MULTI_DIMENSION",
+    "source": "REAL_BUSINESS",
+    "severity": "CRITICAL",
+    "question": "Show sales for Chennai city and Ramraj brand",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "Brand",
+        "City"
+      ],
+      "values": [
+        "RAMRAJ"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Multi-dimension query combining City (Chennai) and Brand (Ramraj)."
+  },
+  {
+    "case_id": "E1-065",
+    "category": "MULTI_DIMENSION",
+    "source": "REAL_BUSINESS",
+    "severity": "CRITICAL",
+    "question": "Ramraj brand sales in Chennai city",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "Brand",
+        "City"
+      ],
+      "values": [
+        "RAMRAJ"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Multi-dimension query with Brand prefix and City location."
+  },
+  {
+    "case_id": "E1-066",
+    "category": "MULTI_DIMENSION",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show quantity for Chennai city and Ramraj brand",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "Qty"
+      ],
+      "dimensions": [
+        "Brand",
+        "City"
+      ],
+      "values": [
+        "RAMRAJ"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Multi-dimension query for Quantity with City and Brand."
+  },
+  {
+    "case_id": "E1-067",
+    "category": "MULTI_DIMENSION",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show sales for Coimbatore city and Ramraj brand",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "Brand",
+        "City"
+      ],
+      "values": [
+        "RAMRAJ"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Multi-dimension query combining City (Coimbatore) and Brand (Ramraj)."
+  },
+  {
+    "case_id": "E1-068",
+    "category": "MULTI_DIMENSION",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show sales for Madurai city and Ramraj brand",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "Brand",
+        "City"
+      ],
+      "values": [
+        "RAMRAJ"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Multi-dimension query combining City (Madurai) and Brand (Ramraj)."
+  },
+  {
+    "case_id": "E1-069",
+    "category": "MULTI_DIMENSION",
+    "source": "REAL_BUSINESS",
+    "severity": "CRITICAL",
+    "question": "Show sales for Chennai city and Marketing category",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "Category",
+        "City"
+      ],
+      "values": [
+        "MARKETING",
+        "MARKETING",
+        "MARKETING",
+        "CHENNAI",
+        "AN",
+        "AN"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Multi-dimension query combining City (Chennai) and Category (Marketing)."
+  },
+  {
+    "case_id": "E1-070",
+    "category": "MULTI_DIMENSION",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Marketing category sales in Coimbatore city",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "Category",
+        "City"
+      ],
+      "values": [
+        "COIMBATORE",
+        "MARKETING",
+        "MARKETING",
+        "MARKETING",
+        "ELECTRONIC CITY"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Multi-dimension query combining Category (Marketing) and City (Coimbatore)."
+  },
+  {
+    "case_id": "E1-071",
+    "category": "MULTI_DIMENSION",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show quantity for Chennai city and Marketing category",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "Qty"
+      ],
+      "dimensions": [
+        "Category",
+        "City"
+      ],
+      "values": [
+        "MARKETING",
+        "MARKETING",
+        "MARKETING",
+        "CHENNAI",
+        "AN",
+        "AN"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Multi-dimension query for Quantity with City and Category."
+  },
+  {
+    "case_id": "E1-072",
+    "category": "MULTI_DIMENSION",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show pending amount for Chennai city and Franchise category",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "pendamt"
+      ],
+      "dimensions": [
+        "Category",
+        "City"
+      ],
+      "values": [
+        "FRANCHISEE",
+        "FRANCHISEE",
+        "FRANCHISEE",
+        "CHENNAI",
+        "AN",
+        "AN"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Multi-dimension query for Pending Amount with City and Category."
+  },
+  {
+    "case_id": "E1-073",
+    "category": "MULTI_DIMENSION",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show sales for Chennai district and Ramraj brand",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "Brand",
+        "District"
+      ],
+      "values": [
+        "RAMRAJ"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Multi-dimension query combining District (Chennai) and Brand (Ramraj)."
+  },
+  {
+    "case_id": "E1-074",
+    "category": "MULTI_DIMENSION",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show sales for Coimbatore district and Marketing category",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "Category",
+        "District"
+      ],
+      "values": [
+        "COIMBATORE",
+        "MARKETING",
+        "MARKETING",
+        "MARKETING",
+        "AN",
+        "AN",
+        "AN"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Multi-dimension query combining District (Coimbatore) and Category (Marketing)."
+  },
+  {
+    "case_id": "E1-075",
+    "category": "MULTI_DIMENSION",
+    "source": "REAL_BUSINESS",
+    "severity": "CRITICAL",
+    "question": "Show sales for Ramraj brand and Franchise category",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "Category",
+        "Brand"
+      ],
+      "values": [
+        "RAMRAJ"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Multi-dimension query combining Brand (Ramraj) and Category (Marketing)."
+  },
+  {
+    "case_id": "E1-076",
+    "category": "MULTI_DIMENSION",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Franchise category sales for Ramraj brand",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "Category",
+        "Brand"
+      ],
+      "values": [
+        "RAMRAJ"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Multi-dimension query combining Category prefix and Brand suffix."
+  },
+  {
+    "case_id": "E1-077",
+    "category": "MULTI_DIMENSION",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show quantity for Ramraj brand and Franchise category",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "Qty"
+      ],
+      "dimensions": [
+        "Category",
+        "Brand"
+      ],
+      "values": [
+        "RAMRAJ"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Multi-dimension query for Quantity with Brand and Franchise category."
+  },
+  {
+    "case_id": "E1-078",
+    "category": "MULTI_DIMENSION",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show sales for Chennai city and VT division",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "Division",
+        "City"
+      ],
+      "values": [
+        "CHENNAI",
+        "VT",
+        "VT",
+        "VT",
+        "AN",
+        "AN"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Multi-dimension query combining City (Chennai) and Division (VT)."
+  },
+  {
+    "case_id": "E1-079",
+    "category": "MULTI_DIMENSION",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show sales for Coimbatore city and VT division",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "Division",
+        "City"
+      ],
+      "values": [
+        "COIMBATORE",
+        "VT",
+        "VT",
+        "VT",
+        "AN",
+        "AN",
+        "AN"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Multi-dimension query combining City (Coimbatore) and Division (VT)."
+  },
+  {
+    "case_id": "E1-080",
+    "category": "MULTI_DIMENSION",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show sales for Ramraj brand and VT division",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "Division",
+        "Brand"
+      ],
+      "values": [
+        "RAMRAJ"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Multi-dimension query combining Brand (Ramraj) and Division (VT)."
+  },
+  {
+    "case_id": "E1-081",
+    "category": "MULTI_DIMENSION",
+    "source": "REAL_BUSINESS",
+    "severity": "CRITICAL",
+    "question": "Show sales for Chennai city, Ramraj brand and Franchise category",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "Category",
+        "Brand",
+        "City"
+      ],
+      "values": [
+        "RAMRAJ"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Triple-dimension query combining City (Chennai), Brand (Ramraj), and Category (Marketing)."
+  }
+]

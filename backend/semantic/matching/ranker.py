@@ -8,8 +8,8 @@ class MatchRanker:
         """
         Rank matches by:
         1. Match Type (EXACT > NORMALIZED > SINGULAR_PLURAL > FUZZY)
-        2. Confidence (higher is better)
-        3. Coverage (higher is better)
+        2. Coverage (higher is better)
+        3. Confidence (higher is better)
         4. Token Distance (smaller is better)
         5. Length Difference (smaller is better)
         6. Alphabetical (ascending)
@@ -44,8 +44,8 @@ class MatchRanker:
             
             return (
                 -type_priority,
-                -m.confidence,
                 -coverage,
+                -m.confidence,
                 token_distance,
                 length_diff,
                 m.value.lower()

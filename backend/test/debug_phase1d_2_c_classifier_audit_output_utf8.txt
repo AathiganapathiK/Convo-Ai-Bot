@@ -1,0 +1,200 @@
+============================================================
+APP_RUNTIME (raw): None
+Runtime selected : local
+Configuration    : D:\Projects\Ramraj-AI-Chatbot\backend\.local.env
+DB_HOST          : 192.168.0.187
+============================================================
+DATABASE_url mssql+pyodbc:///?odbc_connect=DRIVER%3D%7BODBC+Driver+18+for+SQL+Server%7D%3BSERVER%3D192.168.0.187%2C1433%3BDATABASE%3DRR_platform%3BUID%3DIntern_Chatbot%3BPWD%3DKgdt%26LPD148%5EHp%3BTrustServerCertificate%3Dyes%3B
+================================================================================
+PART 1: REAL-DATA CLASSIFICATION AUDIT
+================================================================================
+
+QUERY: "pant"
+Status: STRONG_AMBIGUITY
+Dominant Match: None
+Candidates:
+  #1 B--PANT (SINGULAR_PLURAL, Conf: 0.95, Span: ['pant'])
+      Dim ID: DCBA558A-C4F4-409C-AF0C-A8B3E95B0DAF, Biz Name: Prod Grp2, Table: QB_MDJMD_SALES_5YRS_SUMMARY, Col: ProdGrp2
+  #2 LS PANT (SINGULAR_PLURAL, Conf: 0.95, Span: ['pant'])
+      Dim ID: DCBA558A-C4F4-409C-AF0C-A8B3E95B0DAF, Biz Name: Prod Grp2, Table: QB_MDJMD_SALES_5YRS_SUMMARY, Col: ProdGrp2
+  #3 DHOTI PANT (SINGULAR_PLURAL, Conf: 0.95, Span: ['pant'])
+      Dim ID: DCBA558A-C4F4-409C-AF0C-A8B3E95B0DAF, Biz Name: Prod Grp2, Table: QB_MDJMD_SALES_5YRS_SUMMARY, Col: ProdGrp2
+  #4 LINEN PANT (SINGULAR_PLURAL, Conf: 0.95, Span: ['pant'])
+      Dim ID: 47489775-A75B-44F1-BA91-932589BA7944, Biz Name: Brand, Table: PBI_ENES_ORDER_PENDING_SUMMARY, Col: Brand
+  #5 LINEN PANT (SINGULAR_PLURAL, Conf: 0.95, Span: ['pant'])
+      Dim ID: 9B0F3C4C-303F-4A94-9CC5-83C9D2D40614, Biz Name: Prod Grp1, Table: QB_MDJMD_SALES_5YRS_SUMMARY, Col: ProdGrp1
+  #6 RAMRAJ PANT (SINGULAR_PLURAL, Conf: 0.95, Span: ['pant'])
+      Dim ID: 47489775-A75B-44F1-BA91-932589BA7944, Biz Name: Brand, Table: PBI_ENES_ORDER_PENDING_SUMMARY, Col: Brand
+  #7 RAMRAJ PANT (SINGULAR_PLURAL, Conf: 0.95, Span: ['pant'])
+      Dim ID: 9B0F3C4C-303F-4A94-9CC5-83C9D2D40614, Biz Name: Prod Grp1, Table: QB_MDJMD_SALES_5YRS_SUMMARY, Col: ProdGrp1
+  #8 MENS PYJAMA PANT (SINGULAR_PLURAL, Conf: 0.95, Span: ['pant'])
+      Dim ID: DCBA558A-C4F4-409C-AF0C-A8B3E95B0DAF, Biz Name: Prod Grp2, Table: QB_MDJMD_SALES_5YRS_SUMMARY, Col: ProdGrp2
+  #9 UNIBRO TRACK PANT (SINGULAR_PLURAL, Conf: 0.95, Span: ['pant'])
+      Dim ID: 9E300C66-9E1B-41C1-8C2F-8DB60900A92A, Biz Name: Prod Grp3, Table: QB_MDJMD_SALES_5YRS_SUMMARY, Col: ProdGrp3
+  #10 UNIBRO JOGGER PANT (SINGULAR_PLURAL, Conf: 0.95, Span: ['pant'])
+      Dim ID: 9E300C66-9E1B-41C1-8C2F-8DB60900A92A, Biz Name: Prod Grp3, Table: QB_MDJMD_SALES_5YRS_SUMMARY, Col: ProdGrp3
+  #11 UNIBRO JOGGER PANT V2 (SINGULAR_PLURAL, Conf: 0.95, Span: ['pant'])
+      Dim ID: 9E300C66-9E1B-41C1-8C2F-8DB60900A92A, Biz Name: Prod Grp3, Table: QB_MDJMD_SALES_5YRS_SUMMARY, Col: ProdGrp3
+
+QUERY: "shirt"
+Status: STRONG_AMBIGUITY
+Dominant Match: None
+Candidates:
+  #1 C--SHIRT (SINGULAR_PLURAL, Conf: 0.95, Span: ['shirt'])
+      Dim ID: DCBA558A-C4F4-409C-AF0C-A8B3E95B0DAF, Biz Name: Prod Grp2, Table: QB_MDJMD_SALES_5YRS_SUMMARY, Col: ProdGrp2
+  #2 ADD SHIRT (SINGULAR_PLURAL, Conf: 0.95, Span: ['shirt'])
+      Dim ID: 47489775-A75B-44F1-BA91-932589BA7944, Biz Name: Brand, Table: PBI_ENES_ORDER_PENDING_SUMMARY, Col: Brand
+  #3 A--T-SHIRT (SINGULAR_PLURAL, Conf: 0.95, Span: ['shirt'])
+      Dim ID: DCBA558A-C4F4-409C-AF0C-A8B3E95B0DAF, Biz Name: Prod Grp2, Table: QB_MDJMD_SALES_5YRS_SUMMARY, Col: ProdGrp2
+  #4 ETHER SHIRT (SINGULAR_PLURAL, Conf: 0.95, Span: ['shirt'])
+      Dim ID: 9E300C66-9E1B-41C1-8C2F-8DB60900A92A, Biz Name: Prod Grp3, Table: QB_MDJMD_SALES_5YRS_SUMMARY, Col: ProdGrp3
+  #5 TRAIL SHIRT (SINGULAR_PLURAL, Conf: 0.95, Span: ['shirt'])
+      Dim ID: DCBA558A-C4F4-409C-AF0C-A8B3E95B0DAF, Biz Name: Prod Grp2, Table: QB_MDJMD_SALES_5YRS_SUMMARY, Col: ProdGrp2
+  #6 ARISER SHIRT (SINGULAR_PLURAL, Conf: 0.95, Span: ['shirt'])
+      Dim ID: 47489775-A75B-44F1-BA91-932589BA7944, Biz Name: Brand, Table: PBI_ENES_ORDER_PENDING_SUMMARY, Col: Brand
+  #7 RAMRAJ SHIRT (SINGULAR_PLURAL, Conf: 0.95, Span: ['shirt'])
+      Dim ID: 47489775-A75B-44F1-BA91-932589BA7944, Biz Name: Brand, Table: PBI_ENES_ORDER_PENDING_SUMMARY, Col: Brand
+  #8 RAMRAJ SHIRT (SINGULAR_PLURAL, Conf: 0.95, Span: ['shirt'])
+      Dim ID: 9B0F3C4C-303F-4A94-9CC5-83C9D2D40614, Biz Name: Prod Grp1, Table: QB_MDJMD_SALES_5YRS_SUMMARY, Col: ProdGrp1
+  #9 VAIBHAV SHIRT (SINGULAR_PLURAL, Conf: 0.95, Span: ['shirt'])
+      Dim ID: DCBA558A-C4F4-409C-AF0C-A8B3E95B0DAF, Biz Name: Prod Grp2, Table: QB_MDJMD_SALES_5YRS_SUMMARY, Col: ProdGrp2
+  #10 VIVEAGA SHIRT (SINGULAR_PLURAL, Conf: 0.95, Span: ['shirt'])
+      Dim ID: 9B0F3C4C-303F-4A94-9CC5-83C9D2D40614, Biz Name: Prod Grp1, Table: QB_MDJMD_SALES_5YRS_SUMMARY, Col: ProdGrp1
+  #11 VIVEAGA SHIRTS (SINGULAR_PLURAL, Conf: 0.95, Span: ['shirt'])
+      Dim ID: 9B0F3C4C-303F-4A94-9CC5-83C9D2D40614, Biz Name: Prod Grp1, Table: QB_MDJMD_SALES_5YRS_SUMMARY, Col: ProdGrp1
+  #12 VIVEAGHAM SHIRT (SINGULAR_PLURAL, Conf: 0.95, Span: ['shirt'])
+      Dim ID: 9B0F3C4C-303F-4A94-9CC5-83C9D2D40614, Biz Name: Prod Grp1, Table: QB_MDJMD_SALES_5YRS_SUMMARY, Col: ProdGrp1
+  #13 LS CREAM SHIRT (SINGULAR_PLURAL, Conf: 0.95, Span: ['shirt'])
+      Dim ID: DCBA558A-C4F4-409C-AF0C-A8B3E95B0DAF, Biz Name: Prod Grp2, Table: QB_MDJMD_SALES_5YRS_SUMMARY, Col: ProdGrp2
+  #14 LS WHITE SHIRT (SINGULAR_PLURAL, Conf: 0.95, Span: ['shirt'])
+      Dim ID: DCBA558A-C4F4-409C-AF0C-A8B3E95B0DAF, Biz Name: Prod Grp2, Table: QB_MDJMD_SALES_5YRS_SUMMARY, Col: ProdGrp2
+  #15 UNIFORM T SHIRT (SINGULAR_PLURAL, Conf: 0.95, Span: ['shirt'])
+      Dim ID: 9E300C66-9E1B-41C1-8C2F-8DB60900A92A, Biz Name: Prod Grp3, Table: QB_MDJMD_SALES_5YRS_SUMMARY, Col: ProdGrp3
+  #16 ASHAI SILK SHIRT (SINGULAR_PLURAL, Conf: 0.95, Span: ['shirt'])
+      Dim ID: DCBA558A-C4F4-409C-AF0C-A8B3E95B0DAF, Biz Name: Prod Grp2, Table: QB_MDJMD_SALES_5YRS_SUMMARY, Col: ProdGrp2
+  #17 UNIBRO FLUID SHIRT (SINGULAR_PLURAL, Conf: 0.95, Span: ['shirt'])
+      Dim ID: 9E300C66-9E1B-41C1-8C2F-8DB60900A92A, Biz Name: Prod Grp3, Table: QB_MDJMD_SALES_5YRS_SUMMARY, Col: ProdGrp3
+  #18 CCB MANOHARAM SHIRT (SINGULAR_PLURAL, Conf: 0.95, Span: ['shirt'])
+      Dim ID: DCBA558A-C4F4-409C-AF0C-A8B3E95B0DAF, Biz Name: Prod Grp2, Table: QB_MDJMD_SALES_5YRS_SUMMARY, Col: ProdGrp2
+  #19 VIVEAGHAM WHITE SHIRT (SINGULAR_PLURAL, Conf: 0.95, Span: ['shirt'])
+      Dim ID: 47489775-A75B-44F1-BA91-932589BA7944, Biz Name: Brand, Table: PBI_ENES_ORDER_PENDING_SUMMARY, Col: Brand
+  #20 VIVEAGHAM COLOUR SHIRT (SINGULAR_PLURAL, Conf: 0.95, Span: ['shirt'])
+      Dim ID: 47489775-A75B-44F1-BA91-932589BA7944, Biz Name: Brand, Table: PBI_ENES_ORDER_PENDING_SUMMARY, Col: Brand
+  #21 VIVEAGHAM COLOUR SHIRT (SINGULAR_PLURAL, Conf: 0.95, Span: ['shirt'])
+      Dim ID: 9B0F3C4C-303F-4A94-9CC5-83C9D2D40614, Biz Name: Prod Grp1, Table: QB_MDJMD_SALES_5YRS_SUMMARY, Col: ProdGrp1
+  #22 WHITE SHIRT 100% COTTON (SINGULAR_PLURAL, Conf: 0.95, Span: ['shirt'])
+      Dim ID: DCBA558A-C4F4-409C-AF0C-A8B3E95B0DAF, Biz Name: Prod Grp2, Table: QB_MDJMD_SALES_5YRS_SUMMARY, Col: ProdGrp2
+  #23 CULTURE CLUB TRAIL SHIRT (SINGULAR_PLURAL, Conf: 0.95, Span: ['shirt'])
+      Dim ID: DCBA558A-C4F4-409C-AF0C-A8B3E95B0DAF, Biz Name: Prod Grp2, Table: QB_MDJMD_SALES_5YRS_SUMMARY, Col: ProdGrp2
+  #24 LS WHITE SHIRT PC VER-II (SINGULAR_PLURAL, Conf: 0.95, Span: ['shirt'])
+      Dim ID: DCBA558A-C4F4-409C-AF0C-A8B3E95B0DAF, Biz Name: Prod Grp2, Table: QB_MDJMD_SALES_5YRS_SUMMARY, Col: ProdGrp2
+
+QUERY: "cotton pant"
+Status: STRONG_AMBIGUITY
+Dominant Match: None
+Candidates:
+  #1 LS ZARI COTTON (SINGULAR_PLURAL, Conf: 0.95, Span: ['cotton', 'pant'])
+      Dim ID: DCBA558A-C4F4-409C-AF0C-A8B3E95B0DAF, Biz Name: Prod Grp2, Table: QB_MDJMD_SALES_5YRS_SUMMARY, Col: ProdGrp2
+  #2 LS COTTON BREEZE (SINGULAR_PLURAL, Conf: 0.95, Span: ['cotton', 'pant'])
+      Dim ID: DCBA558A-C4F4-409C-AF0C-A8B3E95B0DAF, Biz Name: Prod Grp2, Table: QB_MDJMD_SALES_5YRS_SUMMARY, Col: ProdGrp2
+  #3 MENS PYJAMA PANT (SINGULAR_PLURAL, Conf: 0.95, Span: ['cotton', 'pant'])
+      Dim ID: DCBA558A-C4F4-409C-AF0C-A8B3E95B0DAF, Biz Name: Prod Grp2, Table: QB_MDJMD_SALES_5YRS_SUMMARY, Col: ProdGrp2
+  #4 UNIBRO TRACK PANT (SINGULAR_PLURAL, Conf: 0.95, Span: ['cotton', 'pant'])
+      Dim ID: 9E300C66-9E1B-41C1-8C2F-8DB60900A92A, Biz Name: Prod Grp3, Table: QB_MDJMD_SALES_5YRS_SUMMARY, Col: ProdGrp3
+  #5 UNIBRO JOGGER PANT (SINGULAR_PLURAL, Conf: 0.95, Span: ['cotton', 'pant'])
+      Dim ID: 9E300C66-9E1B-41C1-8C2F-8DB60900A92A, Biz Name: Prod Grp3, Table: QB_MDJMD_SALES_5YRS_SUMMARY, Col: ProdGrp3
+  #6 COTTON BREEZE KURTA (SINGULAR_PLURAL, Conf: 0.95, Span: ['cotton', 'pant'])
+      Dim ID: DCBA558A-C4F4-409C-AF0C-A8B3E95B0DAF, Biz Name: Prod Grp2, Table: QB_MDJMD_SALES_5YRS_SUMMARY, Col: ProdGrp2
+  #7 UNIBRO JOGGER PANT V2 (SINGULAR_PLURAL, Conf: 0.95, Span: ['cotton', 'pant'])
+      Dim ID: 9E300C66-9E1B-41C1-8C2F-8DB60900A92A, Biz Name: Prod Grp3, Table: QB_MDJMD_SALES_5YRS_SUMMARY, Col: ProdGrp3
+  #8 WHITE SHIRT 100% COTTON (SINGULAR_PLURAL, Conf: 0.95, Span: ['cotton', 'pant'])
+      Dim ID: DCBA558A-C4F4-409C-AF0C-A8B3E95B0DAF, Biz Name: Prod Grp2, Table: QB_MDJMD_SALES_5YRS_SUMMARY, Col: ProdGrp2
+  #9 DHOTI : 3.80MT KL COTTON KARA (SINGULAR_PLURAL, Conf: 0.95, Span: ['cotton', 'pant'])
+      Dim ID: 9E300C66-9E1B-41C1-8C2F-8DB60900A92A, Biz Name: Prod Grp3, Table: QB_MDJMD_SALES_5YRS_SUMMARY, Col: ProdGrp3
+  #10 LS PANT (FUZZY, Conf: 0.85, Span: ['cotton', 'pant'])
+      Dim ID: DCBA558A-C4F4-409C-AF0C-A8B3E95B0DAF, Biz Name: Prod Grp2, Table: QB_MDJMD_SALES_5YRS_SUMMARY, Col: ProdGrp2
+
+QUERY: "formal shirt"
+Status: STRONG_AMBIGUITY
+Dominant Match: None
+Candidates:
+  #1 LS CREAM SHIRT (SINGULAR_PLURAL, Conf: 0.95, Span: ['formal', 'shirt'])
+      Dim ID: DCBA558A-C4F4-409C-AF0C-A8B3E95B0DAF, Biz Name: Prod Grp2, Table: QB_MDJMD_SALES_5YRS_SUMMARY, Col: ProdGrp2
+  #2 LS WHITE SHIRT (SINGULAR_PLURAL, Conf: 0.95, Span: ['formal', 'shirt'])
+      Dim ID: DCBA558A-C4F4-409C-AF0C-A8B3E95B0DAF, Biz Name: Prod Grp2, Table: QB_MDJMD_SALES_5YRS_SUMMARY, Col: ProdGrp2
+  #3 UNIFORM T SHIRT (SINGULAR_PLURAL, Conf: 0.95, Span: ['formal', 'shirt'])
+      Dim ID: 9E300C66-9E1B-41C1-8C2F-8DB60900A92A, Biz Name: Prod Grp3, Table: QB_MDJMD_SALES_5YRS_SUMMARY, Col: ProdGrp3
+  #4 ASHAI SILK SHIRT (SINGULAR_PLURAL, Conf: 0.95, Span: ['formal', 'shirt'])
+      Dim ID: DCBA558A-C4F4-409C-AF0C-A8B3E95B0DAF, Biz Name: Prod Grp2, Table: QB_MDJMD_SALES_5YRS_SUMMARY, Col: ProdGrp2
+  #5 UNIBRO FLUID SHIRT (SINGULAR_PLURAL, Conf: 0.95, Span: ['formal', 'shirt'])
+      Dim ID: 9E300C66-9E1B-41C1-8C2F-8DB60900A92A, Biz Name: Prod Grp3, Table: QB_MDJMD_SALES_5YRS_SUMMARY, Col: ProdGrp3
+  #6 CCB MANOHARAM SHIRT (SINGULAR_PLURAL, Conf: 0.95, Span: ['formal', 'shirt'])
+      Dim ID: DCBA558A-C4F4-409C-AF0C-A8B3E95B0DAF, Biz Name: Prod Grp2, Table: QB_MDJMD_SALES_5YRS_SUMMARY, Col: ProdGrp2
+  #7 VIVEAGHAM WHITE SHIRT (SINGULAR_PLURAL, Conf: 0.95, Span: ['formal', 'shirt'])
+      Dim ID: 47489775-A75B-44F1-BA91-932589BA7944, Biz Name: Brand, Table: PBI_ENES_ORDER_PENDING_SUMMARY, Col: Brand
+  #8 VIVEAGHAM COLOUR SHIRT (SINGULAR_PLURAL, Conf: 0.95, Span: ['formal', 'shirt'])
+      Dim ID: 47489775-A75B-44F1-BA91-932589BA7944, Biz Name: Brand, Table: PBI_ENES_ORDER_PENDING_SUMMARY, Col: Brand
+  #9 VIVEAGHAM COLOUR SHIRT (SINGULAR_PLURAL, Conf: 0.95, Span: ['formal', 'shirt'])
+      Dim ID: 9B0F3C4C-303F-4A94-9CC5-83C9D2D40614, Biz Name: Prod Grp1, Table: QB_MDJMD_SALES_5YRS_SUMMARY, Col: ProdGrp1
+  #10 FORMAL SOCKS SOLID FULL (SINGULAR_PLURAL, Conf: 0.95, Span: ['formal', 'shirt'])
+      Dim ID: 9E300C66-9E1B-41C1-8C2F-8DB60900A92A, Biz Name: Prod Grp3, Table: QB_MDJMD_SALES_5YRS_SUMMARY, Col: ProdGrp3
+  #11 WHITE SHIRT 100% COTTON (SINGULAR_PLURAL, Conf: 0.95, Span: ['formal', 'shirt'])
+      Dim ID: DCBA558A-C4F4-409C-AF0C-A8B3E95B0DAF, Biz Name: Prod Grp2, Table: QB_MDJMD_SALES_5YRS_SUMMARY, Col: ProdGrp2
+  #12 CULTURE CLUB TRAIL SHIRT (SINGULAR_PLURAL, Conf: 0.95, Span: ['formal', 'shirt'])
+      Dim ID: DCBA558A-C4F4-409C-AF0C-A8B3E95B0DAF, Biz Name: Prod Grp2, Table: QB_MDJMD_SALES_5YRS_SUMMARY, Col: ProdGrp2
+  #13 FORMAL SOCKS DESIGN FULL (SINGULAR_PLURAL, Conf: 0.95, Span: ['formal', 'shirt'])
+      Dim ID: 9E300C66-9E1B-41C1-8C2F-8DB60900A92A, Biz Name: Prod Grp3, Table: QB_MDJMD_SALES_5YRS_SUMMARY, Col: ProdGrp3
+  #14 FORMAL SOCKS SOLID ANKLE (SINGULAR_PLURAL, Conf: 0.95, Span: ['formal', 'shirt'])
+      Dim ID: 9E300C66-9E1B-41C1-8C2F-8DB60900A92A, Biz Name: Prod Grp3, Table: QB_MDJMD_SALES_5YRS_SUMMARY, Col: ProdGrp3
+  #15 LS WHITE SHIRT PC VER-II (SINGULAR_PLURAL, Conf: 0.95, Span: ['formal', 'shirt'])
+      Dim ID: DCBA558A-C4F4-409C-AF0C-A8B3E95B0DAF, Biz Name: Prod Grp2, Table: QB_MDJMD_SALES_5YRS_SUMMARY, Col: ProdGrp2
+
+QUERY: "banian"
+Status: STRONG_AMBIGUITY
+Dominant Match: None
+Candidates:
+  #1 BANIANS (SINGULAR_PLURAL, Conf: 0.95, Span: ['banian'])
+      Dim ID: 9B0F3C4C-303F-4A94-9CC5-83C9D2D40614, Biz Name: Prod Grp1, Table: QB_MDJMD_SALES_5YRS_SUMMARY, Col: ProdGrp1
+  #2 1 BANIAN (SINGULAR_PLURAL, Conf: 0.95, Span: ['banian'])
+      Dim ID: DCBA558A-C4F4-409C-AF0C-A8B3E95B0DAF, Biz Name: Prod Grp2, Table: QB_MDJMD_SALES_5YRS_SUMMARY, Col: ProdGrp2
+  #3 ADVERTISEMENT BANIAN (SINGULAR_PLURAL, Conf: 0.95, Span: ['banian'])
+      Dim ID: 9E300C66-9E1B-41C1-8C2F-8DB60900A92A, Biz Name: Prod Grp3, Table: QB_MDJMD_SALES_5YRS_SUMMARY, Col: ProdGrp3
+  #4 SECONDS_ RN BANIAN (SINGULAR_PLURAL, Conf: 0.95, Span: ['banian'])
+      Dim ID: 9E300C66-9E1B-41C1-8C2F-8DB60900A92A, Biz Name: Prod Grp3, Table: QB_MDJMD_SALES_5YRS_SUMMARY, Col: ProdGrp3
+  #5 SECONDS_ RNS BANIAN (SINGULAR_PLURAL, Conf: 0.95, Span: ['banian'])
+      Dim ID: 9E300C66-9E1B-41C1-8C2F-8DB60900A92A, Biz Name: Prod Grp3, Table: QB_MDJMD_SALES_5YRS_SUMMARY, Col: ProdGrp3
+  #6 SECONDS_KIDS BANIAN (SINGULAR_PLURAL, Conf: 0.95, Span: ['banian'])
+      Dim ID: 9E300C66-9E1B-41C1-8C2F-8DB60900A92A, Biz Name: Prod Grp3, Table: QB_MDJMD_SALES_5YRS_SUMMARY, Col: ProdGrp3
+  #7 SECONDS_ RNBS BANIAN (SINGULAR_PLURAL, Conf: 0.95, Span: ['banian'])
+      Dim ID: 9E300C66-9E1B-41C1-8C2F-8DB60900A92A, Biz Name: Prod Grp3, Table: QB_MDJMD_SALES_5YRS_SUMMARY, Col: ProdGrp3
+
+QUERY: "children wear"
+Status: SINGLE_MATCH
+Dominant Match: N--NIGHT WEARS
+Candidates:
+  #1 N--NIGHT WEARS (SINGULAR_PLURAL, Conf: 0.95, Span: ['children', 'wear'])
+      Dim ID: DCBA558A-C4F4-409C-AF0C-A8B3E95B0DAF, Biz Name: Prod Grp2, Table: QB_MDJMD_SALES_5YRS_SUMMARY, Col: ProdGrp2
+
+================================================================================
+PART 2: SYNTHETIC CLASSIFIER CASES
+================================================================================
+
+Case A: EXACT 1.00 vs FUZZY 0.85
+  Status: WEAK_AMBIGUITY
+  Dominant Match: Exact Val
+
+Case B: SINGULAR_PLURAL 0.95 vs SINGULAR_PLURAL 0.95
+  Status: STRONG_AMBIGUITY
+  Dominant Match: None
+
+Case C: FUZZY 0.90 vs FUZZY 0.86
+  Status: STRONG_AMBIGUITY
+  Dominant Match: None
+
+Case D: EXACT 1.00 vs EXACT 1.00
+  Status: STRONG_AMBIGUITY
+  Dominant Match: None
+
+Case E: 2 tokens 0.90 vs 1 token 0.95
+  Status: STRONG_AMBIGUITY
+  Dominant Match: None

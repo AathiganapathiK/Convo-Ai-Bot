@@ -1,3 +1,4 @@
+import time
 from pprint import pprint
 from typing import Optional, Dict, Any, List
 from core.exceptions import SemanticRetrievalException
@@ -142,7 +143,8 @@ class PromptBuilder:
         company_id = None,
         connection_id: Optional[str] = None,
         settings: Optional[TimeSettings] = None,
-        context: Optional[SemanticExecutionContext] = None
+        context: Optional[SemanticExecutionContext] = None,
+        clarified_candidate = None
     ) -> tuple[str, dict, str]:
         history_text = ""
 
@@ -203,18 +205,74 @@ class PromptBuilder:
             print(f"Error printing DB semantic metadata: {e}")
 
         # Resolve temporal context
+        t_temp_start = time.time()
         temporal_section = self.temporal_pipeline.build(
             question=question,
             connection_id=context.connection_id,
             settings=context.settings
         )
+        t_temp_sec = time.time() - t_temp_start
 
-        import time
+        # Intercept temporal clarification resume
+        if clarified_candidate and isinstance(clarified_candidate, dict):
+            val = clarified_candidate.get("value")
+            if val in ("This Year", "Last Year", "2 Years Ago", "3 Years Ago"):
+                from semantic.temporal.models import TimeContext, CurrentYearIntent, PreviousYearIntent
+                from semantic.temporal.enums import TimeIntentType, TimeStrategyType
+                from semantic.temporal.models import BaseTimeIntent
+                
+                new_ctx = None
+                if val == "This Year":
+                    new_ctx = TimeContext(
+                        intent=CurrentYearIntent(intent_type=TimeIntentType.CURRENT_YEAR),
+                        strategy=TimeStrategyType.SNAPSHOT,
+                        snapshot_columns=["CY"]
+                    )
+                elif val == "Last Year":
+                    new_ctx = TimeContext(
+                        intent=PreviousYearIntent(intent_type=TimeIntentType.PREVIOUS_YEAR),
+                        strategy=TimeStrategyType.SNAPSHOT,
+                        snapshot_columns=["PY"]
+                    )
+                elif val == "2 Years Ago":
+                    new_ctx = TimeContext(
+                        intent=BaseTimeIntent(intent_type="PPY"),
+                        strategy=TimeStrategyType.SNAPSHOT,
+                        snapshot_columns=["PPY"]
+                    )
+                elif val == "3 Years Ago":
+                    new_ctx = TimeContext(
+                        intent=BaseTimeIntent(intent_type="PPPY"),
+                        strategy=TimeStrategyType.SNAPSHOT,
+                        snapshot_columns=["PPPY"]
+                    )
+                if new_ctx:
+                    self.temporal_pipeline._thread_local.last_time_context = new_ctx
+
+        # TEMP_PIPELINE_TRACE_REMOVE_LATER
+        try:
+            from semantic.diagnostic_trace import PipelineDiagnosticTracer
+            PipelineDiagnosticTracer.record_timing("temporal", t_temp_sec)
+        except Exception:
+            pass
+
+        # Extract previous semantic context from history
+        previous_semantic_context = None
+        if history:
+            for item in reversed(history):
+                sem_ctx = item.get("semantic_context")
+                if sem_ctx and isinstance(sem_ctx, dict):
+                    if sem_ctx.get("resolved_values") or sem_ctx.get("dimensions"):
+                        previous_semantic_context = sem_ctx
+                        break
+
         semantic_start_time = time.time()
         semantic_result = (
             SemanticResolver.resolve(
                 active_connection["connection_id"],
-                question
+                question,
+                clarified_candidate=clarified_candidate,
+                previous_semantic_context=previous_semantic_context
             )
         )
         semantic_time = round(time.time() - semantic_start_time, 2)
@@ -222,6 +280,15 @@ class PromptBuilder:
             ret_dict = semantic_result.setdefault("retrieval", {})
             if isinstance(ret_dict, dict):
                 ret_dict["time"] = semantic_time
+
+        # TEMP_PIPELINE_TRACE_REMOVE_LATER
+        try:
+            from semantic.diagnostic_trace import PipelineDiagnosticTracer
+            PipelineDiagnosticTracer.record_timing("semantic", semantic_time)
+            PipelineDiagnosticTracer.record_semantic(semantic_result)
+            PipelineDiagnosticTracer.record_temporal()
+        except Exception:
+            pass
 
         ret_confidence = 0.0
         ret_status = "Unknown"
@@ -240,6 +307,37 @@ class PromptBuilder:
                     ret_reason = reas
         
         metric_objs = semantic_result.get("metric_objects", []) if isinstance(semantic_result, dict) else []
+
+        # If any resolved metric is a snapshot period metric, set strategy to SNAPSHOT to avoid redundant date predicates
+        has_snapshot_metric = any(
+            m.get("column_name") in {"CY", "PY", "PPY", "PPPY", "PPPPY", "CYQ", "PYQ"}
+            for m in metric_objs
+        )
+        if has_snapshot_metric:
+            last_res = TemporalPipeline.get_last_resolution()
+            if last_res and last_res.plan:
+                from semantic.temporal.enums import TimeStrategyType
+                from semantic.temporal.models import TimeContext
+                active_settings = settings or TimeSettings()
+                raw_ctx = self.temporal_pipeline.context_builder.build(last_res, active_settings)
+                time_ctx = TimeContext(
+                    intent=raw_ctx.intent,
+                    strategy=TimeStrategyType.SNAPSHOT,
+                    date_column=raw_ctx.date_column,
+                    calendar_table=raw_ctx.calendar_table,
+                    snapshot_columns=raw_ctx.snapshot_columns,
+                    grouping=raw_ctx.grouping,
+                    start_date=raw_ctx.start_date,
+                    end_date=raw_ctx.end_date,
+                    comparison=raw_ctx.comparison,
+                    calendar_type=raw_ctx.calendar_type,
+                    financial_year_start_month=raw_ctx.financial_year_start_month,
+                    timezone=raw_ctx.timezone,
+                    locale=raw_ctx.locale,
+                    is_partial=raw_ctx.is_partial,
+                    warnings=raw_ctx.warnings
+                )
+                temporal_section = self.temporal_pipeline.temporal_formatter.format(time_ctx, style="llm")
         dimension_objs = semantic_result.get("dimension_objects", []) if isinstance(semantic_result, dict) else []
         value_matches = semantic_result.get("value_matches", []) if isinstance(semantic_result, dict) else []
         
@@ -341,7 +439,97 @@ class PromptBuilder:
             print("\n========== SEMANTIC GATE BLOCKED ==========")
             print(gate_result["reason"])
 
+            if gate_result.get("status") == "PARTIAL_MATCH":
+                from core.exceptions import AmbiguityException
+                value_matches = semantic_result.get("value_matches", [])
+                if value_matches:
+                    best_match = value_matches[0]
+                    msg = f"I couldn't find \"{question}\" in the available business data. I found \"{best_match['value']}\" instead. Would you like to use that?"
+                    options = [{
+                        "option_id": 1,
+                        "value": best_match["value"],
+                        "dimension": best_match.get("business_name") or best_match.get("dimension"),
+                        "business_name": best_match.get("business_name"),
+                        "dimension_id": best_match.get("dimension_id"),
+                        "table_name": best_match.get("table_name"),
+                        "column_name": best_match.get("column_name"),
+                        "normalized_value": best_match.get("normalized_value", best_match["value"].lower()),
+                        "match_type": best_match.get("match_type"),
+                        "matched_question_tokens": best_match.get("matched_question_tokens", []),
+                        "matched_value_tokens": best_match.get("matched_value_tokens", [])
+                    }]
+                    raise AmbiguityException(
+                        message=msg,
+                        details={
+                            "original_question": question,
+                            "ambiguity_type": "PARTIAL_MATCH",
+                            "options": options
+                        }
+                    )
+                else:
+                    msg = f"I couldn't find any data matching \"{question}\" in the available business data. Please try another product, category, or business term."
+                    raise SemanticRetrievalException(
+                        message=msg,
+                        details={
+                            "question": question,
+                            "retrieval": semantic_result["retrieval"]
+                        }
+                    )
+
+            if gate_result.get("status") == "STRONG_AMBIGUITY":
+                from core.exceptions import AmbiguityException
+                
+                # Expose options with option_id, value, and dimension/business_name, dimension_id
+                options = []
+                for idx, m in enumerate(semantic_result.get("value_matches", [])):
+                    options.append({
+                        "option_id": idx + 1,
+                        "value": m["value"],
+                        "dimension": m["business_name"],
+                        "business_name": m["business_name"],
+                        "dimension_id": m["dimension_id"],
+                        "table_name": m["table_name"],
+                        "column_name": m["column_name"],
+                        "normalized_value": m.get("normalized_value", m["value"].lower()),
+                        "match_type": m.get("match_type"),
+                        "matched_question_tokens": m.get("matched_question_tokens", []),
+                        "matched_value_tokens": m.get("matched_value_tokens", [])
+                    })
+                
+                matched_tokens = []
+                for m in semantic_result.get("value_matches", []):
+                    for tok in m.get("matched_question_tokens", []):
+                        if tok.lower() not in [t.lower() for t in matched_tokens]:
+                            matched_tokens.append(tok)
+                
+                # Sort matched_tokens by their order in the original question
+                words = question.lower().split()
+                matched_tokens.sort(key=lambda x: words.index(x.lower()) if x.lower() in words else 999)
+                matched_phrase = " ".join(matched_tokens)
+                if not matched_phrase:
+                    matched_phrase = question
+                
+                opt_str = "\n".join(f"{opt['option_id']}. {opt['value']}" for opt in options[:5])
+                msg = f"I found multiple possible matches for \"{matched_phrase}\".\nPlease choose one:\n\n{opt_str}"
+                
+                dimensions_seen = {opt["dimension"] for opt in options if opt["dimension"]}
+                if len(dimensions_seen) <= 1:
+                    ambiguity_type = "SAME_DIMENSION"
+                else:
+                    ambiguity_type = "CROSS_DIMENSION"
+                
+                raise AmbiguityException(
+                    message=msg,
+                    details={
+                        "original_question": question,
+                        "ambiguity_type": ambiguity_type,
+                        "options": options
+                    }
+                )
+
+            msg = f"I couldn't find any data matching \"{question}\" in the available business data. Please try another product, category, or business term."
             raise SemanticRetrievalException(
+                message=msg,
                 details={
                     "question": question,
                     "retrieval": semantic_result["retrieval"]
@@ -409,6 +597,57 @@ class PromptBuilder:
                 if isinstance(req, str) and req not in table_names:
                     table_names.append(req)
         table_names = sorted(table_names)
+
+        # GATE 3A - Structured SemanticPlan Construction
+        semantic_plan = None
+        try:
+            from semantic.semantic_plan_builder import SemanticPlanBuilder
+            from core.exceptions import EnterpriseException
+            time_context = self.temporal_pipeline.get_last_time_context()
+            semantic_plan = SemanticPlanBuilder.build(
+                question=question,
+                semantic_result=semantic_result,
+                time_context=time_context,
+                relevant_tables=table_names,
+                connection_id=active_connection["connection_id"],
+                clarified_candidate=clarified_candidate
+            )
+            # Store in semantic_result for downstream safety
+            semantic_result["semantic_plan"] = semantic_plan
+            
+            # Record in diagnostic tracer
+            try:
+                from semantic.diagnostic_trace import PipelineDiagnosticTracer
+                PipelineDiagnosticTracer.record_semantic_plan(semantic_plan)
+            except Exception:
+                pass
+        except EnterpriseException:
+            raise
+        except Exception as spe:
+            print(f"Error compiling SemanticPlan: {spe}")
+
+        # Check if clarification is required
+        if semantic_plan:
+            is_sales_unresolved = False
+            for m in semantic_plan.metrics:
+                if m.business_name == "Sales" and m.column_name == "None":
+                    is_sales_unresolved = True
+                    break
+            if is_sales_unresolved:
+                from core.exceptions import AmbiguityException
+                raise AmbiguityException(
+                    message="Which time period would you like for sales?",
+                    details={
+                        "original_question": question,
+                        "ambiguity_type": "TEMPORAL_INTENT",
+                        "options": [
+                            {"option_id": 1, "value": "This Year", "display_dimension": "Time Period"},
+                            {"option_id": 2, "value": "Last Year", "display_dimension": "Time Period"},
+                            {"option_id": 3, "value": "2 Years Ago", "display_dimension": "Time Period"},
+                            {"option_id": 4, "value": "3 Years Ago", "display_dimension": "Time Period"}
+                        ]
+                    }
+                )
 
         schema_text = RelevantSchemaService.get_schema(
             active_connection["connection_id"],
@@ -522,13 +761,23 @@ class PromptBuilder:
         print(f"Retrieved Relationships :\n{relationship_context.strip() if relationship_context else '(None)'}")
         print("================================================\n")
 
+        ex_start = time.time()
         examples = (
             QueryExamplesService
             .retrieve(
                 active_connection["connection_id"],
-                relevant_tables=table_names
+                relevant_tables=table_names,
+                value_matches=value_matches,
+                metric_objects=metric_objs
             )
         )
+        ex_sec = time.time() - ex_start
+        # TEMP_PIPELINE_TRACE_REMOVE_LATER
+        try:
+            from semantic.diagnostic_trace import PipelineDiagnosticTracer
+            PipelineDiagnosticTracer.record_timing("examples", ex_sec)
+        except Exception:
+            pass
 
         examples_text = ""
 
@@ -626,6 +875,21 @@ class PromptBuilder:
         except Exception as e:
             all_schema_text = f"Error loading all schema: {e}"
 
+        required_filters_section = ""
+        required_filters_lines = []
+        for v in value_matches:
+            if isinstance(v, dict):
+                col = v.get("column_name")
+                op = v.get("operator", "=")
+                val = v.get("value")
+                if isinstance(col, str) and isinstance(val, (str, int, float)):
+                    op_str = str(op) if op is not None else "="
+                    val_str = f"'{val}'" if isinstance(val, str) else str(val)
+                    required_filters_lines.append(f"- {col} {op_str} {val_str}")
+        if required_filters_lines:
+            formatted_filters = "\n".join(required_filters_lines)
+            required_filters_section = f"\n===========================================================\nREQUIRED VALUE FILTERS\n===========================================================\n\n{formatted_filters}\n"
+
         prompt = f"""
 You are an expert Microsoft SQL Server SQL generator for an Enterprise Conversational Analytics Platform.
 
@@ -674,6 +938,7 @@ MATCHED DIMENSION VALUES
 ===========================================================
 
 {semantic_result.get("value_matches", [])}
+{required_filters_section}
 
 ===========================================================
 PREVIOUS SUCCESSFUL QUERIES
@@ -723,6 +988,7 @@ SEMANTIC SQL RULES
 8. Respect all Metadata Rules.
 9. Follow the style demonstrated by Previous Successful Queries whenever possible.
 10. If a dimension has a specified SQL Expression under SEMANTIC CONTEXT, you MUST use that SQL Expression in the SELECT, GROUP BY, WHERE, and ORDER BY clauses instead of the raw physical column name.
+11. Every REQUIRED VALUE FILTER listed in the prompt is an authoritative semantic decision already resolved by the backend. The generated SQL MUST apply every required value filter using the specified column or a validated/required join path to constrain the query results. You are NOT allowed to decide if the filter is relevant, nor are you allowed to omit, replace, generalize, reinterpret, silently discard, or merely comment on a required value filter.
 
 ===========================================================
 SQL SERVER RULES
@@ -790,7 +1056,8 @@ def build_sql_prompt(
     company_id = None,
     connection_id: Optional[str] = None,
     settings: Optional[TimeSettings] = None,
-    context: Optional[SemanticExecutionContext] = None
+    context: Optional[SemanticExecutionContext] = None,
+    clarified_candidate = None
 ) -> tuple[str, dict, str]:
     builder = PromptBuilder()
     return builder.build_sql_prompt(
@@ -799,7 +1066,8 @@ def build_sql_prompt(
         company_id=company_id,
         connection_id=connection_id,
         settings=settings,
-        context=context
+        context=context,
+        clarified_candidate=clarified_candidate
     )
 
 

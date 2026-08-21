@@ -37,6 +37,9 @@ from ai.insights.followup_generator import (
 
 print("FOLLOWUP GENERATOR LOADED")
 
+# DEPRECATED: get_llm_provider() is deprecated.
+# Runtime routing has migrated to LLMExecutionService.execute() which dynamically routes and retries 
+# using the active llm_fallbacks list, avoiding single-point-of-failure defaults.
 def get_llm_provider(
     purpose: str
 ):
@@ -66,14 +69,15 @@ def get_llm_provider(
 
 
 
-def generate_sql_query(question: str, history = None, company_id = None):
+def generate_sql_query(question: str, history = None, company_id = None, clarified_candidate = None):
 
     try:
 
         prompt, semantic_result, runtime_context = build_sql_prompt(
             question,
             history,
-            company_id
+            company_id,
+            clarified_candidate=clarified_candidate
         )
 
     except EnterpriseException as ex:
@@ -111,6 +115,13 @@ def generate_sql_query(question: str, history = None, company_id = None):
         sql_query = sql_query.replace("```sql", "")
         sql_query = sql_query.replace("```", "")
         sql_query = sql_query.strip()
+
+    # TEMP_PIPELINE_TRACE_REMOVE_LATER
+    try:
+        from semantic.diagnostic_trace import PipelineDiagnosticTracer
+        PipelineDiagnosticTracer.record_sql("generated", sql_query)
+    except Exception:
+        pass
 
     model_name = getattr(response, "model", "Unknown") if response else "Unknown"
 

@@ -19,6 +19,27 @@ class SemanticGate:
         confidence = retrieval.get("confidence", 0.0)
         resolved_components = retrieval.get("resolved_components", 0)
 
+        # Check ambiguity result if available. If strong ambiguity is present, block SQL generation.
+        ambig_res = semantic_result.get("ambiguity_result")
+        if ambig_res:
+            from semantic.matching.models import ResolutionStatus
+            if ambig_res.status == ResolutionStatus.STRONG_AMBIGUITY:
+                return {
+                    "allowed": False,
+                    "status": "STRONG_AMBIGUITY",
+                    "confidence": confidence,
+                    "reason": "Strong ambiguity detected between candidates. Clarification is required."
+                }
+            elif ambig_res.status == ResolutionStatus.PARTIAL_MATCH:
+                return {
+                    "allowed": False,
+                    "status": "PARTIAL_MATCH",
+                    "confidence": confidence,
+                    "reason": "Partial semantic coverage requires clarification."
+                }
+
+
+
         # --------------------------------------------------
         # COMPLETE
         # --------------------------------------------------

@@ -69,8 +69,11 @@ class EnterpriseException(Exception):
 
 class SemanticRetrievalException(EnterpriseException):
 
-    def __init__(self, details=None):
-
+    def __init__(self, message=None, details=None):
+        msg = message or (
+            "I couldn't identify the business metrics, "
+            "dimensions or values in your question."
+        )
         super().__init__(
 
             error_code=ErrorCode.SEMANTIC_NOT_RECOGNIZED,
@@ -79,10 +82,7 @@ class SemanticRetrievalException(EnterpriseException):
 
             title="Business Terms Not Recognized",
 
-            message=(
-                "I couldn't identify the business metrics, "
-                "dimensions or values in your question."
-            ),
+            message=msg,
 
             suggestion=(
                 "Try using known business terms such as Sales, "
@@ -92,6 +92,25 @@ class SemanticRetrievalException(EnterpriseException):
             details=details
 
         )
+
+
+
+class AmbiguityException(EnterpriseException):
+
+    def __init__(self, message: str, details: dict | None = None):
+        super().__init__(
+            error_code="AMBIGUITY_DETECTED",
+            category="SEMANTIC",
+            title="Clarification Required",
+            message=message,
+            suggestion="Please clarify by selecting one of the options.",
+            details=details
+        )
+
+    def to_dict(self):
+        dct = super().to_dict()
+        dct["action"] = "CLARIFICATION_REQUIRED"
+        return dct
 
 
 class CLSException(EnterpriseException):

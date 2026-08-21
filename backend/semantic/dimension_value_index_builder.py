@@ -1,4 +1,4 @@
-    from sqlalchemy.engine import result
+from sqlalchemy.engine import result
 from semantic import dimension_value_resolver
 from sqlalchemy import dialects
 from services.connection_service import ConnectionService

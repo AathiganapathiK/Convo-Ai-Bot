@@ -15,6 +15,7 @@ import {
 import KPICards from "../components/charts/KPICards";
 import ChartTabs from "../components/charts/ChartTabs";
 import { formatValue } from "../utils/format";
+import ClarificationCard from "../components/ClarificationCard";
 const { Sider, Content } = Layout;
 const { Text, Title, Paragraph } = Typography;
 const { Panel } = Collapse;
@@ -448,11 +449,98 @@ export default function ChatPage({ API, token, userInfo }) {
   const [isRenameModalOpen, setIsRenameModalOpen] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [activeConnection, setActiveConnection] = useState(null);
+  const [pendingClarification, setPendingClarification] = useState(null);
   const recognitionRef = useRef(null);
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    setPendingClarification(null);
+  }, [selectedSessionId]);
+
+  const cancelClarification = () => {
+    setPendingClarification(null);
+  };
+
+  const submitSelection = async (optionId, displayLabel) => {
+    let currentSessionId = selectedSessionId;
+    if (!currentSessionId) return;
+
+    const selectionText = displayLabel || String(optionId);
+    const userMsg = {
+      id: Date.now().toString(),
+      role: "user",
+      content: `Selected: ${selectionText}`,
+      timestamp: new Date()
+    };
+    setMessages(prev => [...prev, userMsg]);
+    setLoading(true);
+
+    try {
+      const res = await fetch(`${API}/ask?question=${encodeURIComponent(String(optionId))}&session_id=${currentSessionId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      if (res.status === 401) {
+        message.error("Session expired.");
+        setLoading(false);
+        return;
+      }
+
+      const data = await res.json();
+      setLoading(false);
+
+      if (data.error) {
+        if (data.error.code === "AMBIGUITY_DETECTED" || data.action === "CLARIFICATION_REQUIRED") {
+          setPendingClarification({
+            title: data.error.title || "Clarification Required",
+            message: data.error.message || "Please choose one:",
+            options: data.error.details?.options || [],
+            originalQuestion: data.error.details?.original_question || pendingClarification?.originalQuestion || "",
+            sessionId: currentSessionId
+          });
+          const errorMsg = {
+            id: Date.now().toString(),
+            role: "assistant",
+            content: data.error.message,
+            error: data.error,
+            timestamp: new Date()
+          };
+          setMessages(prev => [...prev, errorMsg]);
+        } else if (data.error.code === "SESSION_EXPIRED" || data.error.message?.toLowerCase().includes("expired")) {
+          setPendingClarification(null);
+          message.error("The clarification session has expired. Please ask your question again.");
+        } else {
+          message.error(data.error.message || "Invalid selection. Please try again.");
+        }
+        return;
+      }
+
+      setPendingClarification(null);
+
+      const aiMsg = {
+        id: Date.now().toString(),
+        role: "assistant",
+        type: data.type || "ANALYTICS",
+        content: data.message || data.business_summary,
+        business_summary: data.business_summary,
+        followup_questions: data.followup_questions || [],
+        sql_query: data.sql_query,
+        chart: data.chart,
+        data: data.data,
+        chart_data: data.chart_data,
+        timestamp: new Date(),
+        kpis: data.kpis
+      };
+
+      setMessages(prev => [...prev, aiMsg]);
+    } catch (error) {
+      setLoading(false);
+      message.error("Error communicating with AI Analytics engine.");
+    }
   };
 
   const fetchActiveConnection = async () => {
@@ -669,6 +757,10 @@ export default function ChatPage({ API, token, userInfo }) {
   };
 
   const askQuestion = async (qText) => {
+    if (pendingClarification) {
+      message.warning("Please resolve the pending clarification first.");
+      return;
+    }
     const queryToSend = qText || question;
     if (!queryToSend) {
       message.warning("Please enter a question");
@@ -716,6 +808,7 @@ export default function ChatPage({ API, token, userInfo }) {
 
       if (res.status === 401) {
         message.error("Session expired.");
+        setLoading(false);
         return;
       }
 
@@ -723,6 +816,15 @@ export default function ChatPage({ API, token, userInfo }) {
       setLoading(false);
 
       if (data.error) {
+        if (data.error.code === "AMBIGUITY_DETECTED" || data.action === "CLARIFICATION_REQUIRED") {
+          setPendingClarification({
+            title: data.error.title || "Clarification Required",
+            message: data.error.message || "Please choose one:",
+            options: data.error.details?.options || [],
+            originalQuestion: data.error.details?.original_question || queryToSend,
+            sessionId: currentSessionId
+          });
+        }
         const errorMsg = {
           id: Date.now().toString(),
           role: "assistant",
@@ -1186,33 +1288,60 @@ export default function ChatPage({ API, token, userInfo }) {
                     ) : (
                       <div style={{ width: "100%", maxWidth: (msg.type === "GENERAL" || msg.error) ? "85%" : "100%" }}>
                         {msg.error && typeof msg.error === 'object' ? (
-                          <div className="fade-in-message">
-                            <Alert
-                              message={<Text strong style={{ color: "var(--text-main)", fontSize: "14.5px" }}>{msg.error.title || "Error"}</Text>}
-                              description={
-                                <div style={{ marginTop: "4px" }}>
-                                  <Paragraph style={{ color: "var(--text-secondary)", margin: 0 }}>
-                                    {msg.error.message}
-                                  </Paragraph>
-                                  {msg.error.suggestion && (
-                                    <div style={{ marginTop: "8px", borderTop: "1px dashed var(--border-color)", paddingTop: "8px" }}>
-                                      <Text type="secondary" style={{ fontSize: "12px" }}>
-                                        <strong>Suggestion:</strong> {msg.error.suggestion}
-                                      </Text>
+                          msg.error.code === "AMBIGUITY_DETECTED" ? (
+                            <div className="fade-in-message">
+                              <Card 
+                                bordered={false} 
+                                style={{ 
+                                  background: "var(--bg-card)", 
+                                  border: "1px solid var(--border-color)", 
+                                  borderRadius: "12px",
+                                  boxShadow: "0 2px 8px rgba(0, 0, 0, 0.02)"
+                                }}
+                              >
+                                <Space align="start">
+                                  <Avatar style={{ backgroundColor: "#ef4444" }} icon={<AlertOutlined />} />
+                                  <div>
+                                    <Text strong style={{ color: "var(--text-main)" }}>Clarification Required</Text>
+                                    <div style={{ fontSize: "11px", color: "var(--text-muted)" }}>
+                                      {formatMessageTime(msg.timestamp)}
                                     </div>
-                                  )}
-                                </div>
-                              }
-                              type="error"
-                              showIcon
-                              style={{
-                                borderRadius: "10px",
-                                border: "1px solid var(--border-color)",
-                                background: "var(--bg-card)",
-                                padding: "16px"
-                              }}
-                            />
-                          </div>
+                                    <div style={{ marginTop: "8px", color: "var(--text-secondary)", fontSize: "14px", lineHeight: "1.5" }}>
+                                      {msg.error.message}
+                                    </div>
+                                  </div>
+                                </Space>
+                              </Card>
+                            </div>
+                          ) : (
+                            <div className="fade-in-message">
+                              <Alert
+                                message={<Text strong style={{ color: "var(--text-main)", fontSize: "14.5px" }}>{msg.error.title || "Error"}</Text>}
+                                description={
+                                  <div style={{ marginTop: "4px" }}>
+                                    <Paragraph style={{ color: "var(--text-secondary)", margin: 0 }}>
+                                      {msg.error.message}
+                                    </Paragraph>
+                                    {msg.error.suggestion && (
+                                      <div style={{ marginTop: "8px", borderTop: "1px dashed var(--border-color)", paddingTop: "8px" }}>
+                                        <Text type="secondary" style={{ fontSize: "12px" }}>
+                                          <strong>Suggestion:</strong> {msg.error.suggestion}
+                                        </Text>
+                                      </div>
+                                    )}
+                                  </div>
+                                }
+                                type="error"
+                                showIcon
+                                style={{
+                                  borderRadius: "10px",
+                                  border: "1px solid var(--border-color)",
+                                  background: "var(--bg-card)",
+                                  padding: "16px"
+                                }}
+                              />
+                            </div>
+                          )
                         ) : msg.error ? (
                           <div className="fade-in-message">
                             <Alert message="Security Policy Violation" description={msg.content} type="error" showIcon />
@@ -1345,6 +1474,18 @@ export default function ChatPage({ API, token, userInfo }) {
                   </div>
                 </div>
               )}
+              {pendingClarification && (
+                <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: "24px", width: "100%" }}>
+                  <ClarificationCard
+                    title={pendingClarification.title}
+                    message={pendingClarification.message}
+                    options={pendingClarification.options}
+                    onConfirm={submitSelection}
+                    onCancel={cancelClarification}
+                    submitting={loading}
+                  />
+                </div>
+              )}
               <div ref={messagesEndRef} />
             </div>
           )}
@@ -1355,22 +1496,25 @@ export default function ChatPage({ API, token, userInfo }) {
             <Input
               value={question}
               onChange={e => setQuestion(e.target.value)}
-              onPressEnter={() => askQuestion()}
-              placeholder="Ask a question about sales, products, or customers..."
+              onPressEnter={pendingClarification ? null : () => askQuestion()}
+              placeholder={pendingClarification ? "Please choose an option above to continue." : "Ask a question about sales, products, or customers..."}
+              disabled={!!pendingClarification}
               style={{ background: "var(--bg-chat-input)", borderColor: "var(--border-chat-input)" }}
               suffix={
                 <Button 
                   type="text" 
                   icon={isListening ? <AudioOutlined style={{ color: "#ef4444" }} /> : <AudioOutlined style={{ color: "var(--text-muted)" }} />} 
-                  onClick={toggleVoiceInput} 
+                  onClick={toggleVoiceInput}
+                  disabled={!!pendingClarification}
                 />
               }
             />
             <Button
               type="primary"
               icon={<SendOutlined />}
-              onClick={() => askQuestion()}
-              style={{ backgroundColor: "#4f46e5" }}
+              onClick={pendingClarification ? null : () => askQuestion()}
+              disabled={!!pendingClarification}
+              style={{ backgroundColor: pendingClarification ? undefined : "#4f46e5" }}
             />
           </div>
         </div>

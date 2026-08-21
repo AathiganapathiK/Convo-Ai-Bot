@@ -1,0 +1,102 @@
+[
+  {
+    "case_id": "E1-001",
+    "category": "SIMPLE_METRIC",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show sales",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": ["Sales"],
+      "dimensions": [],
+      "values": [],
+      "status": "SINGLE_MATCH",
+      "followup_context_applied": false,
+      "dominant_candidate": null
+    },
+    "notes": "Simple metric query for Sales without dimensions or values."
+  },
+  {
+    "case_id": "E1-002",
+    "category": "AMBIGUOUS_VALUES",
+    "source": "REAL_BUSINESS",
+    "severity": "CRITICAL",
+    "question": "Show sales for Chennai",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": ["Sales"],
+      "dimensions": ["City"],
+      "values": ["CHENNAI"],
+      "status": "STRONG_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null
+    },
+    "notes": "Chennai matches multiple business dimensions (City vs District); clarification required."
+  },
+  {
+    "case_id": "E1-003",
+    "category": "METRIC_DIMENSION_VALUE",
+    "source": "REAL_BUSINESS",
+    "severity": "CRITICAL",
+    "question": "Show sales for Chennai city",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": ["Sales"],
+      "dimensions": ["City"],
+      "values": ["CHENNAI"],
+      "status": "SINGLE_MATCH",
+      "followup_context_applied": false,
+      "dominant_candidate": null
+    },
+    "notes": "Explicit dimension qualifier 'city' disambiguates Chennai to City dimension."
+  },
+  {
+    "case_id": "E1-004",
+    "category": "FOLLOW_UP",
+    "source": "REAL_BUSINESS",
+    "severity": "CRITICAL",
+    "question": "for coimbatore",
+    "conversation": [
+      {
+        "turn": 1,
+        "question": "Show sales for Chennai city"
+      }
+    ],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": ["Sales"],
+      "dimensions": ["City"],
+      "values": ["COIMBATORE"],
+      "status": "SINGLE_MATCH",
+      "followup_context_applied": true,
+      "dominant_candidate": null
+    },
+    "notes": "Turn 2 inherits Sales metric and City dimension context from Turn 1."
+  },
+  {
+    "case_id": "E1-005",
+    "category": "METRIC_SHIFT",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "amt Coimbatore",
+    "conversation": [
+      {
+        "turn": 1,
+        "question": "qty Coimbatore"
+      }
+    ],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": ["Amt"],
+      "dimensions": ["City"],
+      "values": ["COIMBATORE"],
+      "status": "SINGLE_MATCH",
+      "followup_context_applied": true,
+      "dominant_candidate": null
+    },
+    "notes": "Turn 2 changes metric from Qty to Amt while retaining City dimension context."
+  }
+]

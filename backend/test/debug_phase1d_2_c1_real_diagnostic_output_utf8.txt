@@ -1,0 +1,448 @@
+============================================================
+APP_RUNTIME (raw): None
+Runtime selected : local
+Configuration    : D:\Projects\Ramraj-AI-Chatbot\backend\.local.env
+DB_HOST          : 192.168.0.187
+============================================================
+DATABASE_url mssql+pyodbc:///?odbc_connect=DRIVER%3D%7BODBC+Driver+18+for+SQL+Server%7D%3BSERVER%3D192.168.0.187%2C1433%3BDATABASE%3DRR_platform%3BUID%3DIntern_Chatbot%3BPWD%3DKgdt%26LPD148%5EHp%3BTrustServerCertificate%3Dyes%3B
+================================================================================
+REAL-DATA AMBIGUITY CLASSIFICATION DIAGNOSTIC
+================================================================================
+
+QUERY: "formal shirt"
+Status: STRONG_AMBIGUITY
+Dominant Match: None
+Candidates:
+  #1 LS CREAM SHIRT
+      Match Type           : SINGULAR_PLURAL
+      Confidence           : 0.95
+      Actual Query Coverage: 1
+      Matched Query Tokens : ['shirt']
+      Dimension            : ID=DCBA558A-C4F4-409C-AF0C-A8B3E95B0DAF, Name=Prod Grp2, Table=QB_MDJMD_SALES_5YRS_SUMMARY, Col=ProdGrp2
+  #2 LS WHITE SHIRT
+      Match Type           : SINGULAR_PLURAL
+      Confidence           : 0.95
+      Actual Query Coverage: 1
+      Matched Query Tokens : ['shirt']
+      Dimension            : ID=DCBA558A-C4F4-409C-AF0C-A8B3E95B0DAF, Name=Prod Grp2, Table=QB_MDJMD_SALES_5YRS_SUMMARY, Col=ProdGrp2
+  #3 UNIFORM T SHIRT
+      Match Type           : SINGULAR_PLURAL
+      Confidence           : 0.95
+      Actual Query Coverage: 1
+      Matched Query Tokens : ['shirt']
+      Dimension            : ID=9E300C66-9E1B-41C1-8C2F-8DB60900A92A, Name=Prod Grp3, Table=QB_MDJMD_SALES_5YRS_SUMMARY, Col=ProdGrp3
+  #4 ASHAI SILK SHIRT
+      Match Type           : SINGULAR_PLURAL
+      Confidence           : 0.95
+      Actual Query Coverage: 1
+      Matched Query Tokens : ['shirt']
+      Dimension            : ID=DCBA558A-C4F4-409C-AF0C-A8B3E95B0DAF, Name=Prod Grp2, Table=QB_MDJMD_SALES_5YRS_SUMMARY, Col=ProdGrp2
+  #5 UNIBRO FLUID SHIRT
+      Match Type           : SINGULAR_PLURAL
+      Confidence           : 0.95
+      Actual Query Coverage: 1
+      Matched Query Tokens : ['shirt']
+      Dimension            : ID=9E300C66-9E1B-41C1-8C2F-8DB60900A92A, Name=Prod Grp3, Table=QB_MDJMD_SALES_5YRS_SUMMARY, Col=ProdGrp3
+  #6 CCB MANOHARAM SHIRT
+      Match Type           : SINGULAR_PLURAL
+      Confidence           : 0.95
+      Actual Query Coverage: 1
+      Matched Query Tokens : ['shirt']
+      Dimension            : ID=DCBA558A-C4F4-409C-AF0C-A8B3E95B0DAF, Name=Prod Grp2, Table=QB_MDJMD_SALES_5YRS_SUMMARY, Col=ProdGrp2
+  #7 VIVEAGHAM WHITE SHIRT
+      Match Type           : SINGULAR_PLURAL
+      Confidence           : 0.95
+      Actual Query Coverage: 1
+      Matched Query Tokens : ['shirt']
+      Dimension            : ID=47489775-A75B-44F1-BA91-932589BA7944, Name=Brand, Table=PBI_ENES_ORDER_PENDING_SUMMARY, Col=Brand
+  #8 VIVEAGHAM COLOUR SHIRT
+      Match Type           : SINGULAR_PLURAL
+      Confidence           : 0.95
+      Actual Query Coverage: 1
+      Matched Query Tokens : ['shirt']
+      Dimension            : ID=47489775-A75B-44F1-BA91-932589BA7944, Name=Brand, Table=PBI_ENES_ORDER_PENDING_SUMMARY, Col=Brand
+  #9 VIVEAGHAM COLOUR SHIRT
+      Match Type           : SINGULAR_PLURAL
+      Confidence           : 0.95
+      Actual Query Coverage: 1
+      Matched Query Tokens : ['shirt']
+      Dimension            : ID=9B0F3C4C-303F-4A94-9CC5-83C9D2D40614, Name=Prod Grp1, Table=QB_MDJMD_SALES_5YRS_SUMMARY, Col=ProdGrp1
+  #10 FORMAL SOCKS SOLID FULL
+      Match Type           : SINGULAR_PLURAL
+      Confidence           : 0.95
+      Actual Query Coverage: 1
+      Matched Query Tokens : ['formal']
+      Dimension            : ID=9E300C66-9E1B-41C1-8C2F-8DB60900A92A, Name=Prod Grp3, Table=QB_MDJMD_SALES_5YRS_SUMMARY, Col=ProdGrp3
+  #11 WHITE SHIRT 100% COTTON
+      Match Type           : SINGULAR_PLURAL
+      Confidence           : 0.95
+      Actual Query Coverage: 1
+      Matched Query Tokens : ['shirt']
+      Dimension            : ID=DCBA558A-C4F4-409C-AF0C-A8B3E95B0DAF, Name=Prod Grp2, Table=QB_MDJMD_SALES_5YRS_SUMMARY, Col=ProdGrp2
+  #12 CULTURE CLUB TRAIL SHIRT
+      Match Type           : SINGULAR_PLURAL
+      Confidence           : 0.95
+      Actual Query Coverage: 1
+      Matched Query Tokens : ['shirt']
+      Dimension            : ID=DCBA558A-C4F4-409C-AF0C-A8B3E95B0DAF, Name=Prod Grp2, Table=QB_MDJMD_SALES_5YRS_SUMMARY, Col=ProdGrp2
+  #13 FORMAL SOCKS DESIGN FULL
+      Match Type           : SINGULAR_PLURAL
+      Confidence           : 0.95
+      Actual Query Coverage: 1
+      Matched Query Tokens : ['formal']
+      Dimension            : ID=9E300C66-9E1B-41C1-8C2F-8DB60900A92A, Name=Prod Grp3, Table=QB_MDJMD_SALES_5YRS_SUMMARY, Col=ProdGrp3
+  #14 FORMAL SOCKS SOLID ANKLE
+      Match Type           : SINGULAR_PLURAL
+      Confidence           : 0.95
+      Actual Query Coverage: 1
+      Matched Query Tokens : ['formal']
+      Dimension            : ID=9E300C66-9E1B-41C1-8C2F-8DB60900A92A, Name=Prod Grp3, Table=QB_MDJMD_SALES_5YRS_SUMMARY, Col=ProdGrp3
+  #15 LS WHITE SHIRT PC VER-II
+      Match Type           : SINGULAR_PLURAL
+      Confidence           : 0.95
+      Actual Query Coverage: 1
+      Matched Query Tokens : ['shirt']
+      Dimension            : ID=DCBA558A-C4F4-409C-AF0C-A8B3E95B0DAF, Name=Prod Grp2, Table=QB_MDJMD_SALES_5YRS_SUMMARY, Col=ProdGrp2
+
+QUERY: "cotton pant"
+Status: STRONG_AMBIGUITY
+Dominant Match: None
+Candidates:
+  #1 LS ZARI COTTON
+      Match Type           : SINGULAR_PLURAL
+      Confidence           : 0.95
+      Actual Query Coverage: 1
+      Matched Query Tokens : ['cotton']
+      Dimension            : ID=DCBA558A-C4F4-409C-AF0C-A8B3E95B0DAF, Name=Prod Grp2, Table=QB_MDJMD_SALES_5YRS_SUMMARY, Col=ProdGrp2
+  #2 LS COTTON BREEZE
+      Match Type           : SINGULAR_PLURAL
+      Confidence           : 0.95
+      Actual Query Coverage: 1
+      Matched Query Tokens : ['cotton']
+      Dimension            : ID=DCBA558A-C4F4-409C-AF0C-A8B3E95B0DAF, Name=Prod Grp2, Table=QB_MDJMD_SALES_5YRS_SUMMARY, Col=ProdGrp2
+  #3 MENS PYJAMA PANT
+      Match Type           : SINGULAR_PLURAL
+      Confidence           : 0.95
+      Actual Query Coverage: 1
+      Matched Query Tokens : ['pant']
+      Dimension            : ID=DCBA558A-C4F4-409C-AF0C-A8B3E95B0DAF, Name=Prod Grp2, Table=QB_MDJMD_SALES_5YRS_SUMMARY, Col=ProdGrp2
+  #4 UNIBRO TRACK PANT
+      Match Type           : SINGULAR_PLURAL
+      Confidence           : 0.95
+      Actual Query Coverage: 1
+      Matched Query Tokens : ['pant']
+      Dimension            : ID=9E300C66-9E1B-41C1-8C2F-8DB60900A92A, Name=Prod Grp3, Table=QB_MDJMD_SALES_5YRS_SUMMARY, Col=ProdGrp3
+  #5 UNIBRO JOGGER PANT
+      Match Type           : SINGULAR_PLURAL
+      Confidence           : 0.95
+      Actual Query Coverage: 1
+      Matched Query Tokens : ['pant']
+      Dimension            : ID=9E300C66-9E1B-41C1-8C2F-8DB60900A92A, Name=Prod Grp3, Table=QB_MDJMD_SALES_5YRS_SUMMARY, Col=ProdGrp3
+  #6 COTTON BREEZE KURTA
+      Match Type           : SINGULAR_PLURAL
+      Confidence           : 0.95
+      Actual Query Coverage: 1
+      Matched Query Tokens : ['cotton']
+      Dimension            : ID=DCBA558A-C4F4-409C-AF0C-A8B3E95B0DAF, Name=Prod Grp2, Table=QB_MDJMD_SALES_5YRS_SUMMARY, Col=ProdGrp2
+  #7 UNIBRO JOGGER PANT V2
+      Match Type           : SINGULAR_PLURAL
+      Confidence           : 0.95
+      Actual Query Coverage: 1
+      Matched Query Tokens : ['pant']
+      Dimension            : ID=9E300C66-9E1B-41C1-8C2F-8DB60900A92A, Name=Prod Grp3, Table=QB_MDJMD_SALES_5YRS_SUMMARY, Col=ProdGrp3
+  #8 WHITE SHIRT 100% COTTON
+      Match Type           : SINGULAR_PLURAL
+      Confidence           : 0.95
+      Actual Query Coverage: 1
+      Matched Query Tokens : ['cotton']
+      Dimension            : ID=DCBA558A-C4F4-409C-AF0C-A8B3E95B0DAF, Name=Prod Grp2, Table=QB_MDJMD_SALES_5YRS_SUMMARY, Col=ProdGrp2
+  #9 DHOTI : 3.80MT KL COTTON KARA
+      Match Type           : SINGULAR_PLURAL
+      Confidence           : 0.95
+      Actual Query Coverage: 1
+      Matched Query Tokens : ['cotton']
+      Dimension            : ID=9E300C66-9E1B-41C1-8C2F-8DB60900A92A, Name=Prod Grp3, Table=QB_MDJMD_SALES_5YRS_SUMMARY, Col=ProdGrp3
+  #10 LS PANT
+      Match Type           : FUZZY
+      Confidence           : 0.85
+      Actual Query Coverage: 1
+      Matched Query Tokens : ['pant']
+      Dimension            : ID=DCBA558A-C4F4-409C-AF0C-A8B3E95B0DAF, Name=Prod Grp2, Table=QB_MDJMD_SALES_5YRS_SUMMARY, Col=ProdGrp2
+
+QUERY: "pant"
+Status: STRONG_AMBIGUITY
+Dominant Match: None
+Candidates:
+  #1 B--PANT
+      Match Type           : SINGULAR_PLURAL
+      Confidence           : 0.95
+      Actual Query Coverage: 1
+      Matched Query Tokens : ['pant']
+      Dimension            : ID=DCBA558A-C4F4-409C-AF0C-A8B3E95B0DAF, Name=Prod Grp2, Table=QB_MDJMD_SALES_5YRS_SUMMARY, Col=ProdGrp2
+  #2 LS PANT
+      Match Type           : SINGULAR_PLURAL
+      Confidence           : 0.95
+      Actual Query Coverage: 1
+      Matched Query Tokens : ['pant']
+      Dimension            : ID=DCBA558A-C4F4-409C-AF0C-A8B3E95B0DAF, Name=Prod Grp2, Table=QB_MDJMD_SALES_5YRS_SUMMARY, Col=ProdGrp2
+  #3 DHOTI PANT
+      Match Type           : SINGULAR_PLURAL
+      Confidence           : 0.95
+      Actual Query Coverage: 1
+      Matched Query Tokens : ['pant']
+      Dimension            : ID=DCBA558A-C4F4-409C-AF0C-A8B3E95B0DAF, Name=Prod Grp2, Table=QB_MDJMD_SALES_5YRS_SUMMARY, Col=ProdGrp2
+  #4 LINEN PANT
+      Match Type           : SINGULAR_PLURAL
+      Confidence           : 0.95
+      Actual Query Coverage: 1
+      Matched Query Tokens : ['pant']
+      Dimension            : ID=47489775-A75B-44F1-BA91-932589BA7944, Name=Brand, Table=PBI_ENES_ORDER_PENDING_SUMMARY, Col=Brand
+  #5 LINEN PANT
+      Match Type           : SINGULAR_PLURAL
+      Confidence           : 0.95
+      Actual Query Coverage: 1
+      Matched Query Tokens : ['pant']
+      Dimension            : ID=9B0F3C4C-303F-4A94-9CC5-83C9D2D40614, Name=Prod Grp1, Table=QB_MDJMD_SALES_5YRS_SUMMARY, Col=ProdGrp1
+  #6 RAMRAJ PANT
+      Match Type           : SINGULAR_PLURAL
+      Confidence           : 0.95
+      Actual Query Coverage: 1
+      Matched Query Tokens : ['pant']
+      Dimension            : ID=47489775-A75B-44F1-BA91-932589BA7944, Name=Brand, Table=PBI_ENES_ORDER_PENDING_SUMMARY, Col=Brand
+  #7 RAMRAJ PANT
+      Match Type           : SINGULAR_PLURAL
+      Confidence           : 0.95
+      Actual Query Coverage: 1
+      Matched Query Tokens : ['pant']
+      Dimension            : ID=9B0F3C4C-303F-4A94-9CC5-83C9D2D40614, Name=Prod Grp1, Table=QB_MDJMD_SALES_5YRS_SUMMARY, Col=ProdGrp1
+  #8 MENS PYJAMA PANT
+      Match Type           : SINGULAR_PLURAL
+      Confidence           : 0.95
+      Actual Query Coverage: 1
+      Matched Query Tokens : ['pant']
+      Dimension            : ID=DCBA558A-C4F4-409C-AF0C-A8B3E95B0DAF, Name=Prod Grp2, Table=QB_MDJMD_SALES_5YRS_SUMMARY, Col=ProdGrp2
+  #9 UNIBRO TRACK PANT
+      Match Type           : SINGULAR_PLURAL
+      Confidence           : 0.95
+      Actual Query Coverage: 1
+      Matched Query Tokens : ['pant']
+      Dimension            : ID=9E300C66-9E1B-41C1-8C2F-8DB60900A92A, Name=Prod Grp3, Table=QB_MDJMD_SALES_5YRS_SUMMARY, Col=ProdGrp3
+  #10 UNIBRO JOGGER PANT
+      Match Type           : SINGULAR_PLURAL
+      Confidence           : 0.95
+      Actual Query Coverage: 1
+      Matched Query Tokens : ['pant']
+      Dimension            : ID=9E300C66-9E1B-41C1-8C2F-8DB60900A92A, Name=Prod Grp3, Table=QB_MDJMD_SALES_5YRS_SUMMARY, Col=ProdGrp3
+  #11 UNIBRO JOGGER PANT V2
+      Match Type           : SINGULAR_PLURAL
+      Confidence           : 0.95
+      Actual Query Coverage: 1
+      Matched Query Tokens : ['pant']
+      Dimension            : ID=9E300C66-9E1B-41C1-8C2F-8DB60900A92A, Name=Prod Grp3, Table=QB_MDJMD_SALES_5YRS_SUMMARY, Col=ProdGrp3
+
+QUERY: "shirt"
+Status: STRONG_AMBIGUITY
+Dominant Match: None
+Candidates:
+  #1 C--SHIRT
+      Match Type           : SINGULAR_PLURAL
+      Confidence           : 0.95
+      Actual Query Coverage: 1
+      Matched Query Tokens : ['shirt']
+      Dimension            : ID=DCBA558A-C4F4-409C-AF0C-A8B3E95B0DAF, Name=Prod Grp2, Table=QB_MDJMD_SALES_5YRS_SUMMARY, Col=ProdGrp2
+  #2 ADD SHIRT
+      Match Type           : SINGULAR_PLURAL
+      Confidence           : 0.95
+      Actual Query Coverage: 1
+      Matched Query Tokens : ['shirt']
+      Dimension            : ID=47489775-A75B-44F1-BA91-932589BA7944, Name=Brand, Table=PBI_ENES_ORDER_PENDING_SUMMARY, Col=Brand
+  #3 A--T-SHIRT
+      Match Type           : SINGULAR_PLURAL
+      Confidence           : 0.95
+      Actual Query Coverage: 1
+      Matched Query Tokens : ['shirt']
+      Dimension            : ID=DCBA558A-C4F4-409C-AF0C-A8B3E95B0DAF, Name=Prod Grp2, Table=QB_MDJMD_SALES_5YRS_SUMMARY, Col=ProdGrp2
+  #4 ETHER SHIRT
+      Match Type           : SINGULAR_PLURAL
+      Confidence           : 0.95
+      Actual Query Coverage: 1
+      Matched Query Tokens : ['shirt']
+      Dimension            : ID=9E300C66-9E1B-41C1-8C2F-8DB60900A92A, Name=Prod Grp3, Table=QB_MDJMD_SALES_5YRS_SUMMARY, Col=ProdGrp3
+  #5 TRAIL SHIRT
+      Match Type           : SINGULAR_PLURAL
+      Confidence           : 0.95
+      Actual Query Coverage: 1
+      Matched Query Tokens : ['shirt']
+      Dimension            : ID=DCBA558A-C4F4-409C-AF0C-A8B3E95B0DAF, Name=Prod Grp2, Table=QB_MDJMD_SALES_5YRS_SUMMARY, Col=ProdGrp2
+  #6 ARISER SHIRT
+      Match Type           : SINGULAR_PLURAL
+      Confidence           : 0.95
+      Actual Query Coverage: 1
+      Matched Query Tokens : ['shirt']
+      Dimension            : ID=47489775-A75B-44F1-BA91-932589BA7944, Name=Brand, Table=PBI_ENES_ORDER_PENDING_SUMMARY, Col=Brand
+  #7 RAMRAJ SHIRT
+      Match Type           : SINGULAR_PLURAL
+      Confidence           : 0.95
+      Actual Query Coverage: 1
+      Matched Query Tokens : ['shirt']
+      Dimension            : ID=47489775-A75B-44F1-BA91-932589BA7944, Name=Brand, Table=PBI_ENES_ORDER_PENDING_SUMMARY, Col=Brand
+  #8 RAMRAJ SHIRT
+      Match Type           : SINGULAR_PLURAL
+      Confidence           : 0.95
+      Actual Query Coverage: 1
+      Matched Query Tokens : ['shirt']
+      Dimension            : ID=9B0F3C4C-303F-4A94-9CC5-83C9D2D40614, Name=Prod Grp1, Table=QB_MDJMD_SALES_5YRS_SUMMARY, Col=ProdGrp1
+  #9 VAIBHAV SHIRT
+      Match Type           : SINGULAR_PLURAL
+      Confidence           : 0.95
+      Actual Query Coverage: 1
+      Matched Query Tokens : ['shirt']
+      Dimension            : ID=DCBA558A-C4F4-409C-AF0C-A8B3E95B0DAF, Name=Prod Grp2, Table=QB_MDJMD_SALES_5YRS_SUMMARY, Col=ProdGrp2
+  #10 VIVEAGA SHIRT
+      Match Type           : SINGULAR_PLURAL
+      Confidence           : 0.95
+      Actual Query Coverage: 1
+      Matched Query Tokens : ['shirt']
+      Dimension            : ID=9B0F3C4C-303F-4A94-9CC5-83C9D2D40614, Name=Prod Grp1, Table=QB_MDJMD_SALES_5YRS_SUMMARY, Col=ProdGrp1
+  #11 VIVEAGA SHIRTS
+      Match Type           : SINGULAR_PLURAL
+      Confidence           : 0.95
+      Actual Query Coverage: 1
+      Matched Query Tokens : ['shirt']
+      Dimension            : ID=9B0F3C4C-303F-4A94-9CC5-83C9D2D40614, Name=Prod Grp1, Table=QB_MDJMD_SALES_5YRS_SUMMARY, Col=ProdGrp1
+  #12 VIVEAGHAM SHIRT
+      Match Type           : SINGULAR_PLURAL
+      Confidence           : 0.95
+      Actual Query Coverage: 1
+      Matched Query Tokens : ['shirt']
+      Dimension            : ID=9B0F3C4C-303F-4A94-9CC5-83C9D2D40614, Name=Prod Grp1, Table=QB_MDJMD_SALES_5YRS_SUMMARY, Col=ProdGrp1
+  #13 LS CREAM SHIRT
+      Match Type           : SINGULAR_PLURAL
+      Confidence           : 0.95
+      Actual Query Coverage: 1
+      Matched Query Tokens : ['shirt']
+      Dimension            : ID=DCBA558A-C4F4-409C-AF0C-A8B3E95B0DAF, Name=Prod Grp2, Table=QB_MDJMD_SALES_5YRS_SUMMARY, Col=ProdGrp2
+  #14 LS WHITE SHIRT
+      Match Type           : SINGULAR_PLURAL
+      Confidence           : 0.95
+      Actual Query Coverage: 1
+      Matched Query Tokens : ['shirt']
+      Dimension            : ID=DCBA558A-C4F4-409C-AF0C-A8B3E95B0DAF, Name=Prod Grp2, Table=QB_MDJMD_SALES_5YRS_SUMMARY, Col=ProdGrp2
+  #15 UNIFORM T SHIRT
+      Match Type           : SINGULAR_PLURAL
+      Confidence           : 0.95
+      Actual Query Coverage: 1
+      Matched Query Tokens : ['shirt']
+      Dimension            : ID=9E300C66-9E1B-41C1-8C2F-8DB60900A92A, Name=Prod Grp3, Table=QB_MDJMD_SALES_5YRS_SUMMARY, Col=ProdGrp3
+  #16 ASHAI SILK SHIRT
+      Match Type           : SINGULAR_PLURAL
+      Confidence           : 0.95
+      Actual Query Coverage: 1
+      Matched Query Tokens : ['shirt']
+      Dimension            : ID=DCBA558A-C4F4-409C-AF0C-A8B3E95B0DAF, Name=Prod Grp2, Table=QB_MDJMD_SALES_5YRS_SUMMARY, Col=ProdGrp2
+  #17 UNIBRO FLUID SHIRT
+      Match Type           : SINGULAR_PLURAL
+      Confidence           : 0.95
+      Actual Query Coverage: 1
+      Matched Query Tokens : ['shirt']
+      Dimension            : ID=9E300C66-9E1B-41C1-8C2F-8DB60900A92A, Name=Prod Grp3, Table=QB_MDJMD_SALES_5YRS_SUMMARY, Col=ProdGrp3
+  #18 CCB MANOHARAM SHIRT
+      Match Type           : SINGULAR_PLURAL
+      Confidence           : 0.95
+      Actual Query Coverage: 1
+      Matched Query Tokens : ['shirt']
+      Dimension            : ID=DCBA558A-C4F4-409C-AF0C-A8B3E95B0DAF, Name=Prod Grp2, Table=QB_MDJMD_SALES_5YRS_SUMMARY, Col=ProdGrp2
+  #19 VIVEAGHAM WHITE SHIRT
+      Match Type           : SINGULAR_PLURAL
+      Confidence           : 0.95
+      Actual Query Coverage: 1
+      Matched Query Tokens : ['shirt']
+      Dimension            : ID=47489775-A75B-44F1-BA91-932589BA7944, Name=Brand, Table=PBI_ENES_ORDER_PENDING_SUMMARY, Col=Brand
+  #20 VIVEAGHAM COLOUR SHIRT
+      Match Type           : SINGULAR_PLURAL
+      Confidence           : 0.95
+      Actual Query Coverage: 1
+      Matched Query Tokens : ['shirt']
+      Dimension            : ID=47489775-A75B-44F1-BA91-932589BA7944, Name=Brand, Table=PBI_ENES_ORDER_PENDING_SUMMARY, Col=Brand
+  #21 VIVEAGHAM COLOUR SHIRT
+      Match Type           : SINGULAR_PLURAL
+      Confidence           : 0.95
+      Actual Query Coverage: 1
+      Matched Query Tokens : ['shirt']
+      Dimension            : ID=9B0F3C4C-303F-4A94-9CC5-83C9D2D40614, Name=Prod Grp1, Table=QB_MDJMD_SALES_5YRS_SUMMARY, Col=ProdGrp1
+  #22 WHITE SHIRT 100% COTTON
+      Match Type           : SINGULAR_PLURAL
+      Confidence           : 0.95
+      Actual Query Coverage: 1
+      Matched Query Tokens : ['shirt']
+      Dimension            : ID=DCBA558A-C4F4-409C-AF0C-A8B3E95B0DAF, Name=Prod Grp2, Table=QB_MDJMD_SALES_5YRS_SUMMARY, Col=ProdGrp2
+  #23 CULTURE CLUB TRAIL SHIRT
+      Match Type           : SINGULAR_PLURAL
+      Confidence           : 0.95
+      Actual Query Coverage: 1
+      Matched Query Tokens : ['shirt']
+      Dimension            : ID=DCBA558A-C4F4-409C-AF0C-A8B3E95B0DAF, Name=Prod Grp2, Table=QB_MDJMD_SALES_5YRS_SUMMARY, Col=ProdGrp2
+  #24 LS WHITE SHIRT PC VER-II
+      Match Type           : SINGULAR_PLURAL
+      Confidence           : 0.95
+      Actual Query Coverage: 1
+      Matched Query Tokens : ['shirt']
+      Dimension            : ID=DCBA558A-C4F4-409C-AF0C-A8B3E95B0DAF, Name=Prod Grp2, Table=QB_MDJMD_SALES_5YRS_SUMMARY, Col=ProdGrp2
+
+QUERY: "banian"
+Status: STRONG_AMBIGUITY
+Dominant Match: None
+Candidates:
+  #1 BANIANS
+      Match Type           : SINGULAR_PLURAL
+      Confidence           : 0.95
+      Actual Query Coverage: 1
+      Matched Query Tokens : ['banian']
+      Dimension            : ID=9B0F3C4C-303F-4A94-9CC5-83C9D2D40614, Name=Prod Grp1, Table=QB_MDJMD_SALES_5YRS_SUMMARY, Col=ProdGrp1
+  #2 1 BANIAN
+      Match Type           : SINGULAR_PLURAL
+      Confidence           : 0.95
+      Actual Query Coverage: 1
+      Matched Query Tokens : ['banian']
+      Dimension            : ID=DCBA558A-C4F4-409C-AF0C-A8B3E95B0DAF, Name=Prod Grp2, Table=QB_MDJMD_SALES_5YRS_SUMMARY, Col=ProdGrp2
+  #3 ADVERTISEMENT BANIAN
+      Match Type           : SINGULAR_PLURAL
+      Confidence           : 0.95
+      Actual Query Coverage: 1
+      Matched Query Tokens : ['banian']
+      Dimension            : ID=9E300C66-9E1B-41C1-8C2F-8DB60900A92A, Name=Prod Grp3, Table=QB_MDJMD_SALES_5YRS_SUMMARY, Col=ProdGrp3
+  #4 SECONDS_ RN BANIAN
+      Match Type           : SINGULAR_PLURAL
+      Confidence           : 0.95
+      Actual Query Coverage: 1
+      Matched Query Tokens : ['banian']
+      Dimension            : ID=9E300C66-9E1B-41C1-8C2F-8DB60900A92A, Name=Prod Grp3, Table=QB_MDJMD_SALES_5YRS_SUMMARY, Col=ProdGrp3
+  #5 SECONDS_ RNS BANIAN
+      Match Type           : SINGULAR_PLURAL
+      Confidence           : 0.95
+      Actual Query Coverage: 1
+      Matched Query Tokens : ['banian']
+      Dimension            : ID=9E300C66-9E1B-41C1-8C2F-8DB60900A92A, Name=Prod Grp3, Table=QB_MDJMD_SALES_5YRS_SUMMARY, Col=ProdGrp3
+  #6 SECONDS_KIDS BANIAN
+      Match Type           : SINGULAR_PLURAL
+      Confidence           : 0.95
+      Actual Query Coverage: 1
+      Matched Query Tokens : ['banian']
+      Dimension            : ID=9E300C66-9E1B-41C1-8C2F-8DB60900A92A, Name=Prod Grp3, Table=QB_MDJMD_SALES_5YRS_SUMMARY, Col=ProdGrp3
+  #7 SECONDS_ RNBS BANIAN
+      Match Type           : SINGULAR_PLURAL
+      Confidence           : 0.95
+      Actual Query Coverage: 1
+      Matched Query Tokens : ['banian']
+      Dimension            : ID=9E300C66-9E1B-41C1-8C2F-8DB60900A92A, Name=Prod Grp3, Table=QB_MDJMD_SALES_5YRS_SUMMARY, Col=ProdGrp3
+
+QUERY: "children wear"
+Status: SINGLE_MATCH
+Dominant Match: N--NIGHT WEARS
+Candidates:
+  #1 N--NIGHT WEARS
+      Match Type           : SINGULAR_PLURAL
+      Confidence           : 0.95
+      Actual Query Coverage: 1
+      Matched Query Tokens : ['wear']
+      Dimension            : ID=DCBA558A-C4F4-409C-AF0C-A8B3E95B0DAF, Name=Prod Grp2, Table=QB_MDJMD_SALES_5YRS_SUMMARY, Col=ProdGrp2

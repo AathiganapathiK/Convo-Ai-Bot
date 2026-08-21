@@ -1,4 +1,8 @@
-from semantic.matching.models import MatchType, MatchResult, QuestionContext, CachedDimensionValue, BaseMatcher, MatchingContext, MatchStatistics
+from semantic.matching.models import (
+    MatchType, MatchResult, QuestionContext, CachedDimensionValue, BaseMatcher,
+    MatchingContext, MatchStatistics, ResolutionStatus, AmbiguityChoice,
+    SemanticResolutionResult, AmbiguityClassifier
+)
 from semantic.matching.confidence import MatchConfidence, MatchSettings
 from semantic.matching.exact_matcher import ExactMatcher
 from semantic.matching.normalized_matcher import NormalizedMatcher

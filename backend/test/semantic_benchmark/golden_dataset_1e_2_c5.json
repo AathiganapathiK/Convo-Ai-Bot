@@ -1,0 +1,800 @@
+[
+  {
+    "case_id": "E1-154",
+    "category": "FOLLOW_UP",
+    "source": "REGRESSION",
+    "severity": "CRITICAL",
+    "question": "for coimbatore",
+    "conversation": [
+      {
+        "turn": 1,
+        "question": "Show sales for Chennai city"
+      }
+    ],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "Sales"
+      ],
+      "dimensions": [],
+      "values": [
+        "COIMBATORE"
+      ],
+      "status": "STRONG_AMBIGUITY",
+      "followup_context_applied": true,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Known real-world follow-up failure: lowercase value 'for coimbatore' must inherit 'Sales' metric and 'City' dimension."
+  },
+  {
+    "case_id": "E1-155",
+    "category": "FOLLOW_UP",
+    "source": "REAL_BUSINESS",
+    "severity": "CRITICAL",
+    "question": "for Coimbatore city",
+    "conversation": [
+      {
+        "turn": 1,
+        "question": "Show sales for Chennai city"
+      }
+    ],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "Sales"
+      ],
+      "dimensions": [
+        "City"
+      ],
+      "values": [
+        "COIMBATORE"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Standard follow-up inheriting Sales metric. Dimension is explicit ('city') hence followup_context_applied is false."
+  },
+  {
+    "case_id": "E1-156",
+    "category": "FOLLOW_UP",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "for Viveagham brand",
+    "conversation": [
+      {
+        "turn": 1,
+        "question": "Show quantity for Ramraj brand"
+      }
+    ],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "Sales"
+      ],
+      "dimensions": [
+        "Brand"
+      ],
+      "values": [
+        "VIVEAGHAM"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Follow-up inheriting Qty metric. Dimension is explicit ('brand') hence followup_context_applied is false."
+  },
+  {
+    "case_id": "E1-157",
+    "category": "FOLLOW_UP",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "what about Franchise category?",
+    "conversation": [
+      {
+        "turn": 1,
+        "question": "Show sales for Franchise category"
+      }
+    ],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "Sales"
+      ],
+      "dimensions": [
+        "Category"
+      ],
+      "values": [
+        "FRANCHISEE",
+        "FRANCHISEE",
+        "FRANCHISEE"
+      ],
+      "status": "STRONG_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Natural phrase follow-up inheriting Sales. Dimension is explicit ('category') hence followup_context_applied is false."
+  },
+  {
+    "case_id": "E1-158",
+    "category": "FOLLOW_UP",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "how about Others category?",
+    "conversation": [
+      {
+        "turn": 1,
+        "question": "Show sales for Marketing category"
+      }
+    ],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "Sales"
+      ],
+      "dimensions": [
+        "Category"
+      ],
+      "values": [
+        "OTHERS",
+        "OTHERS",
+        "OTHERS",
+        "OTHERS",
+        "OTHERS",
+        "OTHERS",
+        "SUBHASH CHOWK"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Natural phrase follow-up inheriting Sales. Dimension is explicit ('category') hence followup_context_applied is false."
+  },
+  {
+    "case_id": "E1-159",
+    "category": "FOLLOW_UP",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "and Salem city",
+    "conversation": [
+      {
+        "turn": 1,
+        "question": "Show sales for Erode city"
+      }
+    ],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "Sales"
+      ],
+      "dimensions": [
+        "City"
+      ],
+      "values": [
+        "SALEM"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Conjunction-based follow-up inheriting Sales. Dimension is explicit ('city') hence followup_context_applied is false."
+  },
+  {
+    "case_id": "E1-160",
+    "category": "FOLLOW_UP",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "what about Madurai city?",
+    "conversation": [
+      {
+        "turn": 1,
+        "question": "Show sales for Chennai city"
+      }
+    ],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "Sales"
+      ],
+      "dimensions": [
+        "City"
+      ],
+      "values": [
+        "MADURAI"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": true,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Natural phrase follow-up inheriting Sales. Dimension is explicit ('city') hence followup_context_applied is false."
+  },
+  {
+    "case_id": "E1-161",
+    "category": "FOLLOW_UP",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "how about Salem city?",
+    "conversation": [
+      {
+        "turn": 1,
+        "question": "Show quantity for Coimbatore city"
+      }
+    ],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "Sales"
+      ],
+      "dimensions": [
+        "City"
+      ],
+      "values": [
+        "SALEM",
+        "SALEM",
+        "SUBHASH CHOWK"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Follow-up inheriting Qty metric. Dimension is explicit ('city') hence followup_context_applied is false."
+  },
+  {
+    "case_id": "E1-162",
+    "category": "FOLLOW_UP",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "for Erode city now",
+    "conversation": [
+      {
+        "turn": 1,
+        "question": "Show pending amount for Chennai city"
+      }
+    ],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "Sales"
+      ],
+      "dimensions": [
+        "City"
+      ],
+      "values": [
+        "ERODE"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Follow-up inheriting pendamt. Dimension is explicit ('city') hence followup_context_applied is false."
+  },
+  {
+    "case_id": "E1-163",
+    "category": "FOLLOW_UP",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "for Madurai district now",
+    "conversation": [
+      {
+        "turn": 1,
+        "question": "Show pending amount for Chennai district"
+      }
+    ],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "Sales"
+      ],
+      "dimensions": [
+        "District"
+      ],
+      "values": [
+        "MADURAI"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Follow-up inheriting pendamt. Dimension is explicit ('district') hence followup_context_applied is false."
+  },
+  {
+    "case_id": "E1-164",
+    "category": "METRIC_SHIFT",
+    "source": "REGRESSION",
+    "severity": "HIGH",
+    "question": "Show amount for Coimbatore city",
+    "conversation": [
+      {
+        "turn": 1,
+        "question": "Show quantity for Coimbatore city"
+      }
+    ],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "Amt"
+      ],
+      "dimensions": [
+        "City"
+      ],
+      "values": [
+        "COIMBATORE"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Metric shift: quantity is replaced by amount. Since dimension is explicit, followup_context_applied is false."
+  },
+  {
+    "case_id": "E1-165",
+    "category": "METRIC_SHIFT",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Now show Qty for Chennai city",
+    "conversation": [
+      {
+        "turn": 1,
+        "question": "Show quantity for Chennai city"
+      }
+    ],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "Qty"
+      ],
+      "dimensions": [
+        "City"
+      ],
+      "values": [
+        "CHENNAI"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Metric shift from Quantity to Sales. Since dimension is explicit, followup_context_applied is false."
+  },
+  {
+    "case_id": "E1-166",
+    "category": "METRIC_SHIFT",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Now show quantity for Ramraj brand",
+    "conversation": [
+      {
+        "turn": 1,
+        "question": "Show Qty for Ramraj brand"
+      }
+    ],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "Qty"
+      ],
+      "dimensions": [
+        "Brand"
+      ],
+      "values": [
+        "RAMRAJ"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Metric shift from Sales to Quantity. Since dimension is explicit, followup_context_applied is false."
+  },
+  {
+    "case_id": "E1-167",
+    "category": "METRIC_SHIFT",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Now show sales for Marketing category",
+    "conversation": [
+      {
+        "turn": 1,
+        "question": "Show quantity for Marketing category"
+      }
+    ],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "Category"
+      ],
+      "values": [
+        "MARKETING",
+        "MARKETING",
+        "MARKETING"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Metric shift from Quantity to Sales. Since dimension is explicit, followup_context_applied is false."
+  },
+  {
+    "case_id": "E1-168",
+    "category": "METRIC_SHIFT",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show quantity for Franchise category",
+    "conversation": [
+      {
+        "turn": 1,
+        "question": "Show Qty for Franchise category"
+      }
+    ],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "Qty"
+      ],
+      "dimensions": [
+        "Category"
+      ],
+      "values": [
+        "FRANCHISEE",
+        "FRANCHISEE",
+        "FRANCHISEE"
+      ],
+      "status": "STRONG_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Metric shift from Sales to Quantity. Since dimension is explicit, followup_context_applied is false."
+  },
+  {
+    "case_id": "E1-169",
+    "category": "METRIC_SHIFT",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show pending amount for Erode city",
+    "conversation": [
+      {
+        "turn": 1,
+        "question": "Show sales for Erode city"
+      }
+    ],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "pendamt"
+      ],
+      "dimensions": [
+        "City"
+      ],
+      "values": [
+        "ERODE"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Metric shift from Sales to pending amount (pendamt). Since dimension is explicit, followup_context_applied is false."
+  },
+  {
+    "case_id": "E1-170",
+    "category": "METRIC_SHIFT",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Now show sales for VT division",
+    "conversation": [
+      {
+        "turn": 1,
+        "question": "Show quantity for VT division"
+      }
+    ],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "Division"
+      ],
+      "values": [
+        "VT",
+        "VT",
+        "VT"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Metric shift from Quantity to Sales. Since dimension is explicit, followup_context_applied is false."
+  },
+  {
+    "case_id": "E1-171",
+    "category": "METRIC_SHIFT",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Now show quantity for Chennai city",
+    "conversation": [
+      {
+        "turn": 1,
+        "question": "Show pending amount for Chennai city"
+      }
+    ],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "Qty"
+      ],
+      "dimensions": [
+        "City"
+      ],
+      "values": [
+        "CHENNAI"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Metric shift from pending amount (pendamt) to Quantity. Since dimension is explicit, followup_context_applied is false."
+  },
+  {
+    "case_id": "E1-172",
+    "category": "ENTITY_TOPIC_SHIFT",
+    "source": "REGRESSION",
+    "severity": "HIGH",
+    "question": "Ramraj brand",
+    "conversation": [
+      {
+        "turn": 1,
+        "question": "Show sales for Chennai city"
+      }
+    ],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "Sales"
+      ],
+      "dimensions": [
+        "Brand"
+      ],
+      "values": [
+        "RAMRAJ"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Topic shift: Brand (Ramraj) overrides previous City context. Explicit qualifier resets dimension context, hence followup_context_applied is false."
+  },
+  {
+    "case_id": "E1-173",
+    "category": "ENTITY_TOPIC_SHIFT",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Instead show sales for Franchise category",
+    "conversation": [
+      {
+        "turn": 1,
+        "question": "Show sales for Chennai city"
+      }
+    ],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "Category"
+      ],
+      "values": [
+        "FRANCHISEE",
+        "FRANCHISEE",
+        "FRANCHISEE"
+      ],
+      "status": "STRONG_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Explicit query with Category (Marketing) resets prior City context completely."
+  },
+  {
+    "case_id": "E1-174",
+    "category": "ENTITY_TOPIC_SHIFT",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show sales for Chennai city instead",
+    "conversation": [
+      {
+        "turn": 1,
+        "question": "Show sales for Ramraj brand"
+      }
+    ],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "City"
+      ],
+      "values": [
+        "CHENNAI"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Explicit query with City (Chennai) resets prior Brand context completely."
+  },
+  {
+    "case_id": "E1-175",
+    "category": "ENTITY_TOPIC_SHIFT",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show quantity for Chennai city instead",
+    "conversation": [
+      {
+        "turn": 1,
+        "question": "Show quantity for Franchise category"
+      }
+    ],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "Qty"
+      ],
+      "dimensions": [
+        "City"
+      ],
+      "values": [
+        "CHENNAI"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Explicit query with City (Chennai) resets prior Category context completely."
+  },
+  {
+    "case_id": "E1-176",
+    "category": "ENTITY_TOPIC_SHIFT",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "How about Ramraj brand?",
+    "conversation": [
+      {
+        "turn": 1,
+        "question": "Show quantity for VT division"
+      }
+    ],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "Qty"
+      ],
+      "dimensions": [
+        "Brand"
+      ],
+      "values": [
+        "RAMRAJ"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Topic shift: Brand (Ramraj) overrides previous Division context. Explicit qualifier brand resets dimension context."
+  },
+  {
+    "case_id": "E1-177",
+    "category": "ENTITY_TOPIC_SHIFT",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "for Erode city instead",
+    "conversation": [
+      {
+        "turn": 1,
+        "question": "Show sales for Marketing category"
+      }
+    ],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "Sales"
+      ],
+      "dimensions": [
+        "City"
+      ],
+      "values": [
+        "ERODE"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Topic shift: Explicit City qualifier resets Category dimension, hence followup_context_applied is false."
+  },
+  {
+    "case_id": "E1-178",
+    "category": "ENTITY_TOPIC_SHIFT",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "for Chennai city instead",
+    "conversation": [
+      {
+        "turn": 1,
+        "question": "Show sales for Marketing category"
+      }
+    ],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "Sales"
+      ],
+      "dimensions": [
+        "City"
+      ],
+      "values": [
+        "CHENNAI"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Topic shift: Explicit City qualifier resets Category dimension, hence followup_context_applied is false."
+  },
+  {
+    "case_id": "E1-179",
+    "category": "ENTITY_TOPIC_SHIFT",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Marketing category instead",
+    "conversation": [
+      {
+        "turn": 1,
+        "question": "Show pending amount for Chennai city"
+      }
+    ],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "pendamt"
+      ],
+      "dimensions": [
+        "Category"
+      ],
+      "values": [
+        "MARKETING",
+        "MARKETING",
+        "MARKETING"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Topic shift: Category qualifier resets City dimension, hence followup_context_applied is false."
+  }
+]

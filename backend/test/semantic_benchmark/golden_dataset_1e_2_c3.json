@@ -1,0 +1,858 @@
+[
+  {
+    "case_id": "E1-082",
+    "category": "AMBIGUOUS_VALUES",
+    "source": "REAL_BUSINESS",
+    "severity": "CRITICAL",
+    "question": "Show sales for Chennai",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [],
+      "values": [
+        "CHENNAI",
+        "CHENNAI"
+      ],
+      "status": "STRONG_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Chennai matches multiple dimensions (City vs District); clarification card required."
+  },
+  {
+    "case_id": "E1-083",
+    "category": "AMBIGUOUS_VALUES",
+    "source": "REAL_BUSINESS",
+    "severity": "CRITICAL",
+    "question": "Total sales for Chennai",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [],
+      "values": [
+        "CHENNAI",
+        "CHENNAI"
+      ],
+      "status": "STRONG_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Unqualified Chennai with Total sales; requires clarification card."
+  },
+  {
+    "case_id": "E1-084",
+    "category": "AMBIGUOUS_VALUES",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "sales amount for Chennai",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "Amt"
+      ],
+      "dimensions": [],
+      "values": [
+        "CHENNAI",
+        "CHENNAI"
+      ],
+      "status": "STRONG_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Unqualified Chennai with Sales amount; requires clarification card."
+  },
+  {
+    "case_id": "E1-085",
+    "category": "AMBIGUOUS_VALUES",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show quantity for Chennai",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "Qty"
+      ],
+      "dimensions": [],
+      "values": [
+        "CHENNAI",
+        "CHENNAI"
+      ],
+      "status": "STRONG_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Unqualified Chennai with Quantity metric; requires clarification card."
+  },
+  {
+    "case_id": "E1-086",
+    "category": "AMBIGUOUS_VALUES",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show pending amount for Chennai",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "pendamt"
+      ],
+      "dimensions": [],
+      "values": [
+        "CHENNAI",
+        "CHENNAI"
+      ],
+      "status": "STRONG_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Unqualified Chennai with pending amount metric; requires clarification card."
+  },
+  {
+    "case_id": "E1-087",
+    "category": "AMBIGUOUS_VALUES",
+    "source": "REAL_BUSINESS",
+    "severity": "CRITICAL",
+    "question": "Show sales for Coimbatore",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [],
+      "values": [
+        "COIMBATORE",
+        "COIMBATORE"
+      ],
+      "status": "STRONG_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Coimbatore matches multiple dimensions (City vs District); clarification card required."
+  },
+  {
+    "case_id": "E1-088",
+    "category": "AMBIGUOUS_VALUES",
+    "source": "REAL_BUSINESS",
+    "severity": "CRITICAL",
+    "question": "Total sales for Coimbatore",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [],
+      "values": [
+        "COIMBATORE",
+        "COIMBATORE"
+      ],
+      "status": "STRONG_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Unqualified Coimbatore with Total sales; requires clarification card."
+  },
+  {
+    "case_id": "E1-089",
+    "category": "AMBIGUOUS_VALUES",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show quantity for Coimbatore",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "Qty"
+      ],
+      "dimensions": [],
+      "values": [
+        "COIMBATORE",
+        "COIMBATORE"
+      ],
+      "status": "STRONG_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Unqualified Coimbatore with Quantity metric; requires clarification card."
+  },
+  {
+    "case_id": "E1-090",
+    "category": "AMBIGUOUS_VALUES",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show pending amount for Coimbatore",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "pendamt"
+      ],
+      "dimensions": [],
+      "values": [
+        "COIMBATORE",
+        "COIMBATORE"
+      ],
+      "status": "STRONG_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Unqualified Coimbatore with pending amount metric; requires clarification card."
+  },
+  {
+    "case_id": "E1-091",
+    "category": "AMBIGUOUS_VALUES",
+    "source": "REAL_BUSINESS",
+    "severity": "CRITICAL",
+    "question": "Show sales for Madurai",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [],
+      "values": [
+        "MADURAI",
+        "MADURAI"
+      ],
+      "status": "STRONG_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Madurai matches multiple dimensions (City vs District); clarification card required."
+  },
+  {
+    "case_id": "E1-092",
+    "category": "AMBIGUOUS_VALUES",
+    "source": "REAL_BUSINESS",
+    "severity": "CRITICAL",
+    "question": "Total sales for Madurai",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [],
+      "values": [
+        "MADURAI",
+        "MADURAI"
+      ],
+      "status": "STRONG_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Unqualified Madurai with Total sales; requires clarification card."
+  },
+  {
+    "case_id": "E1-093",
+    "category": "AMBIGUOUS_VALUES",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show quantity for Madurai",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "Qty"
+      ],
+      "dimensions": [],
+      "values": [
+        "MADURAI",
+        "MADURAI"
+      ],
+      "status": "STRONG_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Unqualified Madurai with Quantity metric; requires clarification card."
+  },
+  {
+    "case_id": "E1-094",
+    "category": "AMBIGUOUS_VALUES",
+    "source": "REAL_BUSINESS",
+    "severity": "CRITICAL",
+    "question": "Show sales for Ramraj",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [],
+      "values": [
+        "RAMRAJ"
+      ],
+      "status": "STRONG_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Ramraj matches multiple dimensions (Brand vs Customer); clarification card required."
+  },
+  {
+    "case_id": "E1-095",
+    "category": "AMBIGUOUS_VALUES",
+    "source": "REAL_BUSINESS",
+    "severity": "CRITICAL",
+    "question": "Total sales for Ramraj",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [],
+      "values": [
+        "RAMRAJ"
+      ],
+      "status": "STRONG_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Unqualified Ramraj with Total sales; requires clarification card."
+  },
+  {
+    "case_id": "E1-096",
+    "category": "AMBIGUOUS_VALUES",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show quantity for Ramraj",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "Qty"
+      ],
+      "dimensions": [],
+      "values": [
+        "RAMRAJ"
+      ],
+      "status": "STRONG_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Unqualified Ramraj with Quantity metric; requires clarification card."
+  },
+  {
+    "case_id": "E1-097",
+    "category": "AMBIGUOUS_VALUES",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show sales for VT",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [],
+      "values": [
+        "VT",
+        "VT",
+        "VT",
+        "VT"
+      ],
+      "status": "STRONG_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "VT matches multiple dimensions (Division vs Branch); clarification card required."
+  },
+  {
+    "case_id": "E1-098",
+    "category": "AMBIGUOUS_VALUES",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Total sales for VT",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [],
+      "values": [
+        "VT",
+        "VT",
+        "VT",
+        "VT"
+      ],
+      "status": "STRONG_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Unqualified VT with Total sales; requires clarification card."
+  },
+  {
+    "case_id": "E1-099",
+    "category": "AMBIGUOUS_VALUES",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show sales for Cotton",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [],
+      "values": [
+        "LS ZARI COTTON",
+        "LS COTTON BREEZE",
+        "COTTON BREEZE KURTA",
+        "WHITE SHIRT 100% COTTON",
+        "DHOTI : 3.80MT KL COTTON KARA"
+      ],
+      "status": "STRONG_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Cotton matches multiple product dimensions; clarification card required."
+  },
+  {
+    "case_id": "E1-100",
+    "category": "PARTIAL_COVERAGE",
+    "source": "REGRESSION",
+    "severity": "CRITICAL",
+    "question": "Show sales for children wear",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [],
+      "values": [
+        "N--NIGHT WEARS"
+      ],
+      "status": "PARTIAL_MATCH",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Sales resolved, but 'children wear' domain intent is unmapped in schema."
+  },
+  {
+    "case_id": "E1-101",
+    "category": "PARTIAL_COVERAGE",
+    "source": "REGRESSION",
+    "severity": "HIGH",
+    "question": "Total sales for children wear",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [],
+      "values": [
+        "N--NIGHT WEARS",
+        "ETHNIC WEAR"
+      ],
+      "status": "PARTIAL_MATCH",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Total Sales resolved, but 'children wear' domain intent is unmapped in schema."
+  },
+  {
+    "case_id": "E1-102",
+    "category": "PARTIAL_COVERAGE",
+    "source": "REGRESSION",
+    "severity": "HIGH",
+    "question": "Show quantity for children wear",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "Qty"
+      ],
+      "dimensions": [],
+      "values": [
+        "N--NIGHT WEARS"
+      ],
+      "status": "PARTIAL_MATCH",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Quantity metric resolved, but 'children wear' domain intent is unmapped in schema."
+  },
+  {
+    "case_id": "E1-103",
+    "category": "PARTIAL_COVERAGE",
+    "source": "REGRESSION",
+    "severity": "CRITICAL",
+    "question": "Show sales for women wear",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [],
+      "values": [
+        "N--NIGHT WEARS"
+      ],
+      "status": "PARTIAL_MATCH",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Sales resolved, but 'women wear' domain intent is unmapped in schema."
+  },
+  {
+    "case_id": "E1-104",
+    "category": "PARTIAL_COVERAGE",
+    "source": "REGRESSION",
+    "severity": "HIGH",
+    "question": "Total sales for women wear",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [],
+      "values": [
+        "N--NIGHT WEARS",
+        "ETHNIC WEAR"
+      ],
+      "status": "PARTIAL_MATCH",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Total Sales resolved, but 'women wear' domain intent is unmapped in schema."
+  },
+  {
+    "case_id": "E1-105",
+    "category": "PARTIAL_COVERAGE",
+    "source": "REGRESSION",
+    "severity": "HIGH",
+    "question": "Show quantity for women wear",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "Qty"
+      ],
+      "dimensions": [],
+      "values": [
+        "N--NIGHT WEARS"
+      ],
+      "status": "PARTIAL_MATCH",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Quantity metric resolved, but 'women wear' domain intent is unmapped in schema."
+  },
+  {
+    "case_id": "E1-106",
+    "category": "PARTIAL_COVERAGE",
+    "source": "SYNTHETIC_SAFETY",
+    "severity": "HIGH",
+    "question": "Show sales for kidswear",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [],
+      "values": [],
+      "status": "NO_MATCH",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "PARTIAL"
+    },
+    "notes": "Sales metric resolved, but 'kidswear' domain intent is unmapped in schema."
+  },
+  {
+    "case_id": "E1-107",
+    "category": "PARTIAL_COVERAGE",
+    "source": "SYNTHETIC_SAFETY",
+    "severity": "HIGH",
+    "question": "Show quantity for kidswear",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "Qty"
+      ],
+      "dimensions": [],
+      "values": [],
+      "status": "NO_MATCH",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "PARTIAL"
+    },
+    "notes": "Quantity metric resolved, but 'kidswear' domain intent is unmapped in schema."
+  },
+  {
+    "case_id": "E1-108",
+    "category": "PARTIAL_COVERAGE",
+    "source": "SYNTHETIC_SAFETY",
+    "severity": "HIGH",
+    "question": "Show sales for footwear",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [],
+      "values": [],
+      "status": "NO_MATCH",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "PARTIAL"
+    },
+    "notes": "Sales metric resolved, but 'footwear' domain intent is unmapped in schema."
+  },
+  {
+    "case_id": "E1-109",
+    "category": "PARTIAL_COVERAGE",
+    "source": "SYNTHETIC_SAFETY",
+    "severity": "HIGH",
+    "question": "Show pending amount for footwear",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "pendamt"
+      ],
+      "dimensions": [],
+      "values": [],
+      "status": "NO_MATCH",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "PARTIAL"
+    },
+    "notes": "Pending amount metric resolved, but 'footwear' domain intent is unmapped."
+  },
+  {
+    "case_id": "E1-110",
+    "category": "PARTIAL_COVERAGE",
+    "source": "REGRESSION",
+    "severity": "CRITICAL",
+    "question": "Show sales for children wear in Chennai city",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "City"
+      ],
+      "values": [
+        "CHENNAI"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Sales + City (Chennai) resolved, but 'children wear' domain intent is unmapped."
+  },
+  {
+    "case_id": "E1-111",
+    "category": "PARTIAL_COVERAGE",
+    "source": "REGRESSION",
+    "severity": "CRITICAL",
+    "question": "Show sales for women wear in Coimbatore city",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "City"
+      ],
+      "values": [
+        "COIMBATORE"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Sales + City (Coimbatore) resolved, but 'women wear' domain intent is unmapped."
+  },
+  {
+    "case_id": "E1-112",
+    "category": "PARTIAL_COVERAGE",
+    "source": "REGRESSION",
+    "severity": "HIGH",
+    "question": "Show quantity for children wear in Madurai city",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "Qty"
+      ],
+      "dimensions": [
+        "City"
+      ],
+      "values": [
+        "MADURAI"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Qty + City (Madurai) resolved, but 'children wear' domain intent is unmapped."
+  },
+  {
+    "case_id": "E1-113",
+    "category": "PARTIAL_COVERAGE",
+    "source": "REGRESSION",
+    "severity": "CRITICAL",
+    "question": "Show Qty for children wear for Ramraj brand",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "Qty"
+      ],
+      "dimensions": [
+        "Brand"
+      ],
+      "values": [
+        "RAMRAJ"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Sales + Brand (Ramraj) resolved, but 'children wear' domain intent is unmapped."
+  },
+  {
+    "case_id": "E1-114",
+    "category": "PARTIAL_COVERAGE",
+    "source": "REGRESSION",
+    "severity": "HIGH",
+    "question": "Show sales for women wear for Franchise category",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "Category"
+      ],
+      "values": [
+        "FRANCHISEE",
+        "FRANCHISEE",
+        "FRANCHISEE",
+        "N--NIGHT WEARS",
+        "ETHNIC WEAR"
+      ],
+      "status": "STRONG_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Sales + Category (Marketing) resolved, but 'women wear' domain intent is unmapped."
+  },
+  {
+    "case_id": "E1-115",
+    "category": "PARTIAL_COVERAGE",
+    "source": "SYNTHETIC_SAFETY",
+    "severity": "HIGH",
+    "question": "Show sales for export market",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [],
+      "values": [
+        "MONDAY MARKET"
+      ],
+      "status": "PARTIAL_MATCH",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Sales metric resolved, but 'export market' domain intent is unmapped."
+  },
+  {
+    "case_id": "E1-116",
+    "category": "PARTIAL_COVERAGE",
+    "source": "SYNTHETIC_SAFETY",
+    "severity": "HIGH",
+    "question": "Show sales for online portal",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [],
+      "values": [],
+      "status": "NO_MATCH",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "PARTIAL"
+    },
+    "notes": "Sales metric resolved, but 'online portal' domain intent is unmapped."
+  },
+  {
+    "case_id": "E1-117",
+    "category": "PARTIAL_COVERAGE",
+    "source": "SYNTHETIC_SAFETY",
+    "severity": "HIGH",
+    "question": "Show sales for international division",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "Division"
+      ],
+      "values": [],
+      "status": "NO_MATCH",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "PARTIAL"
+    },
+    "notes": "Sales metric resolved, but 'international division' domain intent is unmapped."
+  }
+]

@@ -1,0 +1,119 @@
+{
+  "total_cases": 194,
+  "evaluated_cases": 190,
+  "future_phase_cases": 4,
+  "passed": 51,
+  "failed": 139,
+  "errors": 0,
+  "pass_rate": 26.84,
+  "failure_breakdown": {
+    "wrong metric": 34,
+    "wrong ambiguity": 105,
+    "wrong dimension": 17,
+    "wrong value": 41,
+    "wrong retrieval status": 19
+  },
+  "cases_with_multiple_failures": 66,
+  "category_breakdown": {
+    "SIMPLE_METRIC": {
+      "total": 18,
+      "passed": 9,
+      "failed": 9,
+      "errors": 0
+    },
+    "METRIC_DIMENSION_VALUE": {
+      "total": 22,
+      "passed": 8,
+      "failed": 14,
+      "errors": 0
+    },
+    "EXPLICIT_DIMENSION": {
+      "total": 18,
+      "passed": 3,
+      "failed": 15,
+      "errors": 0
+    },
+    "MULTI_DIMENSION": {
+      "total": 18,
+      "passed": 0,
+      "failed": 18,
+      "errors": 0
+    },
+    "AMBIGUOUS_VALUES": {
+      "total": 18,
+      "passed": 14,
+      "failed": 4,
+      "errors": 0
+    },
+    "PARTIAL_COVERAGE": {
+      "total": 18,
+      "passed": 10,
+      "failed": 8,
+      "errors": 0
+    },
+    "SINGULAR_PLURAL": {
+      "total": 18,
+      "passed": 1,
+      "failed": 17,
+      "errors": 0
+    },
+    "TYPO_FUZZY": {
+      "total": 18,
+      "passed": 5,
+      "failed": 13,
+      "errors": 0
+    },
+    "FOLLOW_UP": {
+      "total": 10,
+      "passed": 0,
+      "failed": 10,
+      "errors": 0
+    },
+    "METRIC_SHIFT": {
+      "total": 8,
+      "passed": 1,
+      "failed": 7,
+      "errors": 0
+    },
+    "ENTITY_TOPIC_SHIFT": {
+      "total": 8,
+      "passed": 0,
+      "failed": 8,
+      "errors": 0
+    },
+    "NO_MATCH_ADVERSARIAL": {
+      "total": 10,
+      "passed": 0,
+      "failed": 10,
+      "errors": 0
+    },
+    "TEMPORAL_QUESTIONS": {
+      "total": 10,
+      "passed": 0,
+      "failed": 6,
+      "errors": 0
+    }
+  },
+  "source_breakdown": {
+    "REAL_BUSINESS": {
+      "total": 143,
+      "passed": 36,
+      "failed": 103,
+      "errors": 0
+    },
+    "REGRESSION": {
+      "total": 15,
+      "passed": 5,
+      "failed": 10,
+      "errors": 0
+    },
+    "SYNTHETIC_SAFETY": {
+      "total": 36,
+      "passed": 10,
+      "failed": 26,
+      "errors": 0
+    }
+  },
+  "average_duration_ms": 1509.72,
+  "total_duration_ms": 286846.59
+}

@@ -1,0 +1,1186 @@
+============================================================
+APP_RUNTIME (raw): None
+Runtime selected : local
+Configuration    : D:\Projects\Ramraj-AI-Chatbot\backend\.local.env
+DB_HOST          : 192.168.0.187
+============================================================
+DATABASE_url mssql+pyodbc:///?odbc_connect=DRIVER%3D%7BODBC+Driver+18+for+SQL+Server%7D%3BSERVER%3D192.168.0.187%2C1433%3BDATABASE%3DRR_platform%3BUID%3DIntern_Chatbot%3BPWD%3DKgdt%26LPD148%5EHp%3BTrustServerCertificate%3Dyes%3B
+>>> Live database connection unavailable: (pyodbc.OperationalError) ('08001', '[08001] [Microsoft][ODBC Driver 18 for SQL Server]TCP Provider: The wait operation timed out.\r\n (258) (SQLDriverConnect); [08001] [Microsoft][ODBC Driver 18 for SQL Server]Login timeout expired (0); [08001] [Microsoft][ODBC Driver 18 for SQL Server]A network-related or instance-specific error has occurred while establishing a connection to 192.168.0.187,1433. Server is not found or not accessible. Check if instance name is correct and if SQL Server is configured to allow remote connections. For more information see SQL Server Books Online. (258)')
+(Background on this error at: https://sqlalche.me/e/20/e3q8). Falling back to rich mock semantic index.
+
+================================================================================
+FORENSIC RANKING TRACE FOR QUESTION: 'pant'
+================================================================================
+
+[PHASE 1] RAW MATCHES (Count: 11):
+  [1] Value: 'Pants' (Normalized: 'pants') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 1 | BusinessName: 'Product Group' | Table: 'Products' | Column: 'ProductGroup'
+      Matched Question Tokens: ['pant'] | Matched Value Tokens: ['pants']
+      Score Components: TypePriority=2, Conf=0.950
+  [2] Value: 'Cotton Pants' (Normalized: 'cotton pants') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 2 | BusinessName: 'Product Group' | Table: 'Products' | Column: 'ProductGroup'
+      Matched Question Tokens: ['pant'] | Matched Value Tokens: ['cotton', 'pants']
+      Score Components: TypePriority=2, Conf=0.950
+  [3] Value: 'Formal Pants' (Normalized: 'formal pants') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 3 | BusinessName: 'Product Group' | Table: 'Products' | Column: 'ProductGroup'
+      Matched Question Tokens: ['pant'] | Matched Value Tokens: ['formal', 'pants']
+      Score Components: TypePriority=2, Conf=0.950
+  [4] Value: 'Linen Pant' (Normalized: 'linen pant') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 4 | BusinessName: 'Brand' | Table: 'Products' | Column: 'Brand'
+      Matched Question Tokens: ['pant'] | Matched Value Tokens: ['linen', 'pant']
+      Score Components: TypePriority=2, Conf=0.950
+  [5] Value: 'Ramraj Pant' (Normalized: 'ramraj pant') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 5 | BusinessName: 'Brand' | Table: 'Products' | Column: 'Brand'
+      Matched Question Tokens: ['pant'] | Matched Value Tokens: ['ramraj', 'pant']
+      Score Components: TypePriority=2, Conf=0.950
+  [6] Value: 'LS Pant' (Normalized: 'ls pant') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 6 | BusinessName: 'Prod Grp2' | Table: 'Products' | Column: 'ProdGrp2'
+      Matched Question Tokens: ['pant'] | Matched Value Tokens: ['ls', 'pant']
+      Score Components: TypePriority=2, Conf=0.950
+  [7] Value: 'Cotton Pants' (Normalized: 'cotton pants') | MatchType: FUZZY | Conf: 0.900
+      DimensionID: 2 | BusinessName: 'Product Group' | Table: 'Products' | Column: 'ProductGroup'
+      Matched Question Tokens: ['pant'] | Matched Value Tokens: ['cotton', 'pants']
+      Score Components: TypePriority=1, Conf=0.900
+  [8] Value: 'Formal Pants' (Normalized: 'formal pants') | MatchType: FUZZY | Conf: 0.900
+      DimensionID: 3 | BusinessName: 'Product Group' | Table: 'Products' | Column: 'ProductGroup'
+      Matched Question Tokens: ['pant'] | Matched Value Tokens: ['formal', 'pants']
+      Score Components: TypePriority=1, Conf=0.900
+  [9] Value: 'Linen Pant' (Normalized: 'linen pant') | MatchType: FUZZY | Conf: 0.900
+      DimensionID: 4 | BusinessName: 'Brand' | Table: 'Products' | Column: 'Brand'
+      Matched Question Tokens: ['pant'] | Matched Value Tokens: ['linen', 'pant']
+      Score Components: TypePriority=1, Conf=0.900
+  [10] Value: 'Ramraj Pant' (Normalized: 'ramraj pant') | MatchType: FUZZY | Conf: 0.900
+      DimensionID: 5 | BusinessName: 'Brand' | Table: 'Products' | Column: 'Brand'
+      Matched Question Tokens: ['pant'] | Matched Value Tokens: ['ramraj', 'pant']
+      Score Components: TypePriority=1, Conf=0.900
+  [11] Value: 'LS Pant' (Normalized: 'ls pant') | MatchType: FUZZY | Conf: 0.900
+      DimensionID: 6 | BusinessName: 'Prod Grp2' | Table: 'Products' | Column: 'ProdGrp2'
+      Matched Question Tokens: ['pant'] | Matched Value Tokens: ['ls', 'pant']
+      Score Components: TypePriority=1, Conf=0.900
+
+[PHASE 2] CONSOLIDATED MATCHES (Count: 6):
+  [1] Value: 'Pants' (Normalized: 'pants') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 1 | BusinessName: 'Product Group' | Table: 'Products' | Column: 'ProductGroup'
+      Matched Question Tokens: ['pant'] | Matched Value Tokens: ['pants']
+      Score Components: TypePriority=2, Conf=0.950
+  [2] Value: 'Cotton Pants' (Normalized: 'cotton pants') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 2 | BusinessName: 'Product Group' | Table: 'Products' | Column: 'ProductGroup'
+      Matched Question Tokens: ['pant'] | Matched Value Tokens: ['cotton', 'pants']
+      Score Components: TypePriority=2, Conf=0.950
+  [3] Value: 'Formal Pants' (Normalized: 'formal pants') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 3 | BusinessName: 'Product Group' | Table: 'Products' | Column: 'ProductGroup'
+      Matched Question Tokens: ['pant'] | Matched Value Tokens: ['formal', 'pants']
+      Score Components: TypePriority=2, Conf=0.950
+  [4] Value: 'Linen Pant' (Normalized: 'linen pant') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 4 | BusinessName: 'Brand' | Table: 'Products' | Column: 'Brand'
+      Matched Question Tokens: ['pant'] | Matched Value Tokens: ['linen', 'pant']
+      Score Components: TypePriority=2, Conf=0.950
+  [5] Value: 'Ramraj Pant' (Normalized: 'ramraj pant') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 5 | BusinessName: 'Brand' | Table: 'Products' | Column: 'Brand'
+      Matched Question Tokens: ['pant'] | Matched Value Tokens: ['ramraj', 'pant']
+      Score Components: TypePriority=2, Conf=0.950
+  [6] Value: 'LS Pant' (Normalized: 'ls pant') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 6 | BusinessName: 'Prod Grp2' | Table: 'Products' | Column: 'ProdGrp2'
+      Matched Question Tokens: ['pant'] | Matched Value Tokens: ['ls', 'pant']
+      Score Components: TypePriority=2, Conf=0.950
+
+[PHASE 3] CONTAINMENT-SURVIVING MATCHES (Count: 6):
+  [1] Value: 'Cotton Pants' (Normalized: 'cotton pants') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 2 | BusinessName: 'Product Group' | Table: 'Products' | Column: 'ProductGroup'
+      Matched Question Tokens: ['pant'] | Matched Value Tokens: ['cotton', 'pants']
+      Score Components: TypePriority=2, Conf=0.950
+  [2] Value: 'Formal Pants' (Normalized: 'formal pants') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 3 | BusinessName: 'Product Group' | Table: 'Products' | Column: 'ProductGroup'
+      Matched Question Tokens: ['pant'] | Matched Value Tokens: ['formal', 'pants']
+      Score Components: TypePriority=2, Conf=0.950
+  [3] Value: 'Ramraj Pant' (Normalized: 'ramraj pant') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 5 | BusinessName: 'Brand' | Table: 'Products' | Column: 'Brand'
+      Matched Question Tokens: ['pant'] | Matched Value Tokens: ['ramraj', 'pant']
+      Score Components: TypePriority=2, Conf=0.950
+  [4] Value: 'Linen Pant' (Normalized: 'linen pant') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 4 | BusinessName: 'Brand' | Table: 'Products' | Column: 'Brand'
+      Matched Question Tokens: ['pant'] | Matched Value Tokens: ['linen', 'pant']
+      Score Components: TypePriority=2, Conf=0.950
+  [5] Value: 'LS Pant' (Normalized: 'ls pant') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 6 | BusinessName: 'Prod Grp2' | Table: 'Products' | Column: 'ProdGrp2'
+      Matched Question Tokens: ['pant'] | Matched Value Tokens: ['ls', 'pant']
+      Score Components: TypePriority=2, Conf=0.950
+  [6] Value: 'Pants' (Normalized: 'pants') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 1 | BusinessName: 'Product Group' | Table: 'Products' | Column: 'ProductGroup'
+      Matched Question Tokens: ['pant'] | Matched Value Tokens: ['pants']
+      Score Components: TypePriority=2, Conf=0.950
+
+[PHASE 4] FINAL RANKED MATCHES (Count: 6):
+  [1] Value: 'Pants' (Normalized: 'pants') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 1 | BusinessName: 'Product Group' | Table: 'Products' | Column: 'ProductGroup'
+      Matched Question Tokens: ['pant'] | Matched Value Tokens: ['pants']
+      Score Components: TypePriority=2, Conf=0.950
+  [2] Value: 'LS Pant' (Normalized: 'ls pant') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 6 | BusinessName: 'Prod Grp2' | Table: 'Products' | Column: 'ProdGrp2'
+      Matched Question Tokens: ['pant'] | Matched Value Tokens: ['ls', 'pant']
+      Score Components: TypePriority=2, Conf=0.950
+  [3] Value: 'Linen Pant' (Normalized: 'linen pant') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 4 | BusinessName: 'Brand' | Table: 'Products' | Column: 'Brand'
+      Matched Question Tokens: ['pant'] | Matched Value Tokens: ['linen', 'pant']
+      Score Components: TypePriority=2, Conf=0.950
+  [4] Value: 'Ramraj Pant' (Normalized: 'ramraj pant') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 5 | BusinessName: 'Brand' | Table: 'Products' | Column: 'Brand'
+      Matched Question Tokens: ['pant'] | Matched Value Tokens: ['ramraj', 'pant']
+      Score Components: TypePriority=2, Conf=0.950
+  [5] Value: 'Cotton Pants' (Normalized: 'cotton pants') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 2 | BusinessName: 'Product Group' | Table: 'Products' | Column: 'ProductGroup'
+      Matched Question Tokens: ['pant'] | Matched Value Tokens: ['cotton', 'pants']
+      Score Components: TypePriority=2, Conf=0.950
+  [6] Value: 'Formal Pants' (Normalized: 'formal pants') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 3 | BusinessName: 'Product Group' | Table: 'Products' | Column: 'ProductGroup'
+      Matched Question Tokens: ['pant'] | Matched Value Tokens: ['formal', 'pants']
+      Score Components: TypePriority=2, Conf=0.950
+
+[PHASE 5] AMBIGUITY CLASSIFIER OUTPUT:
+  Status: STRONG_AMBIGUITY
+  Dominant Match: None
+
+  Candidates entering classification:
+  [1] Choice Value: 'Pants' | Coverage: 1 | Covered query tokens: ['pant']
+  - Value: 'Pants' (Normalized: 'pants') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 1 | BusinessName: 'Product Group' | Table: 'Products' | Column: 'ProductGroup'
+      Matched Question Tokens: ['pant'] | Matched Value Tokens: ['pants']
+      Score Components: TypePriority=2, Conf=0.950
+  [2] Choice Value: 'LS Pant' | Coverage: 1 | Covered query tokens: ['pant']
+  - Value: 'LS Pant' (Normalized: 'ls pant') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 6 | BusinessName: 'Prod Grp2' | Table: 'Products' | Column: 'ProdGrp2'
+      Matched Question Tokens: ['pant'] | Matched Value Tokens: ['ls', 'pant']
+      Score Components: TypePriority=2, Conf=0.950
+  [3] Choice Value: 'Linen Pant' | Coverage: 1 | Covered query tokens: ['pant']
+  - Value: 'Linen Pant' (Normalized: 'linen pant') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 4 | BusinessName: 'Brand' | Table: 'Products' | Column: 'Brand'
+      Matched Question Tokens: ['pant'] | Matched Value Tokens: ['linen', 'pant']
+      Score Components: TypePriority=2, Conf=0.950
+  [4] Choice Value: 'Ramraj Pant' | Coverage: 1 | Covered query tokens: ['pant']
+  - Value: 'Ramraj Pant' (Normalized: 'ramraj pant') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 5 | BusinessName: 'Brand' | Table: 'Products' | Column: 'Brand'
+      Matched Question Tokens: ['pant'] | Matched Value Tokens: ['ramraj', 'pant']
+      Score Components: TypePriority=2, Conf=0.950
+  [5] Choice Value: 'Cotton Pants' | Coverage: 1 | Covered query tokens: ['pant']
+  - Value: 'Cotton Pants' (Normalized: 'cotton pants') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 2 | BusinessName: 'Product Group' | Table: 'Products' | Column: 'ProductGroup'
+      Matched Question Tokens: ['pant'] | Matched Value Tokens: ['cotton', 'pants']
+      Score Components: TypePriority=2, Conf=0.950
+  [6] Choice Value: 'Formal Pants' | Coverage: 1 | Covered query tokens: ['pant']
+  - Value: 'Formal Pants' (Normalized: 'formal pants') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 3 | BusinessName: 'Product Group' | Table: 'Products' | Column: 'ProductGroup'
+      Matched Question Tokens: ['pant'] | Matched Value Tokens: ['formal', 'pants']
+      Score Components: TypePriority=2, Conf=0.950
+
+================================================================================
+FORENSIC RANKING TRACE FOR QUESTION: 'shirt'
+================================================================================
+
+[PHASE 1] RAW MATCHES (Count: 11):
+  [1] Value: 'Shirts' (Normalized: 'shirts') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 7 | BusinessName: 'Product Group' | Table: 'Products' | Column: 'ProductGroup'
+      Matched Question Tokens: ['shirt'] | Matched Value Tokens: ['shirts']
+      Score Components: TypePriority=2, Conf=0.950
+  [2] Value: 'Formal Shirts' (Normalized: 'formal shirts') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 8 | BusinessName: 'Product Group' | Table: 'Products' | Column: 'ProductGroup'
+      Matched Question Tokens: ['shirt'] | Matched Value Tokens: ['formal', 'shirts']
+      Score Components: TypePriority=2, Conf=0.950
+  [3] Value: 'Ramraj Shirt' (Normalized: 'ramraj shirt') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 9 | BusinessName: 'Brand' | Table: 'Products' | Column: 'Brand'
+      Matched Question Tokens: ['shirt'] | Matched Value Tokens: ['ramraj', 'shirt']
+      Score Components: TypePriority=2, Conf=0.950
+  [4] Value: 'Red Shirt' (Normalized: 'red shirt') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 10 | BusinessName: 'Brand' | Table: 'Products' | Column: 'Brand'
+      Matched Question Tokens: ['shirt'] | Matched Value Tokens: ['red', 'shirt']
+      Score Components: TypePriority=2, Conf=0.950
+  [5] Value: 'Viveagham Colour Shirt' (Normalized: 'viveagham colour shirt') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 11 | BusinessName: 'Brand' | Table: 'Products' | Column: 'Brand'
+      Matched Question Tokens: ['shirt'] | Matched Value Tokens: ['viveagham', 'colour', 'shirt']
+      Score Components: TypePriority=2, Conf=0.950
+  [6] Value: 'T-Shirt' (Normalized: 't shirt') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 12 | BusinessName: 'Product Category' | Table: 'Products' | Column: 'CategoryName'
+      Matched Question Tokens: ['shirt'] | Matched Value Tokens: ['t', 'shirt']
+      Score Components: TypePriority=2, Conf=0.950
+  [7] Value: 'Shirts' (Normalized: 'shirts') | MatchType: FUZZY | Conf: 0.909
+      DimensionID: 7 | BusinessName: 'Product Group' | Table: 'Products' | Column: 'ProductGroup'
+      Matched Question Tokens: ['shirt'] | Matched Value Tokens: ['shirts']
+      Score Components: TypePriority=1, Conf=0.909
+  [8] Value: 'Formal Shirts' (Normalized: 'formal shirts') | MatchType: FUZZY | Conf: 0.900
+      DimensionID: 8 | BusinessName: 'Product Group' | Table: 'Products' | Column: 'ProductGroup'
+      Matched Question Tokens: ['shirt'] | Matched Value Tokens: ['formal', 'shirts']
+      Score Components: TypePriority=1, Conf=0.900
+  [9] Value: 'Ramraj Shirt' (Normalized: 'ramraj shirt') | MatchType: FUZZY | Conf: 0.900
+      DimensionID: 9 | BusinessName: 'Brand' | Table: 'Products' | Column: 'Brand'
+      Matched Question Tokens: ['shirt'] | Matched Value Tokens: ['ramraj', 'shirt']
+      Score Components: TypePriority=1, Conf=0.900
+  [10] Value: 'Red Shirt' (Normalized: 'red shirt') | MatchType: FUZZY | Conf: 0.900
+      DimensionID: 10 | BusinessName: 'Brand' | Table: 'Products' | Column: 'Brand'
+      Matched Question Tokens: ['shirt'] | Matched Value Tokens: ['red', 'shirt']
+      Score Components: TypePriority=1, Conf=0.900
+  [11] Value: 'Viveagham Colour Shirt' (Normalized: 'viveagham colour shirt') | MatchType: FUZZY | Conf: 0.900
+      DimensionID: 11 | BusinessName: 'Brand' | Table: 'Products' | Column: 'Brand'
+      Matched Question Tokens: ['shirt'] | Matched Value Tokens: ['viveagham', 'colour', 'shirt']
+      Score Components: TypePriority=1, Conf=0.900
+
+[PHASE 2] CONSOLIDATED MATCHES (Count: 6):
+  [1] Value: 'Shirts' (Normalized: 'shirts') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 7 | BusinessName: 'Product Group' | Table: 'Products' | Column: 'ProductGroup'
+      Matched Question Tokens: ['shirt'] | Matched Value Tokens: ['shirts']
+      Score Components: TypePriority=2, Conf=0.950
+  [2] Value: 'Formal Shirts' (Normalized: 'formal shirts') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 8 | BusinessName: 'Product Group' | Table: 'Products' | Column: 'ProductGroup'
+      Matched Question Tokens: ['shirt'] | Matched Value Tokens: ['formal', 'shirts']
+      Score Components: TypePriority=2, Conf=0.950
+  [3] Value: 'Ramraj Shirt' (Normalized: 'ramraj shirt') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 9 | BusinessName: 'Brand' | Table: 'Products' | Column: 'Brand'
+      Matched Question Tokens: ['shirt'] | Matched Value Tokens: ['ramraj', 'shirt']
+      Score Components: TypePriority=2, Conf=0.950
+  [4] Value: 'Red Shirt' (Normalized: 'red shirt') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 10 | BusinessName: 'Brand' | Table: 'Products' | Column: 'Brand'
+      Matched Question Tokens: ['shirt'] | Matched Value Tokens: ['red', 'shirt']
+      Score Components: TypePriority=2, Conf=0.950
+  [5] Value: 'Viveagham Colour Shirt' (Normalized: 'viveagham colour shirt') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 11 | BusinessName: 'Brand' | Table: 'Products' | Column: 'Brand'
+      Matched Question Tokens: ['shirt'] | Matched Value Tokens: ['viveagham', 'colour', 'shirt']
+      Score Components: TypePriority=2, Conf=0.950
+  [6] Value: 'T-Shirt' (Normalized: 't shirt') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 12 | BusinessName: 'Product Category' | Table: 'Products' | Column: 'CategoryName'
+      Matched Question Tokens: ['shirt'] | Matched Value Tokens: ['t', 'shirt']
+      Score Components: TypePriority=2, Conf=0.950
+
+[PHASE 3] CONTAINMENT-SURVIVING MATCHES (Count: 6):
+  [1] Value: 'Viveagham Colour Shirt' (Normalized: 'viveagham colour shirt') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 11 | BusinessName: 'Brand' | Table: 'Products' | Column: 'Brand'
+      Matched Question Tokens: ['shirt'] | Matched Value Tokens: ['viveagham', 'colour', 'shirt']
+      Score Components: TypePriority=2, Conf=0.950
+  [2] Value: 'Formal Shirts' (Normalized: 'formal shirts') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 8 | BusinessName: 'Product Group' | Table: 'Products' | Column: 'ProductGroup'
+      Matched Question Tokens: ['shirt'] | Matched Value Tokens: ['formal', 'shirts']
+      Score Components: TypePriority=2, Conf=0.950
+  [3] Value: 'Ramraj Shirt' (Normalized: 'ramraj shirt') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 9 | BusinessName: 'Brand' | Table: 'Products' | Column: 'Brand'
+      Matched Question Tokens: ['shirt'] | Matched Value Tokens: ['ramraj', 'shirt']
+      Score Components: TypePriority=2, Conf=0.950
+  [4] Value: 'Red Shirt' (Normalized: 'red shirt') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 10 | BusinessName: 'Brand' | Table: 'Products' | Column: 'Brand'
+      Matched Question Tokens: ['shirt'] | Matched Value Tokens: ['red', 'shirt']
+      Score Components: TypePriority=2, Conf=0.950
+  [5] Value: 'T-Shirt' (Normalized: 't shirt') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 12 | BusinessName: 'Product Category' | Table: 'Products' | Column: 'CategoryName'
+      Matched Question Tokens: ['shirt'] | Matched Value Tokens: ['t', 'shirt']
+      Score Components: TypePriority=2, Conf=0.950
+  [6] Value: 'Shirts' (Normalized: 'shirts') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 7 | BusinessName: 'Product Group' | Table: 'Products' | Column: 'ProductGroup'
+      Matched Question Tokens: ['shirt'] | Matched Value Tokens: ['shirts']
+      Score Components: TypePriority=2, Conf=0.950
+
+[PHASE 4] FINAL RANKED MATCHES (Count: 6):
+  [1] Value: 'Shirts' (Normalized: 'shirts') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 7 | BusinessName: 'Product Group' | Table: 'Products' | Column: 'ProductGroup'
+      Matched Question Tokens: ['shirt'] | Matched Value Tokens: ['shirts']
+      Score Components: TypePriority=2, Conf=0.950
+  [2] Value: 'T-Shirt' (Normalized: 't shirt') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 12 | BusinessName: 'Product Category' | Table: 'Products' | Column: 'CategoryName'
+      Matched Question Tokens: ['shirt'] | Matched Value Tokens: ['t', 'shirt']
+      Score Components: TypePriority=2, Conf=0.950
+  [3] Value: 'Red Shirt' (Normalized: 'red shirt') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 10 | BusinessName: 'Brand' | Table: 'Products' | Column: 'Brand'
+      Matched Question Tokens: ['shirt'] | Matched Value Tokens: ['red', 'shirt']
+      Score Components: TypePriority=2, Conf=0.950
+  [4] Value: 'Ramraj Shirt' (Normalized: 'ramraj shirt') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 9 | BusinessName: 'Brand' | Table: 'Products' | Column: 'Brand'
+      Matched Question Tokens: ['shirt'] | Matched Value Tokens: ['ramraj', 'shirt']
+      Score Components: TypePriority=2, Conf=0.950
+  [5] Value: 'Formal Shirts' (Normalized: 'formal shirts') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 8 | BusinessName: 'Product Group' | Table: 'Products' | Column: 'ProductGroup'
+      Matched Question Tokens: ['shirt'] | Matched Value Tokens: ['formal', 'shirts']
+      Score Components: TypePriority=2, Conf=0.950
+  [6] Value: 'Viveagham Colour Shirt' (Normalized: 'viveagham colour shirt') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 11 | BusinessName: 'Brand' | Table: 'Products' | Column: 'Brand'
+      Matched Question Tokens: ['shirt'] | Matched Value Tokens: ['viveagham', 'colour', 'shirt']
+      Score Components: TypePriority=2, Conf=0.950
+
+[PHASE 5] AMBIGUITY CLASSIFIER OUTPUT:
+  Status: STRONG_AMBIGUITY
+  Dominant Match: None
+
+  Candidates entering classification:
+  [1] Choice Value: 'Shirts' | Coverage: 1 | Covered query tokens: ['shirt']
+  - Value: 'Shirts' (Normalized: 'shirts') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 7 | BusinessName: 'Product Group' | Table: 'Products' | Column: 'ProductGroup'
+      Matched Question Tokens: ['shirt'] | Matched Value Tokens: ['shirts']
+      Score Components: TypePriority=2, Conf=0.950
+  [2] Choice Value: 'T-Shirt' | Coverage: 1 | Covered query tokens: ['shirt']
+  - Value: 'T-Shirt' (Normalized: 't shirt') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 12 | BusinessName: 'Product Category' | Table: 'Products' | Column: 'CategoryName'
+      Matched Question Tokens: ['shirt'] | Matched Value Tokens: ['t', 'shirt']
+      Score Components: TypePriority=2, Conf=0.950
+  [3] Choice Value: 'Red Shirt' | Coverage: 1 | Covered query tokens: ['shirt']
+  - Value: 'Red Shirt' (Normalized: 'red shirt') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 10 | BusinessName: 'Brand' | Table: 'Products' | Column: 'Brand'
+      Matched Question Tokens: ['shirt'] | Matched Value Tokens: ['red', 'shirt']
+      Score Components: TypePriority=2, Conf=0.950
+  [4] Choice Value: 'Ramraj Shirt' | Coverage: 1 | Covered query tokens: ['shirt']
+  - Value: 'Ramraj Shirt' (Normalized: 'ramraj shirt') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 9 | BusinessName: 'Brand' | Table: 'Products' | Column: 'Brand'
+      Matched Question Tokens: ['shirt'] | Matched Value Tokens: ['ramraj', 'shirt']
+      Score Components: TypePriority=2, Conf=0.950
+  [5] Choice Value: 'Formal Shirts' | Coverage: 1 | Covered query tokens: ['shirt']
+  - Value: 'Formal Shirts' (Normalized: 'formal shirts') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 8 | BusinessName: 'Product Group' | Table: 'Products' | Column: 'ProductGroup'
+      Matched Question Tokens: ['shirt'] | Matched Value Tokens: ['formal', 'shirts']
+      Score Components: TypePriority=2, Conf=0.950
+  [6] Choice Value: 'Viveagham Colour Shirt' | Coverage: 1 | Covered query tokens: ['shirt']
+  - Value: 'Viveagham Colour Shirt' (Normalized: 'viveagham colour shirt') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 11 | BusinessName: 'Brand' | Table: 'Products' | Column: 'Brand'
+      Matched Question Tokens: ['shirt'] | Matched Value Tokens: ['viveagham', 'colour', 'shirt']
+      Score Components: TypePriority=2, Conf=0.950
+
+================================================================================
+FORENSIC RANKING TRACE FOR QUESTION: 'cotton pant'
+================================================================================
+
+[PHASE 1] RAW MATCHES (Count: 11):
+  [1] Value: 'Cotton' (Normalized: 'cotton') | MatchType: EXACT | Conf: 1.000
+      DimensionID: 18 | BusinessName: 'Fabric' | Table: 'Products' | Column: 'FabricType'
+      Matched Question Tokens: ['cotton', 'pant'] | Matched Value Tokens: ['cotton']
+      Score Components: TypePriority=4, Conf=1.000
+  [2] Value: 'Cotton' (Normalized: 'cotton') | MatchType: NORMALIZED | Conf: 0.980
+      DimensionID: 18 | BusinessName: 'Fabric' | Table: 'Products' | Column: 'FabricType'
+      Matched Question Tokens: ['cotton', 'pant'] | Matched Value Tokens: ['cotton']
+      Score Components: TypePriority=3, Conf=0.980
+  [3] Value: 'Pants' (Normalized: 'pants') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 1 | BusinessName: 'Product Group' | Table: 'Products' | Column: 'ProductGroup'
+      Matched Question Tokens: ['cotton', 'pant'] | Matched Value Tokens: ['pants']
+      Score Components: TypePriority=2, Conf=0.950
+  [4] Value: 'Cotton Pants' (Normalized: 'cotton pants') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 2 | BusinessName: 'Product Group' | Table: 'Products' | Column: 'ProductGroup'
+      Matched Question Tokens: ['cotton', 'pant'] | Matched Value Tokens: ['cotton', 'pants']
+      Score Components: TypePriority=2, Conf=0.950
+  [5] Value: 'Cotton' (Normalized: 'cotton') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 18 | BusinessName: 'Fabric' | Table: 'Products' | Column: 'FabricType'
+      Matched Question Tokens: ['cotton', 'pant'] | Matched Value Tokens: ['cotton']
+      Score Components: TypePriority=2, Conf=0.950
+  [6] Value: 'Cotton Pants' (Normalized: 'cotton pants') | MatchType: FUZZY | Conf: 0.957
+      DimensionID: 2 | BusinessName: 'Product Group' | Table: 'Products' | Column: 'ProductGroup'
+      Matched Question Tokens: ['cotton', 'pant'] | Matched Value Tokens: ['cotton', 'pants']
+      Score Components: TypePriority=1, Conf=0.957
+  [7] Value: 'Cotton' (Normalized: 'cotton') | MatchType: FUZZY | Conf: 1.000
+      DimensionID: 18 | BusinessName: 'Fabric' | Table: 'Products' | Column: 'FabricType'
+      Matched Question Tokens: ['cotton'] | Matched Value Tokens: ['cotton']
+      Score Components: TypePriority=1, Conf=1.000
+  [8] Value: 'LS Pant' (Normalized: 'ls pant') | MatchType: FUZZY | Conf: 0.900
+      DimensionID: 6 | BusinessName: 'Prod Grp2' | Table: 'Products' | Column: 'ProdGrp2'
+      Matched Question Tokens: ['pant'] | Matched Value Tokens: ['ls', 'pant']
+      Score Components: TypePriority=1, Conf=0.900
+  [9] Value: 'Formal Pants' (Normalized: 'formal pants') | MatchType: FUZZY | Conf: 0.900
+      DimensionID: 3 | BusinessName: 'Product Group' | Table: 'Products' | Column: 'ProductGroup'
+      Matched Question Tokens: ['pant'] | Matched Value Tokens: ['formal', 'pants']
+      Score Components: TypePriority=1, Conf=0.900
+  [10] Value: 'Linen Pant' (Normalized: 'linen pant') | MatchType: FUZZY | Conf: 0.900
+      DimensionID: 4 | BusinessName: 'Brand' | Table: 'Products' | Column: 'Brand'
+      Matched Question Tokens: ['pant'] | Matched Value Tokens: ['linen', 'pant']
+      Score Components: TypePriority=1, Conf=0.900
+  [11] Value: 'Ramraj Pant' (Normalized: 'ramraj pant') | MatchType: FUZZY | Conf: 0.900
+      DimensionID: 5 | BusinessName: 'Brand' | Table: 'Products' | Column: 'Brand'
+      Matched Question Tokens: ['pant'] | Matched Value Tokens: ['ramraj', 'pant']
+      Score Components: TypePriority=1, Conf=0.900
+
+[PHASE 2] CONSOLIDATED MATCHES (Count: 7):
+  [1] Value: 'Cotton' (Normalized: 'cotton') | MatchType: EXACT | Conf: 1.000
+      DimensionID: 18 | BusinessName: 'Fabric' | Table: 'Products' | Column: 'FabricType'
+      Matched Question Tokens: ['cotton', 'pant'] | Matched Value Tokens: ['cotton']
+      Score Components: TypePriority=4, Conf=1.000
+  [2] Value: 'Pants' (Normalized: 'pants') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 1 | BusinessName: 'Product Group' | Table: 'Products' | Column: 'ProductGroup'
+      Matched Question Tokens: ['cotton', 'pant'] | Matched Value Tokens: ['pants']
+      Score Components: TypePriority=2, Conf=0.950
+  [3] Value: 'Cotton Pants' (Normalized: 'cotton pants') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 2 | BusinessName: 'Product Group' | Table: 'Products' | Column: 'ProductGroup'
+      Matched Question Tokens: ['cotton', 'pant'] | Matched Value Tokens: ['cotton', 'pants']
+      Score Components: TypePriority=2, Conf=0.950
+  [4] Value: 'LS Pant' (Normalized: 'ls pant') | MatchType: FUZZY | Conf: 0.900
+      DimensionID: 6 | BusinessName: 'Prod Grp2' | Table: 'Products' | Column: 'ProdGrp2'
+      Matched Question Tokens: ['pant'] | Matched Value Tokens: ['ls', 'pant']
+      Score Components: TypePriority=1, Conf=0.900
+  [5] Value: 'Formal Pants' (Normalized: 'formal pants') | MatchType: FUZZY | Conf: 0.900
+      DimensionID: 3 | BusinessName: 'Product Group' | Table: 'Products' | Column: 'ProductGroup'
+      Matched Question Tokens: ['pant'] | Matched Value Tokens: ['formal', 'pants']
+      Score Components: TypePriority=1, Conf=0.900
+  [6] Value: 'Linen Pant' (Normalized: 'linen pant') | MatchType: FUZZY | Conf: 0.900
+      DimensionID: 4 | BusinessName: 'Brand' | Table: 'Products' | Column: 'Brand'
+      Matched Question Tokens: ['pant'] | Matched Value Tokens: ['linen', 'pant']
+      Score Components: TypePriority=1, Conf=0.900
+  [7] Value: 'Ramraj Pant' (Normalized: 'ramraj pant') | MatchType: FUZZY | Conf: 0.900
+      DimensionID: 5 | BusinessName: 'Brand' | Table: 'Products' | Column: 'Brand'
+      Matched Question Tokens: ['pant'] | Matched Value Tokens: ['ramraj', 'pant']
+      Score Components: TypePriority=1, Conf=0.900
+
+[PHASE 3] CONTAINMENT-SURVIVING MATCHES (Count: 2):
+  [1] Value: 'Cotton Pants' (Normalized: 'cotton pants') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 2 | BusinessName: 'Product Group' | Table: 'Products' | Column: 'ProductGroup'
+      Matched Question Tokens: ['cotton', 'pant'] | Matched Value Tokens: ['cotton', 'pants']
+      Score Components: TypePriority=2, Conf=0.950
+  [2] Value: 'Cotton' (Normalized: 'cotton') | MatchType: EXACT | Conf: 1.000
+      DimensionID: 18 | BusinessName: 'Fabric' | Table: 'Products' | Column: 'FabricType'
+      Matched Question Tokens: ['cotton', 'pant'] | Matched Value Tokens: ['cotton']
+      Score Components: TypePriority=4, Conf=1.000
+
+[PHASE 4] FINAL RANKED MATCHES (Count: 2):
+  [1] Value: 'Cotton' (Normalized: 'cotton') | MatchType: EXACT | Conf: 1.000
+      DimensionID: 18 | BusinessName: 'Fabric' | Table: 'Products' | Column: 'FabricType'
+      Matched Question Tokens: ['cotton', 'pant'] | Matched Value Tokens: ['cotton']
+      Score Components: TypePriority=4, Conf=1.000
+  [2] Value: 'Cotton Pants' (Normalized: 'cotton pants') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 2 | BusinessName: 'Product Group' | Table: 'Products' | Column: 'ProductGroup'
+      Matched Question Tokens: ['cotton', 'pant'] | Matched Value Tokens: ['cotton', 'pants']
+      Score Components: TypePriority=2, Conf=0.950
+
+[PHASE 5] AMBIGUITY CLASSIFIER OUTPUT:
+  Status: WEAK_AMBIGUITY
+  Dominant Match: 'Cotton'
+
+  Candidates entering classification:
+  [1] Choice Value: 'Cotton' | Coverage: 1 | Covered query tokens: ['cotton']
+  - Value: 'Cotton' (Normalized: 'cotton') | MatchType: EXACT | Conf: 1.000
+      DimensionID: 18 | BusinessName: 'Fabric' | Table: 'Products' | Column: 'FabricType'
+      Matched Question Tokens: ['cotton', 'pant'] | Matched Value Tokens: ['cotton']
+      Score Components: TypePriority=4, Conf=1.000
+  [2] Choice Value: 'Cotton Pants' | Coverage: 2 | Covered query tokens: ['cotton', 'pant']
+  - Value: 'Cotton Pants' (Normalized: 'cotton pants') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 2 | BusinessName: 'Product Group' | Table: 'Products' | Column: 'ProductGroup'
+      Matched Question Tokens: ['cotton', 'pant'] | Matched Value Tokens: ['cotton', 'pants']
+      Score Components: TypePriority=2, Conf=0.950
+
+================================================================================
+FORENSIC RANKING TRACE FOR QUESTION: 'formal shirt'
+================================================================================
+
+[PHASE 1] RAW MATCHES (Count: 10):
+  [1] Value: 'Shirts' (Normalized: 'shirts') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 7 | BusinessName: 'Product Group' | Table: 'Products' | Column: 'ProductGroup'
+      Matched Question Tokens: ['formal', 'shirt'] | Matched Value Tokens: ['shirts']
+      Score Components: TypePriority=2, Conf=0.950
+  [2] Value: 'Formal Shirts' (Normalized: 'formal shirts') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 8 | BusinessName: 'Product Group' | Table: 'Products' | Column: 'ProductGroup'
+      Matched Question Tokens: ['formal', 'shirt'] | Matched Value Tokens: ['formal', 'shirts']
+      Score Components: TypePriority=2, Conf=0.950
+  [3] Value: 'Viveagham Colour Shirt' (Normalized: 'viveagham colour shirt') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 11 | BusinessName: 'Brand' | Table: 'Products' | Column: 'Brand'
+      Matched Question Tokens: ['formal', 'shirt'] | Matched Value Tokens: ['viveagham', 'colour', 'shirt']
+      Score Components: TypePriority=2, Conf=0.950
+  [4] Value: 'Formal Shirts' (Normalized: 'formal shirts') | MatchType: FUZZY | Conf: 0.960
+      DimensionID: 8 | BusinessName: 'Product Group' | Table: 'Products' | Column: 'ProductGroup'
+      Matched Question Tokens: ['formal', 'shirt'] | Matched Value Tokens: ['formal', 'shirts']
+      Score Components: TypePriority=1, Conf=0.960
+  [5] Value: 'Viveagham Colour Shirt' (Normalized: 'viveagham colour shirt') | MatchType: FUZZY | Conf: 0.900
+      DimensionID: 11 | BusinessName: 'Brand' | Table: 'Products' | Column: 'Brand'
+      Matched Question Tokens: ['shirt'] | Matched Value Tokens: ['viveagham', 'colour', 'shirt']
+      Score Components: TypePriority=1, Conf=0.900
+  [6] Value: 'Formal Pants' (Normalized: 'formal pants') | MatchType: FUZZY | Conf: 0.900
+      DimensionID: 3 | BusinessName: 'Product Group' | Table: 'Products' | Column: 'ProductGroup'
+      Matched Question Tokens: ['formal'] | Matched Value Tokens: ['formal', 'pants']
+      Score Components: TypePriority=1, Conf=0.900
+  [7] Value: 'Formal Socks' (Normalized: 'formal socks') | MatchType: FUZZY | Conf: 0.900
+      DimensionID: 17 | BusinessName: 'Product Category' | Table: 'Products' | Column: 'CategoryName'
+      Matched Question Tokens: ['formal'] | Matched Value Tokens: ['formal', 'socks']
+      Score Components: TypePriority=1, Conf=0.900
+  [8] Value: 'Shirts' (Normalized: 'shirts') | MatchType: FUZZY | Conf: 0.909
+      DimensionID: 7 | BusinessName: 'Product Group' | Table: 'Products' | Column: 'ProductGroup'
+      Matched Question Tokens: ['shirt'] | Matched Value Tokens: ['shirts']
+      Score Components: TypePriority=1, Conf=0.909
+  [9] Value: 'Ramraj Shirt' (Normalized: 'ramraj shirt') | MatchType: FUZZY | Conf: 0.900
+      DimensionID: 9 | BusinessName: 'Brand' | Table: 'Products' | Column: 'Brand'
+      Matched Question Tokens: ['shirt'] | Matched Value Tokens: ['ramraj', 'shirt']
+      Score Components: TypePriority=1, Conf=0.900
+  [10] Value: 'Red Shirt' (Normalized: 'red shirt') | MatchType: FUZZY | Conf: 0.900
+      DimensionID: 10 | BusinessName: 'Brand' | Table: 'Products' | Column: 'Brand'
+      Matched Question Tokens: ['shirt'] | Matched Value Tokens: ['red', 'shirt']
+      Score Components: TypePriority=1, Conf=0.900
+
+[PHASE 2] CONSOLIDATED MATCHES (Count: 7):
+  [1] Value: 'Shirts' (Normalized: 'shirts') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 7 | BusinessName: 'Product Group' | Table: 'Products' | Column: 'ProductGroup'
+      Matched Question Tokens: ['formal', 'shirt'] | Matched Value Tokens: ['shirts']
+      Score Components: TypePriority=2, Conf=0.950
+  [2] Value: 'Formal Shirts' (Normalized: 'formal shirts') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 8 | BusinessName: 'Product Group' | Table: 'Products' | Column: 'ProductGroup'
+      Matched Question Tokens: ['formal', 'shirt'] | Matched Value Tokens: ['formal', 'shirts']
+      Score Components: TypePriority=2, Conf=0.950
+  [3] Value: 'Viveagham Colour Shirt' (Normalized: 'viveagham colour shirt') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 11 | BusinessName: 'Brand' | Table: 'Products' | Column: 'Brand'
+      Matched Question Tokens: ['formal', 'shirt'] | Matched Value Tokens: ['viveagham', 'colour', 'shirt']
+      Score Components: TypePriority=2, Conf=0.950
+  [4] Value: 'Formal Pants' (Normalized: 'formal pants') | MatchType: FUZZY | Conf: 0.900
+      DimensionID: 3 | BusinessName: 'Product Group' | Table: 'Products' | Column: 'ProductGroup'
+      Matched Question Tokens: ['formal'] | Matched Value Tokens: ['formal', 'pants']
+      Score Components: TypePriority=1, Conf=0.900
+  [5] Value: 'Formal Socks' (Normalized: 'formal socks') | MatchType: FUZZY | Conf: 0.900
+      DimensionID: 17 | BusinessName: 'Product Category' | Table: 'Products' | Column: 'CategoryName'
+      Matched Question Tokens: ['formal'] | Matched Value Tokens: ['formal', 'socks']
+      Score Components: TypePriority=1, Conf=0.900
+  [6] Value: 'Ramraj Shirt' (Normalized: 'ramraj shirt') | MatchType: FUZZY | Conf: 0.900
+      DimensionID: 9 | BusinessName: 'Brand' | Table: 'Products' | Column: 'Brand'
+      Matched Question Tokens: ['shirt'] | Matched Value Tokens: ['ramraj', 'shirt']
+      Score Components: TypePriority=1, Conf=0.900
+  [7] Value: 'Red Shirt' (Normalized: 'red shirt') | MatchType: FUZZY | Conf: 0.900
+      DimensionID: 10 | BusinessName: 'Brand' | Table: 'Products' | Column: 'Brand'
+      Matched Question Tokens: ['shirt'] | Matched Value Tokens: ['red', 'shirt']
+      Score Components: TypePriority=1, Conf=0.900
+
+[PHASE 3] CONTAINMENT-SURVIVING MATCHES (Count: 1):
+  [1] Value: 'Formal Shirts' (Normalized: 'formal shirts') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 8 | BusinessName: 'Product Group' | Table: 'Products' | Column: 'ProductGroup'
+      Matched Question Tokens: ['formal', 'shirt'] | Matched Value Tokens: ['formal', 'shirts']
+      Score Components: TypePriority=2, Conf=0.950
+
+[PHASE 4] FINAL RANKED MATCHES (Count: 1):
+  [1] Value: 'Formal Shirts' (Normalized: 'formal shirts') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 8 | BusinessName: 'Product Group' | Table: 'Products' | Column: 'ProductGroup'
+      Matched Question Tokens: ['formal', 'shirt'] | Matched Value Tokens: ['formal', 'shirts']
+      Score Components: TypePriority=2, Conf=0.950
+
+[PHASE 5] AMBIGUITY CLASSIFIER OUTPUT:
+  Status: SINGLE_MATCH
+  Dominant Match: 'Formal Shirts'
+
+  Candidates entering classification:
+  [1] Choice Value: 'Formal Shirts' | Coverage: 2 | Covered query tokens: ['formal', 'shirt']
+  - Value: 'Formal Shirts' (Normalized: 'formal shirts') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 8 | BusinessName: 'Product Group' | Table: 'Products' | Column: 'ProductGroup'
+      Matched Question Tokens: ['formal', 'shirt'] | Matched Value Tokens: ['formal', 'shirts']
+      Score Components: TypePriority=2, Conf=0.950
+
+================================================================================
+FORENSIC RANKING TRACE FOR QUESTION: 'banian'
+================================================================================
+
+[PHASE 1] RAW MATCHES (Count: 2):
+  [1] Value: 'Banians' (Normalized: 'banians') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 13 | BusinessName: 'Category' | Table: 'Products' | Column: 'CategoryName'
+      Matched Question Tokens: ['banian'] | Matched Value Tokens: ['banians']
+      Score Components: TypePriority=2, Conf=0.950
+  [2] Value: 'Banians' (Normalized: 'banians') | MatchType: FUZZY | Conf: 0.923
+      DimensionID: 13 | BusinessName: 'Category' | Table: 'Products' | Column: 'CategoryName'
+      Matched Question Tokens: ['banian'] | Matched Value Tokens: ['banians']
+      Score Components: TypePriority=1, Conf=0.923
+
+[PHASE 2] CONSOLIDATED MATCHES (Count: 1):
+  [1] Value: 'Banians' (Normalized: 'banians') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 13 | BusinessName: 'Category' | Table: 'Products' | Column: 'CategoryName'
+      Matched Question Tokens: ['banian'] | Matched Value Tokens: ['banians']
+      Score Components: TypePriority=2, Conf=0.950
+
+[PHASE 3] CONTAINMENT-SURVIVING MATCHES (Count: 1):
+  [1] Value: 'Banians' (Normalized: 'banians') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 13 | BusinessName: 'Category' | Table: 'Products' | Column: 'CategoryName'
+      Matched Question Tokens: ['banian'] | Matched Value Tokens: ['banians']
+      Score Components: TypePriority=2, Conf=0.950
+
+[PHASE 4] FINAL RANKED MATCHES (Count: 1):
+  [1] Value: 'Banians' (Normalized: 'banians') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 13 | BusinessName: 'Category' | Table: 'Products' | Column: 'CategoryName'
+      Matched Question Tokens: ['banian'] | Matched Value Tokens: ['banians']
+      Score Components: TypePriority=2, Conf=0.950
+
+[PHASE 5] AMBIGUITY CLASSIFIER OUTPUT:
+  Status: SINGLE_MATCH
+  Dominant Match: 'Banians'
+
+  Candidates entering classification:
+  [1] Choice Value: 'Banians' | Coverage: 1 | Covered query tokens: ['banian']
+  - Value: 'Banians' (Normalized: 'banians') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 13 | BusinessName: 'Category' | Table: 'Products' | Column: 'CategoryName'
+      Matched Question Tokens: ['banian'] | Matched Value Tokens: ['banians']
+      Score Components: TypePriority=2, Conf=0.950
+
+================================================================================
+FORENSIC RANKING TRACE FOR QUESTION: 'banians'
+================================================================================
+
+[PHASE 1] RAW MATCHES (Count: 4):
+  [1] Value: 'Banians' (Normalized: 'banians') | MatchType: EXACT | Conf: 1.000
+      DimensionID: 13 | BusinessName: 'Category' | Table: 'Products' | Column: 'CategoryName'
+      Matched Question Tokens: ['banians'] | Matched Value Tokens: ['banians']
+      Score Components: TypePriority=4, Conf=1.000
+  [2] Value: 'Banians' (Normalized: 'banians') | MatchType: NORMALIZED | Conf: 0.980
+      DimensionID: 13 | BusinessName: 'Category' | Table: 'Products' | Column: 'CategoryName'
+      Matched Question Tokens: ['banians'] | Matched Value Tokens: ['banians']
+      Score Components: TypePriority=3, Conf=0.980
+  [3] Value: 'Banians' (Normalized: 'banians') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 13 | BusinessName: 'Category' | Table: 'Products' | Column: 'CategoryName'
+      Matched Question Tokens: ['banians'] | Matched Value Tokens: ['banians']
+      Score Components: TypePriority=2, Conf=0.950
+  [4] Value: 'Banians' (Normalized: 'banians') | MatchType: FUZZY | Conf: 1.000
+      DimensionID: 13 | BusinessName: 'Category' | Table: 'Products' | Column: 'CategoryName'
+      Matched Question Tokens: ['banians'] | Matched Value Tokens: ['banians']
+      Score Components: TypePriority=1, Conf=1.000
+
+[PHASE 2] CONSOLIDATED MATCHES (Count: 1):
+  [1] Value: 'Banians' (Normalized: 'banians') | MatchType: EXACT | Conf: 1.000
+      DimensionID: 13 | BusinessName: 'Category' | Table: 'Products' | Column: 'CategoryName'
+      Matched Question Tokens: ['banians'] | Matched Value Tokens: ['banians']
+      Score Components: TypePriority=4, Conf=1.000
+
+[PHASE 3] CONTAINMENT-SURVIVING MATCHES (Count: 1):
+  [1] Value: 'Banians' (Normalized: 'banians') | MatchType: EXACT | Conf: 1.000
+      DimensionID: 13 | BusinessName: 'Category' | Table: 'Products' | Column: 'CategoryName'
+      Matched Question Tokens: ['banians'] | Matched Value Tokens: ['banians']
+      Score Components: TypePriority=4, Conf=1.000
+
+[PHASE 4] FINAL RANKED MATCHES (Count: 1):
+  [1] Value: 'Banians' (Normalized: 'banians') | MatchType: EXACT | Conf: 1.000
+      DimensionID: 13 | BusinessName: 'Category' | Table: 'Products' | Column: 'CategoryName'
+      Matched Question Tokens: ['banians'] | Matched Value Tokens: ['banians']
+      Score Components: TypePriority=4, Conf=1.000
+
+[PHASE 5] AMBIGUITY CLASSIFIER OUTPUT:
+  Status: SINGLE_MATCH
+  Dominant Match: 'Banians'
+
+  Candidates entering classification:
+  [1] Choice Value: 'Banians' | Coverage: 1 | Covered query tokens: ['banians']
+  - Value: 'Banians' (Normalized: 'banians') | MatchType: EXACT | Conf: 1.000
+      DimensionID: 13 | BusinessName: 'Category' | Table: 'Products' | Column: 'CategoryName'
+      Matched Question Tokens: ['banians'] | Matched Value Tokens: ['banians']
+      Score Components: TypePriority=4, Conf=1.000
+
+================================================================================
+FORENSIC RANKING TRACE FOR QUESTION: 'children wear'
+================================================================================
+
+[PHASE 1] RAW MATCHES (Count: 6):
+  [1] Value: 'Children Wear' (Normalized: 'children wear') | MatchType: EXACT | Conf: 1.000
+      DimensionID: 14 | BusinessName: 'Product Category' | Table: 'Products' | Column: 'CategoryName'
+      Matched Question Tokens: ['children', 'wear'] | Matched Value Tokens: ['children', 'wear']
+      Score Components: TypePriority=4, Conf=1.000
+  [2] Value: 'Children Wear' (Normalized: 'children wear') | MatchType: NORMALIZED | Conf: 0.980
+      DimensionID: 14 | BusinessName: 'Product Category' | Table: 'Products' | Column: 'CategoryName'
+      Matched Question Tokens: ['children', 'wear'] | Matched Value Tokens: ['children', 'wear']
+      Score Components: TypePriority=3, Conf=0.980
+  [3] Value: 'Children Wear' (Normalized: 'children wear') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 14 | BusinessName: 'Product Category' | Table: 'Products' | Column: 'CategoryName'
+      Matched Question Tokens: ['children', 'wear'] | Matched Value Tokens: ['children', 'wear']
+      Score Components: TypePriority=2, Conf=0.950
+  [4] Value: 'Children Wear' (Normalized: 'children wear') | MatchType: FUZZY | Conf: 1.000
+      DimensionID: 14 | BusinessName: 'Product Category' | Table: 'Products' | Column: 'CategoryName'
+      Matched Question Tokens: ['children', 'wear'] | Matched Value Tokens: ['children', 'wear']
+      Score Components: TypePriority=1, Conf=1.000
+  [5] Value: 'Women's Wear' (Normalized: 'womens wear') | MatchType: FUZZY | Conf: 0.900
+      DimensionID: 15 | BusinessName: 'Product Category' | Table: 'Products' | Column: 'CategoryName'
+      Matched Question Tokens: ['wear'] | Matched Value Tokens: ['womens', 'wear']
+      Score Components: TypePriority=1, Conf=0.900
+  [6] Value: 'Men's Wear' (Normalized: 'mens wear') | MatchType: FUZZY | Conf: 0.900
+      DimensionID: 16 | BusinessName: 'Product Category' | Table: 'Products' | Column: 'CategoryName'
+      Matched Question Tokens: ['wear'] | Matched Value Tokens: ['mens', 'wear']
+      Score Components: TypePriority=1, Conf=0.900
+
+[PHASE 2] CONSOLIDATED MATCHES (Count: 3):
+  [1] Value: 'Children Wear' (Normalized: 'children wear') | MatchType: EXACT | Conf: 1.000
+      DimensionID: 14 | BusinessName: 'Product Category' | Table: 'Products' | Column: 'CategoryName'
+      Matched Question Tokens: ['children', 'wear'] | Matched Value Tokens: ['children', 'wear']
+      Score Components: TypePriority=4, Conf=1.000
+  [2] Value: 'Women's Wear' (Normalized: 'womens wear') | MatchType: FUZZY | Conf: 0.900
+      DimensionID: 15 | BusinessName: 'Product Category' | Table: 'Products' | Column: 'CategoryName'
+      Matched Question Tokens: ['wear'] | Matched Value Tokens: ['womens', 'wear']
+      Score Components: TypePriority=1, Conf=0.900
+  [3] Value: 'Men's Wear' (Normalized: 'mens wear') | MatchType: FUZZY | Conf: 0.900
+      DimensionID: 16 | BusinessName: 'Product Category' | Table: 'Products' | Column: 'CategoryName'
+      Matched Question Tokens: ['wear'] | Matched Value Tokens: ['mens', 'wear']
+      Score Components: TypePriority=1, Conf=0.900
+
+[PHASE 3] CONTAINMENT-SURVIVING MATCHES (Count: 1):
+  [1] Value: 'Children Wear' (Normalized: 'children wear') | MatchType: EXACT | Conf: 1.000
+      DimensionID: 14 | BusinessName: 'Product Category' | Table: 'Products' | Column: 'CategoryName'
+      Matched Question Tokens: ['children', 'wear'] | Matched Value Tokens: ['children', 'wear']
+      Score Components: TypePriority=4, Conf=1.000
+
+[PHASE 4] FINAL RANKED MATCHES (Count: 1):
+  [1] Value: 'Children Wear' (Normalized: 'children wear') | MatchType: EXACT | Conf: 1.000
+      DimensionID: 14 | BusinessName: 'Product Category' | Table: 'Products' | Column: 'CategoryName'
+      Matched Question Tokens: ['children', 'wear'] | Matched Value Tokens: ['children', 'wear']
+      Score Components: TypePriority=4, Conf=1.000
+
+[PHASE 5] AMBIGUITY CLASSIFIER OUTPUT:
+  Status: SINGLE_MATCH
+  Dominant Match: 'Children Wear'
+
+  Candidates entering classification:
+  [1] Choice Value: 'Children Wear' | Coverage: 2 | Covered query tokens: ['children', 'wear']
+  - Value: 'Children Wear' (Normalized: 'children wear') | MatchType: EXACT | Conf: 1.000
+      DimensionID: 14 | BusinessName: 'Product Category' | Table: 'Products' | Column: 'CategoryName'
+      Matched Question Tokens: ['children', 'wear'] | Matched Value Tokens: ['children', 'wear']
+      Score Components: TypePriority=4, Conf=1.000
+
+================================================================================
+FORENSIC RANKING TRACE FOR QUESTION: 'women wear'
+================================================================================
+
+[PHASE 1] RAW MATCHES (Count: 4):
+  [1] Value: 'Women's Wear' (Normalized: 'womens wear') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 15 | BusinessName: 'Product Category' | Table: 'Products' | Column: 'CategoryName'
+      Matched Question Tokens: ['women', 'wear'] | Matched Value Tokens: ['womens', 'wear']
+      Score Components: TypePriority=2, Conf=0.950
+  [2] Value: 'Women's Wear' (Normalized: 'womens wear') | MatchType: FUZZY | Conf: 0.909
+      DimensionID: 15 | BusinessName: 'Product Category' | Table: 'Products' | Column: 'CategoryName'
+      Matched Question Tokens: ['women', 'wear'] | Matched Value Tokens: ['womens', 'wear']
+      Score Components: TypePriority=1, Conf=0.909
+  [3] Value: 'Children Wear' (Normalized: 'children wear') | MatchType: FUZZY | Conf: 0.900
+      DimensionID: 14 | BusinessName: 'Product Category' | Table: 'Products' | Column: 'CategoryName'
+      Matched Question Tokens: ['wear'] | Matched Value Tokens: ['children', 'wear']
+      Score Components: TypePriority=1, Conf=0.900
+  [4] Value: 'Men's Wear' (Normalized: 'mens wear') | MatchType: FUZZY | Conf: 0.900
+      DimensionID: 16 | BusinessName: 'Product Category' | Table: 'Products' | Column: 'CategoryName'
+      Matched Question Tokens: ['wear'] | Matched Value Tokens: ['mens', 'wear']
+      Score Components: TypePriority=1, Conf=0.900
+
+[PHASE 2] CONSOLIDATED MATCHES (Count: 3):
+  [1] Value: 'Women's Wear' (Normalized: 'womens wear') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 15 | BusinessName: 'Product Category' | Table: 'Products' | Column: 'CategoryName'
+      Matched Question Tokens: ['women', 'wear'] | Matched Value Tokens: ['womens', 'wear']
+      Score Components: TypePriority=2, Conf=0.950
+  [2] Value: 'Children Wear' (Normalized: 'children wear') | MatchType: FUZZY | Conf: 0.900
+      DimensionID: 14 | BusinessName: 'Product Category' | Table: 'Products' | Column: 'CategoryName'
+      Matched Question Tokens: ['wear'] | Matched Value Tokens: ['children', 'wear']
+      Score Components: TypePriority=1, Conf=0.900
+  [3] Value: 'Men's Wear' (Normalized: 'mens wear') | MatchType: FUZZY | Conf: 0.900
+      DimensionID: 16 | BusinessName: 'Product Category' | Table: 'Products' | Column: 'CategoryName'
+      Matched Question Tokens: ['wear'] | Matched Value Tokens: ['mens', 'wear']
+      Score Components: TypePriority=1, Conf=0.900
+
+[PHASE 3] CONTAINMENT-SURVIVING MATCHES (Count: 1):
+  [1] Value: 'Women's Wear' (Normalized: 'womens wear') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 15 | BusinessName: 'Product Category' | Table: 'Products' | Column: 'CategoryName'
+      Matched Question Tokens: ['women', 'wear'] | Matched Value Tokens: ['womens', 'wear']
+      Score Components: TypePriority=2, Conf=0.950
+
+[PHASE 4] FINAL RANKED MATCHES (Count: 1):
+  [1] Value: 'Women's Wear' (Normalized: 'womens wear') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 15 | BusinessName: 'Product Category' | Table: 'Products' | Column: 'CategoryName'
+      Matched Question Tokens: ['women', 'wear'] | Matched Value Tokens: ['womens', 'wear']
+      Score Components: TypePriority=2, Conf=0.950
+
+[PHASE 5] AMBIGUITY CLASSIFIER OUTPUT:
+  Status: SINGLE_MATCH
+  Dominant Match: 'Women's Wear'
+
+  Candidates entering classification:
+  [1] Choice Value: 'Women's Wear' | Coverage: 2 | Covered query tokens: ['women', 'wear']
+  - Value: 'Women's Wear' (Normalized: 'womens wear') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 15 | BusinessName: 'Product Category' | Table: 'Products' | Column: 'CategoryName'
+      Matched Question Tokens: ['women', 'wear'] | Matched Value Tokens: ['womens', 'wear']
+      Score Components: TypePriority=2, Conf=0.950
+
+================================================================================
+FORENSIC RANKING TRACE FOR QUESTION: 'mens wear'
+================================================================================
+
+[PHASE 1] RAW MATCHES (Count: 6):
+  [1] Value: 'Men's Wear' (Normalized: 'mens wear') | MatchType: EXACT | Conf: 1.000
+      DimensionID: 16 | BusinessName: 'Product Category' | Table: 'Products' | Column: 'CategoryName'
+      Matched Question Tokens: ['mens', 'wear'] | Matched Value Tokens: ['mens', 'wear']
+      Score Components: TypePriority=4, Conf=1.000
+  [2] Value: 'Men's Wear' (Normalized: 'mens wear') | MatchType: NORMALIZED | Conf: 0.980
+      DimensionID: 16 | BusinessName: 'Product Category' | Table: 'Products' | Column: 'CategoryName'
+      Matched Question Tokens: ['mens', 'wear'] | Matched Value Tokens: ['mens', 'wear']
+      Score Components: TypePriority=3, Conf=0.980
+  [3] Value: 'Men's Wear' (Normalized: 'mens wear') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 16 | BusinessName: 'Product Category' | Table: 'Products' | Column: 'CategoryName'
+      Matched Question Tokens: ['mens', 'wear'] | Matched Value Tokens: ['mens', 'wear']
+      Score Components: TypePriority=2, Conf=0.950
+  [4] Value: 'Men's Wear' (Normalized: 'mens wear') | MatchType: FUZZY | Conf: 0.947
+      DimensionID: 16 | BusinessName: 'Product Category' | Table: 'Products' | Column: 'CategoryName'
+      Matched Question Tokens: ['mens', 'wear'] | Matched Value Tokens: ['mens', 'wear']
+      Score Components: TypePriority=1, Conf=0.947
+  [5] Value: 'Women's Wear' (Normalized: 'womens wear') | MatchType: FUZZY | Conf: 0.900
+      DimensionID: 15 | BusinessName: 'Product Category' | Table: 'Products' | Column: 'CategoryName'
+      Matched Question Tokens: ['wear'] | Matched Value Tokens: ['womens', 'wear']
+      Score Components: TypePriority=1, Conf=0.900
+  [6] Value: 'Children Wear' (Normalized: 'children wear') | MatchType: FUZZY | Conf: 0.900
+      DimensionID: 14 | BusinessName: 'Product Category' | Table: 'Products' | Column: 'CategoryName'
+      Matched Question Tokens: ['wear'] | Matched Value Tokens: ['children', 'wear']
+      Score Components: TypePriority=1, Conf=0.900
+
+[PHASE 2] CONSOLIDATED MATCHES (Count: 3):
+  [1] Value: 'Men's Wear' (Normalized: 'mens wear') | MatchType: EXACT | Conf: 1.000
+      DimensionID: 16 | BusinessName: 'Product Category' | Table: 'Products' | Column: 'CategoryName'
+      Matched Question Tokens: ['mens', 'wear'] | Matched Value Tokens: ['mens', 'wear']
+      Score Components: TypePriority=4, Conf=1.000
+  [2] Value: 'Women's Wear' (Normalized: 'womens wear') | MatchType: FUZZY | Conf: 0.900
+      DimensionID: 15 | BusinessName: 'Product Category' | Table: 'Products' | Column: 'CategoryName'
+      Matched Question Tokens: ['wear'] | Matched Value Tokens: ['womens', 'wear']
+      Score Components: TypePriority=1, Conf=0.900
+  [3] Value: 'Children Wear' (Normalized: 'children wear') | MatchType: FUZZY | Conf: 0.900
+      DimensionID: 14 | BusinessName: 'Product Category' | Table: 'Products' | Column: 'CategoryName'
+      Matched Question Tokens: ['wear'] | Matched Value Tokens: ['children', 'wear']
+      Score Components: TypePriority=1, Conf=0.900
+
+[PHASE 3] CONTAINMENT-SURVIVING MATCHES (Count: 1):
+  [1] Value: 'Men's Wear' (Normalized: 'mens wear') | MatchType: EXACT | Conf: 1.000
+      DimensionID: 16 | BusinessName: 'Product Category' | Table: 'Products' | Column: 'CategoryName'
+      Matched Question Tokens: ['mens', 'wear'] | Matched Value Tokens: ['mens', 'wear']
+      Score Components: TypePriority=4, Conf=1.000
+
+[PHASE 4] FINAL RANKED MATCHES (Count: 1):
+  [1] Value: 'Men's Wear' (Normalized: 'mens wear') | MatchType: EXACT | Conf: 1.000
+      DimensionID: 16 | BusinessName: 'Product Category' | Table: 'Products' | Column: 'CategoryName'
+      Matched Question Tokens: ['mens', 'wear'] | Matched Value Tokens: ['mens', 'wear']
+      Score Components: TypePriority=4, Conf=1.000
+
+[PHASE 5] AMBIGUITY CLASSIFIER OUTPUT:
+  Status: SINGLE_MATCH
+  Dominant Match: 'Men's Wear'
+
+  Candidates entering classification:
+  [1] Choice Value: 'Men's Wear' | Coverage: 2 | Covered query tokens: ['mens', 'wear']
+  - Value: 'Men's Wear' (Normalized: 'mens wear') | MatchType: EXACT | Conf: 1.000
+      DimensionID: 16 | BusinessName: 'Product Category' | Table: 'Products' | Column: 'CategoryName'
+      Matched Question Tokens: ['mens', 'wear'] | Matched Value Tokens: ['mens', 'wear']
+      Score Components: TypePriority=4, Conf=1.000
+
+================================================================================
+FORENSIC RANKING TRACE FOR QUESTION: 't shirt'
+================================================================================
+
+[PHASE 1] RAW MATCHES (Count: 11):
+  [1] Value: 'T-Shirt' (Normalized: 't shirt') | MatchType: EXACT | Conf: 1.000
+      DimensionID: 12 | BusinessName: 'Product Category' | Table: 'Products' | Column: 'CategoryName'
+      Matched Question Tokens: ['t', 'shirt'] | Matched Value Tokens: ['t', 'shirt']
+      Score Components: TypePriority=4, Conf=1.000
+  [2] Value: 'T-Shirt' (Normalized: 't shirt') | MatchType: NORMALIZED | Conf: 0.980
+      DimensionID: 12 | BusinessName: 'Product Category' | Table: 'Products' | Column: 'CategoryName'
+      Matched Question Tokens: ['t', 'shirt'] | Matched Value Tokens: ['t', 'shirt']
+      Score Components: TypePriority=3, Conf=0.980
+  [3] Value: 'Shirts' (Normalized: 'shirts') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 7 | BusinessName: 'Product Group' | Table: 'Products' | Column: 'ProductGroup'
+      Matched Question Tokens: ['t', 'shirt'] | Matched Value Tokens: ['shirts']
+      Score Components: TypePriority=2, Conf=0.950
+  [4] Value: 'Viveagham Colour Shirt' (Normalized: 'viveagham colour shirt') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 11 | BusinessName: 'Brand' | Table: 'Products' | Column: 'Brand'
+      Matched Question Tokens: ['t', 'shirt'] | Matched Value Tokens: ['viveagham', 'colour', 'shirt']
+      Score Components: TypePriority=2, Conf=0.950
+  [5] Value: 'T-Shirt' (Normalized: 't shirt') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 12 | BusinessName: 'Product Category' | Table: 'Products' | Column: 'CategoryName'
+      Matched Question Tokens: ['t', 'shirt'] | Matched Value Tokens: ['t', 'shirt']
+      Score Components: TypePriority=2, Conf=0.950
+  [6] Value: 'T-Shirt' (Normalized: 't shirt') | MatchType: FUZZY | Conf: 0.900
+      DimensionID: 12 | BusinessName: 'Product Category' | Table: 'Products' | Column: 'CategoryName'
+      Matched Question Tokens: ['t'] | Matched Value Tokens: ['t', 'shirt']
+      Score Components: TypePriority=1, Conf=0.900
+  [7] Value: 'Ramraj Shirt' (Normalized: 'ramraj shirt') | MatchType: FUZZY | Conf: 0.900
+      DimensionID: 9 | BusinessName: 'Brand' | Table: 'Products' | Column: 'Brand'
+      Matched Question Tokens: ['shirt'] | Matched Value Tokens: ['ramraj', 'shirt']
+      Score Components: TypePriority=1, Conf=0.900
+  [8] Value: 'Viveagham Colour Shirt' (Normalized: 'viveagham colour shirt') | MatchType: FUZZY | Conf: 0.900
+      DimensionID: 11 | BusinessName: 'Brand' | Table: 'Products' | Column: 'Brand'
+      Matched Question Tokens: ['shirt'] | Matched Value Tokens: ['viveagham', 'colour', 'shirt']
+      Score Components: TypePriority=1, Conf=0.900
+  [9] Value: 'Shirts' (Normalized: 'shirts') | MatchType: FUZZY | Conf: 0.909
+      DimensionID: 7 | BusinessName: 'Product Group' | Table: 'Products' | Column: 'ProductGroup'
+      Matched Question Tokens: ['shirt'] | Matched Value Tokens: ['shirts']
+      Score Components: TypePriority=1, Conf=0.909
+  [10] Value: 'Formal Shirts' (Normalized: 'formal shirts') | MatchType: FUZZY | Conf: 0.900
+      DimensionID: 8 | BusinessName: 'Product Group' | Table: 'Products' | Column: 'ProductGroup'
+      Matched Question Tokens: ['shirt'] | Matched Value Tokens: ['formal', 'shirts']
+      Score Components: TypePriority=1, Conf=0.900
+  [11] Value: 'Red Shirt' (Normalized: 'red shirt') | MatchType: FUZZY | Conf: 0.900
+      DimensionID: 10 | BusinessName: 'Brand' | Table: 'Products' | Column: 'Brand'
+      Matched Question Tokens: ['shirt'] | Matched Value Tokens: ['red', 'shirt']
+      Score Components: TypePriority=1, Conf=0.900
+
+[PHASE 2] CONSOLIDATED MATCHES (Count: 6):
+  [1] Value: 'T-Shirt' (Normalized: 't shirt') | MatchType: EXACT | Conf: 1.000
+      DimensionID: 12 | BusinessName: 'Product Category' | Table: 'Products' | Column: 'CategoryName'
+      Matched Question Tokens: ['t', 'shirt'] | Matched Value Tokens: ['t', 'shirt']
+      Score Components: TypePriority=4, Conf=1.000
+  [2] Value: 'Shirts' (Normalized: 'shirts') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 7 | BusinessName: 'Product Group' | Table: 'Products' | Column: 'ProductGroup'
+      Matched Question Tokens: ['t', 'shirt'] | Matched Value Tokens: ['shirts']
+      Score Components: TypePriority=2, Conf=0.950
+  [3] Value: 'Viveagham Colour Shirt' (Normalized: 'viveagham colour shirt') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 11 | BusinessName: 'Brand' | Table: 'Products' | Column: 'Brand'
+      Matched Question Tokens: ['t', 'shirt'] | Matched Value Tokens: ['viveagham', 'colour', 'shirt']
+      Score Components: TypePriority=2, Conf=0.950
+  [4] Value: 'Ramraj Shirt' (Normalized: 'ramraj shirt') | MatchType: FUZZY | Conf: 0.900
+      DimensionID: 9 | BusinessName: 'Brand' | Table: 'Products' | Column: 'Brand'
+      Matched Question Tokens: ['shirt'] | Matched Value Tokens: ['ramraj', 'shirt']
+      Score Components: TypePriority=1, Conf=0.900
+  [5] Value: 'Formal Shirts' (Normalized: 'formal shirts') | MatchType: FUZZY | Conf: 0.900
+      DimensionID: 8 | BusinessName: 'Product Group' | Table: 'Products' | Column: 'ProductGroup'
+      Matched Question Tokens: ['shirt'] | Matched Value Tokens: ['formal', 'shirts']
+      Score Components: TypePriority=1, Conf=0.900
+  [6] Value: 'Red Shirt' (Normalized: 'red shirt') | MatchType: FUZZY | Conf: 0.900
+      DimensionID: 10 | BusinessName: 'Brand' | Table: 'Products' | Column: 'Brand'
+      Matched Question Tokens: ['shirt'] | Matched Value Tokens: ['red', 'shirt']
+      Score Components: TypePriority=1, Conf=0.900
+
+[PHASE 3] CONTAINMENT-SURVIVING MATCHES (Count: 1):
+  [1] Value: 'T-Shirt' (Normalized: 't shirt') | MatchType: EXACT | Conf: 1.000
+      DimensionID: 12 | BusinessName: 'Product Category' | Table: 'Products' | Column: 'CategoryName'
+      Matched Question Tokens: ['t', 'shirt'] | Matched Value Tokens: ['t', 'shirt']
+      Score Components: TypePriority=4, Conf=1.000
+
+[PHASE 4] FINAL RANKED MATCHES (Count: 1):
+  [1] Value: 'T-Shirt' (Normalized: 't shirt') | MatchType: EXACT | Conf: 1.000
+      DimensionID: 12 | BusinessName: 'Product Category' | Table: 'Products' | Column: 'CategoryName'
+      Matched Question Tokens: ['t', 'shirt'] | Matched Value Tokens: ['t', 'shirt']
+      Score Components: TypePriority=4, Conf=1.000
+
+[PHASE 5] AMBIGUITY CLASSIFIER OUTPUT:
+  Status: SINGLE_MATCH
+  Dominant Match: 'T-Shirt'
+
+  Candidates entering classification:
+  [1] Choice Value: 'T-Shirt' | Coverage: 2 | Covered query tokens: ['t', 'shirt']
+  - Value: 'T-Shirt' (Normalized: 't shirt') | MatchType: EXACT | Conf: 1.000
+      DimensionID: 12 | BusinessName: 'Product Category' | Table: 'Products' | Column: 'CategoryName'
+      Matched Question Tokens: ['t', 'shirt'] | Matched Value Tokens: ['t', 'shirt']
+      Score Components: TypePriority=4, Conf=1.000
+
+================================================================================
+FORENSIC RANKING TRACE FOR QUESTION: 'red shirt'
+================================================================================
+
+[PHASE 1] RAW MATCHES (Count: 10):
+  [1] Value: 'Red Shirt' (Normalized: 'red shirt') | MatchType: EXACT | Conf: 1.000
+      DimensionID: 10 | BusinessName: 'Brand' | Table: 'Products' | Column: 'Brand'
+      Matched Question Tokens: ['red', 'shirt'] | Matched Value Tokens: ['red', 'shirt']
+      Score Components: TypePriority=4, Conf=1.000
+  [2] Value: 'Red Shirt' (Normalized: 'red shirt') | MatchType: NORMALIZED | Conf: 0.980
+      DimensionID: 10 | BusinessName: 'Brand' | Table: 'Products' | Column: 'Brand'
+      Matched Question Tokens: ['red', 'shirt'] | Matched Value Tokens: ['red', 'shirt']
+      Score Components: TypePriority=3, Conf=0.980
+  [3] Value: 'Shirts' (Normalized: 'shirts') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 7 | BusinessName: 'Product Group' | Table: 'Products' | Column: 'ProductGroup'
+      Matched Question Tokens: ['red', 'shirt'] | Matched Value Tokens: ['shirts']
+      Score Components: TypePriority=2, Conf=0.950
+  [4] Value: 'Red Shirt' (Normalized: 'red shirt') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 10 | BusinessName: 'Brand' | Table: 'Products' | Column: 'Brand'
+      Matched Question Tokens: ['red', 'shirt'] | Matched Value Tokens: ['red', 'shirt']
+      Score Components: TypePriority=2, Conf=0.950
+  [5] Value: 'Viveagham Colour Shirt' (Normalized: 'viveagham colour shirt') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 11 | BusinessName: 'Brand' | Table: 'Products' | Column: 'Brand'
+      Matched Question Tokens: ['red', 'shirt'] | Matched Value Tokens: ['viveagham', 'colour', 'shirt']
+      Score Components: TypePriority=2, Conf=0.950
+  [6] Value: 'Red Shirt' (Normalized: 'red shirt') | MatchType: FUZZY | Conf: 1.000
+      DimensionID: 10 | BusinessName: 'Brand' | Table: 'Products' | Column: 'Brand'
+      Matched Question Tokens: ['red', 'shirt'] | Matched Value Tokens: ['red', 'shirt']
+      Score Components: TypePriority=1, Conf=1.000
+  [7] Value: 'Viveagham Colour Shirt' (Normalized: 'viveagham colour shirt') | MatchType: FUZZY | Conf: 0.900
+      DimensionID: 11 | BusinessName: 'Brand' | Table: 'Products' | Column: 'Brand'
+      Matched Question Tokens: ['shirt'] | Matched Value Tokens: ['viveagham', 'colour', 'shirt']
+      Score Components: TypePriority=1, Conf=0.900
+  [8] Value: 'Shirts' (Normalized: 'shirts') | MatchType: FUZZY | Conf: 0.909
+      DimensionID: 7 | BusinessName: 'Product Group' | Table: 'Products' | Column: 'ProductGroup'
+      Matched Question Tokens: ['shirt'] | Matched Value Tokens: ['shirts']
+      Score Components: TypePriority=1, Conf=0.909
+  [9] Value: 'Formal Shirts' (Normalized: 'formal shirts') | MatchType: FUZZY | Conf: 0.900
+      DimensionID: 8 | BusinessName: 'Product Group' | Table: 'Products' | Column: 'ProductGroup'
+      Matched Question Tokens: ['shirt'] | Matched Value Tokens: ['formal', 'shirts']
+      Score Components: TypePriority=1, Conf=0.900
+  [10] Value: 'Ramraj Shirt' (Normalized: 'ramraj shirt') | MatchType: FUZZY | Conf: 0.900
+      DimensionID: 9 | BusinessName: 'Brand' | Table: 'Products' | Column: 'Brand'
+      Matched Question Tokens: ['shirt'] | Matched Value Tokens: ['ramraj', 'shirt']
+      Score Components: TypePriority=1, Conf=0.900
+
+[PHASE 2] CONSOLIDATED MATCHES (Count: 5):
+  [1] Value: 'Red Shirt' (Normalized: 'red shirt') | MatchType: EXACT | Conf: 1.000
+      DimensionID: 10 | BusinessName: 'Brand' | Table: 'Products' | Column: 'Brand'
+      Matched Question Tokens: ['red', 'shirt'] | Matched Value Tokens: ['red', 'shirt']
+      Score Components: TypePriority=4, Conf=1.000
+  [2] Value: 'Shirts' (Normalized: 'shirts') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 7 | BusinessName: 'Product Group' | Table: 'Products' | Column: 'ProductGroup'
+      Matched Question Tokens: ['red', 'shirt'] | Matched Value Tokens: ['shirts']
+      Score Components: TypePriority=2, Conf=0.950
+  [3] Value: 'Viveagham Colour Shirt' (Normalized: 'viveagham colour shirt') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 11 | BusinessName: 'Brand' | Table: 'Products' | Column: 'Brand'
+      Matched Question Tokens: ['red', 'shirt'] | Matched Value Tokens: ['viveagham', 'colour', 'shirt']
+      Score Components: TypePriority=2, Conf=0.950
+  [4] Value: 'Formal Shirts' (Normalized: 'formal shirts') | MatchType: FUZZY | Conf: 0.900
+      DimensionID: 8 | BusinessName: 'Product Group' | Table: 'Products' | Column: 'ProductGroup'
+      Matched Question Tokens: ['shirt'] | Matched Value Tokens: ['formal', 'shirts']
+      Score Components: TypePriority=1, Conf=0.900
+  [5] Value: 'Ramraj Shirt' (Normalized: 'ramraj shirt') | MatchType: FUZZY | Conf: 0.900
+      DimensionID: 9 | BusinessName: 'Brand' | Table: 'Products' | Column: 'Brand'
+      Matched Question Tokens: ['shirt'] | Matched Value Tokens: ['ramraj', 'shirt']
+      Score Components: TypePriority=1, Conf=0.900
+
+[PHASE 3] CONTAINMENT-SURVIVING MATCHES (Count: 1):
+  [1] Value: 'Red Shirt' (Normalized: 'red shirt') | MatchType: EXACT | Conf: 1.000
+      DimensionID: 10 | BusinessName: 'Brand' | Table: 'Products' | Column: 'Brand'
+      Matched Question Tokens: ['red', 'shirt'] | Matched Value Tokens: ['red', 'shirt']
+      Score Components: TypePriority=4, Conf=1.000
+
+[PHASE 4] FINAL RANKED MATCHES (Count: 1):
+  [1] Value: 'Red Shirt' (Normalized: 'red shirt') | MatchType: EXACT | Conf: 1.000
+      DimensionID: 10 | BusinessName: 'Brand' | Table: 'Products' | Column: 'Brand'
+      Matched Question Tokens: ['red', 'shirt'] | Matched Value Tokens: ['red', 'shirt']
+      Score Components: TypePriority=4, Conf=1.000
+
+[PHASE 5] AMBIGUITY CLASSIFIER OUTPUT:
+  Status: SINGLE_MATCH
+  Dominant Match: 'Red Shirt'
+
+  Candidates entering classification:
+  [1] Choice Value: 'Red Shirt' | Coverage: 2 | Covered query tokens: ['red', 'shirt']
+  - Value: 'Red Shirt' (Normalized: 'red shirt') | MatchType: EXACT | Conf: 1.000
+      DimensionID: 10 | BusinessName: 'Brand' | Table: 'Products' | Column: 'Brand'
+      Matched Question Tokens: ['red', 'shirt'] | Matched Value Tokens: ['red', 'shirt']
+      Score Components: TypePriority=4, Conf=1.000
+
+================================================================================
+FORENSIC RANKING TRACE FOR QUESTION: 'cotton'
+================================================================================
+
+[PHASE 1] RAW MATCHES (Count: 6):
+  [1] Value: 'Cotton' (Normalized: 'cotton') | MatchType: EXACT | Conf: 1.000
+      DimensionID: 18 | BusinessName: 'Fabric' | Table: 'Products' | Column: 'FabricType'
+      Matched Question Tokens: ['cotton'] | Matched Value Tokens: ['cotton']
+      Score Components: TypePriority=4, Conf=1.000
+  [2] Value: 'Cotton' (Normalized: 'cotton') | MatchType: NORMALIZED | Conf: 0.980
+      DimensionID: 18 | BusinessName: 'Fabric' | Table: 'Products' | Column: 'FabricType'
+      Matched Question Tokens: ['cotton'] | Matched Value Tokens: ['cotton']
+      Score Components: TypePriority=3, Conf=0.980
+  [3] Value: 'Cotton Pants' (Normalized: 'cotton pants') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 2 | BusinessName: 'Product Group' | Table: 'Products' | Column: 'ProductGroup'
+      Matched Question Tokens: ['cotton'] | Matched Value Tokens: ['cotton', 'pants']
+      Score Components: TypePriority=2, Conf=0.950
+  [4] Value: 'Cotton' (Normalized: 'cotton') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 18 | BusinessName: 'Fabric' | Table: 'Products' | Column: 'FabricType'
+      Matched Question Tokens: ['cotton'] | Matched Value Tokens: ['cotton']
+      Score Components: TypePriority=2, Conf=0.950
+  [5] Value: 'Cotton' (Normalized: 'cotton') | MatchType: FUZZY | Conf: 1.000
+      DimensionID: 18 | BusinessName: 'Fabric' | Table: 'Products' | Column: 'FabricType'
+      Matched Question Tokens: ['cotton'] | Matched Value Tokens: ['cotton']
+      Score Components: TypePriority=1, Conf=1.000
+  [6] Value: 'Cotton Pants' (Normalized: 'cotton pants') | MatchType: FUZZY | Conf: 0.900
+      DimensionID: 2 | BusinessName: 'Product Group' | Table: 'Products' | Column: 'ProductGroup'
+      Matched Question Tokens: ['cotton'] | Matched Value Tokens: ['cotton', 'pants']
+      Score Components: TypePriority=1, Conf=0.900
+
+[PHASE 2] CONSOLIDATED MATCHES (Count: 2):
+  [1] Value: 'Cotton' (Normalized: 'cotton') | MatchType: EXACT | Conf: 1.000
+      DimensionID: 18 | BusinessName: 'Fabric' | Table: 'Products' | Column: 'FabricType'
+      Matched Question Tokens: ['cotton'] | Matched Value Tokens: ['cotton']
+      Score Components: TypePriority=4, Conf=1.000
+  [2] Value: 'Cotton Pants' (Normalized: 'cotton pants') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 2 | BusinessName: 'Product Group' | Table: 'Products' | Column: 'ProductGroup'
+      Matched Question Tokens: ['cotton'] | Matched Value Tokens: ['cotton', 'pants']
+      Score Components: TypePriority=2, Conf=0.950
+
+[PHASE 3] CONTAINMENT-SURVIVING MATCHES (Count: 2):
+  [1] Value: 'Cotton Pants' (Normalized: 'cotton pants') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 2 | BusinessName: 'Product Group' | Table: 'Products' | Column: 'ProductGroup'
+      Matched Question Tokens: ['cotton'] | Matched Value Tokens: ['cotton', 'pants']
+      Score Components: TypePriority=2, Conf=0.950
+  [2] Value: 'Cotton' (Normalized: 'cotton') | MatchType: EXACT | Conf: 1.000
+      DimensionID: 18 | BusinessName: 'Fabric' | Table: 'Products' | Column: 'FabricType'
+      Matched Question Tokens: ['cotton'] | Matched Value Tokens: ['cotton']
+      Score Components: TypePriority=4, Conf=1.000
+
+[PHASE 4] FINAL RANKED MATCHES (Count: 2):
+  [1] Value: 'Cotton' (Normalized: 'cotton') | MatchType: EXACT | Conf: 1.000
+      DimensionID: 18 | BusinessName: 'Fabric' | Table: 'Products' | Column: 'FabricType'
+      Matched Question Tokens: ['cotton'] | Matched Value Tokens: ['cotton']
+      Score Components: TypePriority=4, Conf=1.000
+  [2] Value: 'Cotton Pants' (Normalized: 'cotton pants') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 2 | BusinessName: 'Product Group' | Table: 'Products' | Column: 'ProductGroup'
+      Matched Question Tokens: ['cotton'] | Matched Value Tokens: ['cotton', 'pants']
+      Score Components: TypePriority=2, Conf=0.950
+
+[PHASE 5] AMBIGUITY CLASSIFIER OUTPUT:
+  Status: WEAK_AMBIGUITY
+  Dominant Match: 'Cotton'
+
+  Candidates entering classification:
+  [1] Choice Value: 'Cotton' | Coverage: 1 | Covered query tokens: ['cotton']
+  - Value: 'Cotton' (Normalized: 'cotton') | MatchType: EXACT | Conf: 1.000
+      DimensionID: 18 | BusinessName: 'Fabric' | Table: 'Products' | Column: 'FabricType'
+      Matched Question Tokens: ['cotton'] | Matched Value Tokens: ['cotton']
+      Score Components: TypePriority=4, Conf=1.000
+  [2] Choice Value: 'Cotton Pants' | Coverage: 1 | Covered query tokens: ['cotton']
+  - Value: 'Cotton Pants' (Normalized: 'cotton pants') | MatchType: SINGULAR_PLURAL | Conf: 0.950
+      DimensionID: 2 | BusinessName: 'Product Group' | Table: 'Products' | Column: 'ProductGroup'
+      Matched Question Tokens: ['cotton'] | Matched Value Tokens: ['cotton', 'pants']
+      Score Components: TypePriority=2, Conf=0.950
+
+================================================================================
+FORENSIC RANKING TRACE FOR QUESTION: 'sales'
+================================================================================
+
+[PHASE 1] RAW MATCHES (Count: 0):
+  None
+
+[PHASE 2] CONSOLIDATED MATCHES (Count: 0):
+  None
+
+[PHASE 3] CONTAINMENT-SURVIVING MATCHES (Count: 0):
+  None
+
+[PHASE 4] FINAL RANKED MATCHES (Count: 0):
+  None
+
+[PHASE 5] AMBIGUITY CLASSIFIER OUTPUT:
+  Status: NO_MATCH
+  Dominant Match: None
+
+  Candidates entering classification:
+
+================================================================================
+FORENSIC RANKING TRACE FOR QUESTION: 'show sales'
+================================================================================
+
+[PHASE 1] RAW MATCHES (Count: 0):
+  None
+
+[PHASE 2] CONSOLIDATED MATCHES (Count: 0):
+  None
+
+[PHASE 3] CONTAINMENT-SURVIVING MATCHES (Count: 0):
+  None
+
+[PHASE 4] FINAL RANKED MATCHES (Count: 0):
+  None
+
+[PHASE 5] AMBIGUITY CLASSIFIER OUTPUT:
+  Status: NO_MATCH
+  Dominant Match: None
+
+  Candidates entering classification:
+
+================================================================================
+FORENSIC RANKING TRACE FOR QUESTION: 'total sales'
+================================================================================
+
+[PHASE 1] RAW MATCHES (Count: 0):
+  None
+
+[PHASE 2] CONSOLIDATED MATCHES (Count: 0):
+  None
+
+[PHASE 3] CONTAINMENT-SURVIVING MATCHES (Count: 0):
+  None
+
+[PHASE 4] FINAL RANKED MATCHES (Count: 0):
+  None
+
+[PHASE 5] AMBIGUITY CLASSIFIER OUTPUT:
+  Status: NO_MATCH
+  Dominant Match: None
+
+  Candidates entering classification:
+
+================================================================================
+RUNNING DETERMINISTIC SYNTHETIC RANKING CASES
+================================================================================
+
+Case A (EXACT 1.00 vs FUZZY 0.90): First ranked = 'Linen Pant' (Match Type: EXACT)
+Case B (NORMALIZED 1.00 vs SINGULAR_PLURAL 0.95): First ranked = 'Linen Pant' (Match Type: NORMALIZED)
+Case C (SINGULAR_PLURAL 0.95 vs FUZZY 0.90): First ranked = 'Pants' (Match Type: SINGULAR_PLURAL)
+Case D (FUZZY 0.92 vs FUZZY 0.86 same coverage): First ranked = 'Linen Pant' (Confidence: 0.92)
+Case E (FUZZY 0.90 cov 2/2 vs FUZZY 0.95 cov 1/2): First ranked = 'Ramraj Pant' (Coverage logic checked)
+Case F (Same Dimension alternatives equal confidence): Status = STRONG_AMBIGUITY, candidates = ['Linen Pant', 'Ramraj Pant']
+Case G (Cross Dimension): Status = STRONG_AMBIGUITY, dimensions = ['Prod Grp2', 'Brand']
+Case H (Duplicate same value same dimension): Consolidated count = 1 (Value: 'Pants')
+Case I (Same value different dimensions): Consolidated count = 2 (Dimensions: ['Category1', 'Category2'])
+Case J (Disjoint partial matches): Ranked order = ['Formal Socks', 'Viveagham Colour Shirt']

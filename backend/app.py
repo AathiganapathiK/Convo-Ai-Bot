@@ -365,6 +365,13 @@ def ask_question(
     request_start_time = time.time()
     active_conn = ConnectionService.get_active_connection(user["company_id"])
     conn_id = active_conn["connection_id"] if active_conn else "None"
+
+    # TEMP_PIPELINE_TRACE_REMOVE_LATER
+    try:
+        from semantic.diagnostic_trace import PipelineDiagnosticTracer
+        PipelineDiagnosticTracer.start_trace(question, session_id=session_id, connection_id=conn_id)
+    except Exception:
+        pass
     
     print("\n========== REQUEST START ==========")
     print(f"Question: {question}")
@@ -392,32 +399,232 @@ def ask_question(
             {"session_id": session_id, "message_text": question},
         )
 
-    # Classify intent
-    intent = classify_intent(question, company_id=user["company_id"])
+    # --- Clarification Check ---
+    from services.conversation_memory import (
+        get_pending_clarification,
+        set_pending_clarification,
+        clear_pending_clarification
+    )
+    
+    pending_state = get_pending_clarification(user["employee_id"], str(session_id))
+    selected_candidate = None
+    original_question = None
+    is_clarification_resume = False
 
-    if intent == "GENERAL":
-        response_text: str = generate_general_response(question)
-        _save_chat_message(
-            session_id=session_id,
-            role="ASSISTANT",
-            message_text=response_text,
-        )
-        audit_log(
-            user_id=user["employee_id"],
-            action_type=AuditAction.CHAT_QUERY,
-            resource="/ask",
-            query_text=question,
-            status="SUCCESS",
-            ip_address=client_ip,
-            metadata={"intent": "GENERAL"},
-        )
-        return {"type": "GENERAL", "message": response_text}
+    if pending_state:
+        options_map = pending_state["options"]
+        original_question = pending_state["original_question"]
+        
+        # Clean text for normalization
+        import re
+        q_clean = question.strip().lower()
+        
+        # Replace word numbers with digits
+        num_mapping = {
+            "one": "1", "first": "1",
+            "two": "2", "second": "2",
+            "three": "3", "third": "3",
+            "four": "4", "fourth": "4",
+            "five": "5", "fifth": "5"
+        }
+        for word_num, digit in num_mapping.items():
+            q_clean = re.sub(rf"\b{word_num}\b", digit, q_clean)
+            
+        matched_options = []
+        
+        # 1. Exact option number
+        digit_matches = re.findall(r'\b(?:option|number|no\.?|choice|select|want)?\s*(\d+)\b', q_clean)
+        if not digit_matches:
+            digit_matches = re.findall(r'\b(\d+)\b', q_clean)
+            
+        # Ensure we only matched a single unique option ID
+        if len(set(digit_matches)) == 1 and digit_matches[0] in options_map:
+            matched_options.append(options_map[digit_matches[0]])
+            
+        if not matched_options:
+            # Check if there is text inside quotes (single or double) in the user question
+            quoted_match = re.search(r"['\"](.*?)['\"]", question)
+            if quoted_match:
+                q_extracted = quoted_match.group(1).strip().lower()
+            else:
+                # Clean conversational prefixes and dimension labels
+                q_extracted = q_clean
+                fillers = ["i meant", "choose", "select", "want", "like", "use", "mean", "please", "option"]
+                for filler in fillers:
+                    q_extracted = re.sub(rf"\b{filler}\b", "", q_extracted)
+                
+                # Strip dimension names / business names of the options
+                dim_names = set()
+                for opt in options_map.values():
+                    if opt.get("dimension"):
+                        dim_names.add(opt["dimension"].lower())
+                    if opt.get("business_name"):
+                        dim_names.add(opt["business_name"].lower())
+                
+                for dim in dim_names:
+                    escaped_dim = re.escape(dim)
+                    q_extracted = re.sub(rf"\b{escaped_dim}\b", "", q_extracted)
+                
+                # Clean up any residual quotes and multiple spaces
+                q_extracted = q_extracted.replace("'", "").replace('"', "")
+                q_extracted = re.sub(r"\s+", " ", q_extracted).strip()
+
+            # 2 & 3. Normalized / Case-insensitive exact displayed value
+            for opt in options_map.values():
+                val_norm = opt["value"].lower().replace("'", "").replace('"', "").strip()
+                if q_extracted == val_norm:
+                    matched_options.append(opt)
+                    
+            # 4. Unique normalized prefix
+            if not matched_options:
+                for opt in options_map.values():
+                    val_norm = opt["value"].lower().replace("'", "").replace('"', "").strip()
+                    if val_norm.startswith(q_extracted) and len(q_extracted) > 0:
+                        matched_options.append(opt)
+                    
+        # Handle matches
+        if len(matched_options) == 1:
+            selected_candidate = matched_options[0]
+            # Verify CLS
+            from security.cls_engine import get_forbidden_columns
+            forbidden_cols = get_forbidden_columns(user.get("role", ""))
+            target_col = selected_candidate.get("column_name")
+            if target_col and target_col.lower() in [c.lower() for c in forbidden_cols]:
+                from core.exceptions import CLSException
+                ex = CLSException(f"Access denied: column '{target_col}' is restricted.")
+                _save_chat_message(
+                    session_id=session_id,
+                    role="ASSISTANT",
+                    message_text=ex.message,
+                    result_data=json.dumps(ex.to_dict())
+                )
+                return JSONResponse(
+                    status_code=403,
+                    content=ex.to_dict()
+                )
+            
+            question = original_question
+            is_clarification_resume = True
+            # TEMP_PIPELINE_TRACE_REMOVE_LATER
+            try:
+                from semantic.diagnostic_trace import PipelineDiagnosticTracer
+                PipelineDiagnosticTracer.record_clarification(required=False, selected_candidate=selected_candidate)
+            except Exception:
+                pass
+            
+        elif len(matched_options) > 1:
+            # Ambiguous selection: return another clarification
+            from core.exceptions import AmbiguityException
+            options_list = list(options_map.values())
+            clean_options = []
+            for opt in options_list:
+                display_dim = opt.get("dimension") or opt.get("business_name") or opt.get("display_dimension")
+                clean_opt = {
+                    "option_id": opt["option_id"],
+                    "value": opt["value"]
+                }
+                if display_dim:
+                    clean_opt["display_dimension"] = display_dim
+                clean_options.append(clean_opt)
+            ex = AmbiguityException(
+                message="Your selection matches more than one option. Please choose one.",
+                details={
+                    "original_question": original_question,
+                    "ambiguity_type": pending_state.get("ambiguity_type", "SAME_DIMENSION"),
+                    "options": clean_options
+                }
+            )
+            # Re-save to keep timestamp fresh
+            set_pending_clarification(user["employee_id"], str(session_id), pending_state)
+            _save_chat_message(
+                session_id=session_id,
+                role="ASSISTANT",
+                message_text=ex.message,
+                result_data=json.dumps(ex.to_dict())
+            )
+            return JSONResponse(
+                status_code=400,
+                content=ex.to_dict()
+            )
+        else:
+            # Check for Intent Shift
+            has_semantic_intent = False
+            try:
+                active_conn = ConnectionService.get_active_connection(user["company_id"])
+                intent_res = SemanticResolver.resolve(active_conn["connection_id"], question)
+                has_semantic_intent = (
+                    len(intent_res.get("metric_objects", [])) > 0 or
+                    len(intent_res.get("dimension_objects", [])) > 0 or
+                    len(intent_res.get("value_matches", [])) > 0
+                )
+            except Exception:
+                pass
+                
+            if has_semantic_intent:
+                # Intent shift: discard the old pending clarification and process normally
+                clear_pending_clarification(user["employee_id"], str(session_id))
+            else:
+                # Invalid selection
+                from core.exceptions import AmbiguityException
+                options_list = list(options_map.values())
+                clean_options = []
+                for opt in options_list:
+                    display_dim = opt.get("dimension") or opt.get("business_name") or opt.get("display_dimension")
+                    clean_opt = {
+                        "option_id": opt["option_id"],
+                        "value": opt["value"]
+                    }
+                    if display_dim:
+                        clean_opt["display_dimension"] = display_dim
+                        clean_opt["dimension"] = display_dim
+                    clean_options.append(clean_opt)
+                ex = AmbiguityException(
+                    message="That selection isn't one of the available options. Please choose one of the listed options.",
+                    details={
+                        "original_question": original_question,
+                        "ambiguity_type": pending_state.get("ambiguity_type", "SAME_DIMENSION"),
+                        "options": clean_options
+                    }
+                )
+                _save_chat_message(
+                    session_id=session_id,
+                    role="ASSISTANT",
+                    message_text=ex.message,
+                    result_data=json.dumps(ex.to_dict())
+                )
+                return JSONResponse(
+                    status_code=400,
+                    content=ex.to_dict()
+                )
+
+    if not is_clarification_resume:
+        # Classify intent
+        intent = classify_intent(question, company_id=user["company_id"])
+
+        if intent == "GENERAL":
+            response_text: str = generate_general_response(question)
+            _save_chat_message(
+                session_id=session_id,
+                role="ASSISTANT",
+                message_text=response_text,
+            )
+            audit_log(
+                user_id=user["employee_id"],
+                action_type=AuditAction.CHAT_QUERY,
+                resource="/ask",
+                query_text=question,
+                status="SUCCESS",
+                ip_address=client_ip,
+                metadata={"intent": "GENERAL"},
+            )
+            return {"type": "GENERAL", "message": response_text}
 
     # --- Security Pipeline: RLS → CLS → Audit ---
     pipeline = SecurityPipeline(user, ip_address=client_ip)
 
     # Analytics path
-    history = get_history(user["employee_id"], str(session_id))
+    session_owner_emp_id = str(session_row["employee_id"]) if session_row else user["employee_id"]
+    history = get_history(session_owner_emp_id, str(session_id), company_id=user["company_id"])
 
     print("\n========== SESSION ==========")
     print(f"Session Loaded: True")
@@ -428,9 +635,56 @@ def ask_question(
 
     try:
 
-        sql_response = generate_sql_query(question, history, company_id=user["company_id"])
+        sql_response = generate_sql_query(
+            question, 
+            history, 
+            company_id=user["company_id"], 
+            clarified_candidate=selected_candidate
+        )
 
         if not sql_response.get("success", True):
+            # Check if this is a clarification required response
+            if sql_response.get("action") == "CLARIFICATION_REQUIRED":
+                error_details = sql_response.get("error", {}).get("details", {})
+                original_q = error_details.get("original_question")
+                options = error_details.get("options", [])
+                
+                # Convert options to dict mapped by option_id string
+                options_map = {str(opt["option_id"]): opt for opt in options}
+                
+                set_pending_clarification(
+                    user["employee_id"],
+                    str(session_id),
+                    {
+                        "original_question": original_q,
+                        "ambiguity_type": error_details.get("ambiguity_type", "SAME_DIMENSION"),
+                        "options": options_map
+                    }
+                )
+                
+                # Clean table_name, column_name and normalized_value from public response before returning!
+                clean_options = []
+                for opt in options:
+                    display_dim = opt.get("dimension") or opt.get("business_name") or opt.get("display_dimension")
+                    clean_opt = {
+                        "option_id": opt["option_id"],
+                        "value": opt["value"]
+                    }
+                    if display_dim:
+                        clean_opt["display_dimension"] = display_dim
+                    clean_options.append(clean_opt)
+                
+                # Update details with clean options
+                sql_response["error"]["details"]["options"] = clean_options
+
+                # TEMP_PIPELINE_TRACE_REMOVE_LATER
+                try:
+                    from semantic.diagnostic_trace import PipelineDiagnosticTracer
+                    PipelineDiagnosticTracer.record_clarification(required=True, candidate_count=len(options))
+                    PipelineDiagnosticTracer.print_final_trace()
+                except Exception:
+                    pass
+
             error_info = sql_response.get("error", {})
             error_message = "Error"
             error_dict = {}
@@ -453,6 +707,10 @@ def ask_question(
                 status_code=400,
                 content=sql_response
             )
+
+        # Successful continuation: clear the pending state
+        if pending_state and selected_candidate:
+            clear_pending_clarification(user["employee_id"], str(session_id))
 
         sql_query = cast(str,sql_response["sql_query"])
         sql_usage = sql_response["usage"]
@@ -505,6 +763,13 @@ def ask_question(
         print(f"Security Validation: {'Passed' if is_allowed else 'Failed: ' + cls_message}")
         print(f"Validation Result: {'PASS' if (is_allowed and is_valid) else 'FAIL'}")
         print("===================================")
+
+        # TEMP_PIPELINE_TRACE_REMOVE_LATER
+        try:
+            from semantic.diagnostic_trace import PipelineDiagnosticTracer
+            PipelineDiagnosticTracer.record_sql("validated", sql_query)
+        except Exception:
+            pass
 
         if not is_allowed:
             save_query_history(
@@ -625,6 +890,15 @@ def ask_question(
         print(f"Columns Returned: {keys_count}")
         print("==================================")
 
+        # TEMP_PIPELINE_TRACE_REMOVE_LATER
+        try:
+            from semantic.diagnostic_trace import PipelineDiagnosticTracer
+            PipelineDiagnosticTracer.record_sql("executed", sql_query)
+            PipelineDiagnosticTracer.record_timing("sql_execution", execution_time)
+            PipelineDiagnosticTracer.record_result(len(rows), col_count=keys_count, status="SUCCESS")
+        except Exception:
+            pass
+
         connection_id = active_connection["connection_id"]
 
         summary_response = generate_business_summary(
@@ -706,7 +980,50 @@ def ask_question(
             followup_questions=json.dumps(followup_questions)
         )
 
-        add_exchange(user["employee_id"], question, sql_query, str(session_id))
+        # Build semantic_context to store in conversation history
+        semantic_context = None
+        if semantic_result and isinstance(semantic_result, dict):
+            metric_objects = semantic_result.get("metric_objects", [])
+            dimension_objects = semantic_result.get("dimension_objects", [])
+            value_matches = semantic_result.get("value_matches", [])
+
+            dimensions = []
+            for d in dimension_objects:
+                dimensions.append({
+                    "dimension_name": d.get("dimension_name"),
+                    "business_name": d.get("business_name"),
+                    "table_name": d.get("table_name"),
+                    "column_name": d.get("column_name")
+                })
+                
+            resolved_values = []
+            for v in value_matches:
+                resolved_values.append({
+                    "dimension_id": v.get("dimension_id"),
+                    "business_name": v.get("business_name"),
+                    "table_name": v.get("table_name"),
+                    "column_name": v.get("column_name"),
+                    "value": v.get("value"),
+                    "normalized_value": v.get("normalized_value", v.get("value").lower() if v.get("value") else "")
+                })
+                
+            metrics = []
+            for m in metric_objects:
+                metrics.append({
+                    "metric_name": m.get("metric_name"),
+                    "business_name": m.get("business_name"),
+                    "table_name": m.get("table_name"),
+                    "column_name": m.get("column_name")
+                })
+
+            if dimensions or resolved_values or metrics:
+                semantic_context = {
+                    "metrics": metrics,
+                    "dimensions": dimensions,
+                    "resolved_values": resolved_values
+                }
+
+        add_exchange(user["employee_id"], question, sql_query, str(session_id), semantic_context=semantic_context)
 
         save_query_history(
             user["employee_id"], session_id, question,
@@ -754,6 +1071,15 @@ def ask_question(
                 sql_query=sql_query,
                 connection_id=active_connection["connection_id"]
             )
+
+        # TEMP_PIPELINE_TRACE_REMOVE_LATER
+        try:
+            from semantic.diagnostic_trace import PipelineDiagnosticTracer
+            PipelineDiagnosticTracer.record_timing("summary", sum_time_val)
+            PipelineDiagnosticTracer.record_context(history)
+            PipelineDiagnosticTracer.print_final_trace()
+        except Exception:
+            pass
 
         return {
             "sql_query":        sql_query,
