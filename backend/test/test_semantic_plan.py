@@ -2,6 +2,7 @@ import unittest
 import json
 import datetime
 from pydantic import ValidationError
+from semantic.semantic_plan_builder import SemanticPlanBuilder
 
 from semantic.models.semantic_plan import (
     SemanticPlan,
@@ -726,3 +727,361 @@ class TestSemanticPlanBuilderIntegration(unittest.TestCase):
         self.assertEqual(len(plan.metrics), 1)
         self.assertEqual(plan.metrics[0].business_name, "Sales")
         self.assertEqual(plan.metrics[0].column_name, "PY")
+
+    def test_scenario12_show_sales_this_year(self):
+        # "Show sales this year"
+        # Expected: dimensions = [], query_shape = SINGLE_VALUE
+        semantic_result = {
+            "metric_objects": [
+                {"metric_name": "cy", "business_name": "C Y", "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY", "column_name": "CY"}
+            ],
+            "dimension_objects": [
+                {"dimension_name": "createddate_year", "business_name": "createddate Year", "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY", "column_name": "createddate", "semantic_category": "TIME_YEAR"}
+            ]
+        }
+        from semantic.temporal.models import TimeContext, CurrentYearIntent
+        from semantic.temporal.enums import TimeIntentType, TimeStrategyType
+        time_context = TimeContext(
+            intent=CurrentYearIntent(intent_type=TimeIntentType.CURRENT_YEAR),
+            strategy=TimeStrategyType.SNAPSHOT,
+            snapshot_columns=["CY"]
+        )
+        plan = SemanticPlanBuilder.build(
+            question="Show sales this year",
+            semantic_result=semantic_result,
+            time_context=time_context
+        )
+        self.assertEqual(len(plan.metrics), 1)
+        self.assertEqual(plan.metrics[0].business_name, "Sales")
+        self.assertEqual(plan.metrics[0].column_name, "CY")
+        self.assertEqual(plan.dimensions, [])
+        from semantic.models.semantic_plan import SemanticQueryShape
+        self.assertEqual(plan.query_shape, SemanticQueryShape.SINGLE_VALUE)
+
+    def test_scenario13_show_previous_year_sales(self):
+        # "Show previous year sales"
+        # Expected: dimensions = [], query_shape = SINGLE_VALUE
+        semantic_result = {
+            "metric_objects": [
+                {"metric_name": "py", "business_name": "P Y", "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY", "column_name": "PY"}
+            ],
+            "dimension_objects": [
+                {"dimension_name": "createddate_year", "business_name": "createddate Year", "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY", "column_name": "createddate", "semantic_category": "TIME_YEAR"}
+            ]
+        }
+        from semantic.temporal.models import TimeContext, PreviousYearIntent
+        from semantic.temporal.enums import TimeIntentType, TimeStrategyType
+        time_context = TimeContext(
+            intent=PreviousYearIntent(intent_type=TimeIntentType.PREVIOUS_YEAR),
+            strategy=TimeStrategyType.SNAPSHOT,
+            snapshot_columns=["PY"]
+        )
+        plan = SemanticPlanBuilder.build(
+            question="Show previous year sales",
+            semantic_result=semantic_result,
+            time_context=time_context
+        )
+        self.assertEqual(len(plan.metrics), 1)
+        self.assertEqual(plan.metrics[0].business_name, "Sales")
+        self.assertEqual(plan.metrics[0].column_name, "PY")
+        self.assertEqual(plan.dimensions, [])
+        from semantic.models.semantic_plan import SemanticQueryShape
+        self.assertEqual(plan.query_shape, SemanticQueryShape.SINGLE_VALUE)
+
+    def test_scenario14_show_pant_sales_this_year(self):
+        # "Show Pant sales this year"
+        # Expected: Pant filter preserved, temporal = CURRENT_YEAR, physical metric = CY, no temporal-only analytical dimension, query_shape = SINGLE_VALUE
+        semantic_result = {
+            "metric_objects": [
+                {"metric_name": "cy", "business_name": "C Y", "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY", "column_name": "CY"}
+            ],
+            "dimension_objects": [
+                {"dimension_name": "createddate_year", "business_name": "createddate Year", "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY", "column_name": "createddate", "semantic_category": "TIME_YEAR"}
+            ],
+            "value_matches": [
+                {"dimension": "Brand", "business_name": "Brand", "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY", "column_name": "Brand", "value": "RAMRAJ PANT", "operator": "="}
+            ]
+        }
+        from semantic.temporal.models import TimeContext, CurrentYearIntent
+        from semantic.temporal.enums import TimeIntentType, TimeStrategyType
+        time_context = TimeContext(
+            intent=CurrentYearIntent(intent_type=TimeIntentType.CURRENT_YEAR),
+            strategy=TimeStrategyType.SNAPSHOT,
+            snapshot_columns=["CY"]
+        )
+        plan = SemanticPlanBuilder.build(
+            question="Show Pant sales this year",
+            semantic_result=semantic_result,
+            time_context=time_context
+        )
+        self.assertEqual(len(plan.metrics), 1)
+        self.assertEqual(plan.metrics[0].business_name, "Sales")
+        self.assertEqual(plan.metrics[0].column_name, "CY")
+        self.assertEqual(plan.dimensions, [])
+        self.assertEqual(len(plan.filters), 1)
+        self.assertEqual(plan.filters[0].dimension_name, "Brand")
+        self.assertEqual(plan.filters[0].values, ["RAMRAJ PANT"])
+        from semantic.models.semantic_plan import SemanticQueryShape
+        self.assertEqual(plan.query_shape, SemanticQueryShape.SINGLE_VALUE)
+
+    def test_scenario15_clarification_continuation_this_year(self):
+        # Clarification continuation: "This Year"
+        # Expected: DimensionValueResolver filters out temporal choices
+        from semantic.dimension_value_resolver import DimensionValueResolver
+        resolver = DimensionValueResolver()
+        
+        clarified = [
+            {"value": "RAMRAJ PANT", "dimension": "Brand", "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY", "column_name": "Brand", "dimension_id": 201},
+            {"value": "This Year"}
+        ]
+        
+        res = resolver.resolve(
+            connection_id="test_conn",
+            question="Show Pant sales",
+            clarified_candidate=clarified
+        )
+        # Verify that "This Year" was filtered out and only "RAMRAJ PANT" is returned
+        self.assertEqual(len(res), 1)
+        self.assertEqual(res[0]["value"], "RAMRAJ PANT")
+        self.assertEqual(res[0]["business_name"], "Brand")
+
+    def test_scenario16_relationship_expander_none_table(self):
+        # RelationshipExpander: None/empty table candidate does not crash
+        from semantic.relationship_expander import RelationshipExpander
+        tables = [
+            {"table_name": "QB_MDJMD_SALES_5YRS_SUMMARY", "score": 10, "is_bridge": False},
+            {"table_name": None, "score": 0, "is_bridge": False},
+            {"table_name": "", "score": 0, "is_bridge": False},
+            {"table_name": "   ", "score": 0, "is_bridge": False}
+        ]
+        res = RelationshipExpander.expand(connection_id="test_conn", tables=tables)
+        # Should complete successfully and only return valid table name
+        self.assertEqual(len(res), 1)
+        self.assertEqual(res[0]["table_name"], "QB_MDJMD_SALES_5YRS_SUMMARY")
+
+    def test_scenario17_explicit_temporal_trend(self):
+        # Explicit temporal trend: "Show monthly sales this year"
+        # Expected: TREND shape
+        semantic_result = {
+            "metric_objects": [
+                {"metric_name": "cy", "business_name": "C Y", "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY", "column_name": "CY"}
+            ],
+            "dimension_objects": [
+                {"dimension_name": "createddate_month", "business_name": "createddate Month", "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY", "column_name": "createddate", "semantic_category": "TIME_MONTH"}
+            ]
+        }
+        from semantic.temporal.models import TimeContext, CurrentYearIntent
+        from semantic.temporal.enums import TimeIntentType, TimeStrategyType, Granularity
+        time_context = TimeContext(
+            intent=CurrentYearIntent(intent_type=TimeIntentType.CURRENT_YEAR),
+            strategy=TimeStrategyType.SNAPSHOT,
+            snapshot_columns=["CY"],
+            grouping=Granularity.MONTH
+        )
+        plan = SemanticPlanBuilder.build(
+            question="Show monthly sales this year",
+            semantic_result=semantic_result,
+            time_context=time_context
+        )
+        self.assertEqual(len(plan.metrics), 1)
+        self.assertEqual(plan.metrics[0].business_name, "Sales")
+        self.assertEqual(plan.metrics[0].column_name, "CY")
+        self.assertEqual(len(plan.dimensions), 1)
+        self.assertEqual(plan.dimensions[0].business_name, "createddate Month")
+        from semantic.models.semantic_plan import SemanticQueryShape
+        self.assertEqual(plan.query_shape, SemanticQueryShape.TREND)
+
+    def test_scenario18_sales_current_year(self):
+        # 1. Sales + CURRENT_YEAR -> CY
+        semantic_result = {
+            "metric_objects": [
+                {"metric_name": "cy", "business_name": "C Y", "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY", "column_name": "CY"}
+            ]
+        }
+        from semantic.temporal.models import TimeContext, CurrentYearIntent
+        from semantic.temporal.enums import TimeIntentType, TimeStrategyType
+        time_context = TimeContext(
+            intent=CurrentYearIntent(intent_type=TimeIntentType.CURRENT_YEAR),
+            strategy=TimeStrategyType.SNAPSHOT,
+            snapshot_columns=["CY"]
+        )
+        plan = SemanticPlanBuilder.build(
+            question="Show sales this year",
+            semantic_result=semantic_result,
+            time_context=time_context
+        )
+        self.assertEqual(len(plan.metrics), 1)
+        self.assertEqual(plan.metrics[0].business_name, "Sales")
+        self.assertEqual(plan.metrics[0].column_name, "CY")
+
+    def test_scenario19_sales_previous_year(self):
+        # 2. Sales + PREVIOUS_YEAR -> PY
+        semantic_result = {
+            "metric_objects": [
+                {"metric_name": "py", "business_name": "P Y", "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY", "column_name": "PY"}
+            ]
+        }
+        from semantic.temporal.models import TimeContext, PreviousYearIntent
+        from semantic.temporal.enums import TimeIntentType, TimeStrategyType
+        time_context = TimeContext(
+            intent=PreviousYearIntent(intent_type=TimeIntentType.PREVIOUS_YEAR),
+            strategy=TimeStrategyType.SNAPSHOT,
+            snapshot_columns=["PY"]
+        )
+        plan = SemanticPlanBuilder.build(
+            question="Show previous year sales",
+            semantic_result=semantic_result,
+            time_context=time_context
+        )
+        self.assertEqual(len(plan.metrics), 1)
+        self.assertEqual(plan.metrics[0].business_name, "Sales")
+        self.assertEqual(plan.metrics[0].column_name, "PY")
+
+    def test_scenario20_sales_ppy(self):
+        # 3. Sales + PPY -> PPY
+        semantic_result = {
+            "metric_objects": [
+                {"metric_name": "ppy", "business_name": "P P Y", "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY", "column_name": "PPY"}
+            ]
+        }
+        from semantic.temporal.models import TimeContext, BaseTimeIntent
+        from semantic.temporal.enums import TimeStrategyType
+        intent = BaseTimeIntent()
+        intent.intent_type = "PPY"
+        time_context = TimeContext(
+            intent=intent,
+            strategy=TimeStrategyType.SNAPSHOT,
+            snapshot_columns=["PPY"]
+        )
+        plan = SemanticPlanBuilder.build(
+            question="Show sales for 2 years ago",
+            semantic_result=semantic_result,
+            time_context=time_context
+        )
+        self.assertEqual(len(plan.metrics), 1)
+        self.assertEqual(plan.metrics[0].business_name, "Sales")
+        self.assertEqual(plan.metrics[0].column_name, "PPY")
+
+    def test_scenario21_sales_pppy(self):
+        # 4. Sales + PPPY -> PPPY
+        semantic_result = {
+            "metric_objects": [
+                {"metric_name": "pppy", "business_name": "P P P Y", "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY", "column_name": "PPPY"}
+            ]
+        }
+        from semantic.temporal.models import TimeContext, BaseTimeIntent
+        from semantic.temporal.enums import TimeStrategyType
+        intent = BaseTimeIntent()
+        intent.intent_type = "PPPY"
+        time_context = TimeContext(
+            intent=intent,
+            strategy=TimeStrategyType.SNAPSHOT,
+            snapshot_columns=["PPPY"]
+        )
+        plan = SemanticPlanBuilder.build(
+            question="Show sales for 3 years ago",
+            semantic_result=semantic_result,
+            time_context=time_context
+        )
+        self.assertEqual(len(plan.metrics), 1)
+        self.assertEqual(plan.metrics[0].business_name, "Sales")
+        self.assertEqual(plan.metrics[0].column_name, "PPPY")
+
+    def test_scenario22_sales_ppppy(self):
+        # 5. Sales + PPPPY -> PPPPY
+        semantic_result = {
+            "metric_objects": [
+                {"metric_name": "ppppy", "business_name": "P P P P Y", "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY", "column_name": "PPPPY"}
+            ]
+        }
+        from semantic.temporal.models import TimeContext, BaseTimeIntent
+        from semantic.temporal.enums import TimeStrategyType
+        intent = BaseTimeIntent()
+        intent.intent_type = "PPPPY"
+        time_context = TimeContext(
+            intent=intent,
+            strategy=TimeStrategyType.SNAPSHOT,
+            snapshot_columns=["PPPPY"]
+        )
+        plan = SemanticPlanBuilder.build(
+            question="Show sales for 4 years ago",
+            semantic_result=semantic_result,
+            time_context=time_context
+        )
+        self.assertEqual(len(plan.metrics), 1)
+        self.assertEqual(plan.metrics[0].business_name, "Sales")
+        self.assertEqual(plan.metrics[0].column_name, "PPPPY")
+
+    def test_scenario23_sales_unspecified(self):
+        # 6. Sales + UNSPECIFIED -> physical metric None
+        semantic_result = {
+            "metric_objects": [
+                {"metric_name": "cy", "business_name": "C Y", "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY", "column_name": "CY"}
+            ]
+        }
+        plan = SemanticPlanBuilder.build(
+            question="Show sales",
+            semantic_result=semantic_result,
+            time_context=None
+        )
+        self.assertEqual(len(plan.metrics), 1)
+        self.assertEqual(plan.metrics[0].business_name, "Sales")
+        self.assertEqual(plan.metrics[0].column_name, "None")
+
+    def test_scenario24_pant_filter_previous_year(self):
+        # 7. Pant filter + PREVIOUS_YEAR -> PY + Pant filter preserved
+        semantic_result = {
+            "metric_objects": [
+                {"metric_name": "py", "business_name": "P Y", "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY", "column_name": "PY"}
+            ],
+            "value_matches": [
+                {"dimension": "Brand", "business_name": "Brand", "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY", "column_name": "Brand", "value": "LS PANT", "operator": "="}
+            ]
+        }
+        from semantic.temporal.models import TimeContext, PreviousYearIntent
+        from semantic.temporal.enums import TimeIntentType, TimeStrategyType
+        time_context = TimeContext(
+            intent=PreviousYearIntent(intent_type=TimeIntentType.PREVIOUS_YEAR),
+            strategy=TimeStrategyType.SNAPSHOT,
+            snapshot_columns=["PY"]
+        )
+        plan = SemanticPlanBuilder.build(
+            question="Show LS PANT sales last year",
+            semantic_result=semantic_result,
+            time_context=time_context
+        )
+        self.assertEqual(len(plan.metrics), 1)
+        self.assertEqual(plan.metrics[0].business_name, "Sales")
+        self.assertEqual(plan.metrics[0].column_name, "PY")
+        self.assertEqual(len(plan.filters), 1)
+        self.assertEqual(plan.filters[0].dimension_name, "Brand")
+        self.assertEqual(plan.filters[0].values, ["LS PANT"])
+
+    def test_scenario25_banians_current_year(self):
+        # 8. BANIANS + CURRENT_YEAR -> CY + BANIANS filter preserved
+        semantic_result = {
+            "metric_objects": [
+                {"metric_name": "cy", "business_name": "C Y", "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY", "column_name": "CY"}
+            ],
+            "value_matches": [
+                {"dimension": "Brand", "business_name": "Brand", "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY", "column_name": "Brand", "value": "BANIANS", "operator": "="}
+            ]
+        }
+        from semantic.temporal.models import TimeContext, CurrentYearIntent
+        from semantic.temporal.enums import TimeIntentType, TimeStrategyType
+        time_context = TimeContext(
+            intent=CurrentYearIntent(intent_type=TimeIntentType.CURRENT_YEAR),
+            strategy=TimeStrategyType.SNAPSHOT,
+            snapshot_columns=["CY"]
+        )
+        plan = SemanticPlanBuilder.build(
+            question="Show BANIANS sales this year",
+            semantic_result=semantic_result,
+            time_context=time_context
+        )
+        self.assertEqual(len(plan.metrics), 1)
+        self.assertEqual(plan.metrics[0].business_name, "Sales")
+        self.assertEqual(plan.metrics[0].column_name, "CY")
+        self.assertEqual(len(plan.filters), 1)
+        self.assertEqual(plan.filters[0].dimension_name, "Brand")
+        self.assertEqual(plan.filters[0].values, ["BANIANS"])

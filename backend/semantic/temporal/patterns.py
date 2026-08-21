@@ -402,5 +402,26 @@ TEMPORAL_PATTERNS: List[TemporalPattern] = [
         intent_type=TimeIntentType.PREVIOUS_DAY,
         extractor=lambda m: {},
         confidence=0.95
+    ),
+    TemporalPattern(
+        name="ppy_ago",
+        regex_pattern=r"\b2\s+years?\s+ago\b",
+        intent_type=TimeIntentType.PPY,
+        extractor=lambda m: {},
+        confidence=0.95
+    ),
+    TemporalPattern(
+        name="pppy_ago",
+        regex_pattern=r"\b3\s+years?\s+ago\b",
+        intent_type=TimeIntentType.PPPY,
+        extractor=lambda m: {},
+        confidence=0.95
+    ),
+    TemporalPattern(
+        name="ppppy_ago",
+        regex_pattern=r"\b4\s+years?\s+ago\b",
+        intent_type=TimeIntentType.PPPPY,
+        extractor=lambda m: {},
+        confidence=0.95
     )
 ]

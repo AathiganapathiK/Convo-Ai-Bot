@@ -272,6 +272,18 @@ class TimeStrategyResolver:
                     return None
             return mapped
             
+        elif getattr(intent, "intent_type", None) in ("PPY", TimeIntentType.PPY):
+            if 2 in snapshot_mapping:
+                return [snapshot_mapping[2]]
+                
+        elif getattr(intent, "intent_type", None) in ("PPPY", TimeIntentType.PPPY):
+            if 3 in snapshot_mapping:
+                return [snapshot_mapping[3]]
+                
+        elif getattr(intent, "intent_type", None) in ("PPPPY", TimeIntentType.PPPPY):
+            if 4 in snapshot_mapping:
+                return [snapshot_mapping[4]]
+                
         elif isinstance(intent, YearComparisonIntent):
             start_offset = ref_date.year - intent.start_year
             end_offset = ref_date.year - intent.end_year

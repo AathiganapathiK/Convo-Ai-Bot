@@ -33,7 +33,8 @@ class StrategyCandidateGenerator:
             is_snapshot_eligible = False
             snapshot_reason = StrategySelectionReason.SNAPSHOT_COLUMNS
             
-            if isinstance(intent, (CurrentYearIntent, PreviousYearIntent)):
+            intent_type = getattr(intent, "intent_type", None)
+            if isinstance(intent, (CurrentYearIntent, PreviousYearIntent)) or intent_type in (TimeIntentType.PPY, TimeIntentType.PPPY, TimeIntentType.PPPPY):
                 is_snapshot_eligible = True
                 snapshot_reason = StrategySelectionReason.SNAPSHOT_COLUMNS
             elif isinstance(intent, LastNYearsIntent):

@@ -214,40 +214,65 @@ class PromptBuilder:
         t_temp_sec = time.time() - t_temp_start
 
         # Intercept temporal clarification resume
-        if clarified_candidate and isinstance(clarified_candidate, dict):
-            val = clarified_candidate.get("value")
-            if val in ("This Year", "Last Year", "2 Years Ago", "3 Years Ago"):
-                from semantic.temporal.models import TimeContext, CurrentYearIntent, PreviousYearIntent
-                from semantic.temporal.enums import TimeIntentType, TimeStrategyType
-                from semantic.temporal.models import BaseTimeIntent
-                
-                new_ctx = None
-                if val == "This Year":
-                    new_ctx = TimeContext(
-                        intent=CurrentYearIntent(intent_type=TimeIntentType.CURRENT_YEAR),
-                        strategy=TimeStrategyType.SNAPSHOT,
-                        snapshot_columns=["CY"]
-                    )
-                elif val == "Last Year":
-                    new_ctx = TimeContext(
-                        intent=PreviousYearIntent(intent_type=TimeIntentType.PREVIOUS_YEAR),
-                        strategy=TimeStrategyType.SNAPSHOT,
-                        snapshot_columns=["PY"]
-                    )
-                elif val == "2 Years Ago":
-                    new_ctx = TimeContext(
-                        intent=BaseTimeIntent(intent_type="PPY"),
-                        strategy=TimeStrategyType.SNAPSHOT,
-                        snapshot_columns=["PPY"]
-                    )
-                elif val == "3 Years Ago":
-                    new_ctx = TimeContext(
-                        intent=BaseTimeIntent(intent_type="PPPY"),
-                        strategy=TimeStrategyType.SNAPSHOT,
-                        snapshot_columns=["PPPY"]
-                    )
-                if new_ctx:
-                    self.temporal_pipeline._thread_local.last_time_context = new_ctx
+        if clarified_candidate:
+            candidates_list = clarified_candidate if isinstance(clarified_candidate, list) else [clarified_candidate]
+            for cand in candidates_list:
+                if isinstance(cand, dict):
+                    val = cand.get("value")
+                    if val in ("This Year", "Last Year", "2 Years Ago", "3 Years Ago", "4 Years Ago"):
+                        from semantic.temporal.models import TimeContext, CurrentYearIntent, PreviousYearIntent
+                        from semantic.temporal.enums import TimeIntentType, TimeStrategyType
+                        from semantic.temporal.models import BaseTimeIntent
+                        from semantic.temporal.capability_cache import TimeResolutionCache
+                        
+                        cached_entry = TimeResolutionCache.get(connection_id)
+                        capability = cached_entry.capability if cached_entry else None
+                        
+                        new_ctx = None
+                        if val == "This Year":
+                            col = capability.snapshot_mapping.get(0) if capability and capability.snapshot_mapping else "CY"
+                            new_ctx = TimeContext(
+                                intent=CurrentYearIntent(intent_type=TimeIntentType.CURRENT_YEAR),
+                                strategy=TimeStrategyType.SNAPSHOT,
+                                snapshot_columns=[col]
+                            )
+                        elif val == "Last Year":
+                            col = capability.snapshot_mapping.get(1) if capability and capability.snapshot_mapping else "PY"
+                            new_ctx = TimeContext(
+                                intent=PreviousYearIntent(intent_type=TimeIntentType.PREVIOUS_YEAR),
+                                strategy=TimeStrategyType.SNAPSHOT,
+                                snapshot_columns=[col]
+                            )
+                        elif val == "2 Years Ago":
+                            intent = BaseTimeIntent()
+                            intent.intent_type = "PPY"
+                            col = capability.snapshot_mapping.get(2) if capability and capability.snapshot_mapping else "PPY"
+                            new_ctx = TimeContext(
+                                intent=intent,
+                                strategy=TimeStrategyType.SNAPSHOT,
+                                snapshot_columns=[col]
+                            )
+                        elif val == "3 Years Ago":
+                            intent = BaseTimeIntent()
+                            intent.intent_type = "PPPY"
+                            col = capability.snapshot_mapping.get(3) if capability and capability.snapshot_mapping else "PPPY"
+                            new_ctx = TimeContext(
+                                intent=intent,
+                                strategy=TimeStrategyType.SNAPSHOT,
+                                snapshot_columns=[col]
+                            )
+                        elif val == "4 Years Ago":
+                            intent = BaseTimeIntent()
+                            intent.intent_type = "PPPPY"
+                            col = capability.snapshot_mapping.get(4) if capability and capability.snapshot_mapping else "PPPPY"
+                            new_ctx = TimeContext(
+                                intent=intent,
+                                strategy=TimeStrategyType.SNAPSHOT,
+                                snapshot_columns=[col]
+                            )
+                        if new_ctx:
+                            self.temporal_pipeline._thread_local.last_time_context = new_ctx
+                            break
 
         # TEMP_PIPELINE_TRACE_REMOVE_LATER
         try:
@@ -615,6 +640,20 @@ class PromptBuilder:
             # Store in semantic_result for downstream safety
             semantic_result["semantic_plan"] = semantic_plan
             
+            # Propagate physical metrics column bindings from SemanticPlan to prompt context
+            if semantic_plan:
+                bound_metric_objs = []
+                for m in semantic_plan.metrics:
+                    bound_metric_objs.append({
+                        "metric_name": m.metric_name,
+                        "business_name": m.business_name,
+                        "table_name": m.table_name,
+                        "column_name": m.column_name,
+                        "aggregation_type": m.aggregation_type
+                    })
+                semantic_result["metric_objects"] = bound_metric_objs
+                semantic_result["metrics"] = [m.business_name for m in semantic_plan.metrics]
+            
             # Record in diagnostic tracer
             try:
                 from semantic.diagnostic_trace import PipelineDiagnosticTracer
@@ -635,17 +674,48 @@ class PromptBuilder:
                     break
             if is_sales_unresolved:
                 from core.exceptions import AmbiguityException
+                from semantic.temporal.capability_cache import TimeResolutionCache
+                
+                cached_entry = TimeResolutionCache.get(active_connection["connection_id"])
+                capability = cached_entry.capability if cached_entry else None
+                
+                INDEX_TO_DISPLAY = {
+                    0: "This Year",
+                    1: "Last Year",
+                    2: "2 Years Ago",
+                    3: "3 Years Ago",
+                    4: "4 Years Ago"
+                }
+                
+                options = []
+                if capability and capability.snapshot_mapping:
+                    sorted_indices = sorted(capability.snapshot_mapping.keys())
+                    opt_id = 1
+                    for idx in sorted_indices:
+                        display_val = INDEX_TO_DISPLAY.get(idx)
+                        if display_val:
+                            options.append({
+                                "option_id": opt_id,
+                                "value": display_val,
+                                "display_dimension": "Time Period"
+                            })
+                            opt_id += 1
+                            
+                if not options:
+                    options = [
+                        {"option_id": 1, "value": "This Year", "display_dimension": "Time Period"},
+                        {"option_id": 2, "value": "Last Year", "display_dimension": "Time Period"},
+                        {"option_id": 3, "value": "2 Years Ago", "display_dimension": "Time Period"},
+                        {"option_id": 4, "value": "3 Years Ago", "display_dimension": "Time Period"},
+                        {"option_id": 5, "value": "4 Years Ago", "display_dimension": "Time Period"}
+                    ]
+                    
                 raise AmbiguityException(
                     message="Which time period would you like for sales?",
                     details={
                         "original_question": question,
                         "ambiguity_type": "TEMPORAL_INTENT",
-                        "options": [
-                            {"option_id": 1, "value": "This Year", "display_dimension": "Time Period"},
-                            {"option_id": 2, "value": "Last Year", "display_dimension": "Time Period"},
-                            {"option_id": 3, "value": "2 Years Ago", "display_dimension": "Time Period"},
-                            {"option_id": 4, "value": "3 Years Ago", "display_dimension": "Time Period"}
-                        ]
+                        "options": options
                     }
                 )
 
@@ -890,6 +960,45 @@ class PromptBuilder:
             formatted_filters = "\n".join(required_filters_lines)
             required_filters_section = f"\n===========================================================\nREQUIRED VALUE FILTERS\n===========================================================\n\n{formatted_filters}\n"
 
+        # Format Semantic Plan Context block for LLM prompt
+        semantic_plan_context_lines = []
+        if semantic_plan:
+            for m in semantic_plan.metrics:
+                if m.business_name == "Sales":
+                    temp_intent_name = "UNSPECIFIED"
+                    if time_context and time_context.intent:
+                        intent_type = getattr(time_context.intent, "intent_type", None)
+                        if intent_type:
+                            temp_intent_name = intent_type.value if hasattr(intent_type, "value") else str(intent_type)
+                        else:
+                            temp_intent_name = time_context.intent.__class__.__name__.replace("Intent", "").upper()
+                    elif clarified_candidate:
+                        cands = clarified_candidate if isinstance(clarified_candidate, list) else [clarified_candidate]
+                        for c in cands:
+                            if isinstance(c, dict) and c.get("value") in ("This Year", "Last Year", "2 Years Ago", "3 Years Ago", "4 Years Ago"):
+                                val = c["value"]
+                                if val == "This Year": temp_intent_name = "CURRENT_YEAR"
+                                elif val == "Last Year": temp_intent_name = "PREVIOUS_YEAR"
+                                elif val == "2 Years Ago": temp_intent_name = "PPY"
+                                elif val == "3 Years Ago": temp_intent_name = "PPPY"
+                                elif val == "4 Years Ago": temp_intent_name = "PPPPY"
+                    
+                    strategy_name = "SNAPSHOT"
+                    if time_context and time_context.strategy:
+                        strategy_name = time_context.strategy.value if hasattr(time_context.strategy, "value") else str(time_context.strategy)
+                    
+                    date_filter_req = "NO" if strategy_name == "SNAPSHOT" else "YES"
+                    semantic_plan_context_lines.append(
+                        f"Business Metric: {m.business_name}\n"
+                        f"Temporal: {temp_intent_name}\n"
+                        f"Physical Metric: {m.column_name}\n"
+                        f"Temporal Strategy: {strategy_name}\n"
+                        f"Date Filter Required: {date_filter_req}\n"
+                        f"Authoritative Binding: You MUST use physical column '{m.column_name}' for any references to Business Metric '{m.business_name}' in SELECT, GROUP BY, and aggregations (e.g. SUM({m.column_name}))."
+                    )
+        
+        semantic_plan_context = "\n".join(semantic_plan_context_lines) if semantic_plan_context_lines else "None"
+
         prompt = f"""
 You are an expert Microsoft SQL Server SQL generator for an Enterprise Conversational Analytics Platform.
 
@@ -914,6 +1023,12 @@ SEMANTIC RUNTIME
 ===========================================================
 
 {runtime_context}
+
+===========================================================
+SEMANTIC PLAN
+===========================================================
+
+{semantic_plan_context}
 
 ===========================================================
 SEMANTIC CONTEXT
@@ -989,6 +1104,7 @@ SEMANTIC SQL RULES
 9. Follow the style demonstrated by Previous Successful Queries whenever possible.
 10. If a dimension has a specified SQL Expression under SEMANTIC CONTEXT, you MUST use that SQL Expression in the SELECT, GROUP BY, WHERE, and ORDER BY clauses instead of the raw physical column name.
 11. Every REQUIRED VALUE FILTER listed in the prompt is an authoritative semantic decision already resolved by the backend. The generated SQL MUST apply every required value filter using the specified column or a validated/required join path to constrain the query results. You are NOT allowed to decide if the filter is relevant, nor are you allowed to omit, replace, generalize, reinterpret, silently discard, or merely comment on a required value filter.
+12. You MUST use the exact physical column name specified for the metric in the SEMANTIC PLAN or SEMANTIC CONTEXT (e.g. use 'PY' for Sales if Column/Physical Metric is PY, 'PPY' if Column/Physical Metric is PPY, etc.). The physical column binding is authoritative and must not be overridden or defaulted back to 'CY'. When Temporal Strategy is SNAPSHOT and Date Filter Required is NO, you MUST NOT generate any additional date-column predicate or filter (such as YEAR(createddate) = ... or createddate BETWEEN ...) representing the same time period.
 
 ===========================================================
 SQL SERVER RULES

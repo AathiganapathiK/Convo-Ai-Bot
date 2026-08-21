@@ -197,8 +197,8 @@ class TestPromptBuilderTemporalIntegration(unittest.TestCase):
         # Setup standard patches to skip actual DB schema tables & semantic database lookups
         self.conn_patcher = patch("services.connection_service.ConnectionService")
         self.mock_conn_service = self.conn_patcher.start()
-        self.mock_conn_service.get_connection.return_value = {
-            "connection_id": "test_conn",
+        self.mock_conn_service.get_connection.side_effect = lambda conn_id=None: {
+            "connection_id": conn_id or "test_conn",
             "connection_name": "Test DB",
             "database_type": "mssql"
         }
@@ -292,6 +292,136 @@ class TestPromptBuilderTemporalIntegration(unittest.TestCase):
         self.assertIn("Snapshot Columns: CY, PY, PPY, PPPY, PPPPY", prompt)
         self.assertIn("Grouping: YEAR", prompt)
         self.assertIn("Calendar Type: CALENDAR", prompt)
+
+    def test_regression_snapshot_current_year(self):
+        # SNAPSHOT + CURRENT_YEAR -> no date range filters printed, Date Filter Required: NO
+        self.mock_semantic_resolver.resolve.return_value = {
+            "metrics": ["Sales"],
+            "dimensions": "None",
+            "metric_objects": [
+                {"metric_name": "cy", "business_name": "Sales", "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY", "column_name": "CY", "aggregation_type": "SUM"}
+            ],
+            "dimension_objects": [],
+            "value_matches": [],
+            "retrieval": {"status": "COMPLETE", "confidence": 1.0, "reason": None}
+        }
+        
+        settings = TimeSettings(default_calendar=CalendarType.CALENDAR)
+        
+        original_resolve = self.prompt_builder.temporal_pipeline.time_resolver.resolve
+        def mock_resolve(*args, **kwargs):
+            kwargs["reference_date"] = self.ref_date
+            return original_resolve(*args, **kwargs)
+            
+        with patch.object(self.prompt_builder.temporal_pipeline.time_resolver, "resolve", side_effect=mock_resolve):
+            prompt, _, _ = self.prompt_builder.build_sql_prompt(
+                question="Show sales this year",
+                connection_id="test_conn",
+                settings=settings
+            )
+            
+        self.assertIn("Temporal Strategy: SNAPSHOT", prompt)
+        self.assertIn("Date Filter Required: NO", prompt)
+        self.assertNotIn("Start Date:", prompt)
+        self.assertNotIn("End Date:", prompt)
+        self.assertNotIn("Date Column:", prompt)
+
+    def test_regression_snapshot_previous_year(self):
+        # SNAPSHOT + PREVIOUS_YEAR -> no date range filters printed, Date Filter Required: NO
+        self.mock_semantic_resolver.resolve.return_value = {
+            "metrics": ["Sales"],
+            "dimensions": "None",
+            "metric_objects": [
+                {"metric_name": "py", "business_name": "Sales", "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY", "column_name": "PY", "aggregation_type": "SUM"}
+            ],
+            "dimension_objects": [],
+            "value_matches": [],
+            "retrieval": {"status": "COMPLETE", "confidence": 1.0, "reason": None}
+        }
+        
+        settings = TimeSettings(default_calendar=CalendarType.CALENDAR)
+        
+        original_resolve = self.prompt_builder.temporal_pipeline.time_resolver.resolve
+        def mock_resolve(*args, **kwargs):
+            kwargs["reference_date"] = self.ref_date
+            return original_resolve(*args, **kwargs)
+            
+        with patch.object(self.prompt_builder.temporal_pipeline.time_resolver, "resolve", side_effect=mock_resolve):
+            prompt, _, _ = self.prompt_builder.build_sql_prompt(
+                question="Show previous year sales",
+                connection_id="test_conn",
+                settings=settings
+            )
+            
+        self.assertIn("Temporal Strategy: SNAPSHOT", prompt)
+        self.assertIn("Date Filter Required: NO", prompt)
+        self.assertNotIn("Start Date:", prompt)
+        self.assertNotIn("End Date:", prompt)
+        self.assertNotIn("Date Column:", prompt)
+
+    def test_regression_date_column_strategy(self):
+        # DATE_COLUMN strategy -> date filtering remains possible (Start/End Date and Date Column printed)
+        from semantic.temporal.capability_cache import TimeResolutionCache
+        # Override connection setup to force DATE_COLUMN
+        TimeResolutionCache.put(
+            "date_conn",
+            TimeCapability(
+                date_columns=["OrderDate"],
+                default_date_column="OrderDate"
+            )
+        )
+        
+        self.mock_semantic_resolver.resolve.return_value = {
+            "metrics": ["Amount"],
+            "dimensions": "None",
+            "metric_objects": [
+                {"metric_name": "amount", "business_name": "Amount", "table_name": "Orders", "column_name": "Amount", "aggregation_type": "SUM"}
+            ],
+            "dimension_objects": [],
+            "value_matches": [],
+            "retrieval": {"status": "COMPLETE", "confidence": 1.0, "reason": None}
+        }
+        
+        settings = TimeSettings(default_calendar=CalendarType.CALENDAR)
+        
+        original_resolve = self.prompt_builder.temporal_pipeline.time_resolver.resolve
+        def mock_resolve(*args, **kwargs):
+            kwargs["reference_date"] = self.ref_date
+            return original_resolve(*args, **kwargs)
+            
+        with patch.object(self.prompt_builder.temporal_pipeline.time_resolver, "resolve", side_effect=mock_resolve):
+            prompt, _, _ = self.prompt_builder.build_sql_prompt(
+                question="Show amount this year",
+                connection_id="date_conn",
+                settings=settings
+            )
+            
+        self.assertIn("Strategy: DATE_COLUMN", prompt)
+        self.assertIn("Date Column: OrderDate", prompt)
+        self.assertIn("Start Date: 2026-01-01", prompt)
+        self.assertIn("End Date: 2026-12-31", prompt)
+
+    def test_regression_null_temporal_config(self):
+        # Null/empty temporal configuration -> safe behavior without default "createddate"
+        from semantic.temporal.capability_cache import TimeResolutionCache
+        TimeResolutionCache.put("empty_conn", TimeCapability())
+        
+        settings = TimeSettings(default_calendar=CalendarType.CALENDAR)
+        
+        original_resolve = self.prompt_builder.temporal_pipeline.time_resolver.resolve
+        def mock_resolve(*args, **kwargs):
+            kwargs["reference_date"] = self.ref_date
+            return original_resolve(*args, **kwargs)
+            
+        with patch.object(self.prompt_builder.temporal_pipeline.time_resolver, "resolve", side_effect=mock_resolve):
+            prompt, _, _ = self.prompt_builder.build_sql_prompt(
+                question="Show sales this year",
+                connection_id="empty_conn",
+                settings=settings
+            )
+            
+        # Since empty_conn has no date columns or snapshot mappings, temporal resolution will resolve nothing
+        self.assertNotIn("TEMPORAL CONTEXT", prompt)
 
 
 if __name__ == "__main__":

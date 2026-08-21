@@ -16,6 +16,15 @@ from semantic.temporal.models import TimeContext
 
 import threading
 
+SNAPSHOT_SALES_BINDINGS = {
+    "CURRENT_YEAR": "CY",
+    "PREVIOUS_YEAR": "PY",
+    "PPY": "PPY",
+    "PPPY": "PPPY",
+    "PPPPY": "PPPPY",
+}
+
+
 class SemanticPlanBuilder:
     _thread_local = threading.local()
 
@@ -26,6 +35,45 @@ class SemanticPlanBuilder:
     @classmethod
     def clear_last_plan(cls):
         cls._thread_local.last_plan = None
+
+    @staticmethod
+    def _is_explicit_temporal_breakdown(question: str) -> bool:
+        q = question.lower()
+        # Look for explicit breakdown keywords
+        keywords = [
+            "monthly", "weekly", "daily", "yearly", "quarterly", "hourly",
+            "month wise", "month-wise", "year wise", "year-wise", "date wise", "date-wise",
+            "day wise", "day-wise", "quarter wise", "quarter-wise", "week wise", "week-wise",
+            "trend"
+        ]
+        if any(kw in q for kw in keywords):
+            return True
+        
+        # Look for "by <time_unit>"
+        import re
+        if re.search(r"\bby\s+(month|year|week|day|quarter|date|hour|createddate|docdate)\b", q):
+            return True
+            
+        return False
+
+    @staticmethod
+    def _is_temporal_dimension(dim: Any) -> bool:
+        if isinstance(dim, dict):
+            category = (dim.get("semantic_category") or "").upper()
+            col = (dim.get("column_name") or "").lower()
+            bname = (dim.get("business_name") or dim.get("dimension_name") or "").lower()
+        else:
+            category = (dim.semantic_category or "").upper()
+            col = (dim.column_name or "").lower()
+            bname = (dim.business_name or dim.dimension_name or "").lower()
+            
+        if category.startswith("TIME_") or category == "TIME":
+            return True
+        if col in {"createddate", "docdate", "orderdate", "shipdate", "due_date"}:
+            return True
+        if any(term in bname for term in ["year", "month", "day", "quarter", "week", "date", "time"]):
+            return True
+        return False
 
     @staticmethod
     def classify_query_shape(
@@ -45,7 +93,7 @@ class SemanticPlanBuilder:
             return SemanticQueryShape.RANKED_LIST
 
         # 3. TREND
-        if "trend" in q or "over time" in q or (time_ctx and time_ctx.grouping):
+        if "trend" in q or "over time" in q or (time_ctx and time_ctx.grouping and SemanticPlanBuilder._is_explicit_temporal_breakdown(question)):
             return SemanticQueryShape.TREND
 
         # 4. DETAIL (when dimensions exist)
@@ -114,37 +162,43 @@ class SemanticPlanBuilder:
             resolved_cols = []
 
             # Check if this is a clarification resume
-            if clarified_candidate and isinstance(clarified_candidate, dict):
-                val = clarified_candidate.get("value")
-                if val == "This Year":
-                    resolved_cols.append("CY")
-                elif val == "Last Year":
-                    resolved_cols.append("PY")
-                elif val == "2 Years Ago":
-                    resolved_cols.append("PPY")
-                elif val == "3 Years Ago":
-                    resolved_cols.append("PPPY")
+            candidates_list = clarified_candidate if isinstance(clarified_candidate, list) else [clarified_candidate] if clarified_candidate else []
+            for cand in candidates_list:
+                if isinstance(cand, dict):
+                    val = cand.get("value")
+                    if val == "This Year":
+                        resolved_cols.append(SNAPSHOT_SALES_BINDINGS["CURRENT_YEAR"])
+                    elif val == "Last Year":
+                        resolved_cols.append(SNAPSHOT_SALES_BINDINGS["PREVIOUS_YEAR"])
+                    elif val == "2 Years Ago":
+                        resolved_cols.append(SNAPSHOT_SALES_BINDINGS["PPY"])
+                    elif val == "3 Years Ago":
+                        resolved_cols.append(SNAPSHOT_SALES_BINDINGS["PPPY"])
+                    elif val == "4 Years Ago":
+                        resolved_cols.append(SNAPSHOT_SALES_BINDINGS["PPPPY"])
 
             if not resolved_cols:
                 if has_cy_word:
-                    resolved_cols.append("CY")
+                    resolved_cols.append(SNAPSHOT_SALES_BINDINGS["CURRENT_YEAR"])
                 elif has_py_word:
-                    resolved_cols.append("PY")
+                    resolved_cols.append(SNAPSHOT_SALES_BINDINGS["PREVIOUS_YEAR"])
                 elif time_context:
                     from semantic.temporal.enums import TimeIntentType
                     intent_type = getattr(time_context.intent, "intent_type", None)
                     intent_cls = time_context.intent.__class__.__name__ if time_context.intent else ""
 
                     if intent_type in (TimeIntentType.YEAR_COMPARISON, "YEAR_COMPARISON") or intent_cls == "YearComparisonIntent":
-                        resolved_cols.extend(["CY", "PY"])
+                        resolved_cols.extend([SNAPSHOT_SALES_BINDINGS["CURRENT_YEAR"], SNAPSHOT_SALES_BINDINGS["PREVIOUS_YEAR"]])
                     elif intent_type in (TimeIntentType.CURRENT_YEAR, "CURRENT_YEAR") or intent_cls == "CurrentYearIntent":
-                        resolved_cols.append("CY")
+                        resolved_cols.append(SNAPSHOT_SALES_BINDINGS["CURRENT_YEAR"])
                     elif intent_type in (TimeIntentType.PREVIOUS_YEAR, "PREVIOUS_YEAR") or intent_cls == "PreviousYearIntent":
-                        resolved_cols.append("PY")
-                    elif intent_type == "PPY":
-                        resolved_cols.append("PPY")
-                    elif intent_type == "PPPY":
-                        resolved_cols.append("PPPY")
+                        resolved_cols.append(SNAPSHOT_SALES_BINDINGS["PREVIOUS_YEAR"])
+                    elif intent_type == "PPY" or intent_cls == "PPY" or intent_type == "PPYIntent" or intent_cls == "PPYIntent":
+                        resolved_cols.append(SNAPSHOT_SALES_BINDINGS["PPY"])
+                    elif intent_type == "PPPY" or intent_cls == "PPPY" or intent_type == "PPPYIntent" or intent_cls == "PPPYIntent":
+                        resolved_cols.append(SNAPSHOT_SALES_BINDINGS["PPPY"])
+                    elif intent_type == "PPPPY" or intent_cls == "PPPPY" or intent_type == "PPPPYIntent" or intent_cls == "PPPPYIntent":
+                        resolved_cols.append(SNAPSHOT_SALES_BINDINGS["PPPPY"])
                     elif time_context.snapshot_columns:
                         resolved_cols.extend(time_context.snapshot_columns)
                     else:
@@ -164,8 +218,12 @@ class SemanticPlanBuilder:
 
         # 2. Build dimensions
         plan_dims = []
+        is_breakdown = cls._is_explicit_temporal_breakdown(question)
         for d in dimension_objs:
             if isinstance(d, dict):
+                # Filter out temporal dimensions if not an explicit breakdown
+                if cls._is_temporal_dimension(d) and not is_breakdown:
+                    continue
                 plan_dims.append(SemanticDimension(
                     dimension_name=d.get("dimension_name") or d.get("business_name") or "",
                     business_name=d.get("business_name") or d.get("dimension_name") or "",

@@ -11,6 +11,16 @@ class RelationshipExpander:
         tables
     ):
 
+        # Ignore invalid table identifiers: None, empty string, whitespace-only values
+        cleaned_tables = []
+        if isinstance(tables, list):
+            for table in tables:
+                if isinstance(table, dict):
+                    tname = table.get("table_name")
+                    if isinstance(tname, str) and tname.strip():
+                        cleaned_tables.append(table)
+        tables = cleaned_tables
+
         if len(tables) <= 1:
             return tables
 

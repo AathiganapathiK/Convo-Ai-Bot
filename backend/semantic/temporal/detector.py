@@ -232,5 +232,9 @@ class TemporalDetector:
             )
         elif intent_type == TimeIntentType.RUNNING_TOTAL:
             return RunningTotalIntent(reference_date=reference_date)
+        elif intent_type in (TimeIntentType.PPY, TimeIntentType.PPPY, TimeIntentType.PPPPY):
+            intent = BaseTimeIntent()
+            intent.intent_type = intent_type
+            return intent
             
         return None

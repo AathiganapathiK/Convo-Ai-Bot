@@ -169,51 +169,61 @@ class DimensionValueResolver(metaclass=ThreadLocalMeta):
         Resolve matches using the injected matching pipeline.
         """
         if clarified_candidate:
-            from semantic.matching.models import MatchResult, MatchType, AmbiguityChoice, ResolutionStatus, SemanticResolutionResult
-            m = MatchResult(
-                matched=True,
-                value=clarified_candidate["value"],
-                normalized_value=clarified_candidate.get("normalized_value", clarified_candidate["value"].lower()),
-                confidence=clarified_candidate.get("confidence", 1.0),
-                match_type=MatchType(clarified_candidate.get("match_type", "EXACT")),
-                matched_question_tokens=clarified_candidate.get("matched_question_tokens", []),
-                matched_value_tokens=clarified_candidate.get("matched_value_tokens", []),
-                reason="Clarified by user",
-                dimension_id=clarified_candidate.get("dimension_id"),
-                business_name=clarified_candidate.get("business_name"),
-                table_name=clarified_candidate.get("table_name"),
-                column_name=clarified_candidate.get("column_name")
-            )
-            choice = AmbiguityChoice(
-                result=m,
-                actual_query_coverage=len(m.matched_question_tokens),
-                matched_query_tokens=m.matched_question_tokens
-            )
-            self.last_resolution_result = SemanticResolutionResult(
-                status=ResolutionStatus.SINGLE_MATCH,
-                candidates=[choice],
-                dominant_match=choice
-            )
-            return ResolutionResultList(
-                [
-                    {
-                        "dimension_id": m.dimension_id,
-                        "business_name": m.business_name,
-                        "table_name": m.table_name,
-                        "column_name": m.column_name,
-                        "value": m.value,
-                        "normalized_value": m.normalized_value,
-                        "confidence": m.confidence,
-                        "match_type": m.match_type.value,
-                        "matched_question_tokens": choice.matched_query_tokens,
-                        "matched_value_tokens": m.matched_value_tokens,
-                        "reason": m.reason
-                    }
-                ],
-                resolution_result=self.last_resolution_result,
-                followup_context=getattr(self, "followup_context", None),
-                match_stats=self.last_match_stats
-            )
+            candidates_list = clarified_candidate if isinstance(clarified_candidate, list) else [clarified_candidate]
+            non_temp_candidates = []
+            for cand in candidates_list:
+                if isinstance(cand, dict):
+                    val = cand.get("value")
+                    if val not in ("This Year", "Last Year", "2 Years Ago", "3 Years Ago"):
+                        non_temp_candidates.append(cand)
+
+            if non_temp_candidates:
+                clarified = non_temp_candidates[0]
+                from semantic.matching.models import MatchResult, MatchType, AmbiguityChoice, ResolutionStatus, SemanticResolutionResult
+                m = MatchResult(
+                    matched=True,
+                    value=clarified["value"],
+                    normalized_value=clarified.get("normalized_value", clarified["value"].lower()),
+                    confidence=clarified.get("confidence", 1.0),
+                    match_type=MatchType(clarified.get("match_type", "EXACT")),
+                    matched_question_tokens=clarified.get("matched_question_tokens", []),
+                    matched_value_tokens=clarified.get("matched_value_tokens", []),
+                    reason="Clarified by user",
+                    dimension_id=clarified.get("dimension_id"),
+                    business_name=clarified.get("business_name") or clarified.get("dimension"),
+                    table_name=clarified.get("table_name"),
+                    column_name=clarified.get("column_name")
+                )
+                choice = AmbiguityChoice(
+                    result=m,
+                    actual_query_coverage=len(m.matched_question_tokens),
+                    matched_query_tokens=m.matched_question_tokens
+                )
+                self.last_resolution_result = SemanticResolutionResult(
+                    status=ResolutionStatus.SINGLE_MATCH,
+                    candidates=[choice],
+                    dominant_match=choice
+                )
+                return ResolutionResultList(
+                    [
+                        {
+                            "dimension_id": m.dimension_id,
+                            "business_name": m.business_name,
+                            "table_name": m.table_name,
+                            "column_name": m.column_name,
+                            "value": m.value,
+                            "normalized_value": m.normalized_value,
+                            "confidence": m.confidence,
+                            "match_type": m.match_type.value,
+                            "matched_question_tokens": choice.matched_query_tokens,
+                            "matched_value_tokens": m.matched_value_tokens,
+                            "reason": m.reason
+                        }
+                    ],
+                    resolution_result=self.last_resolution_result,
+                    followup_context=getattr(self, "followup_context", None),
+                    match_stats=self.last_match_stats
+                )
 
 
         question = QuestionSanitizer.sanitize(question)

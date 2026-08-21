@@ -410,10 +410,16 @@ def ask_question(
     selected_candidate = None
     original_question = None
     is_clarification_resume = False
+    accumulated_candidates = []
 
     if pending_state:
         options_map = pending_state["options"]
         original_question = pending_state["original_question"]
+        accumulated_candidates = pending_state.get("accumulated_candidates", [])
+        if accumulated_candidates is None:
+            accumulated_candidates = []
+        elif isinstance(accumulated_candidates, dict):
+            accumulated_candidates = [accumulated_candidates]
         
         # Clean text for normalization
         import re
@@ -485,6 +491,8 @@ def ask_question(
         # Handle matches
         if len(matched_options) == 1:
             selected_candidate = matched_options[0]
+            if selected_candidate not in accumulated_candidates:
+                accumulated_candidates.append(selected_candidate)
             # Verify CLS
             from security.cls_engine import get_forbidden_columns
             forbidden_cols = get_forbidden_columns(user.get("role", ""))
@@ -635,11 +643,14 @@ def ask_question(
 
     try:
 
+        # If this is a clarification resume, pass the full accumulated candidates list
+        clarified_val = accumulated_candidates if is_clarification_resume else None
+
         sql_response = generate_sql_query(
             question, 
             history, 
             company_id=user["company_id"], 
-            clarified_candidate=selected_candidate
+            clarified_candidate=clarified_val
         )
 
         if not sql_response.get("success", True):
@@ -658,7 +669,8 @@ def ask_question(
                     {
                         "original_question": original_q,
                         "ambiguity_type": error_details.get("ambiguity_type", "SAME_DIMENSION"),
-                        "options": options_map
+                        "options": options_map,
+                        "accumulated_candidates": accumulated_candidates
                     }
                 )
                 

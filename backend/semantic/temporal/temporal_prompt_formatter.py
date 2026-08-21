@@ -13,7 +13,9 @@ class TemporalPromptFormatter:
         if not context.intent:
             return None
         
-        date_col = context.date_column or "createddate"
+        date_col = context.date_column
+        if not date_col:
+            return None
         intent = context.intent
         intent_type = getattr(intent, "intent_type", None)
         cls_name = intent.__class__.__name__
@@ -186,7 +188,7 @@ class TemporalPromptFormatter:
             lines.append(f"Strategy: {strategy_val}")
 
             # 2. Strategy specific details
-            if context.date_column:
+            if context.strategy != TimeStrategyType.SNAPSHOT and context.date_column:
                 lines.append(f"Date Column: {context.date_column}")
             if context.calendar_table:
                 lines.append(f"Calendar Table: {context.calendar_table}")
@@ -195,10 +197,11 @@ class TemporalPromptFormatter:
                 lines.append(f"Snapshot Columns: {cols_str}")
 
             # 3. Dates & Grouping / Granularity
-            if context.start_date:
-                lines.append(f"Start Date: {context.start_date.isoformat()}")
-            if context.end_date:
-                lines.append(f"End Date: {context.end_date.isoformat()}")
+            if context.strategy != TimeStrategyType.SNAPSHOT:
+                if context.start_date:
+                    lines.append(f"Start Date: {context.start_date.isoformat()}")
+                if context.end_date:
+                    lines.append(f"End Date: {context.end_date.isoformat()}")
             if context.grouping:
                 lines.append(f"Grouping: {context.grouping.value}")
                 lines.append(f"Granularity: {context.grouping.value}")
