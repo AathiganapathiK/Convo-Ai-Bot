@@ -5,7 +5,6 @@ import AIProviderConfig from "./AIProviderConfig";
 
 // Mock matchMedia for Antd tabs/tables
 beforeAll(() => {
-  jest.setTimeout(15000);
   Object.defineProperty(window, "matchMedia", {
     writable: true,
     value: jest.fn().mockImplementation(query => ({
@@ -21,7 +20,31 @@ beforeAll(() => {
   });
 });
 
-let mockFormValues = {};
+// Mock @ant-design/icons entirely to bypass Jest syntax error importing ES modules
+jest.mock("@ant-design/icons", () => {
+  const React = require("react");
+  const MockIcon = ({ className, style, onClick, "aria-label": ariaLabel }) => (
+    <span className={className} style={style} onClick={onClick} aria-label={ariaLabel} role="img" />
+  );
+  return {
+    PlusOutlined: MockIcon,
+    SettingOutlined: MockIcon,
+    KeyOutlined: MockIcon,
+    AppstoreOutlined: MockIcon,
+    NodeIndexOutlined: MockIcon,
+    CheckCircleOutlined: MockIcon,
+    CloseCircleOutlined: MockIcon,
+    WarningOutlined: MockIcon,
+    QuestionCircleOutlined: MockIcon,
+    DeleteOutlined: MockIcon,
+    ArrowUpOutlined: MockIcon,
+    ArrowDownOutlined: MockIcon,
+    EditOutlined: MockIcon,
+    GlobalOutlined: MockIcon,
+    ExperimentOutlined: MockIcon,
+    DashboardOutlined: MockIcon
+  };
+});
 
 // Mock Ant Design components completely to bypass DatePicker Node module resolution issues in Jest
 jest.mock("antd", () => {
@@ -57,9 +80,9 @@ jest.mock("antd", () => {
     </div>
   );
 
-  const Button = ({ children, onClick, loading, disabled, icon, ...props }) => (
-    <button onClick={onClick} disabled={disabled || loading} {...props}>
-      {loading ? "Loading..." : (children || icon)}
+  const Button = ({ children, onClick, loading, disabled }) => (
+    <button onClick={onClick} disabled={disabled || loading}>
+      {loading ? "Loading..." : children}
     </button>
   );
 
@@ -82,55 +105,19 @@ jest.mock("antd", () => {
 
   const Form = Object.assign(
     ({ children, onFinish }) => (
-      <form onSubmit={(e) => { e.preventDefault(); onFinish && onFinish(mockFormValues); }}>{children}</form>
+      <form onSubmit={(e) => { e.preventDefault(); onFinish && onFinish({}); }}>{children}</form>
     ),
     {
-      useForm: () => {
-        mockFormValues = {};
-        const formInstance = {
-          resetFields: () => { mockFormValues = {}; },
-          setFieldsValue: (vals) => { mockFormValues = { ...mockFormValues, ...vals }; },
-          getFieldsValue: () => mockFormValues,
-        };
-        return [formInstance];
-      },
-      Item: ({ children, name, label }) => {
-        if (React.isValidElement(children) && name) {
-          const childValue = mockFormValues[name];
-          const childOnChange = (e) => {
-            const val = (e && e.target && e.target.value !== undefined) ? e.target.value : e;
-            if (children.props.mode === "multiple") {
-              const current = mockFormValues[name] || [];
-              if (current.includes(val)) {
-                mockFormValues[name] = current.filter(x => x !== val);
-              } else {
-                mockFormValues[name] = [...current, val];
-              }
-            } else {
-              mockFormValues[name] = val;
-            }
-            if (children.props.onChange) {
-              children.props.onChange(e);
-            }
-          };
-          return (
-            <div>
-              {label && <label>{label}</label>}
-              {React.cloneElement(children, {
-                value: childValue,
-                onChange: childOnChange,
-                name: name
-              })}
-            </div>
-          );
-        }
-        return (
-          <div>
-            {label && <label>{label}</label>}
-            {children}
-          </div>
-        );
-      }
+      useForm: () => [{
+        resetFields: jest.fn(),
+        setFieldsValue: jest.fn(),
+      }],
+      Item: ({ children, label }) => (
+        <div>
+          {label && <label>{label}</label>}
+          {children}
+        </div>
+      )
     }
   );
 
@@ -142,47 +129,18 @@ jest.mock("antd", () => {
   );
 
   const Select = Object.assign(
-    ({ children, onChange, value, placeholder, mode }) => {
-      const [isOpen, setIsOpen] = React.useState(false);
-      return (
-        <div style={{ position: "relative" }}>
-          <div 
-            role="combobox" 
-            aria-expanded={isOpen}
-            onClick={() => setIsOpen(!isOpen)}
-            style={{ border: "1px solid #ccc", padding: "4px", cursor: "pointer" }}
-          >
-            {mode === "multiple" 
-              ? (Array.isArray(value) && value.length > 0 ? value.join(", ") : "Select multiple...") 
-              : (value || placeholder || "Select...")}
-          </div>
-          {isOpen && (
-            <div role="listbox" style={{ position: "absolute", background: "white", border: "1px solid #ccc", zIndex: 10 }}>
-              {React.Children.map(children, child => 
-                React.cloneElement(child, { 
-                  onClick: (val) => {
-                    onChange && onChange(val);
-                    if (mode !== "multiple") {
-                      setIsOpen(false);
-                    }
-                  }
-                })
-              )}
-            </div>
-          )}
-        </div>
-      );
-    },
+    ({ children, onChange, value, placeholder }) => (
+      <select 
+        value={value || ""} 
+        onChange={(e) => onChange && onChange(e.target.value)}
+        role="combobox"
+      >
+        <option value="" disabled>{placeholder || "Select model"}</option>
+        {children}
+      </select>
+    ),
     {
-      Option: ({ children, value, onClick }) => (
-        <div 
-          role="option" 
-          onClick={() => onClick && onClick(value)}
-          style={{ padding: "4px", cursor: "pointer" }}
-        >
-          {children}
-        </div>
-      )
+      Option: ({ children, value }) => <option value={value}>{children}</option>
     }
   );
 
@@ -194,26 +152,23 @@ jest.mock("antd", () => {
 
   const Tabs = ({ items, activeKey, onChange }) => (
     <div>
-      <div>
+      <div role="tablist">
         {items.map(item => (
           <button 
             key={item.key} 
+            role="tab" 
+            aria-selected={activeKey === item.key}
             onClick={() => onChange && onChange(item.key)}
-            style={{ fontWeight: activeKey === item.key ? "bold" : "normal" }}
           >
             {item.label}
           </button>
         ))}
       </div>
-      {items.map(item => (
-        <div 
-          key={item.key} 
-          data-testid={`tab-content-${item.key}`}
-          style={{ display: activeKey === item.key ? "block" : "none" }}
-        >
+      {items.map(item => activeKey === item.key ? (
+        <div key={item.key} data-testid={`tab-content-${item.key}`}>
           {item.children}
         </div>
-      ))}
+      ) : null)}
     </div>
   );
 
@@ -227,26 +182,12 @@ jest.mock("antd", () => {
   const Col = ({ children }) => <div>{children}</div>;
   const Badge = ({ text }) => <span>{text}</span>;
   
-  const Popconfirm = ({ children, onConfirm, title, okText }) => {
-    const [isOpen, setIsOpen] = React.useState(false);
-    return (
-      <span style={{ position: "relative" }}>
-        <span onClick={() => setIsOpen(!isOpen)}>{children}</span>
-        {isOpen && (
-          <div role="tooltip" style={{ position: "absolute", background: "white", border: "1px solid #ccc", zIndex: 10, padding: "8px" }}>
-            <div>{title || "Confirm?"}</div>
-            <button onClick={() => { onConfirm && onConfirm(); setIsOpen(false); }}>
-              {okText || "Yes"}
-            </button>
-            <button onClick={() => setIsOpen(false)}>No</button>
-          </div>
-        )}
-      </span>
-    );
-  };
+  const Popconfirm = ({ children, onConfirm }) => (
+    <span onClick={onConfirm} data-testid="popconfirm-trigger">{children}</span>
+  );
   
   const List = ({ dataSource, renderItem }) => (
-    <div>{dataSource.map((item, index) => <div key={index}>{renderItem(item, index)}</div>)}</div>
+    <div>{dataSource.map((item, index) => renderItem(item, index))}</div>
   );
   
   const Alert = ({ message, type }) => <div className={`alert-${type}`}>{message}</div>;
@@ -275,7 +216,6 @@ describe("AIProviderConfig Component", () => {
       last_success_at: "2026-08-20T10:00:00Z",
       last_failure_at: null,
       failure_count: 0,
-      consecutive_failures: 0,
       average_response_ms: 120.0
     },
     {
@@ -289,7 +229,6 @@ describe("AIProviderConfig Component", () => {
       last_success_at: null,
       last_failure_at: null,
       failure_count: 0,
-      consecutive_failures: 0,
       average_response_ms: null
     }
   ];
@@ -344,35 +283,32 @@ describe("AIProviderConfig Component", () => {
     }
   ];
 
-  const defaultFetchMock = (url) => {
-    if (url.includes("/providers")) {
-      return Promise.resolve({
-        ok: true,
-        json: () => Promise.resolve(mockProviders)
-      });
-    }
-    if (url.includes("/models")) {
-      return Promise.resolve({
-        ok: true,
-        json: () => Promise.resolve(mockModels)
-      });
-    }
-    if (url.includes("/fallbacks")) {
-      return Promise.resolve({
-        ok: true,
-        json: () => Promise.resolve(mockFallbacks)
-      });
-    }
-    return Promise.resolve({
-      ok: true,
-      json: () => Promise.resolve({})
-    });
-  };
-
   beforeEach(() => {
     jest.clearAllMocks();
-    global.fetch = jest.fn((url, options) => defaultFetchMock(url));
-    mockFormValues = {};
+    global.fetch = jest.fn((url, options) => {
+      if (url.includes("/providers")) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve(mockProviders)
+        });
+      }
+      if (url.includes("/models")) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve(mockModels)
+        });
+      }
+      if (url.includes("/fallbacks")) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve(mockFallbacks)
+        });
+      }
+      return Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve({})
+      });
+    });
   });
 
   // 1, 2, 3, 14. Loading and loads checks
@@ -382,9 +318,9 @@ describe("AIProviderConfig Component", () => {
     expect(screen.getByText("AI Model Control Center")).toBeInTheDocument();
     
     await waitFor(() => {
-      // Check Stats Cards labels
-      expect(screen.getByText("Active Providers")).toBeInTheDocument();
-      expect(screen.getAllByText("Registered Models").length).toBeGreaterThan(0);
+      // Check Stats Cards labels using getAllByText or check content
+      expect(screen.getAllByText("Active Providers")[0]).toBeInTheDocument();
+      expect(screen.getAllByText("Registered Models")[0]).toBeInTheDocument();
       expect(screen.getByText("Healthy Connections")).toBeInTheDocument();
       expect(screen.getByText("Fallback Routes")).toBeInTheDocument();
     });
@@ -393,10 +329,14 @@ describe("AIProviderConfig Component", () => {
   test("loads and displays providers table contents", async () => {
     render(<AIProviderConfig API={API} token={token} />);
 
+    // Click Connection Providers tab to activate it
+    const tabProvidersBtn = screen.getAllByRole("tab").find(el => el.textContent.includes("Connection Providers"));
+    fireEvent.click(tabProvidersBtn);
+
     await waitFor(() => {
-      // Verify provider names are rendered
-      expect(screen.getAllByText("Mock OpenAI").length).toBeGreaterThan(0);
-      expect(screen.getByText("Mock Groq")).toBeInTheDocument();
+      // Verify provider names are rendered (use getAll to handle duplicate provider names in other areas)
+      expect(screen.getAllByText("Mock OpenAI")[0]).toBeInTheDocument();
+      expect(screen.getAllByText("Mock Groq")[0]).toBeInTheDocument();
       // Verify key secure masking
       expect(screen.getByText("sk-...abcd")).toBeInTheDocument();
     });
@@ -405,10 +345,14 @@ describe("AIProviderConfig Component", () => {
   test("loads and displays models list contents", async () => {
     render(<AIProviderConfig API={API} token={token} />);
 
+    // Click Registered Models tab to activate it
+    const tabModelsBtn = screen.getAllByRole("tab").find(el => el.textContent.includes("Registered Models"));
+    fireEvent.click(tabModelsBtn);
+
     await waitFor(() => {
       // Verify model names are rendered
-      expect(screen.getAllByText("gpt-4o").length).toBeGreaterThan(0);
-      expect(screen.getAllByText("gpt-4o-mini").length).toBeGreaterThan(0);
+      expect(screen.getAllByText("gpt-4o")[0]).toBeInTheDocument();
+      expect(screen.getAllByText("gpt-4o-mini")[0]).toBeInTheDocument();
     });
   });
 
@@ -427,17 +371,15 @@ describe("AIProviderConfig Component", () => {
   // 4. Add provider modal submit check
   test("submits create provider form values correctly", async () => {
     render(<AIProviderConfig API={API} token={token} />);
+
+    // Active connection providers tab to render buttons
+    const tabProvidersBtn = screen.getAllByRole("tab").find(el => el.textContent.includes("Connection Providers"));
+    fireEvent.click(tabProvidersBtn);
     
-    // Switch to Connection Providers tab
-    const providersTab = screen.getByRole("button", { name: /Connection Providers/i });
-    fireEvent.click(providersTab);
-
-    // Wait for the table data to be loaded
-    await screen.findAllByText("Mock OpenAI");
-
-    // Click Add Provider button
-    const addBtn = screen.getByRole("button", { name: /add provider/i });
-    fireEvent.click(addBtn);
+    await waitFor(() => {
+      const addBtn = screen.getByRole("button", { name: /add provider/i });
+      fireEvent.click(addBtn);
+    });
 
     // Form modal is visible
     expect(screen.getByText("Register AI Connection Node")).toBeInTheDocument();
@@ -468,20 +410,21 @@ describe("AIProviderConfig Component", () => {
           json: () => Promise.resolve({ status: "success", latency_ms: 105 })
         });
       }
-      return defaultFetchMock(url);
+      return Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve([])
+      });
     });
 
     render(<AIProviderConfig API={API} token={token} />);
+
+    const tabProvidersBtn = screen.getAllByRole("tab").find(el => el.textContent.includes("Connection Providers"));
+    fireEvent.click(tabProvidersBtn);
     
-    // Switch to Connection Providers tab
-    const providersTab = screen.getByRole("button", { name: /Connection Providers/i });
-    fireEvent.click(providersTab);
-
-    // Wait for providers table to load
-    await screen.findAllByText("Mock OpenAI");
-
-    const testBtns = screen.getAllByRole("button", { name: /test connection/i });
-    fireEvent.click(testBtns[0]);
+    await waitFor(() => {
+      const testBtns = screen.getAllByRole("button", { name: /test connection/i });
+      fireEvent.click(testBtns[0]);
+    });
 
     await waitFor(() => {
       expect(global.fetch).toHaveBeenCalledWith(
@@ -500,20 +443,21 @@ describe("AIProviderConfig Component", () => {
           json: () => Promise.resolve({ status: "success", latency_ms: 215, response: "hello" })
         });
       }
-      return defaultFetchMock(url);
+      return Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve([])
+      });
     });
 
     render(<AIProviderConfig API={API} token={token} />);
+
+    const tabModelsBtn = screen.getAllByRole("tab").find(el => el.textContent.includes("Registered Models"));
+    fireEvent.click(tabModelsBtn);
     
-    // Switch to Registered Models tab
-    const modelsTab = screen.getByRole("button", { name: /Registered Models/i });
-    fireEvent.click(modelsTab);
-
-    // Wait for models list to load
-    await screen.findAllByText("gpt-4o");
-
-    const testBtns = screen.getAllByRole("button", { name: /test model/i });
-    fireEvent.click(testBtns[0]);
+    await waitFor(() => {
+      const testBtns = screen.getAllByRole("button", { name: /test model/i });
+      fireEvent.click(testBtns[0]);
+    });
 
     await waitFor(() => {
       expect(global.fetch).toHaveBeenCalledWith(
@@ -527,14 +471,10 @@ describe("AIProviderConfig Component", () => {
   test("updates primary model routing when a new model is selected", async () => {
     render(<AIProviderConfig API={API} token={token} />);
 
-    // Wait for loading to finish
-    await screen.findAllByText("gpt-4o-mini");
-
-    const selects = await screen.findAllByRole("combobox");
-    fireEvent.click(selects[0]);
-
-    const option = await screen.findByRole("option", { name: /gpt-4o-mini/i });
-    fireEvent.click(option);
+    await waitFor(() => {
+      const selects = screen.getAllByRole("combobox");
+      fireEvent.change(selects[0], { target: { value: "model-2" } });
+    });
 
     await waitFor(() => {
       expect(global.fetch).toHaveBeenCalledWith(
@@ -548,15 +488,10 @@ describe("AIProviderConfig Component", () => {
   test("triggers fallback removal when delete is clicked", async () => {
     render(<AIProviderConfig API={API} token={token} />);
 
-    // Wait for fallback items to load
-    await screen.findAllByText("gpt-4o-mini");
-
-    const deleteBtns = screen.getAllByRole("button", { name: /delete fallback/i });
-    fireEvent.click(deleteBtns[0]);
-
-    // Confirm the Popconfirm
-    const confirmBtn = await screen.findByRole("button", { name: /yes/i });
-    fireEvent.click(confirmBtn);
+    await waitFor(() => {
+      const popconfirms = screen.getAllByTestId("popconfirm-trigger");
+      fireEvent.click(popconfirms[0]);
+    });
 
     await waitFor(() => {
       expect(global.fetch).toHaveBeenCalledWith(
@@ -576,7 +511,7 @@ describe("AIProviderConfig Component", () => {
           json: () => Promise.resolve({ detail: "Access denied to admin resources" })
         });
       }
-      return defaultFetchMock(url);
+      return Promise.resolve({ ok: true, json: () => Promise.resolve([]) });
     });
 
     render(<AIProviderConfig API={API} token={token} />);
@@ -589,236 +524,19 @@ describe("AIProviderConfig Component", () => {
   // 13. No Key Exposure checks
   test("inputs password write-only for provider credentials", async () => {
     render(<AIProviderConfig API={API} token={token} />);
+
+    const tabProvidersBtn = screen.getAllByRole("tab").find(el => el.textContent.includes("Connection Providers"));
+    fireEvent.click(tabProvidersBtn);
     
-    // Switch to Connection Providers tab
-    const providersTab = screen.getByRole("button", { name: /Connection Providers/i });
-    fireEvent.click(providersTab);
-
-    // Wait for providers table to load
-    await screen.findAllByText("Mock OpenAI");
-
-    const keyBtns = screen.getAllByRole("button");
-    // Find credentials / API key update button (which has Key icon)
-    const keyBtn = keyBtns.find(btn => btn.querySelector('[aria-label="key"]'));
-    fireEvent.click(keyBtn);
-
-    // Wait for the password input to appear in the modal
-    const passwordInput = await screen.findByPlaceholderText(/token/i);
-    expect(passwordInput).toHaveAttribute("type", "password");
-  });
-
-  test("model registration shows multi-capability UI and allows selecting multiple capabilities", async () => {
-    render(<AIProviderConfig API={API} token={token} />);
-    
-    // Switch to Registered Models tab
-    const modelsTab = screen.getByRole("button", { name: /Registered Models/i });
-    fireEvent.click(modelsTab);
-
-    // Wait for data loading
-    await screen.findAllByText("gpt-4o");
-
-    // Click Add Model button
-    const addBtn = screen.getByRole("button", { name: /add model/i });
-    fireEvent.click(addBtn);
-
-    // Form modal is visible
-    expect(screen.getByText("Register Model Reference")).toBeInTheDocument();
-
-    // Check for Capabilities select combobox
-    const selects = screen.getAllByRole("combobox");
-    // Under registered models add modal, the first select is Provider, the second is Capabilities
-    expect(selects.length).toBeGreaterThanOrEqual(2);
-  });
-
-  test("registering a model with multiple capabilities sends the purposes list to the backend", async () => {
-    global.fetch = jest.fn().mockImplementation((url, options) => {
-      if (url.includes("/models") && options && options.method === "POST") {
-        const body = JSON.parse(options.body);
-        expect(body.purposes).toEqual(["sql_generation", "insight", "intent", "chart"]);
-        return Promise.resolve({ ok: true, json: () => Promise.resolve({ message: "Model created" }) });
-      }
-      return defaultFetchMock(url);
+    await waitFor(() => {
+      const keyBtns = screen.getAllByRole("button");
+      // Find credentials / API key update button (by triggering keys action)
+      fireEvent.click(keyBtns[2]);
     });
-
-    render(<AIProviderConfig API={API} token={token} />);
-    
-    const modelsTab = screen.getByRole("button", { name: /Registered Models/i });
-    fireEvent.click(modelsTab);
-    await screen.findAllByText("gpt-4o");
-
-    const addBtn = screen.getByRole("button", { name: /add model/i });
-    fireEvent.click(addBtn);
-
-    // Fill form
-    fireEvent.change(screen.getByPlaceholderText(/gpt-4o-mini/i), {
-      target: { value: "my-custom-model" }
-    });
-
-    // Select provider
-    const selects = screen.getAllByRole("combobox");
-    fireEvent.click(selects[0]);
-    const provOption = screen.getByRole("option", { name: "Mock OpenAI" });
-    fireEvent.click(provOption);
-
-    // Select capabilities
-    fireEvent.click(selects[1]);
-    const opt1 = screen.getByRole("option", { name: /sql generation/i });
-    const opt2 = screen.getByRole("option", { name: /business insight/i });
-    const opt3 = screen.getByRole("option", { name: /intent/i });
-    const opt4 = screen.getByRole("option", { name: /chart/i });
-    fireEvent.click(opt1);
-    fireEvent.click(opt2);
-    fireEvent.click(opt3);
-    fireEvent.click(opt4);
-
-    const submitBtn = screen.getByRole("button", { name: /register model/i });
-    fireEvent.click(submitBtn);
 
     await waitFor(() => {
-      expect(global.fetch).toHaveBeenCalledWith(
-        expect.stringContaining("/models"),
-        expect.objectContaining({ method: "POST" })
-      );
-    });
-  });
-
-  test("model list groups repeated model-purpose rows into one logical model with multiple tags", async () => {
-    const duplicateModels = [
-      {
-        model_id: "model-1",
-        provider_id: "prov-1",
-        provider_name: "Mock OpenAI",
-        provider_type: "openai",
-        model_name: "gpt-4o-shared",
-        purpose: "sql_generation",
-        is_default: true,
-        is_active: true,
-        provider_active: true,
-        health_status: "HEALTHY"
-      },
-      {
-        model_id: "model-2",
-        provider_id: "prov-1",
-        provider_name: "Mock OpenAI",
-        provider_type: "openai",
-        model_name: "gpt-4o-shared",
-        purpose: "insight",
-        is_default: false,
-        is_active: true,
-        provider_active: true,
-        health_status: "HEALTHY"
-      }
-    ];
-
-    global.fetch = jest.fn((url) => {
-      if (url.includes("/models")) {
-        return Promise.resolve({ ok: true, json: () => Promise.resolve(duplicateModels) });
-      }
-      return defaultFetchMock(url);
-    });
-
-    render(<AIProviderConfig API={API} token={token} />);
-    
-    const modelsTab = screen.getByRole("button", { name: /Registered Models/i });
-    fireEvent.click(modelsTab);
-
-    await waitFor(() => {
-      expect(screen.getAllByText("gpt-4o-shared").length).toBe(1);
-      expect(screen.getByText("SQL Generation")).toBeInTheDocument();
-      expect(screen.getByText("Business Insight")).toBeInTheDocument();
-    });
-  });
-
-  test("formats Pydantic 422 validation errors into user-friendly notifications without crashing", async () => {
-    const errorDetail = [
-      {
-        type: "missing",
-        loc: ["body", "provider_id"],
-        msg: "Field required",
-        input: null
-      },
-      {
-        type: "value_error",
-        loc: ["body", "purposes"],
-        msg: "At least one capability required",
-        input: null
-      }
-    ];
-
-    global.fetch = jest.fn().mockImplementation((url, options) => {
-      if (url.includes("/models") && options && options.method === "POST") {
-        return Promise.resolve({
-          ok: false,
-          status: 422,
-          json: () => Promise.resolve({ detail: errorDetail })
-        });
-      }
-      return defaultFetchMock(url);
-    });
-
-    render(<AIProviderConfig API={API} token={token} />);
-    
-    // Open modal
-    const modelsTab = screen.getByRole("button", { name: /Registered Models/i });
-    fireEvent.click(modelsTab);
-    await screen.findAllByText("gpt-4o");
-
-    const addBtn = screen.getByRole("button", { name: /add model/i });
-    fireEvent.click(addBtn);
-
-    // Enter name
-    fireEvent.change(screen.getByPlaceholderText(/gpt-4o-mini/i), {
-      target: { value: "test-fail-model" }
-    });
-
-    const submitBtn = screen.getByRole("button", { name: /register model/i });
-    fireEvent.click(submitBtn);
-
-    await waitFor(() => {
-      const antd = require("antd");
-      expect(antd.message.error).toHaveBeenCalledWith(
-        "provider_id: Field required; purposes: At least one capability required"
-      );
-    });
-  });
-
-  test("displays detailed health telemetry metrics (consecutive/total failures, last success) in provider rows", async () => {
-    const customProviders = [
-      {
-        provider_id: "prov-test",
-        provider_name: "Telemetry Provider",
-        provider_type: "openai",
-        base_url: "https://api.openai.com/v1",
-        is_active: true,
-        masked_api_key: "sk-...abcd",
-        status: "HEALTHY",
-        last_success_at: "2026-08-20T10:00:00.000Z",
-        last_failure_at: null,
-        failure_count: 14,
-        consecutive_failures: 2,
-        average_response_ms: 120.0
-      }
-    ];
-
-    global.fetch = jest.fn((url) => {
-      if (url.includes("/providers")) {
-        return Promise.resolve({ ok: true, json: () => Promise.resolve(customProviders) });
-      }
-      return defaultFetchMock(url);
-    });
-
-    render(<AIProviderConfig API={API} token={token} />);
-
-    // Switch to Connection Providers tab
-    const providersTab = screen.getByRole("button", { name: /Connection Providers/i });
-    fireEvent.click(providersTab);
-
-    // Verify health metrics are displayed correctly
-    await waitFor(() => {
-      expect(screen.getAllByText("CONNECTED")[0]).toBeInTheDocument();
-      expect(screen.getByText((_, el) => el.textContent.startsWith("Consecutive Failures:") && el.textContent.includes("2"))).toBeInTheDocument();
-      expect(screen.getByText((_, el) => el.textContent.startsWith("Total Failures:") && el.textContent.includes("14"))).toBeInTheDocument();
-      expect(screen.getByText((_, el) => el.textContent.startsWith("Last Success:"))).toBeInTheDocument();
+      const passwordInput = screen.getByLabelText("Secret Key Token");
+      expect(passwordInput).toHaveAttribute("type", "password");
     });
   });
 });

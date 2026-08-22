@@ -18,8 +18,8 @@ const ChartTabs = ({ chart, data }) => {
   const availableViews = chart?.available_views || ["table"];
   const defaultView = chart?.recommended_view || "table";
   
-  // Start with no view selected
-  const [activeView, setActiveView] = useState(null);
+  // Start with default recommended view selected
+  const [activeView, setActiveView] = useState(defaultView);
 
   const renderView = () => {
     switch (activeView) {

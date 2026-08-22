@@ -10,7 +10,8 @@ import {
   DeleteOutlined, EditOutlined, CopyOutlined, CodeOutlined, 
   CheckCircleOutlined, SmileOutlined, LoadingOutlined, AlertOutlined, 
   AudioOutlined, AudioMutedOutlined, BarChartOutlined, BulbOutlined, 
-  RocketOutlined, UpOutlined, DownOutlined, DownloadOutlined 
+  RocketOutlined, UpOutlined, DownOutlined, DownloadOutlined,
+  MenuFoldOutlined, MenuUnfoldOutlined
 } from "@ant-design/icons";
 import KPICards from "../components/charts/KPICards";
 import ChartTabs from "../components/charts/ChartTabs";
@@ -37,23 +38,38 @@ const parseBusinessSummary = (text) => {
     // Clean line for header detection
     const cleanLine = trimmed.replace(/[*#:_]/g, "").trim().toLowerCase();
 
-    if (
+    // Flexible check for headers (starts with #, ends with :, bolded, or matches exactly)
+    const isHeading = 
+      trimmed.startsWith("#") || 
+      trimmed.endsWith(":") || 
+      (trimmed.startsWith("**") && (trimmed.endsWith("**") || trimmed.endsWith("**:") || trimmed.endsWith("**:"))) ||
+      cleanLine === "executive summary" ||
       cleanLine === "key findings" ||
+      cleanLine === "key insights" ||
       cleanLine === "trend analysis" ||
       cleanLine === "top performer insights" ||
-      cleanLine === "dataset summary"
-    ) {
-      currentSection = "keyFindings";
-      return;
-    } else if (cleanLine === "executive summary") {
-      currentSection = "executiveSummary";
-      return;
-    } else if (
+      cleanLine === "dataset summary" ||
       cleanLine === "recommendation" ||
-      cleanLine === "business impact"
-    ) {
-      currentSection = "recommendation";
-      return;
+      cleanLine === "recommendations" ||
+      cleanLine === "business impact";
+
+    if (isHeading) {
+      if (cleanLine.includes("executive")) {
+        currentSection = "executiveSummary";
+        return;
+      } else if (cleanLine.includes("recommend") || cleanLine.includes("impact") || cleanLine.includes("action")) {
+        currentSection = "recommendation";
+        return;
+      } else if (
+        cleanLine.includes("finding") ||
+        cleanLine.includes("insight") ||
+        cleanLine.includes("analysis") ||
+        cleanLine.includes("summary") ||
+        cleanLine.includes("dataset")
+      ) {
+        currentSection = "keyFindings";
+        return;
+      }
     }
 
     // Append to current section
@@ -174,7 +190,7 @@ const AnalyticsWorkspace = ({ msg, userInfo, downloadExcel, askQuestion, tableCo
     kpis: true,
     charts: true,
     table: true,
-    sql: false
+    sql: true
   });
 
   const handleToggleAll = () => {
@@ -196,33 +212,76 @@ const AnalyticsWorkspace = ({ msg, userInfo, downloadExcel, askQuestion, tableCo
     setSecStates(prev => ({ ...prev, [key]: !prev[key] }));
   };
 
-  const summaryParts = parseBusinessSummary(msg.business_summary);
+  const summaryParts = parseBusinessSummary(msg.business_summary || msg.content);
 
   const hasKPIs = msg.kpis && 
                   (Array.isArray(msg.kpis) 
                     ? msg.kpis.length > 0 
                     : (typeof msg.kpis === 'object' && Object.keys(msg.kpis).length > 0 && Object.values(msg.kpis).some(val => val !== null && val !== undefined && val !== "")));
 
+  const summaryCards = [];
+  if (summaryParts.executiveSummary) {
+    summaryCards.push({
+      key: "summary",
+      title: "EXECUTIVE SUMMARY",
+      icon: <BulbOutlined style={{ color: "#f59e0b", fontSize: "18px" }} />,
+      bgColor: "rgba(245, 158, 11, 0.1)",
+      content: (
+        <div style={{ color: "var(--text-secondary)", fontSize: "14px", lineHeight: "1.6", whiteSpace: "pre-line" }}>
+          {summaryParts.executiveSummary}
+        </div>
+      )
+    });
+  }
+  if (summaryParts.keyFindings) {
+    summaryCards.push({
+      key: "insights",
+      title: "KEY INSIGHTS",
+      icon: <BarChartOutlined style={{ color: "#6366f1", fontSize: "18px" }} />,
+      bgColor: "rgba(99, 102, 241, 0.1)",
+      content: (
+        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+          {summaryParts.keyFindings.split("\n").map((line, idx) => {
+            const cleanLine = line.trim().replace(/^[-*•]\s*/, "");
+            if (!cleanLine) return null;
+            return (
+              <div key={idx} style={{ display: "flex", alignItems: "flex-start", gap: "8px" }}>
+                <span style={{ color: "#6366f1", marginTop: "4px", fontSize: "16px", lineHeight: "1" }}>•</span>
+                <span style={{ color: "var(--text-secondary)", fontSize: "14px", lineHeight: "1.5" }}>{cleanLine}</span>
+              </div>
+            );
+          })}
+        </div>
+      )
+    });
+  }
+  if (summaryParts.recommendation) {
+    summaryCards.push({
+      key: "recommendations",
+      title: "RECOMMENDATIONS",
+      icon: <RocketOutlined style={{ color: "#10b981", fontSize: "18px" }} />,
+      bgColor: "rgba(16, 185, 129, 0.1)",
+      content: (
+        <div style={{ color: "var(--text-secondary)", fontSize: "14px", lineHeight: "1.6", whiteSpace: "pre-line" }}>
+          {summaryParts.recommendation}
+        </div>
+      )
+    });
+  }
+
+  const hasLeftContent = hasKPIs || msg.chart || msg.data;
+  const hasRightContent = ((userInfo?.role === "ADMIN" || userInfo?.role === "SUPER_ADMIN") && msg.sql_query) || (msg.followup_questions?.length > 0);
+
   return (
-    <Card 
-      bordered={false} 
-      style={{ 
-        background: "var(--bg-card)", 
-        border: "1px solid var(--border-color)", 
-        borderTop: "4px solid #6366f1",
-        borderRadius: "14px",
-        boxShadow: "0 6px 20px rgba(0, 0, 0, 0.05)",
-        width: "100%"
-      }}
-      bodyStyle={{ padding: "20px" }}
-    >
+    <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: "20px", marginBottom: "32px" }}>
+      {/* Header Panel */}
       <div style={{ 
         display: "flex", 
         justifyContent: "space-between", 
         alignItems: "center", 
         borderBottom: "1px solid var(--border-color)", 
         paddingBottom: "16px",
-        marginBottom: "20px" 
+        marginBottom: "4px" 
       }}>
         <Space size="middle">
           <Avatar style={{ backgroundColor: "#6366f1" }} icon={<SmileOutlined />} />
@@ -276,165 +335,250 @@ const AnalyticsWorkspace = ({ msg, userInfo, downloadExcel, askQuestion, tableCo
         </Space>
       </div>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-        
-        {summaryParts.executiveSummary && (
-          <WorkspaceSection 
-            title="Executive Summary" 
-            icon={<BulbOutlined style={{ color: "#f59e0b", fontSize: "15px" }} />}
-            isOpen={secStates.summary}
-            onToggle={() => toggleSection("summary")}
-          >
-            <div style={{ color: "var(--text-secondary)", fontSize: "14px", lineHeight: "1.6", whiteSpace: "pre-line" }}>
-              {summaryParts.executiveSummary}
-            </div>
-          </WorkspaceSection>
-        )}
-
-        {summaryParts.keyFindings && (
-          <WorkspaceSection 
-            title="Key Insights" 
-            icon={<BarChartOutlined style={{ color: "#6366f1", fontSize: "15px" }} />}
-            isOpen={secStates.insights}
-            onToggle={() => toggleSection("insights")}
-          >
-            <div style={{ color: "var(--text-secondary)", fontSize: "14px", lineHeight: "1.6", whiteSpace: "pre-line" }}>
-              {summaryParts.keyFindings}
-            </div>
-          </WorkspaceSection>
-        )}
-
-        {summaryParts.recommendation && (
-          <WorkspaceSection 
-            title="Recommendations" 
-            icon={<RocketOutlined style={{ color: "#10b981", fontSize: "15px" }} />}
-            isOpen={secStates.recommendations}
-            onToggle={() => toggleSection("recommendations")}
-          >
-            <div style={{ color: "var(--text-secondary)", fontSize: "14px", lineHeight: "1.6", whiteSpace: "pre-line" }}>
-              {summaryParts.recommendation}
-            </div>
-          </WorkspaceSection>
-        )}
-
-        {hasKPIs && (
-          <WorkspaceSection 
-            title="KPI Metrics" 
-            icon={<CheckCircleOutlined style={{ color: "#10b981", fontSize: "15px" }} />}
-            isOpen={secStates.kpis}
-            onToggle={() => toggleSection("kpis")}
-          >
-            <KPICards kpis={msg.kpis} />
-          </WorkspaceSection>
-        )}
-
-        {msg.chart && (
-          <WorkspaceSection 
-            title={msg.chart.title || "Visual Analysis"} 
-            icon={<BarChartOutlined style={{ color: "#6366f1", fontSize: "15px" }} />}
-            isOpen={secStates.charts}
-            onToggle={() => toggleSection("charts")}
-            extra={
-              <Button 
-                size="small" 
-                icon={<DownloadOutlined />} 
-                onClick={() => downloadChartAsSVG(msg.chart.title)}
-              >
-                Download Chart
-              </Button>
-            }
-          >
-            <div style={{ marginBottom: "12px", color: "var(--text-muted)", fontSize: "13px" }}>
-              {msg.chart.insight}
-            </div>
-            <ChartTabs chart={msg.chart} data={msg.chart_data || msg.data} />
-          </WorkspaceSection>
-        )}
-
-        {msg.data && (
-          <WorkspaceSection 
-            title={`View Dataset (${msg.data.length} Rows)`}
-            icon={<DatabaseOutlined style={{ color: "#4f46e5", fontSize: "15px" }} />}
-            isOpen={secStates.table}
-            onToggle={() => toggleSection("table")}
-          >
-            <div className="table-metadata-header">
-              <DatabaseOutlined style={{ color: "#6366f1" }} />
-              <span>{msg.data.length} Records</span>
-              <span style={{ color: "var(--border-light)" }}>|</span>
-              <span>{Object.keys(msg.data[0] || {}).length} Columns</span>
-            </div>
-            <Table 
-              dataSource={msg.data.map((row, i) => ({ ...row, key: i }))} 
-              columns={tableColumns(msg.data)} 
-              pagination={{ 
-                pageSize: 5,
-                showSizeChanger: false,
-                size: "small",
-              }} 
-              size="small" 
-              scroll={{ x: "max-content" }}
-              sticky
-              style={{ background: "var(--bg-card)" }} 
-              className="dark-table" 
-            />
-          </WorkspaceSection>
-        )}
-
-        {(userInfo?.role === "ADMIN" || userInfo?.role === "SUPER_ADMIN") && msg.sql_query && (
-          <WorkspaceSection 
-            title="Generated SQL Query" 
-            icon={<CodeOutlined style={{ color: "#6366f1", fontSize: "15px" }} />}
-            isOpen={secStates.sql}
-            onToggle={() => toggleSection("sql")}
-            extra={
-              <Button 
-                size="small" 
-                icon={<CopyOutlined />} 
-                onClick={() => { navigator.clipboard.writeText(msg.sql_query); message.success("Copied!"); }}
-              >
-                Copy
-              </Button>
-            }
-          >
-            <pre style={{ 
-              background: "var(--bg-layout)", 
-              color: "var(--text-active)", 
-              padding: "14px", 
-              borderRadius: "6px", 
-              overflowX: "auto", 
-              fontFamily: "monospace", 
-              margin: 0 
-            }}>
-              {msg.sql_query}
-            </pre>
-          </WorkspaceSection>
-        )}
-
-        {msg.followup_questions?.length > 0 && (
-          <WorkspaceSection 
-            title="Recommended Next Questions" 
-            icon={<ArrowRightOutlined style={{ color: "#6366f1", fontSize: "14px" }} />}
-            isOpen={secStates.followup}
-            onToggle={() => toggleSection("followup")}
-          >
-            <div className="suggestion-chips-container" style={{ marginTop: "0px" }}>
-              {msg.followup_questions.map((question, index) => (
-                <button
-                  key={index}
-                  className="suggestion-chip"
-                  onClick={() => askQuestion(question)}
+      {/* Row 1: Summary Cards Grid */}
+      {summaryCards.length > 0 && (
+        <Row gutter={[16, 16]}>
+          {summaryCards.map((card) => {
+            const span = 24 / summaryCards.length;
+            return (
+              <Col key={card.key} xs={24} md={span}>
+                <Card
+                  bordered={false}
+                  style={{
+                    background: "var(--bg-card)",
+                    border: "1px solid var(--border-color)",
+                    borderRadius: "12px",
+                    height: "100%",
+                    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.02)"
+                  }}
+                  bodyStyle={{ padding: "20px" }}
                 >
-                  <ArrowRightOutlined style={{ color: "#6366f1", fontSize: "11px", flexShrink: 0 }} />
-                  <span>{question}</span>
-                </button>
-              ))}
-            </div>
-          </WorkspaceSection>
-        )}
+                  <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "16px" }}>
+                    <div style={{
+                      width: "36px",
+                      height: "36px",
+                      borderRadius: "8px",
+                      backgroundColor: card.bgColor,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center"
+                    }}>
+                      {card.icon}
+                    </div>
+                    <span style={{ fontWeight: 800, fontSize: "13px", color: "var(--text-main)", letterSpacing: "0.5px" }}>
+                      {card.title}
+                    </span>
+                  </div>
+                  {card.content}
+                </Card>
+              </Col>
+            );
+          })}
+        </Row>
+      )}
 
-      </div>
-    </Card>
+      {/* Row 2: Split Layout (Main Left & Side Right) */}
+      {(hasLeftContent || hasRightContent) && (
+        <Row gutter={[16, 16]}>
+          {hasLeftContent && (
+            <Col xs={24} lg={hasRightContent ? 16 : 24}>
+              {/* KPIs */}
+              {hasKPIs && (
+                <Card
+                  bordered={false}
+                  style={{
+                    background: "var(--bg-card)",
+                    border: "1px solid var(--border-color)",
+                    borderRadius: "12px",
+                    marginBottom: "16px",
+                    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.02)"
+                  }}
+                  bodyStyle={{ padding: "20px" }}
+                >
+                  <div style={{ marginBottom: "16px" }}>
+                    <span style={{ fontWeight: 700, fontSize: "15px", color: "var(--text-main)" }}>Key Performance Indicators</span>
+                  </div>
+                  <KPICards kpis={msg.kpis} />
+                </Card>
+              )}
+
+              {/* Chart visualization */}
+              {msg.chart && (
+                <Card
+                  bordered={false}
+                  style={{
+                    background: "var(--bg-card)",
+                    border: "1px solid var(--border-color)",
+                    borderRadius: "12px",
+                    marginBottom: "16px",
+                    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.02)"
+                  }}
+                  bodyStyle={{ padding: "20px" }}
+                >
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+                    <span style={{ fontWeight: 700, fontSize: "15px", color: "var(--text-main)" }}>
+                      {msg.chart.title || "Visual Analysis"}
+                    </span>
+                    <Space>
+                      <Button 
+                        size="small" 
+                        icon={<DownloadOutlined />} 
+                        onClick={() => downloadChartAsSVG(msg.chart.title)}
+                        style={{ borderRadius: "6px" }}
+                      >
+                        Download Chart
+                      </Button>
+                    </Space>
+                  </div>
+                  <div style={{ marginBottom: "12px", color: "var(--text-muted)", fontSize: "13px" }}>
+                    {msg.chart.insight}
+                  </div>
+                  <ChartTabs chart={msg.chart} data={msg.chart_data || msg.data} />
+                </Card>
+              )}
+
+              {/* Table dataset results */}
+              {msg.data && (
+                <Card
+                  bordered={false}
+                  style={{
+                    background: "var(--bg-card)",
+                    border: "1px solid var(--border-color)",
+                    borderRadius: "12px",
+                    marginBottom: "16px",
+                    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.02)"
+                  }}
+                  bodyStyle={{ padding: "20px" }}
+                >
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+                    <span style={{ fontWeight: 700, fontSize: "15px", color: "var(--text-main)" }}>
+                      Dataset Results
+                    </span>
+                    <div style={{ display: "flex", alignItems: "center", gap: "8px", color: "var(--text-muted)", fontSize: "12px" }}>
+                      <DatabaseOutlined />
+                      <span>{msg.data.length} Records</span>
+                      <span style={{ color: "var(--border-light)" }}>|</span>
+                      <span>{Object.keys(msg.data[0] || {}).length} Columns</span>
+                    </div>
+                  </div>
+                  <Table 
+                    dataSource={msg.data.map((row, i) => ({ ...row, key: i }))} 
+                    columns={tableColumns(msg.data)} 
+                    pagination={{ 
+                      pageSize: 5,
+                      showSizeChanger: false,
+                      size: "small",
+                    }} 
+                    size="small" 
+                    scroll={{ x: "max-content" }}
+                    style={{ background: "var(--bg-card)" }} 
+                    className="dark-table" 
+                  />
+                </Card>
+              )}
+            </Col>
+          )}
+
+          {hasRightContent && (
+            <Col xs={24} lg={hasLeftContent ? 8 : 24}>
+              {/* SQL Query */}
+              {(userInfo?.role === "ADMIN" || userInfo?.role === "SUPER_ADMIN") && msg.sql_query && (
+                <Card
+                  bordered={false}
+                  style={{
+                    background: "var(--bg-card)",
+                    border: "1px solid var(--border-color)",
+                    borderRadius: "12px",
+                    marginBottom: "16px",
+                    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.02)"
+                  }}
+                  bodyStyle={{ padding: "20px" }}
+                >
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: secStates.sql ? "16px" : "0px" }}>
+                    <Space size="small">
+                      <CodeOutlined style={{ color: "#6366f1", fontSize: "16px" }} />
+                      <span style={{ fontWeight: 700, fontSize: "14px", color: "var(--text-main)", letterSpacing: "0.5px" }}>SQL QUERY DETAILS</span>
+                    </Space>
+                    <Space size="small">
+                      <Button
+                        size="small"
+                        icon={<CopyOutlined />}
+                        onClick={() => { navigator.clipboard.writeText(msg.sql_query); message.success("Copied SQL query!"); }}
+                        style={{ borderRadius: "6px" }}
+                      >
+                        Copy
+                      </Button>
+                      <Button
+                        type="text"
+                        size="small"
+                        icon={secStates.sql ? <UpOutlined /> : <DownOutlined />}
+                        onClick={() => toggleSection("sql")}
+                      />
+                    </Space>
+                  </div>
+                  
+                  {secStates.sql && (
+                    <pre style={{ 
+                      background: "var(--bg-card-inner)", 
+                      color: "var(--text-secondary)", 
+                      padding: "14px", 
+                      borderRadius: "6px", 
+                      overflowX: "auto", 
+                      fontFamily: "monospace", 
+                      fontSize: "12.5px",
+                      lineHeight: "1.5",
+                      margin: 0,
+                      border: "1px solid var(--border-color)"
+                    }}>
+                      {msg.sql_query}
+                    </pre>
+                  )}
+                </Card>
+              )}
+
+              {/* Recommended Next Questions */}
+              {msg.followup_questions?.length > 0 && (
+                <Card
+                  bordered={false}
+                  style={{
+                    background: "var(--bg-card)",
+                    border: "1px solid var(--border-color)",
+                    borderRadius: "12px",
+                    marginBottom: "16px",
+                    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.02)"
+                  }}
+                  bodyStyle={{ padding: "20px" }}
+                >
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "16px" }}>
+                    <ArrowRightOutlined style={{ color: "#6366f1", fontSize: "14px" }} />
+                    <span style={{ fontWeight: 700, fontSize: "14px", color: "var(--text-main)", letterSpacing: "0.5px" }}>RECOMMENDED QUERIES</span>
+                  </div>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                    {msg.followup_questions.map((question, index) => (
+                      <button
+                        key={index}
+                        className="suggestion-chip"
+                        onClick={() => askQuestion(question)}
+                        style={{
+                          width: "100%",
+                          textAlign: "left",
+                          justifyContent: "flex-start",
+                          padding: "10px 14px",
+                          borderRadius: "8px"
+                        }}
+                      >
+                        <ArrowRightOutlined style={{ color: "#6366f1", fontSize: "11px", marginRight: "8px", flexShrink: 0 }} />
+                        <span style={{ fontSize: "13px" }}>{question}</span>
+                      </button>
+                    ))}
+                  </div>
+                </Card>
+              )}
+            </Col>
+          )}
+        </Row>
+      )}
+    </div>
   );
 };
 
@@ -452,6 +596,7 @@ export default function ChatPage({ API, token, userInfo }) {
   const [pendingClarification, setPendingClarification] = useState(null);
   const recognitionRef = useRef(null);
   const messagesEndRef = useRef(null);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -1183,9 +1328,13 @@ export default function ChatPage({ API, token, userInfo }) {
     <Layout hasSider style={{ height: "calc(100vh - 112px)", background: "var(--bg-chat-session)", flexDirection: "row", overflow: "hidden" }}>
       <Sider
         width={260}
+        collapsible
+        collapsed={isSidebarCollapsed}
+        collapsedWidth={0}
+        trigger={null}
         style={{
           background: "var(--bg-chat-session)",
-          borderRight: "1px solid var(--border-color)",
+          borderRight: isSidebarCollapsed ? "none" : "1px solid var(--border-color)",
           display: "flex",
           flexDirection: "column",
           height: "100%",
@@ -1259,6 +1408,61 @@ export default function ChatPage({ API, token, userInfo }) {
       </Sider>
 
       <Content style={{ display: "flex", flexDirection: "column", height: "100%", background: "var(--bg-layout)", overflow: "hidden" }}>
+        {/* Chat Page Header */}
+        <div style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          padding: "12px 24px",
+          borderBottom: "1px solid var(--border-color)",
+          background: "var(--bg-header)",
+          height: "52px",
+          flexShrink: 0
+        }}>
+          <Space size="middle">
+            <Tooltip title={isSidebarCollapsed ? "Show sidebar" : "Hide sidebar"}>
+              <Button
+                type="text"
+                icon={isSidebarCollapsed ? <MenuUnfoldOutlined style={{ fontSize: "16px", color: "var(--text-main)" }} /> : <MenuFoldOutlined style={{ fontSize: "16px", color: "var(--text-main)" }} />}
+                onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+                style={{ 
+                  display: "flex", 
+                  alignItems: "center", 
+                  justifyContent: "center",
+                  width: "32px",
+                  height: "32px",
+                  borderRadius: "6px"
+                }}
+              />
+            </Tooltip>
+            {selectedSessionId ? (
+              <span style={{ fontWeight: 600, color: "var(--text-main)", fontSize: "14.5px" }}>
+                {historyChats.find(c => c.id === selectedSessionId)?.session_name || "Active Chat"}
+              </span>
+            ) : (
+              <span style={{ fontWeight: 600, color: "var(--text-main)", fontSize: "14.5px" }}>New Chat</span>
+            )}
+          </Space>
+          
+          <Space>
+            <Tooltip title="Start a new chat session">
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                onClick={startNewChat}
+                style={{
+                  borderRadius: "6px",
+                  fontWeight: 600,
+                  backgroundColor: "#4f46e5",
+                  borderColor: "#4f46e5"
+                }}
+              >
+                New Chat
+              </Button>
+            </Tooltip>
+          </Space>
+        </div>
+
         <div style={{ flex: 1, overflowY: "auto", padding: "24px 16px", scrollBehavior: "smooth" }}>
           {messages.length === 0 ? (
             renderWelcomeDashboard()
