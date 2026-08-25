@@ -95,7 +95,7 @@ describe("ClarificationCard Component - Duplicate Value Handling", () => {
   test("8. Duplicate display values remain distinguishable in options list", () => {
     render(<ClarificationCard options={duplicateOptions} />);
 
-    const labels = screen.getAllByText(/CHENNAI/);
+    const labels = screen.getAllByText(/CHENNAI —/);
     expect(labels.length).toBe(2);
     expect(labels[0]).toHaveTextContent("CHENNAI — City");
     expect(labels[1]).toHaveTextContent("CHENNAI — District");

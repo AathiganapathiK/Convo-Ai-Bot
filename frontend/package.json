@@ -33,7 +33,8 @@
   },
   "jest": {
     "moduleNameMapper": {
-      "^@rc-component/picker/locale/(.*)$": "@rc-component/picker/lib/locale/$1"
+      "^@rc-component/picker/locale/(.*)$": "@rc-component/picker/lib/locale/$1",
+      "^@rc-component/picker/generate/(.*)$": "@rc-component/picker/lib/generate/$1"
     }
   },
   "browserslist": {

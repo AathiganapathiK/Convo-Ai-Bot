@@ -17,6 +17,7 @@ import KPICards from "../components/charts/KPICards";
 import ChartTabs from "../components/charts/ChartTabs";
 import { formatValue } from "../utils/format";
 import ClarificationCard from "../components/ClarificationCard";
+import LoadingState from "../components/LoadingState";
 const { Sider, Content } = Layout;
 const { Text, Title, Paragraph } = Typography;
 const { Panel } = Collapse;
@@ -1610,14 +1611,11 @@ export default function ChatPage({ API, token, userInfo }) {
                   }}
                 >
                   <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                    <Avatar style={{ backgroundColor: "#6366f1" }} icon={<LoadingOutlined spin />} />
+                    <Avatar style={{ backgroundColor: "#6366f1" }} icon={<SmileOutlined />} />
                     <div>
                       <Text strong style={{ color: "var(--text-main)", fontSize: "14px" }}>AI Business Assistant</Text>
-                      <div className="thinking-dots" style={{ fontSize: "12px", color: "var(--text-muted)", display: "flex", alignItems: "center", gap: "4px" }}>
-                        <span>Thinking</span>
-                        <span className="dot">.</span>
-                        <span className="dot">.</span>
-                        <span className="dot">.</span>
+                      <div style={{ marginTop: "4px" }}>
+                        <LoadingState variant="Drive" label="Thinking" />
                       </div>
                     </div>
                   </div>
