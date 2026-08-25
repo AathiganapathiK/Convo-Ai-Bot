@@ -16,13 +16,48 @@ ALLOWED_CATEGORIES = {
     "METRIC_SHIFT",
     "ENTITY_TOPIC_SHIFT",
     "NO_MATCH_ADVERSARIAL",
-    "TEMPORAL_QUESTIONS"
+    "TEMPORAL_QUESTIONS",
+    "KPI_BUSINESS_QUESTION"
 }
 
 ALLOWED_SOURCES = {
     "REAL_BUSINESS",
     "REGRESSION",
-    "SYNTHETIC_SAFETY"
+    "SYNTHETIC_SAFETY",
+    "KPI_LIBRARY"
+}
+
+# Two case_id families: retrieval benchmark cases (E1-001...) and KPI Prompt Library
+# Sales cases, which keep the spreadsheet's own ids so they stay traceable to source.
+CASE_ID_PATTERN = r"^(E1-[0-9]{3,}|SAL-(USE|MAN|HOD|CXO)-[0-9]{2})$"
+
+ALLOWED_MODES = {
+    "DESCRIPTIVE",
+    "COMPARISON",
+    "TREND",
+    "RANKING",
+    "DIAGNOSTIC",
+    "PRESCRIPTIVE"
+}
+
+ALLOWED_GRAINS = {"DAY", "WEEK", "MONTH", "QUARTER", "YEAR"}
+
+ALLOWED_OUTPUT_FORMATS = {"kpi", "table", "chart", "narrative"}
+
+ALLOWED_DIRECTIONS = {"ASC", "DESC"}
+
+ALLOWED_ANSWERABLE = {"yes", "partial", "no"}
+
+ALLOWED_PLAN_FIELDS = {
+    "mode",
+    "metric",
+    "entity",
+    "filters",
+    "time",
+    "ranking",
+    "output",
+    "diagnostic",
+    "assumptions_expected"
 }
 
 ALLOWED_SEVERITIES = {
@@ -54,7 +89,10 @@ REQUIRED_CASE_FIELDS = {
 
 ALLOWED_CASE_FIELDS = REQUIRED_CASE_FIELDS | {
     "allowed_variations",
-    "must_not"
+    "must_not",
+    "expected_plan",
+    "data_answerable",
+    "missing_data"
 }
 
 REQUIRED_EXPECTED_FIELDS = {
@@ -88,8 +126,8 @@ def validate_case(case: dict, seen_ids: set, index: int = 0) -> list[str]:
         return errors
 
     case_id = case.get("case_id", "")
-    if not isinstance(case_id, str) or not re.match(r"^E1-[0-9]{3,}$", case_id):
-        errors.append(f"Case index {index} ({case_id}): Invalid case_id format. Must match ^E1-[0-9]{{3,}}$")
+    if not isinstance(case_id, str) or not re.match(CASE_ID_PATTERN, case_id):
+        errors.append(f"Case index {index} ({case_id}): Invalid case_id format. Must match {CASE_ID_PATTERN}")
 
     if case_id in seen_ids:
         errors.append(f"Case index {index}: Duplicate case_id '{case_id}'")
@@ -189,7 +227,139 @@ def validate_case(case: dict, seen_ids: set, index: int = 0) -> list[str]:
         if not isinstance(expected.get("followup_context_applied"), bool):
             errors.append(f"Case {case_id}: 'expected.followup_context_applied' must be a boolean")
 
-    # 10. Safety check: No SQL or database credentials
+    # 10. data_answerable / missing_data validation
+    answerable = case.get("data_answerable")
+    if "data_answerable" in case:
+        if answerable not in ALLOWED_ANSWERABLE:
+            errors.append(f"Case {case_id}: Invalid data_answerable '{answerable}'. Allowed: {sorted(list(ALLOWED_ANSWERABLE))}")
+
+    missing_data = case.get("missing_data")
+    if "missing_data" in case:
+        if not isinstance(missing_data, list) or not all(isinstance(m, str) for m in missing_data):
+            errors.append(f"Case {case_id}: 'missing_data' must be a list of strings")
+
+    # A case the live data cannot answer must say what is missing, otherwise the
+    # answerability tag is an unactionable dead end.
+    if answerable in {"partial", "no"} and not missing_data:
+        errors.append(f"Case {case_id}: data_answerable='{answerable}' requires a non-empty 'missing_data' list")
+    if answerable == "yes" and missing_data:
+        errors.append(f"Case {case_id}: data_answerable='yes' must not declare 'missing_data'")
+
+    # 11. expected_plan validation
+    plan = case.get("expected_plan")
+    if "expected_plan" in case:
+        if not isinstance(plan, dict):
+            errors.append(f"Case {case_id}: 'expected_plan' must be an object")
+        else:
+            plan_extra = set(plan.keys()) - ALLOWED_PLAN_FIELDS
+            if plan_extra:
+                errors.append(f"Case {case_id}: 'expected_plan' has unsupported fields {sorted(list(plan_extra))}")
+
+            if plan.get("mode") not in ALLOWED_MODES:
+                errors.append(f"Case {case_id}: 'expected_plan.mode' must be one of {sorted(list(ALLOWED_MODES))} (got '{plan.get('mode')}')")
+
+            metric = plan.get("metric")
+            if metric is not None and not isinstance(metric, str):
+                errors.append(f"Case {case_id}: 'expected_plan.metric' must be a string or null")
+
+            entity = plan.get("entity")
+            if entity is not None:
+                if not isinstance(entity, dict):
+                    errors.append(f"Case {case_id}: 'expected_plan.entity' must be an object or null")
+                else:
+                    ent_extra = set(entity.keys()) - {"dimension", "value", "resolved_id"}
+                    if ent_extra:
+                        errors.append(f"Case {case_id}: 'expected_plan.entity' has unsupported fields {sorted(list(ent_extra))}")
+
+            filters = plan.get("filters")
+            if filters is not None:
+                if not isinstance(filters, list):
+                    errors.append(f"Case {case_id}: 'expected_plan.filters' must be a list")
+                else:
+                    for f_idx, filt in enumerate(filters):
+                        if not isinstance(filt, dict):
+                            errors.append(f"Case {case_id}: filter {f_idx} must be an object")
+                            continue
+                        if set(filt.keys()) - {"field", "op", "value"}:
+                            errors.append(f"Case {case_id}: filter {f_idx} keys must be within ['field', 'op', 'value']")
+                        if not isinstance(filt.get("field"), str) or not isinstance(filt.get("op"), str):
+                            errors.append(f"Case {case_id}: filter {f_idx} 'field' and 'op' must be strings")
+
+            time_slot = plan.get("time")
+            if time_slot is not None:
+                if not isinstance(time_slot, dict):
+                    errors.append(f"Case {case_id}: 'expected_plan.time' must be an object or null")
+                else:
+                    t_extra = set(time_slot.keys()) - {"period", "grain", "comparison_period"}
+                    if t_extra:
+                        errors.append(f"Case {case_id}: 'expected_plan.time' has unsupported fields {sorted(list(t_extra))}")
+                    grain = time_slot.get("grain")
+                    if grain is not None and grain not in ALLOWED_GRAINS:
+                        errors.append(f"Case {case_id}: 'expected_plan.time.grain' must be one of {sorted(list(ALLOWED_GRAINS))} or null (got '{grain}')")
+
+            ranking = plan.get("ranking")
+            if ranking is not None:
+                if not isinstance(ranking, dict):
+                    errors.append(f"Case {case_id}: 'expected_plan.ranking' must be an object or null")
+                else:
+                    r_extra = set(ranking.keys()) - {"top_n", "direction"}
+                    if r_extra:
+                        errors.append(f"Case {case_id}: 'expected_plan.ranking' has unsupported fields {sorted(list(r_extra))}")
+                    top_n = ranking.get("top_n")
+                    if top_n is not None and (not isinstance(top_n, int) or isinstance(top_n, bool) or top_n < 1):
+                        errors.append(f"Case {case_id}: 'expected_plan.ranking.top_n' must be a positive integer or null")
+                    direction = ranking.get("direction")
+                    if direction is not None and direction not in ALLOWED_DIRECTIONS:
+                        errors.append(f"Case {case_id}: 'expected_plan.ranking.direction' must be ASC, DESC or null (got '{direction}')")
+
+            output = plan.get("output")
+            if output is not None:
+                if not isinstance(output, dict):
+                    errors.append(f"Case {case_id}: 'expected_plan.output' must be an object or null")
+                else:
+                    o_extra = set(output.keys()) - {"format", "chart_type"}
+                    if o_extra:
+                        errors.append(f"Case {case_id}: 'expected_plan.output' has unsupported fields {sorted(list(o_extra))}")
+                    fmt = output.get("format")
+                    if fmt is not None and fmt not in ALLOWED_OUTPUT_FORMATS:
+                        errors.append(f"Case {case_id}: 'expected_plan.output.format' must be one of {sorted(list(ALLOWED_OUTPUT_FORMATS))} or null (got '{fmt}')")
+
+            diagnostic = plan.get("diagnostic")
+            if diagnostic is not None:
+                if not isinstance(diagnostic, dict):
+                    errors.append(f"Case {case_id}: 'expected_plan.diagnostic' must be an object or null")
+                else:
+                    d_extra = set(diagnostic.keys()) - {"candidate_dimensions", "steps"}
+                    if d_extra:
+                        errors.append(f"Case {case_id}: 'expected_plan.diagnostic' has unsupported fields {sorted(list(d_extra))}")
+                    for key in ("candidate_dimensions", "steps"):
+                        val = diagnostic.get(key)
+                        if val is not None and (not isinstance(val, list) or not all(isinstance(v, str) for v in val)):
+                            errors.append(f"Case {case_id}: 'expected_plan.diagnostic.{key}' must be a list of strings")
+
+            assumptions = plan.get("assumptions_expected")
+            if assumptions is not None:
+                if not isinstance(assumptions, list) or not all(isinstance(a, str) for a in assumptions):
+                    errors.append(f"Case {case_id}: 'expected_plan.assumptions_expected' must be a list of strings")
+
+    # A RANKING plan without a ranking slot is almost always an annotation slip.
+    if isinstance(plan, dict) and plan.get("mode") == "RANKING" and not plan.get("ranking"):
+        errors.append(f"Case {case_id}: mode RANKING requires a 'ranking' slot with top_n and/or direction")
+
+    # Likewise a DIAGNOSTIC plan with nothing to decompose over.
+    if isinstance(plan, dict) and plan.get("mode") == "DIAGNOSTIC":
+        diag = plan.get("diagnostic")
+        if not isinstance(diag, dict) or not diag.get("candidate_dimensions"):
+            errors.append(f"Case {case_id}: mode DIAGNOSTIC requires a 'diagnostic' slot with candidate_dimensions")
+
+    # KPI library cases are plan-scoped by definition; catch a missed annotation.
+    if case.get("source") == "KPI_LIBRARY":
+        if "expected_plan" not in case:
+            errors.append(f"Case {case_id}: source KPI_LIBRARY requires an 'expected_plan'")
+        if "data_answerable" not in case:
+            errors.append(f"Case {case_id}: source KPI_LIBRARY requires a 'data_answerable' tag")
+
+    # 12. Safety check: No SQL or database credentials
     case_str = json.dumps(case).lower()
     if "select " in case_str and "from " in case_str:
         errors.append(f"Case {case_id}: SQL queries detected in case definition. SQL is forbidden in golden dataset")

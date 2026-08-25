@@ -1,0 +1,1046 @@
+[
+  {
+    "case_id": "SAL-USE-01",
+    "category": "KPI_BUSINESS_QUESTION",
+    "source": "KPI_LIBRARY",
+    "severity": "HIGH",
+    "question": "Show my order booking versus target for this month broken down by week, and flag the accounts that are behind plan.",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [],
+      "dimensions": [],
+      "values": [],
+      "status": "NO_MATCH",
+      "retrieval_status": "INSUFFICIENT",
+      "followup_context_applied": false,
+      "implementation_status": "FUTURE_PHASE"
+    },
+    "expected_plan": {
+      "mode": "COMPARISON",
+      "metric": "Order value",
+      "entity": null,
+      "filters": [],
+      "time": {
+        "period": "this_month",
+        "grain": "WEEK",
+        "comparison_period": null
+      },
+      "ranking": null,
+      "output": {
+        "format": "table",
+        "chart_type": "bar"
+      },
+      "assumptions_expected": []
+    },
+    "data_answerable": "no",
+    "missing_data": [
+      "Sales target per salesperson per month (no target table exists)",
+      "Salesperson identity on order records (needed to resolve 'my')",
+      "Order date at daily grain (sales table holds yearly/quarterly snapshots only)"
+    ],
+    "notes": "COMPARISON because the question compares actual against a benchmark. NOTE A PLAN-SCHEMA GAP: the comparison here is actual-vs-target, but AnalyticalPlan.time.comparison_period can only express a period-over-period comparison. A target/benchmark comparison has no home in the schema; comparison_period left null deliberately. Grain WEEK is explicit in the question, so no assumption is warranted."
+  },
+  {
+    "case_id": "SAL-USE-02",
+    "category": "KPI_BUSINESS_QUESTION",
+    "source": "KPI_LIBRARY",
+    "severity": "MEDIUM",
+    "question": "List my open opportunities above 5 lakh that have not changed stage in the last 21 days, with the next action and its due date.",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [],
+      "dimensions": [],
+      "values": [],
+      "status": "NO_MATCH",
+      "retrieval_status": "INSUFFICIENT",
+      "followup_context_applied": false,
+      "implementation_status": "FUTURE_PHASE"
+    },
+    "expected_plan": {
+      "mode": "DESCRIPTIVE",
+      "metric": "Open opportunity value",
+      "entity": null,
+      "filters": [
+        {
+          "field": "opportunity_value",
+          "op": ">",
+          "value": 500000
+        },
+        {
+          "field": "days_since_stage_change",
+          "op": ">",
+          "value": 21
+        },
+        {
+          "field": "opportunity_status",
+          "op": "=",
+          "value": "open"
+        }
+      ],
+      "time": null,
+      "ranking": null,
+      "output": {
+        "format": "table",
+        "chart_type": null
+      },
+      "assumptions_expected": []
+    },
+    "data_answerable": "no",
+    "missing_data": [
+      "Opportunity/pipeline table (does not exist in any form)",
+      "Opportunity stage and stage-change date",
+      "Next action and due date fields",
+      "Salesperson identity (needed to resolve 'my')"
+    ],
+    "notes": "JUDGEMENT CALL: the KPI library names the artefact 'Ranked list', but this is a filtered exception list, not a top-N ranking. Sorting a table is an output concern, not a mode. Marked DESCRIPTIVE with filters; flag if you disagree. '5 lakh' interpreted as 500000. The 21 days is a filter predicate, not a reporting period, so time is null."
+  },
+  {
+    "case_id": "SAL-USE-03",
+    "category": "KPI_BUSINESS_QUESTION",
+    "source": "KPI_LIBRARY",
+    "severity": "HIGH",
+    "question": "Which of my top 20 customers have not ordered in the last 60 days compared with their normal buying cycle?",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "Card Name"
+      ],
+      "values": [],
+      "status": "NO_MATCH",
+      "retrieval_status": "PARTIAL",
+      "followup_context_applied": false,
+      "implementation_status": "FUTURE_PHASE"
+    },
+    "expected_plan": {
+      "mode": "RANKING",
+      "metric": "Sales",
+      "entity": {
+        "dimension": "Card Name",
+        "value": null,
+        "resolved_id": null
+      },
+      "filters": [
+        {
+          "field": "days_since_last_order",
+          "op": ">",
+          "value": 60
+        }
+      ],
+      "time": null,
+      "ranking": {
+        "top_n": 20,
+        "direction": "DESC"
+      },
+      "output": {
+        "format": "table",
+        "chart_type": null
+      },
+      "assumptions_expected": [
+        "ranking basis not stated - ranking customers by revenue assumed"
+      ]
+    },
+    "data_answerable": "partial",
+    "missing_data": [
+      "Order date history per customer (sales table holds yearly snapshots, not order events)",
+      "Average order interval / buying cycle per customer",
+      "Salesperson identity (needed to resolve 'my')"
+    ],
+    "notes": "Ranking the top 20 customers by revenue IS answerable today via Card Name and the CY column. The recency exception ('not ordered in 60 days') and the buying-cycle comparison are not, because there is no order-event grain. Marked RANKING because top-20 is the primary structuring operation; the recency test is a filter over that set."
+  },
+  {
+    "case_id": "SAL-USE-04",
+    "category": "KPI_BUSINESS_QUESTION",
+    "source": "KPI_LIBRARY",
+    "severity": "HIGH",
+    "question": "Rank the SKUs I sold this quarter by revenue and margin, and show which ones I am under-selling versus the branch average.",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "Category"
+      ],
+      "values": [],
+      "status": "NO_MATCH",
+      "retrieval_status": "PARTIAL",
+      "followup_context_applied": false,
+      "implementation_status": "FUTURE_PHASE"
+    },
+    "expected_plan": {
+      "mode": "RANKING",
+      "metric": "Sales",
+      "entity": null,
+      "filters": [],
+      "time": {
+        "period": "this_quarter",
+        "grain": "QUARTER",
+        "comparison_period": null
+      },
+      "ranking": {
+        "top_n": null,
+        "direction": "DESC"
+      },
+      "output": {
+        "format": "table",
+        "chart_type": null
+      },
+      "assumptions_expected": [
+        "no explicit N given - returning the full ranked list rather than a truncated top-N"
+      ]
+    },
+    "data_answerable": "partial",
+    "missing_data": [
+      "Margin / COGS per product (no cost column exists)",
+      "True SKU-level product identifier (only Category, Brand, Prod Grp are available)",
+      "Branch average benchmark for under-selling comparison",
+      "Salesperson identity (needed to resolve 'my')"
+    ],
+    "notes": "Revenue ranking by product grouping for the current quarter is the closest to answerable of the five, since quarterly snapshot columns exist. Margin and the branch benchmark are both absent, so the second half of the question cannot be served. UNVERIFIED: I have not confirmed the business name of the quarterly snapshot metric; expected.metrics uses the annual 'C Y' as a placeholder and must be corrected once the quarterly metric name is verified in the semantic layer."
+  },
+  {
+    "case_id": "SAL-USE-05",
+    "category": "KPI_BUSINESS_QUESTION",
+    "source": "KPI_LIBRARY",
+    "severity": "HIGH",
+    "question": "Show all my orders stuck in credit hold or pending dispatch, with ageing in days and the blocking reason.",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "Amt"
+      ],
+      "dimensions": [],
+      "values": [],
+      "status": "NO_MATCH",
+      "retrieval_status": "PARTIAL",
+      "followup_context_applied": false,
+      "implementation_status": "FUTURE_PHASE"
+    },
+    "expected_plan": {
+      "mode": "DESCRIPTIVE",
+      "metric": "Order value",
+      "entity": null,
+      "filters": [
+        {
+          "field": "order_status",
+          "op": "IN",
+          "value": [
+            "credit_hold",
+            "pending_dispatch"
+          ]
+        }
+      ],
+      "time": null,
+      "ranking": null,
+      "output": {
+        "format": "table",
+        "chart_type": null
+      },
+      "assumptions_expected": []
+    },
+    "data_answerable": "partial",
+    "missing_data": [
+      "Credit block flag on orders",
+      "Order status field distinguishing hold from pending dispatch",
+      "Blocking reason code",
+      "Dispatch date and order date needed to compute ageing in days",
+      "Salesperson identity (needed to resolve 'my')"
+    ],
+    "notes": "The order-pending summary table covers the 'pending dispatch' half of the question and carries an order value. Credit hold, blocking reason and day-level ageing have no source. Marked DESCRIPTIVE: an exception list with no aggregation or ordering measure."
+  },
+  {
+    "case_id": "SAL-MAN-01",
+    "category": "KPI_BUSINESS_QUESTION",
+    "source": "KPI_LIBRARY",
+    "severity": "HIGH",
+    "question": "Compare target versus actual sales for each rep in my team for the last 3 months and highlight anyone below 80% for two consecutive months.",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [],
+      "dimensions": [],
+      "values": [],
+      "status": "NO_MATCH",
+      "retrieval_status": "INSUFFICIENT",
+      "followup_context_applied": false,
+      "implementation_status": "FUTURE_PHASE"
+    },
+    "expected_plan": {
+      "mode": "COMPARISON",
+      "metric": "Sales",
+      "entity": null,
+      "filters": [],
+      "time": {
+        "period": "last_3_months",
+        "grain": "MONTH",
+        "comparison_period": null
+      },
+      "ranking": null,
+      "output": {
+        "format": "table",
+        "chart_type": null
+      },
+      "assumptions_expected": []
+    },
+    "data_answerable": "no",
+    "missing_data": [
+      "Monthly sales target per representative",
+      "Sales representative dimension on sales records",
+      "Team hierarchy to resolve 'my team'",
+      "Monthly grain (sales table holds yearly/quarterly snapshots only)"
+    ],
+    "notes": "BENCHMARK GAP: comparison is actual-vs-target, which AnalyticalPlan cannot express (comparison_period holds only a time period). Same gap as SAL-USE-01. The 80% threshold over two consecutive months is a conditional flag rule the plan schema also has no slot for."
+  },
+  {
+    "case_id": "SAL-MAN-02",
+    "category": "KPI_BUSINESS_QUESTION",
+    "source": "KPI_LIBRARY",
+    "severity": "MEDIUM",
+    "question": "What is my team's pipeline coverage ratio against next quarter's target, and where is the largest stage-wise drop-off?",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [],
+      "dimensions": [],
+      "values": [],
+      "status": "NO_MATCH",
+      "retrieval_status": "INSUFFICIENT",
+      "followup_context_applied": false,
+      "implementation_status": "FUTURE_PHASE"
+    },
+    "expected_plan": {
+      "mode": "DIAGNOSTIC",
+      "metric": "Open opportunity value",
+      "entity": null,
+      "filters": [],
+      "time": {
+        "period": "next_quarter",
+        "grain": "QUARTER",
+        "comparison_period": null
+      },
+      "ranking": null,
+      "output": {
+        "format": "narrative",
+        "chart_type": "funnel"
+      },
+      "diagnostic": {
+        "candidate_dimensions": [
+          "Opportunity stage"
+        ],
+        "steps": [
+          "Compute pipeline coverage ratio against the quarter target",
+          "Compute conversion rate between consecutive stages",
+          "Rank stages by drop-off magnitude"
+        ]
+      },
+      "assumptions_expected": []
+    },
+    "data_answerable": "no",
+    "missing_data": [
+      "Opportunity/pipeline table with stage information",
+      "Quarterly sales target",
+      "Team hierarchy to resolve 'my team'"
+    ],
+    "notes": "DIAGNOSTIC because the second half asks where the largest drop-off occurs, which is a driver-ranking decomposition. Compound question: coverage ratio is a benchmark comparison, drop-off is diagnostic. Annotated on the diagnostic half as the harder, more distinctive requirement."
+  },
+  {
+    "case_id": "SAL-MAN-03",
+    "category": "KPI_BUSINESS_QUESTION",
+    "source": "KPI_LIBRARY",
+    "severity": "MEDIUM",
+    "question": "Show the average discount given by each rep by product category and correlate it with the deal win rate.",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [],
+      "dimensions": [
+        "Category"
+      ],
+      "values": [],
+      "status": "NO_MATCH",
+      "retrieval_status": "INSUFFICIENT",
+      "followup_context_applied": false,
+      "implementation_status": "FUTURE_PHASE"
+    },
+    "expected_plan": {
+      "mode": "DESCRIPTIVE",
+      "metric": "Average discount %",
+      "entity": null,
+      "filters": [],
+      "time": null,
+      "ranking": null,
+      "output": {
+        "format": "chart",
+        "chart_type": "scatter"
+      },
+      "assumptions_expected": [
+        "no period stated - defaulting to the current year"
+      ]
+    },
+    "data_answerable": "no",
+    "missing_data": [
+      "List price, quote price and invoice price (needed to derive discount)",
+      "Sales representative dimension",
+      "Win/loss flag on deals"
+    ],
+    "notes": "Cross-tab of two dimensions with a correlation overlay. Marked DESCRIPTIVE: correlation is a presentation/analysis overlay, not one of the six plan modes. Category resolves against the real Category dimension, but every metric in the question is absent."
+  },
+  {
+    "case_id": "SAL-MAN-04",
+    "category": "KPI_BUSINESS_QUESTION",
+    "source": "KPI_LIBRARY",
+    "severity": "HIGH",
+    "question": "Which territories in my region grew below the regional average this quarter, and what were the top 3 loss reasons?",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "District"
+      ],
+      "values": [],
+      "status": "NO_MATCH",
+      "retrieval_status": "PARTIAL",
+      "followup_context_applied": false,
+      "implementation_status": "FUTURE_PHASE"
+    },
+    "expected_plan": {
+      "mode": "COMPARISON",
+      "metric": "Sales",
+      "entity": null,
+      "filters": [],
+      "time": {
+        "period": "this_quarter",
+        "grain": "QUARTER",
+        "comparison_period": "same_quarter_last_year"
+      },
+      "ranking": null,
+      "output": {
+        "format": "table",
+        "chart_type": null
+      },
+      "assumptions_expected": [
+        "growth basis not stated - comparing against the same quarter last year"
+      ]
+    },
+    "data_answerable": "partial",
+    "missing_data": [
+      "Lost order reason code (no source for the top 3 loss reasons)",
+      "Region hierarchy above district to resolve 'my region'",
+      "User-to-region assignment"
+    ],
+    "notes": "The growth-versus-regional-average half is genuinely computable: district-level revenue growth from quarterly snapshot columns, with the average derived across districts. The loss-reason half has no source at all. BENCHMARK GAP again: 'below the regional average' is a peer-average benchmark, not a time comparison."
+  },
+  {
+    "case_id": "SAL-MAN-05",
+    "category": "KPI_BUSINESS_QUESTION",
+    "source": "KPI_LIBRARY",
+    "severity": "HIGH",
+    "question": "List the accounts my team lost or downgraded this quarter with revenue at risk and the last recorded reason.",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "Card Name"
+      ],
+      "values": [],
+      "status": "NO_MATCH",
+      "retrieval_status": "PARTIAL",
+      "followup_context_applied": false,
+      "implementation_status": "FUTURE_PHASE"
+    },
+    "expected_plan": {
+      "mode": "RANKING",
+      "metric": "Sales",
+      "entity": {
+        "dimension": "Card Name",
+        "value": null,
+        "resolved_id": null
+      },
+      "filters": [
+        {
+          "field": "revenue_change",
+          "op": "<",
+          "value": 0
+        }
+      ],
+      "time": {
+        "period": "this_quarter",
+        "grain": "QUARTER",
+        "comparison_period": "same_quarter_last_year"
+      },
+      "ranking": {
+        "top_n": null,
+        "direction": "ASC"
+      },
+      "output": {
+        "format": "table",
+        "chart_type": null
+      },
+      "assumptions_expected": [
+        "downgrade defined as a year-on-year revenue decline for the account"
+      ]
+    },
+    "data_answerable": "partial",
+    "missing_data": [
+      "Churn/downgrade reason code",
+      "Account status change events",
+      "Team hierarchy to resolve 'my team'"
+    ],
+    "notes": "A usable proxy exists: accounts whose current-period revenue fell against the prior period are downgrades, and accounts with prior revenue but none now are losses. That proxy is an assumption the system must record, not state as fact. Direction ASC because the worst decliners lead. The reason field has no source."
+  },
+  {
+    "case_id": "SAL-MAN-06",
+    "category": "KPI_BUSINESS_QUESTION",
+    "source": "KPI_LIBRARY",
+    "severity": "MEDIUM",
+    "question": "Give me a rep productivity scorecard: visits made, quotations raised, orders won and revenue per rep.",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [],
+      "dimensions": [],
+      "values": [],
+      "status": "NO_MATCH",
+      "retrieval_status": "INSUFFICIENT",
+      "followup_context_applied": false,
+      "implementation_status": "FUTURE_PHASE"
+    },
+    "expected_plan": {
+      "mode": "DESCRIPTIVE",
+      "metric": "Revenue per rep",
+      "entity": null,
+      "filters": [],
+      "time": null,
+      "ranking": null,
+      "output": {
+        "format": "table",
+        "chart_type": null
+      },
+      "assumptions_expected": [
+        "no period stated - defaulting to the current year"
+      ]
+    },
+    "data_answerable": "no",
+    "missing_data": [
+      "Sales representative dimension",
+      "Activity/visit log",
+      "Quotation records",
+      "Order win count per representative",
+      "Headcount reference"
+    ],
+    "notes": "Four-metric scorecard; none of the four have a source. The representative dimension is the single blocker shared with SAL-MAN-01 and SAL-MAN-03."
+  },
+  {
+    "case_id": "SAL-HOD-01",
+    "category": "KPI_BUSINESS_QUESTION",
+    "source": "KPI_LIBRARY",
+    "severity": "CRITICAL",
+    "question": "Give me YoY and QoQ revenue growth by region, channel and product line, with each segment's contribution to overall growth.",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "District",
+        "Category"
+      ],
+      "values": [],
+      "status": "NO_MATCH",
+      "retrieval_status": "PARTIAL",
+      "followup_context_applied": false,
+      "implementation_status": "FUTURE_PHASE"
+    },
+    "expected_plan": {
+      "mode": "COMPARISON",
+      "metric": "Sales",
+      "entity": null,
+      "filters": [],
+      "time": {
+        "period": "this_year",
+        "grain": "QUARTER",
+        "comparison_period": "last_year"
+      },
+      "ranking": null,
+      "output": {
+        "format": "chart",
+        "chart_type": "waterfall"
+      },
+      "assumptions_expected": []
+    },
+    "data_answerable": "partial",
+    "missing_data": [
+      "Channel dimension (distributor / direct / e-commerce tagging does not exist)"
+    ],
+    "notes": "The most answerable of the multi-dimension prompts. YoY comes from the annual snapshot columns and QoQ from the quarterly ones; region maps to District/State and product line to Category or Prod Grp. Only the channel cut is missing. Contribution-to-growth is a decomposition, but the question asks for growth first and attribution second, so COMPARISON is the primary mode with a waterfall presentation."
+  },
+  {
+    "case_id": "SAL-HOD-02",
+    "category": "KPI_BUSINESS_QUESTION",
+    "source": "KPI_LIBRARY",
+    "severity": "HIGH",
+    "question": "Analyse gross margin by channel and customer segment for the last 8 quarters and identify the drivers of margin dilution.",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [],
+      "dimensions": [],
+      "values": [],
+      "status": "NO_MATCH",
+      "retrieval_status": "INSUFFICIENT",
+      "followup_context_applied": false,
+      "implementation_status": "FUTURE_PHASE"
+    },
+    "expected_plan": {
+      "mode": "DIAGNOSTIC",
+      "metric": "Gross margin %",
+      "entity": null,
+      "filters": [],
+      "time": {
+        "period": "last_8_quarters",
+        "grain": "QUARTER",
+        "comparison_period": null
+      },
+      "ranking": null,
+      "output": {
+        "format": "narrative",
+        "chart_type": "line"
+      },
+      "diagnostic": {
+        "candidate_dimensions": [
+          "Channel",
+          "Customer segment",
+          "Discount",
+          "Freight"
+        ],
+        "steps": [
+          "Compute overall margin movement across the period",
+          "Decompose margin variance by each candidate dimension",
+          "Rank dimensions by contribution to dilution"
+        ]
+      },
+      "assumptions_expected": []
+    },
+    "data_answerable": "no",
+    "missing_data": [
+      "COGS / cost per line (no margin can be derived)",
+      "Channel dimension",
+      "Customer segment dimension",
+      "Discount and freight columns",
+      "Eight consecutive quarters of history (only five quarterly snapshot columns exist, and they are not a continuous series)"
+    ],
+    "notes": "A textbook DIAGNOSTIC case and a good Phase 2 target once margin data exists. Note the temporal limitation specifically: the quarterly snapshot columns are point-in-time comparatives, not a continuous eight-quarter series, so even the trend half fails."
+  },
+  {
+    "case_id": "SAL-HOD-03",
+    "category": "KPI_BUSINESS_QUESTION",
+    "source": "KPI_LIBRARY",
+    "severity": "MEDIUM",
+    "question": "What has our sales forecast accuracy been by region over the last 4 quarters, and which regions consistently over or under forecast?",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [],
+      "dimensions": [
+        "District"
+      ],
+      "values": [],
+      "status": "NO_MATCH",
+      "retrieval_status": "INSUFFICIENT",
+      "followup_context_applied": false,
+      "implementation_status": "FUTURE_PHASE"
+    },
+    "expected_plan": {
+      "mode": "COMPARISON",
+      "metric": "Forecast accuracy %",
+      "entity": null,
+      "filters": [],
+      "time": {
+        "period": "last_4_quarters",
+        "grain": "QUARTER",
+        "comparison_period": null
+      },
+      "ranking": null,
+      "output": {
+        "format": "table",
+        "chart_type": null
+      },
+      "assumptions_expected": []
+    },
+    "data_answerable": "no",
+    "missing_data": [
+      "Forecast values by region and period",
+      "Four consecutive quarters of actuals as a continuous series"
+    ],
+    "notes": "IMPORTANT SCOPE NOTE: this is not the forecasting that the plan lists as a non-goal. It measures the accuracy of forecasts already made, which is a backward-looking comparison and legitimately in scope. It fails only because no forecast data is stored, not because it is out of scope."
+  },
+  {
+    "case_id": "SAL-HOD-04",
+    "category": "KPI_BUSINESS_QUESTION",
+    "source": "KPI_LIBRARY",
+    "severity": "CRITICAL",
+    "question": "What percentage of revenue comes from our top 10 and top 50 customers, and how has this concentration moved over 3 years?",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "Card Name"
+      ],
+      "values": [],
+      "status": "NO_MATCH",
+      "retrieval_status": "COMPLETE",
+      "followup_context_applied": false,
+      "implementation_status": "CURRENTLY_IMPLEMENTED"
+    },
+    "expected_plan": {
+      "mode": "TREND",
+      "metric": "Sales",
+      "entity": {
+        "dimension": "Card Name",
+        "value": null,
+        "resolved_id": null
+      },
+      "filters": [],
+      "time": {
+        "period": "last_3_years",
+        "grain": "YEAR",
+        "comparison_period": null
+      },
+      "ranking": {
+        "top_n": 50,
+        "direction": "DESC"
+      },
+      "output": {
+        "format": "chart",
+        "chart_type": "line"
+      },
+      "assumptions_expected": []
+    },
+    "data_answerable": "yes",
+    "notes": "THE ONLY FULLY ANSWERABLE CASE IN THE SET. Customer revenue by Card Name exists across CY, PY and PPY, which is exactly the three years requested, so both the top-10/top-50 share and its movement are computable. Marked TREND because the question's core is how concentration has moved; the top-N is the measure being trended, captured in the ranking slot at the wider bound of 50. Note it says 'our', not 'my', so it needs no salesperson scoping - which is precisely why it survives."
+  },
+  {
+    "case_id": "SAL-HOD-05",
+    "category": "KPI_BUSINESS_QUESTION",
+    "source": "KPI_LIBRARY",
+    "severity": "HIGH",
+    "question": "Compare distributor, direct and e-commerce channels on revenue, margin, growth and receivable days.",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [],
+      "dimensions": [],
+      "values": [],
+      "status": "NO_MATCH",
+      "retrieval_status": "INSUFFICIENT",
+      "followup_context_applied": false,
+      "implementation_status": "FUTURE_PHASE"
+    },
+    "expected_plan": {
+      "mode": "COMPARISON",
+      "metric": "Sales",
+      "entity": null,
+      "filters": [],
+      "time": null,
+      "ranking": null,
+      "output": {
+        "format": "table",
+        "chart_type": null
+      },
+      "assumptions_expected": [
+        "no period stated - defaulting to the current year"
+      ]
+    },
+    "data_answerable": "no",
+    "missing_data": [
+      "Channel tag on revenue records",
+      "COGS / cost per line for margin",
+      "Link between the receivables table and channel"
+    ],
+    "notes": "Blocked primarily by the missing channel dimension, which is the same blocker as SAL-HOD-01's third cut and SAL-HOD-02. Receivable days could be derived from the outstanding table, but not attributed to a channel."
+  },
+  {
+    "case_id": "SAL-HOD-06",
+    "category": "KPI_BUSINESS_QUESTION",
+    "source": "KPI_LIBRARY",
+    "severity": "MEDIUM",
+    "question": "Evaluate the ROI of trade schemes run in the last two quarters: incremental volume achieved versus scheme cost.",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [],
+      "dimensions": [],
+      "values": [],
+      "status": "NO_MATCH",
+      "retrieval_status": "INSUFFICIENT",
+      "followup_context_applied": false,
+      "implementation_status": "FUTURE_PHASE"
+    },
+    "expected_plan": {
+      "mode": "COMPARISON",
+      "metric": "Scheme ROI",
+      "entity": null,
+      "filters": [],
+      "time": {
+        "period": "last_2_quarters",
+        "grain": "QUARTER",
+        "comparison_period": null
+      },
+      "ranking": null,
+      "output": {
+        "format": "table",
+        "chart_type": "bar"
+      },
+      "assumptions_expected": []
+    },
+    "data_answerable": "no",
+    "missing_data": [
+      "Trade scheme master",
+      "Scheme cost",
+      "Baseline volume for the incremental calculation",
+      "Pre/post volume attribution per scheme"
+    ],
+    "notes": "Requires a scheme master that does not exist. The incremental-versus-baseline calculation is also a causal attribution, which is analytically harder than the plan schema currently expresses."
+  },
+  {
+    "case_id": "SAL-CXO-01",
+    "category": "KPI_BUSINESS_QUESTION",
+    "source": "KPI_LIBRARY",
+    "severity": "CRITICAL",
+    "question": "Give me a one-page revenue health summary: growth, margin, mix, pipeline coverage and the top 5 risks to the annual plan.",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "Category"
+      ],
+      "values": [],
+      "status": "NO_MATCH",
+      "retrieval_status": "PARTIAL",
+      "followup_context_applied": false,
+      "implementation_status": "FUTURE_PHASE"
+    },
+    "expected_plan": {
+      "mode": "DESCRIPTIVE",
+      "metric": "Sales",
+      "entity": null,
+      "filters": [],
+      "time": {
+        "period": "this_year",
+        "grain": "YEAR",
+        "comparison_period": "last_year"
+      },
+      "ranking": null,
+      "output": {
+        "format": "narrative",
+        "chart_type": null
+      },
+      "assumptions_expected": [
+        "no period stated - defaulting to the current year against last year"
+      ]
+    },
+    "data_answerable": "partial",
+    "missing_data": [
+      "COGS / cost per line for margin",
+      "Pipeline data for coverage",
+      "Annual operating plan for risk assessment"
+    ],
+    "notes": "Two of the five requested components, growth and mix, are computable from existing snapshot columns and product dimensions. Margin, pipeline coverage and plan risk are not. Marked partial rather than no because a genuinely useful narrower answer can be produced; the system must say plainly which components it could not cover rather than silently omitting them."
+  },
+  {
+    "case_id": "SAL-CXO-02",
+    "category": "KPI_BUSINESS_QUESTION",
+    "source": "KPI_LIBRARY",
+    "severity": "MEDIUM",
+    "question": "How have our market share and price positioning moved versus key competitors over 3 years in our top 5 markets?",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [],
+      "dimensions": [],
+      "values": [],
+      "status": "NO_MATCH",
+      "retrieval_status": "INSUFFICIENT",
+      "followup_context_applied": false,
+      "implementation_status": "FUTURE_PHASE"
+    },
+    "expected_plan": {
+      "mode": "TREND",
+      "metric": "Market share %",
+      "entity": null,
+      "filters": [],
+      "time": {
+        "period": "last_3_years",
+        "grain": "YEAR",
+        "comparison_period": null
+      },
+      "ranking": {
+        "top_n": 5,
+        "direction": "DESC"
+      },
+      "output": {
+        "format": "chart",
+        "chart_type": "line"
+      },
+      "assumptions_expected": []
+    },
+    "data_answerable": "no",
+    "missing_data": [
+      "External market size data",
+      "Competitor pricing data",
+      "Market definition to rank the top 5 markets"
+    ],
+    "notes": "Requires external third-party market data that no internal table can supply. Structurally unanswerable from enterprise data alone, regardless of how much internal detail is added."
+  },
+  {
+    "case_id": "SAL-CXO-03",
+    "category": "KPI_BUSINESS_QUESTION",
+    "source": "KPI_LIBRARY",
+    "severity": "HIGH",
+    "question": "Which product lines and geographies should we double down on based on 3-year growth, margin and capital employed?",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "Category",
+        "District"
+      ],
+      "values": [],
+      "status": "NO_MATCH",
+      "retrieval_status": "PARTIAL",
+      "followup_context_applied": false,
+      "implementation_status": "FUTURE_PHASE"
+    },
+    "expected_plan": {
+      "mode": "PRESCRIPTIVE",
+      "metric": "Sales",
+      "entity": null,
+      "filters": [],
+      "time": {
+        "period": "last_3_years",
+        "grain": "YEAR",
+        "comparison_period": null
+      },
+      "ranking": null,
+      "output": {
+        "format": "narrative",
+        "chart_type": null
+      },
+      "assumptions_expected": []
+    },
+    "data_answerable": "partial",
+    "missing_data": [
+      "COGS / cost per line for margin",
+      "Capital employed by segment"
+    ],
+    "notes": "The clearest PRESCRIPTIVE case in the set and a good Phase 4 target: 'should we double down' asks for a recommendation. Three-year growth by product line and geography is computable, so one of the three decision axes exists. Recommendations must cite only the axis actually computed and state that margin and capital employed were unavailable, never infer them."
+  },
+  {
+    "case_id": "SAL-CXO-04",
+    "category": "KPI_BUSINESS_QUESTION",
+    "source": "KPI_LIBRARY",
+    "severity": "MEDIUM",
+    "question": "What proportion of our revenue is contracted or recurring versus transactional, and how has predictability trended?",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [],
+      "dimensions": [],
+      "values": [],
+      "status": "NO_MATCH",
+      "retrieval_status": "INSUFFICIENT",
+      "followup_context_applied": false,
+      "implementation_status": "FUTURE_PHASE"
+    },
+    "expected_plan": {
+      "mode": "TREND",
+      "metric": "Recurring revenue %",
+      "entity": null,
+      "filters": [],
+      "time": {
+        "period": "last_3_years",
+        "grain": "YEAR",
+        "comparison_period": null
+      },
+      "ranking": null,
+      "output": {
+        "format": "chart",
+        "chart_type": "stacked_bar"
+      },
+      "assumptions_expected": [
+        "trend window not stated - defaulting to the three years available"
+      ]
+    },
+    "data_answerable": "no",
+    "missing_data": [
+      "Contract master",
+      "Revenue type tag distinguishing recurring from transactional"
+    ],
+    "notes": "The revenue history exists but cannot be split without a revenue type tag, and the split is the entire question. A good example of a case where partial data produces no partial answer."
+  },
+  {
+    "case_id": "SAL-CXO-05",
+    "category": "KPI_BUSINESS_QUESTION",
+    "source": "KPI_LIBRARY",
+    "severity": "MEDIUM",
+    "question": "Show customer acquisition cost versus lifetime value by segment, and the payback period trend.",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [],
+      "dimensions": [],
+      "values": [],
+      "status": "NO_MATCH",
+      "retrieval_status": "INSUFFICIENT",
+      "followup_context_applied": false,
+      "implementation_status": "FUTURE_PHASE"
+    },
+    "expected_plan": {
+      "mode": "COMPARISON",
+      "metric": "CLV to CAC ratio",
+      "entity": null,
+      "filters": [],
+      "time": null,
+      "ranking": null,
+      "output": {
+        "format": "chart",
+        "chart_type": "line"
+      },
+      "assumptions_expected": [
+        "no period stated - defaulting to the three years available"
+      ]
+    },
+    "data_answerable": "no",
+    "missing_data": [
+      "Marketing and sales spend for acquisition cost",
+      "Customer cohort and first-purchase date",
+      "Retention history for lifetime value",
+      "Customer segment dimension"
+    ],
+    "notes": "Cohort economics requires acquisition-date and spend data that no table carries. Customer revenue exists but without cohort anchoring it cannot produce lifetime value."
+  }
+]

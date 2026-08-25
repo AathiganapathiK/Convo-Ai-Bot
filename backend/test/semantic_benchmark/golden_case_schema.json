@@ -17,8 +17,8 @@
   "properties": {
     "case_id": {
       "type": "string",
-      "pattern": "^E1-[0-9]{3,}$",
-      "description": "Unique case identifier (e.g. E1-001, E1-002)"
+      "pattern": "^(E1-[0-9]{3,}|SAL-(USE|MAN|HOD|CXO)-[0-9]{2})$",
+      "description": "Unique case identifier. Two families: retrieval benchmark cases (E1-001...) and KPI Prompt Library Sales cases (SAL-USE-01, SAL-MAN-01, SAL-HOD-01, SAL-CXO-01) which keep the spreadsheet's own ids for traceability"
     },
     "category": {
       "type": "string",
@@ -35,18 +35,20 @@
         "METRIC_SHIFT",
         "ENTITY_TOPIC_SHIFT",
         "NO_MATCH_ADVERSARIAL",
-        "TEMPORAL_QUESTIONS"
+        "TEMPORAL_QUESTIONS",
+        "KPI_BUSINESS_QUESTION"
       ],
-      "description": "One of the 13 verified business question benchmark categories"
+      "description": "Benchmark category. The first 13 classify retrieval behaviour; KPI_BUSINESS_QUESTION marks end-to-end business questions from the KPI Prompt Library, which are graded on plan correctness rather than retrieval mechanics"
     },
     "source": {
       "type": "string",
       "enum": [
         "REAL_BUSINESS",
         "REGRESSION",
-        "SYNTHETIC_SAFETY"
+        "SYNTHETIC_SAFETY",
+        "KPI_LIBRARY"
       ],
-      "description": "Source tier classification: REAL_BUSINESS, REGRESSION, or SYNTHETIC_SAFETY"
+      "description": "Source tier classification. KPI_LIBRARY marks cases taken verbatim from the KPI Prompt Library spreadsheet"
     },
     "severity": {
       "type": "string",
@@ -188,6 +190,122 @@
         "type": "string"
       },
       "description": "Optional list of terms or entity mappings that must NOT be present in resolution"
+    },
+    "expected_plan": {
+      "type": "object",
+      "description": "Optional expected AnalyticalPlan. Present on plan-scoped cases (KPI library); absent on legacy retrieval-only cases. Grades layers [1]-[3] independently of whether the data can execute it",
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": [
+            "DESCRIPTIVE",
+            "COMPARISON",
+            "TREND",
+            "RANKING",
+            "DIAGNOSTIC",
+            "PRESCRIPTIVE"
+          ],
+          "description": "The analysis mode the plan must select"
+        },
+        "metric": {
+          "type": ["string", "null"],
+          "description": "Primary business metric name, or null when the question names none"
+        },
+        "entity": {
+          "type": ["object", "null"],
+          "description": "The entity slot, when the question names one",
+          "properties": {
+            "dimension": {"type": ["string", "null"]},
+            "value": {"type": ["string", "null"]},
+            "resolved_id": {"type": ["string", "null"]}
+          },
+          "additionalProperties": false
+        },
+        "filters": {
+          "type": "array",
+          "description": "Expected filter constraints",
+          "items": {
+            "type": "object",
+            "required": ["field", "op", "value"],
+            "properties": {
+              "field": {"type": "string"},
+              "op": {"type": "string"},
+              "value": {}
+            },
+            "additionalProperties": false
+          }
+        },
+        "time": {
+          "type": ["object", "null"],
+          "description": "Expected temporal slot",
+          "properties": {
+            "period": {"type": ["string", "null"]},
+            "grain": {
+              "type": ["string", "null"],
+              "enum": ["DAY", "WEEK", "MONTH", "QUARTER", "YEAR", null]
+            },
+            "comparison_period": {"type": ["string", "null"]}
+          },
+          "additionalProperties": false
+        },
+        "ranking": {
+          "type": ["object", "null"],
+          "description": "Expected ranking slot, when the question asks for top/bottom N",
+          "properties": {
+            "top_n": {"type": ["integer", "null"]},
+            "direction": {
+              "type": ["string", "null"],
+              "enum": ["ASC", "DESC", null]
+            }
+          },
+          "additionalProperties": false
+        },
+        "output": {
+          "type": ["object", "null"],
+          "description": "Expected response shape",
+          "properties": {
+            "format": {
+              "type": ["string", "null"],
+              "enum": ["kpi", "table", "chart", "narrative", null]
+            },
+            "chart_type": {"type": ["string", "null"]}
+          },
+          "additionalProperties": false
+        },
+        "diagnostic": {
+          "type": ["object", "null"],
+          "description": "Expected diagnostic slot, required when mode is DIAGNOSTIC",
+          "properties": {
+            "candidate_dimensions": {
+              "type": "array",
+              "items": {"type": "string"},
+              "description": "Dimensions the decomposition should test as candidate drivers"
+            },
+            "steps": {
+              "type": "array",
+              "items": {"type": "string"},
+              "description": "Expected decomposition steps in order"
+            }
+          },
+          "additionalProperties": false
+        },
+        "assumptions_expected": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Defaults the system SHOULD fill and record in assumptions_made (e.g. 'monthly grain assumed'). Empty list means the question is fully specified and no assumption is warranted. Used to test assume-and-record instead of interrupting"
+        }
+      },
+      "additionalProperties": false
+    },
+    "data_answerable": {
+      "type": "string",
+      "enum": ["yes", "partial", "no"],
+      "description": "Whether the CURRENT live tables can execute this case. 'yes' = fully answerable; 'partial' = answerable at a coarser grain or with a proxy metric; 'no' = required fields do not exist. Plan-level grading runs on all cases; execution-level grading runs only on 'yes'"
+    },
+    "missing_data": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "For 'partial'/'no' cases: the specific fields or tables required to make this answerable. This is the concrete data request list to take to the business"
     },
     "notes": {
       "type": "string",
