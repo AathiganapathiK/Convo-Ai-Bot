@@ -26,7 +26,7 @@ DATABASE_TYPE_MAP = {
 DB_TYPE = DATABASE_TYPE_MAP.get(DB_TYPE, DB_TYPE)
 
 _host = os.getenv("DB_HOST", "localhost")
-_port = os.getenv("DB_PORT", "1433")
+_port = os.getenv("DB_PORT", "")
 _name = os.getenv("DB_NAME", "adv_works")
 _user = os.getenv("DB_USER", "")
 _password = os.getenv("DB_PASSWORD", "")
@@ -37,7 +37,7 @@ if DB_TYPE == "sqlserver":
 
     connection_string = (
         f"DRIVER={{{_driver}}};"
-        f"SERVER={_host},{_port};"
+        f"SERVER={_host};"
         f"DATABASE={_name};"
         f"UID={_user};"
         f"PWD={_password};"

@@ -401,3 +401,116 @@ class ProviderAdminService:
             )
 
         return True
+
+    @staticmethod
+    def delete_provider(company_id: str, provider_id: str) -> bool:
+        from fastapi import HTTPException
+        with engine.connect() as conn:
+            provider = conn.execute(
+                text("SELECT provider_name FROM llm_providers WHERE provider_id = :provider_id AND company_id = :company_id"),
+                {"provider_id": provider_id, "company_id": company_id}
+            ).fetchone()
+            
+            if not provider:
+                return False
+                
+            # Check if any model belonging to this provider is active in fallback routing
+            active_routing = conn.execute(
+                text("""
+                    SELECT m.model_name, f.purpose 
+                    FROM llm_fallbacks f
+                    INNER JOIN llm_models m ON f.model_id = m.model_id
+                    WHERE m.provider_id = :provider_id AND f.is_active = 1
+                """),
+                {"provider_id": provider_id}
+            ).fetchone()
+            
+            if active_routing:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Cannot delete provider because model '{active_routing.model_name}' is currently active in routing/fallbacks for '{active_routing.purpose}'."
+                )
+                
+        with engine.begin() as connection:
+            # Delete provider health records
+            connection.execute(
+                text("DELETE FROM provider_health WHERE provider_id = :provider_id"),
+                {"provider_id": provider_id}
+            )
+            # Delete inactive fallback mapping to models of this provider
+            connection.execute(
+                text("""
+                    DELETE FROM llm_fallbacks 
+                    WHERE model_id IN (SELECT model_id FROM llm_models WHERE provider_id = :provider_id)
+                """),
+                {"provider_id": provider_id}
+            )
+            # Delete models of this provider
+            connection.execute(
+                text("DELETE FROM llm_models WHERE provider_id = :provider_id"),
+                {"provider_id": provider_id}
+            )
+            # Delete the provider
+            connection.execute(
+                text("DELETE FROM llm_providers WHERE provider_id = :provider_id AND company_id = :company_id"),
+                {"provider_id": provider_id, "company_id": company_id}
+            )
+            
+        return True
+
+    @staticmethod
+    def delete_model(company_id: str, model_id: str) -> bool:
+        from fastapi import HTTPException
+        with engine.connect() as conn:
+            m_row = conn.execute(
+                text("""
+                    SELECT m.provider_id, m.model_name 
+                    FROM llm_models m
+                    INNER JOIN llm_providers p ON m.provider_id = p.provider_id
+                    WHERE m.model_id = :model_id AND p.company_id = :company_id
+                """),
+                {"model_id": model_id, "company_id": company_id}
+            ).fetchone()
+            
+            if not m_row:
+                return False
+                
+            provider_id = m_row.provider_id
+            model_name = m_row.model_name
+            
+            # Check if any model capability with this provider and model_name is active in fallback routing
+            active_routing = conn.execute(
+                text("""
+                    SELECT f.purpose 
+                    FROM llm_fallbacks f
+                    INNER JOIN llm_models m ON f.model_id = m.model_id
+                    WHERE m.provider_id = :provider_id AND m.model_name = :model_name AND f.is_active = 1
+                """),
+                {"provider_id": provider_id, "model_name": model_name}
+            ).fetchone()
+            
+            if active_routing:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Cannot delete model because it is currently active in routing/fallbacks for '{active_routing.purpose}'."
+                )
+                
+        with engine.begin() as connection:
+            # Delete inactive fallback mapping to models of this provider + model_name
+            connection.execute(
+                text("""
+                    DELETE FROM llm_fallbacks 
+                    WHERE model_id IN (
+                        SELECT model_id FROM llm_models 
+                        WHERE provider_id = :provider_id AND model_name = :model_name
+                    )
+                """),
+                {"provider_id": provider_id, "model_name": model_name}
+            )
+            # Delete models of this provider + model_name
+            connection.execute(
+                text("DELETE FROM llm_models WHERE provider_id = :provider_id AND model_name = :model_name"),
+                {"provider_id": provider_id, "model_name": model_name}
+            )
+            
+        return True

@@ -1,5 +1,4 @@
-const API = process.env.REACT_APP_API_BASE_URL || "/api";
-
+const API = process.env.REACT_APP_API_BASE_URL || "";
 export async function login(email, password) {
     const response = await fetch(`${API}/auth/login`, {
         method: "POST",
@@ -12,12 +11,26 @@ export async function login(email, password) {
         })
     });
 
-    if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.detail || "Login failed");
+    let data = null;
+    const contentType = response.headers.get("content-type");
+    if (contentType && contentType.includes("application/json")) {
+        try {
+            data = await response.json();
+        } catch (e) {
+            console.error("Failed to parse JSON response:", e);
+        }
     }
 
-    return response.json();
+    if (!response.ok) {
+        const errorDetail = data && data.detail ? data.detail : `Error ${response.status}: ${response.statusText || "Login failed"}`;
+        throw new Error(errorDetail);
+    }
+
+    if (!data) {
+        throw new Error("Invalid server response format");
+    }
+
+    return data;
 }
 
 export function saveToken(token) {

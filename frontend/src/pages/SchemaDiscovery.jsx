@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { 
   Row, Col, Card, Tree, Table, Tag, Button, Space, Typography, 
-  Tabs, Badge, Tooltip, Input, Alert, message, Spin
+  Tabs, Badge, Tooltip, Input, Alert, Spin
 } from "antd";
+import { message } from "../utils/message";
 import { 
   SearchOutlined, SyncOutlined, DatabaseOutlined, TableOutlined, 
   KeyOutlined, EyeOutlined, FileTextOutlined, InfoCircleOutlined,

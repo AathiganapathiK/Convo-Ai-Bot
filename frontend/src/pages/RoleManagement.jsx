@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { 
   Table, Card, Button, Tag, Space, Typography, Modal, Form, 
-  Input, Popconfirm, message, Badge, Checkbox 
+  Input, Popconfirm, Badge, Checkbox 
 } from "antd";
+import { message } from "../utils/message";
 import { 
   PlusOutlined, DeleteOutlined, ReloadOutlined, 
   SafetyCertificateOutlined 

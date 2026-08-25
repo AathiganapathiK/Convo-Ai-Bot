@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import { 
   Row, Col, Card, Select, Button, Space, Typography, 
-  Input, Tabs, Divider, Tag, List, Badge, message 
+  Input, Tabs, Divider, Tag, List, Badge 
 } from "antd";
+import { message } from "../utils/message";
 import { 
   CodeOutlined, SaveOutlined, PlayCircleOutlined, HistoryOutlined, 
   DatabaseOutlined, BulbOutlined 
@@ -183,7 +184,7 @@ export default function PromptStudio() {
             title={<span style={{ color: "var(--text-main)" }}><PlayCircleOutlined /> Preview & Testing Sandbox</span>}
             bordered={false}
             style={{ background: "var(--bg-card)", border: "1px solid var(--border-color)", borderRadius: "12px", minHeight: "600px" }}
-            bodyStyle={{ display: "flex", flexDirection: "column", height: "calc(100% - 56px)" }}
+            styles={{ body: { display: "flex", flexDirection: "column", height: "calc(100% - 56px)" } }}
           >
             <div style={{ marginBottom: "16px" }}>
               <Text style={{ color: "var(--text-muted)", display: "block", marginBottom: "8px" }}>Sample User Input (For Test Resolution)</Text>

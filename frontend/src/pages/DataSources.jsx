@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { 
   Table, Card, Button, Tag, Space, Typography, Modal, Form, 
-  Input, InputNumber, Select, message, Tooltip, Badge, Divider, Drawer,
+  Input, InputNumber, Select, Tooltip, Badge, Divider, Drawer,
   Row, Col
 } from "antd";
+import { message } from "../utils/message";
 import { 
   PlusOutlined, DatabaseOutlined, PlayCircleOutlined, DeleteOutlined, 
   CheckCircleOutlined, ExclamationCircleOutlined, SyncOutlined 

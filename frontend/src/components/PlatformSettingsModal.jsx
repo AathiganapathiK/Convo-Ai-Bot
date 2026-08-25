@@ -7,9 +7,9 @@ import {
   Modal,
   Form,
   Input,
-  Button,
-  message
+  Button
 } from "antd";
+import { message } from "../utils/message";
 
 import {
   getCompanyInfo,

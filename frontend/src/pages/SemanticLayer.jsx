@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { 
   Table, Card, Button, Tag, Space, Typography, Modal, Form, 
-  Input, Select, message, Tabs, Divider, Switch, Descriptions, Alert
+  Input, Select, Tabs, Divider, Switch, Descriptions, Alert
 } from "antd";
+import { message } from "../utils/message";
 import { 
   PlusOutlined, TagsOutlined, CompassOutlined, 
   EditOutlined, DeleteOutlined, SearchOutlined,

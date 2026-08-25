@@ -8,19 +8,21 @@ import {
   logout as logoutUser
 } from "./services/authService";
 
-import { Layout, Dropdown, Avatar, Space, Typography, Badge, Select, Spin, Card, Button, Tag,
-  ConfigProvider, theme, Tooltip, Input, Form, message
+import {
+  Layout, Dropdown, Avatar, Space, Typography, Badge, Select, Spin, Card, Button, Tag,
+  ConfigProvider, theme, Tooltip, Input, Form, App as AppWrapper
 } from "antd";
+import { message, setGlobalMessage } from "./utils/message";
 
-import { 
-  SettingOutlined, UserOutlined, BellOutlined, DownOutlined, 
+import {
+  SettingOutlined, UserOutlined, BellOutlined, DownOutlined,
   LockOutlined, SunOutlined, MoonOutlined, DesktopOutlined, CheckOutlined,
   LogoutOutlined, DatabaseOutlined
 } from "@ant-design/icons";
-import { 
-  LayoutDashboard, MessageSquare, Database, Code, Tag as TagIcon, 
-  Cpu, Terminal, GitFork, Users, Shield, Activity, ChevronLeft, 
-  ChevronRight, ChevronDown 
+import {
+  LayoutDashboard, MessageSquare, Database, Code, Tag as TagIcon,
+  Cpu, Terminal, GitFork, Users, Shield, Activity, ChevronLeft,
+  ChevronRight, ChevronDown
 } from "lucide-react";
 import { useTheme } from "./hooks/useTheme";
 
@@ -45,7 +47,7 @@ const { Header, Content } = Layout;
 const { Text, Title } = Typography;
 const { Option } = Select;
 
-const API = process.env.REACT_APP_API_BASE_URL || "/api";
+const API = process.env.REACT_APP_API_BASE_URL || "";
 
 
 
@@ -134,9 +136,9 @@ const SIDEBAR_SECTIONS = [
 ];
 
 function MainAppLayout({
-    token,
-    userInfo,
-    onLogout
+  token,
+  userInfo,
+  onLogout
 }) {
   // const { logout } = useAuth0();
   const location = useLocation();
@@ -162,7 +164,7 @@ function MainAppLayout({
   // };
 
   const handleLogout = () => {
-      onLogout();
+    onLogout();
   };
 
   const role = userInfo?.role?.toUpperCase() || "";
@@ -213,38 +215,38 @@ function MainAppLayout({
       label: "Theme Mode",
       icon: resolvedTheme === "dark" ? <MoonOutlined /> : <SunOutlined />,
       children: [
-        { 
-          key: "theme-light", 
+        {
+          key: "theme-light",
           label: (
             <Space style={{ display: "flex", justifyContent: "space-between", width: "100%", minWidth: "120px" }}>
               <span>Light Mode</span>
               {themeMode === "light" && <CheckOutlined style={{ color: "#4f46e5" }} />}
             </Space>
-          ), 
-          icon: <SunOutlined />, 
-          onClick: () => setThemeMode("light") 
+          ),
+          icon: <SunOutlined />,
+          onClick: () => setThemeMode("light")
         },
-        { 
-          key: "theme-dark", 
+        {
+          key: "theme-dark",
           label: (
             <Space style={{ display: "flex", justifyContent: "space-between", width: "100%", minWidth: "120px" }}>
               <span>Dark Mode</span>
               {themeMode === "dark" && <CheckOutlined style={{ color: "#4f46e5" }} />}
             </Space>
-          ), 
-          icon: <MoonOutlined />, 
-          onClick: () => setThemeMode("dark") 
+          ),
+          icon: <MoonOutlined />,
+          onClick: () => setThemeMode("dark")
         },
-        { 
-          key: "theme-system", 
+        {
+          key: "theme-system",
           label: (
             <Space style={{ display: "flex", justifyContent: "space-between", width: "100%", minWidth: "120px" }}>
               <span>System</span>
               {themeMode === "system" && <CheckOutlined style={{ color: "#4f46e5" }} />}
             </Space>
-          ), 
-          icon: <DesktopOutlined />, 
-          onClick: () => setThemeMode("system") 
+          ),
+          icon: <DesktopOutlined />,
+          onClick: () => setThemeMode("system")
         }
       ]
     },
@@ -264,7 +266,7 @@ function MainAppLayout({
       )}
 
       {/* Sidebar Navigation */}
-      <div 
+      <div
         className={`custom-sidebar ${isExpanded ? "expanded" : ""}`}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
@@ -301,15 +303,14 @@ function MainAppLayout({
                     </div>
                     <ChevronDown size={12} className={`chevron-icon ${isOpen ? 'open' : ''}`} />
                   </button>
-                  
                   <div className={`sidebar-section-items ${isOpen ? 'open' : 'collapsed'}`}>
                     {section.items.map(item => {
                       const isActive = location.pathname === item.path;
                       const Icon = item.icon;
                       return (
-                        <Link 
-                          key={item.path} 
-                          to={item.path} 
+                        <Link
+                          key={item.path}
+                          to={item.path}
                           className={`sidebar-item ${isActive ? 'active' : ''}`}
                         >
                           <div className="sidebar-item-icon-wrapper">
@@ -330,7 +331,7 @@ function MainAppLayout({
                 const GroupIcon = section.icon;
                 return (
                   <Tooltip key={section.id} title={section.title} placement="right">
-                    <div 
+                    <div
                       className={`sidebar-group-collapsed-icon ${isGroupActive ? 'active' : ''}`}
                       onClick={() => {
                         setIsPinned(true);
@@ -360,10 +361,10 @@ function MainAppLayout({
                 )}
               </div>
             </Dropdown>
-            
+
             {isExpanded && (
-              <Button 
-                type="text" 
+              <Button
+                type="text"
                 size="small"
                 onClick={() => setIsPinned(!isPinned)}
                 icon={isPinned ? <ChevronLeft size={16} /> : <ChevronRight size={16} />}
@@ -371,10 +372,10 @@ function MainAppLayout({
               />
             )}
           </div>
-          
+
           {!isExpanded && (
-            <button 
-              className="sidebar-toggle-btn" 
+            <button
+              className="sidebar-toggle-btn"
               onClick={() => setIsPinned(!isPinned)}
               title={isPinned ? "Collapse Sidebar" : "Pin Sidebar"}
               style={{ marginTop: "4px" }}
@@ -404,10 +405,10 @@ function MainAppLayout({
         >
           {/* Company tenant display */}
           <Space size="middle">
-            <Button 
-              type="text" 
+            <Button
+              type="text"
               className="mobile-sidebar-toggle"
-              icon={isPinned ? <ChevronLeft size={16} /> : <ChevronRight size={16} />} 
+              icon={isPinned ? <ChevronLeft size={16} /> : <ChevronRight size={16} />}
               onClick={() => setIsPinned(!isPinned)}
               style={{ display: "none" }}
             />
@@ -466,8 +467,43 @@ function MainAppLayout({
   );
 }
 
-export default function App() {
+const darkThemeTokens = {
+  colorPrimary: "#4f46e5",
+  colorBgLayout: "#030712",
+  colorBgContainer: "#111827",
+  colorBgElevated: "#1f2937",
+  colorText: "#ffffff",
+  colorTextSecondary: "#d1d5db",
+  colorBorder: "#1f2937",
+  colorSuccess: "#10b981",
+  colorWarning: "#f59e0b",
+  colorError: "#ef4444",
+  borderRadius: 8,
+  fontFamily: "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+};
+
+const lightThemeTokens = {
+  colorPrimary: "#4f46e5",
+  colorBgLayout: "#f3f4f6",
+  colorBgContainer: "#ffffff",
+  colorBgElevated: "#ffffff",
+  colorText: "#111827",
+  colorTextSecondary: "#374151",
+  colorBorder: "#e5e7eb",
+  colorSuccess: "#10b981",
+  colorWarning: "#f59e0b",
+  colorError: "#ef4444",
+  borderRadius: 8,
+  fontFamily: "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+};
+
+function InnerApp() {
   const { resolvedTheme } = useTheme();
+  const { message: antdMessage } = AppWrapper.useApp();
+
+  useEffect(() => {
+    setGlobalMessage(antdMessage);
+  }, [antdMessage]);
 
   const [token, setToken] = useState(getToken() || "");
   const [isAuthenticated, setIsAuthenticated] = useState(!!getToken());
@@ -479,29 +515,29 @@ export default function App() {
   const [loginForm] = Form.useForm();
 
   const handleLogin = async (values) => {
-      try {
-          setLoginLoading(true);
+    try {
+      setLoginLoading(true);
 
-          const result = await login(
-              values.email,
-              values.password
-          );
+      const result = await login(
+        values.email,
+        values.password
+      );
 
-          saveToken(result.access_token);
+      saveToken(result.access_token);
 
-          setToken(result.access_token);
-          setIsAuthenticated(true);
+      setToken(result.access_token);
+      setIsAuthenticated(true);
 
-          await fetchUserInfo(result.access_token);
+      await fetchUserInfo(result.access_token);
 
-          message.success("Login successful");
+      message.success("Login successful");
 
-      } catch (err) {
-          message.error(err.message || "Login failed");
-      } finally {
-          setLoginLoading(false);
-      }
-  };  
+    } catch (err) {
+      message.error(err.message || "Login failed");
+    } finally {
+      setLoginLoading(false);
+    }
+  };
 
   const fetchUserInfo = async (authToken) => {
     setBackendStatus("loading");
@@ -518,7 +554,7 @@ export default function App() {
         return;
       }
 
-      
+
       if (res.status === 403) {
         const body = await res.json().catch(() => ({}));
         const detail = body.detail || "";
@@ -547,7 +583,7 @@ export default function App() {
   // useEffect(() => {
   //   const initAuth = async () => {
   //     if (isAuthenticated) {
-        
+
   //       try {
   //         const auth0Token = await getAccessTokenSilently();
   //         setToken(auth0Token);
@@ -564,20 +600,20 @@ export default function App() {
 
   useEffect(() => {
 
-      const existingToken = getToken();
+    const existingToken = getToken();
 
-      if (!existingToken) {
-          setAuthLoading(false);
-          return;
-      }
+    if (!existingToken) {
+      setAuthLoading(false);
+      return;
+    }
 
-      setToken(existingToken);
+    setToken(existingToken);
 
-      fetchUserInfo(existingToken)
-          .finally(() => {
-              setAuthLoading(false);
-              setIsAuthenticated(true);
-          });
+    fetchUserInfo(existingToken)
+      .finally(() => {
+        setAuthLoading(false);
+        setIsAuthenticated(true);
+      });
 
   }, []);
 
@@ -601,7 +637,7 @@ export default function App() {
       : "Your account is not provisioned. Contact your administrator to request access.";
     return (
       <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "var(--bg-layout)", padding: "20px" }}>
-        <Card style={{ width: "440px", background: "var(--bg-card)", border: "1px solid var(--border-color)", textAlign: "center" }} bodyStyle={{ padding: "40px" }}>
+        <Card style={{ width: "440px", background: "var(--bg-card)", border: "1px solid var(--border-color)", textAlign: "center" }} styles={{ body: { padding: "40px" } }}>
           <Avatar size={64} icon={<LockOutlined />} style={{ backgroundColor: "#ef4444", marginBottom: "20px" }} />
           <Title level={3} style={{ color: "var(--text-main)" }}>Access Denied</Title>
           <Text style={{ fontSize: "15px", display: "block", marginBottom: "24px", color: "var(--text-muted)" }}>{msg}</Text>
@@ -611,37 +647,7 @@ export default function App() {
     );
   }
 
-  const darkThemeTokens = {
-    colorPrimary: "#4f46e5",
-    colorBgLayout: "#030712",
-    colorBgContainer: "#111827",
-    colorBgElevated: "#1f2937",
-    colorText: "#ffffff",
-    colorTextSecondary: "#d1d5db",
-    colorBorder: "#1f2937",
-    colorSuccess: "#10b981",
-    colorWarning: "#f59e0b",
-    colorError: "#ef4444",
-    borderRadius: 8,
-    fontFamily: "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
-  };
-
-  const lightThemeTokens = {
-    colorPrimary: "#4f46e5",
-    colorBgLayout: "#f3f4f6",
-    colorBgContainer: "#ffffff",
-    colorBgElevated: "#ffffff",
-    colorText: "#111827",
-    colorTextSecondary: "#374151",
-    colorBorder: "#e5e7eb",
-    colorSuccess: "#10b981",
-    colorWarning: "#f59e0b",
-    colorError: "#ef4444",
-    borderRadius: 8,
-    fontFamily: "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
-  };
-
-const handleLogout = () => {
+  const handleLogout = () => {
     logoutUser();
 
     setToken("");
@@ -650,38 +656,32 @@ const handleLogout = () => {
     setBackendStatus("idle");
 
     window.appState = null;
-};
+  };
 
 
   return (
-    <ConfigProvider
-      theme={{
-        algorithm: resolvedTheme === "dark" ? theme.darkAlgorithm : theme.defaultAlgorithm,
-        token: resolvedTheme === "dark" ? darkThemeTokens : lightThemeTokens
-      }}
-    >
-      <div className={resolvedTheme === "dark" ? "dark-theme" : "light-theme"} style={{ minHeight: "100vh" }}>
-        {!isAuthenticated || backendStatus !== "provisioned" ? (
-          <div
+    <div className={resolvedTheme === "dark" ? "dark-theme" : "light-theme"} style={{ minHeight: "100vh" }}>
+      {!isAuthenticated || backendStatus !== "provisioned" ? (
+        <div
+          style={{
+            minHeight: "100vh",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+            background: "linear-gradient(135deg, var(--bg-layout) 0%, var(--bg-header) 50%, #1e1b4b 100%)",
+            padding: "20px"
+          }}
+        >
+          <Card
             style={{
-              minHeight: "100vh",
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "center",
-              alignItems: "center",
-              background: "linear-gradient(135deg, var(--bg-layout) 0%, var(--bg-header) 50%, #1e1b4b 100%)",
-              padding: "20px"
+              width: "420px",
+              borderRadius: "16px",
+              border: "1px solid var(--border-color)",
+              background: "var(--bg-card)"
             }}
+            styles={{ body: { padding: "40px 30px" } }}
           >
-            <Card
-              style={{
-                width: "420px",
-                borderRadius: "16px",
-                border: "1px solid var(--border-color)",
-                background: "var(--bg-card)"
-              }}
-              bodyStyle={{ padding: "40px 30px" }}
-            >
               <div style={{ textAlign: "center", marginBottom: "30px" }}>
                 <Avatar
                   size={54}
@@ -714,61 +714,61 @@ const handleLogout = () => {
               </Button> */}
 
               <Form
-                  form={loginForm}
-                  layout="vertical"
-                  onFinish={handleLogin}
+                form={loginForm}
+                layout="vertical"
+                onFinish={handleLogin}
               >
 
-                  <Form.Item
-                      label="Official Email"
-                      name="email"
-                      rules={[
-                          {
-                              required: true,
-                              message: "Please enter your email"
-                          }
-                      ]}
-                  >
-                      <Input
-                          placeholder="admin@company.com"
-                          size="large"
-                      />
-                  </Form.Item>
+                <Form.Item
+                  label="Official Email"
+                  name="email"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Please enter your email"
+                    }
+                  ]}
+                >
+                  <Input
+                    placeholder="admin@company.com"
+                    size="large"
+                  />
+                </Form.Item>
 
-                  <Form.Item
-                      label="Password"
-                      name="password"
-                      rules={[
-                          {
-                              required: true,
-                              message: "Please enter your password"
-                          }
-                      ]}
-                  >
-                      <Input.Password
-                          size="large"
-                          placeholder="Password"
-                      />
-                  </Form.Item>
+                <Form.Item
+                  label="Password"
+                  name="password"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Please enter your password"
+                    }
+                  ]}
+                >
+                  <Input.Password
+                    size="large"
+                    placeholder="Password"
+                  />
+                </Form.Item>
 
-                  <Button
-                      htmlType="submit"
-                      type="primary"
-                      block
-                      size="large"
-                      loading={loginLoading}
-                      icon={<LockOutlined />}
-                      style={{
-                          marginTop: 8,
-                          height: "48px",
-                          fontWeight: 600,
-                          borderRadius: "8px",
-                          background: "#4f46e5",
-                          fontSize: "15px"
-                        }}
-                  >
-                      Sign In
-                  </Button>
+                <Button
+                  htmlType="submit"
+                  type="primary"
+                  block
+                  size="large"
+                  loading={loginLoading}
+                  icon={<LockOutlined />}
+                  style={{
+                    marginTop: 8,
+                    height: "48px",
+                    fontWeight: 600,
+                    borderRadius: "8px",
+                    background: "#4f46e5",
+                    fontSize: "15px"
+                  }}
+                >
+                  Sign In
+                </Button>
 
               </Form>
 
@@ -782,13 +782,29 @@ const handleLogout = () => {
         ) : (
           <BrowserRouter>
             <MainAppLayout
-                token={token}
-                userInfo={userInfo}
-                onLogout={handleLogout}
+              token={token}
+              userInfo={userInfo}
+              onLogout={handleLogout}
             />
           </BrowserRouter>
         )}
-      </div>
+    </div>
+  );
+}
+
+export default function App() {
+  const { resolvedTheme } = useTheme();
+
+  return (
+    <ConfigProvider
+      theme={{
+        algorithm: resolvedTheme === "dark" ? theme.darkAlgorithm : theme.defaultAlgorithm,
+        token: resolvedTheme === "dark" ? darkThemeTokens : lightThemeTokens
+      }}
+    >
+      <AppWrapper>
+        <InnerApp />
+      </AppWrapper>
     </ConfigProvider>
   );
 }

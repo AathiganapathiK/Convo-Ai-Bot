@@ -797,3 +797,33 @@ def reorder_fallbacks(
             if res.rowcount == 0:
                 raise HTTPException(status_code=400, detail="Invalid fallback ID for reordering")
     return {"message": "Fallbacks reordered"}
+
+
+@router.delete("/providers/{provider_id}")
+def delete_provider(
+    provider_id: str,
+    user=Depends(require_permission("admin:providers:manage"))
+):
+    from fastapi import HTTPException
+    success = ProviderAdminService.delete_provider(
+        company_id=user["company_id"],
+        provider_id=provider_id
+    )
+    if not success:
+        raise HTTPException(status_code=404, detail="Provider not found")
+    return {"message": "Provider deleted successfully"}
+
+
+@router.delete("/models/{model_id}")
+def delete_model(
+    model_id: str,
+    user=Depends(require_permission("admin:providers:manage"))
+):
+    from fastapi import HTTPException
+    success = ProviderAdminService.delete_model(
+        company_id=user["company_id"],
+        model_id=model_id
+    )
+    if not success:
+        raise HTTPException(status_code=404, detail="Model not found")
+    return {"message": "Model deleted successfully"}

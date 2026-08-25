@@ -2,8 +2,9 @@ import React, { useState, useEffect, useRef } from "react";
 import { 
   Layout, Input, Button, Card, Space, Avatar, Tag, Typography, 
   Collapse, Table, Spin, Alert, Modal, Statistic, Row, Col, 
-  List, Popconfirm, Tooltip, message, ConfigProvider 
+  List, Popconfirm, Tooltip, ConfigProvider 
 } from "antd";
+import { message } from "../utils/message";
 import { 
   SendOutlined, PlusOutlined, MessageOutlined, DatabaseOutlined, 
   FileExcelOutlined, LockOutlined, UserOutlined, ArrowRightOutlined, 
@@ -144,7 +145,7 @@ const WorkspaceSection = ({ title, icon, children, isOpen, onToggle, extra }) =>
         marginBottom: "8px",
         overflow: "hidden"
       }}
-      bodyStyle={{ padding: "0px" }}
+      styles={{ body: { padding: "0px" } }}
     >
       <div 
         onClick={onToggle}
@@ -352,7 +353,7 @@ const AnalyticsWorkspace = ({ msg, userInfo, downloadExcel, askQuestion, tableCo
                     height: "100%",
                     boxShadow: "0 2px 8px rgba(0, 0, 0, 0.02)"
                   }}
-                  bodyStyle={{ padding: "20px" }}
+                  styles={{ body: { padding: "20px" } }}
                 >
                   <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "16px" }}>
                     <div style={{
@@ -394,7 +395,7 @@ const AnalyticsWorkspace = ({ msg, userInfo, downloadExcel, askQuestion, tableCo
                     marginBottom: "16px",
                     boxShadow: "0 2px 8px rgba(0, 0, 0, 0.02)"
                   }}
-                  bodyStyle={{ padding: "20px" }}
+                  styles={{ body: { padding: "20px" } }}
                 >
                   <div style={{ marginBottom: "16px" }}>
                     <span style={{ fontWeight: 700, fontSize: "15px", color: "var(--text-main)" }}>Key Performance Indicators</span>
@@ -414,7 +415,7 @@ const AnalyticsWorkspace = ({ msg, userInfo, downloadExcel, askQuestion, tableCo
                     marginBottom: "16px",
                     boxShadow: "0 2px 8px rgba(0, 0, 0, 0.02)"
                   }}
-                  bodyStyle={{ padding: "20px" }}
+                  styles={{ body: { padding: "20px" } }}
                 >
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
                     <span style={{ fontWeight: 700, fontSize: "15px", color: "var(--text-main)" }}>
@@ -449,7 +450,7 @@ const AnalyticsWorkspace = ({ msg, userInfo, downloadExcel, askQuestion, tableCo
                     marginBottom: "16px",
                     boxShadow: "0 2px 8px rgba(0, 0, 0, 0.02)"
                   }}
-                  bodyStyle={{ padding: "20px" }}
+                  styles={{ body: { padding: "20px" } }}
                 >
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
                     <span style={{ fontWeight: 700, fontSize: "15px", color: "var(--text-main)" }}>
@@ -493,7 +494,7 @@ const AnalyticsWorkspace = ({ msg, userInfo, downloadExcel, askQuestion, tableCo
                     marginBottom: "16px",
                     boxShadow: "0 2px 8px rgba(0, 0, 0, 0.02)"
                   }}
-                  bodyStyle={{ padding: "20px" }}
+                  styles={{ body: { padding: "20px" } }}
                 >
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: secStates.sql ? "16px" : "0px" }}>
                     <Space size="small">
@@ -548,7 +549,7 @@ const AnalyticsWorkspace = ({ msg, userInfo, downloadExcel, askQuestion, tableCo
                     marginBottom: "16px",
                     boxShadow: "0 2px 8px rgba(0, 0, 0, 0.02)"
                   }}
-                  bodyStyle={{ padding: "20px" }}
+                  styles={{ body: { padding: "20px" } }}
                 >
                   <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "16px" }}>
                     <ArrowRightOutlined style={{ color: "#6366f1", fontSize: "14px" }} />

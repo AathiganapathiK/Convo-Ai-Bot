@@ -11,9 +11,9 @@ import {
   Input,
   Space,
   Tag,
-  Popconfirm,
-  message
+  Popconfirm
 } from "antd";
+import { message } from "../utils/message";
 
 import {
   PlusOutlined,

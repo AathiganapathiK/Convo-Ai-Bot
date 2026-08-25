@@ -1363,35 +1363,37 @@ def get_query_trends(
 def get_dashboard_kpis(user: dict = Depends(require_permission("chat:history:read"))):
     """Return KPI metrics scoped to the user's company."""
     company_id = user["company_id"]
-    # Total executed queries
-    total_res = engine.connect().execute(text(
-        "SELECT COUNT(*) AS total FROM user_queries WHERE company_id = :cid"
-    ), {"cid": company_id}).fetchone()
-    total_queries = total_res._mapping["total"] if total_res else 0
+    
+    with engine.connect() as connection:
+        # Total executed queries
+        total_res = connection.execute(text(
+            "SELECT COUNT(*) AS total FROM user_queries WHERE company_id = :cid"
+        ), {"cid": company_id}).fetchone()
+        total_queries = total_res._mapping["total"] if total_res else 0
 
-    # Average pipeline latency for successful queries
-    avg_res = engine.connect().execute(text(
-        "SELECT AVG(CAST(execution_time AS FLOAT)) AS avg_latency FROM user_queries WHERE execution_status = 'SUCCESS' AND company_id = :cid"
-    ), {"cid": company_id}).fetchone()
-    avg_latency = 0.0
-    if avg_res:
-        val = avg_res._mapping["avg_latency"]
-        if val is not None:
-            avg_latency = round(float(val), 2)
+        # Average pipeline latency for successful queries
+        avg_res = connection.execute(text(
+            "SELECT AVG(CAST(execution_time AS FLOAT)) AS avg_latency FROM user_queries WHERE execution_status = 'SUCCESS' AND company_id = :cid"
+        ), {"cid": company_id}).fetchone()
+        avg_latency = 0.0
+        if avg_res:
+            val = avg_res._mapping["avg_latency"]
+            if val is not None:
+                avg_latency = round(float(val), 2)
 
-    # Success percentage
-    success_res = engine.connect().execute(text(
-        "SELECT COUNT(*) AS success_count FROM user_queries WHERE execution_status = 'SUCCESS' AND company_id = :cid"
-    ), {"cid": company_id}).fetchone()
-    success_count = success_res._mapping["success_count"] if success_res else 0
-    success_pct = (success_count / total_queries * 100) if total_queries else 0
-    success_pct = round(success_pct, 2)
+        # Success percentage
+        success_res = connection.execute(text(
+            "SELECT COUNT(*) AS success_count FROM user_queries WHERE execution_status = 'SUCCESS' AND company_id = :cid"
+        ), {"cid": company_id}).fetchone()
+        success_count = success_res._mapping["success_count"] if success_res else 0
+        success_pct = (success_count / total_queries * 100) if total_queries else 0
+        success_pct = round(success_pct, 2)
 
-    # Security policy blocks (audit logs with denied actions)
-    blocks_res = engine.connect().execute(text(
-        "SELECT COUNT(*) AS blocks FROM audit_logs WHERE action_type = 'ACCESS_DENIED'"
-    )).fetchone()
-    security_blocks = blocks_res._mapping["blocks"] if blocks_res else 0
+        # Security policy blocks (audit logs with denied actions)
+        blocks_res = connection.execute(text(
+            "SELECT COUNT(*) AS blocks FROM audit_logs WHERE action_type = 'ACCESS_DENIED'"
+        )).fetchone()
+        security_blocks = blocks_res._mapping["blocks"] if blocks_res else 0
 
     return {
         "total_queries": total_queries,

@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import { 
   Table, Card, Button, Tag, Space, Typography, Modal, Form, 
-  Input, Select, message, Tabs, Divider, Alert 
+  Input, Select, Tabs, Divider, Alert 
 } from "antd";
+import { message } from "../utils/message";
 import { 
   PlusOutlined, NodeIndexOutlined, CompassOutlined, EditOutlined, 
   DeleteOutlined, CheckCircleOutlined, ExclamationCircleOutlined 

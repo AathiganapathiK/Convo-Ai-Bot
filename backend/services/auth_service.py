@@ -4,6 +4,10 @@ from datetime import datetime, timezone
 from fastapi import HTTPException, status
 from auth.password_utils import verify_password
 from auth.jwt_utils import create_access_token
+from sqlalchemy.exc import SQLAlchemyError
+import logging
+
+logger = logging.getLogger(__name__)
 
 class AuthService:
 
@@ -29,21 +33,28 @@ class AuthService:
         WHERE u.official_email = :email
         """
 
-        with engine.connect() as connection:
+        try:
+            with engine.connect() as connection:
 
-            result = connection.execute(
-                text(query),
-                {
-                    "email": email
-                }
+                result = connection.execute(
+                    text(query),
+                    {
+                        "email": email
+                    }
+                )
+
+                row = result.fetchone()
+
+                if not row:
+                    return None
+
+                return dict(row._mapping)
+        except (SQLAlchemyError, Exception) as e:
+            logger.error(f"Database connection error in get_company_by_email: {str(e)}", exc_info=True)
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="Database connection failed"
             )
-
-            row = result.fetchone()
-
-            if not row:
-                return None
-
-            return dict(row._mapping)
 
     @staticmethod
     def get_user_by_email(email: str):
@@ -53,18 +64,25 @@ class AuthService:
         WHERE official_email = :email
         """
 
-        with engine.connect() as connection:
-            result = connection.execute(
-                text(query),
-                {"email": email}
+        try:
+            with engine.connect() as connection:
+                result = connection.execute(
+                    text(query),
+                    {"email": email}
+                )
+
+                row = result.fetchone()
+
+                if not row:
+                    return None
+
+                return dict(row._mapping)
+        except (SQLAlchemyError, Exception) as e:
+            logger.error(f"Database connection error in get_user_by_email: {str(e)}", exc_info=True)
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="Database connection failed"
             )
-
-            row = result.fetchone()
-
-            if not row:
-                return None
-
-            return dict(row._mapping)
 
 
     @staticmethod

@@ -7,9 +7,9 @@ import {
   Input,
   Space,
   Tag,
-  message,
   Tabs,
 } from "antd";
+import { message } from "../utils/message";
 
 import {
   PlusOutlined,

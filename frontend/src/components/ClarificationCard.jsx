@@ -62,7 +62,7 @@ export default function ClarificationCard({
         maxWidth: "600px",
         width: "100%"
       }}
-      bodyStyle={{ padding: "16px" }}
+      styles={{ body: { padding: "16px" } }}
       data-testid="clarification-card"
     >
       {/* Header */}

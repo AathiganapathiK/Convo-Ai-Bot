@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { 
   Table, Card, Button, Tag, Space, Typography, Modal, Form, 
-  Input, Select, Popconfirm, message, Badge, Row, Col, Spin 
+  Input, Select, Popconfirm, Badge, Row, Col, Spin 
 } from "antd";
+import { message } from "../utils/message";
 import { 
   UserAddOutlined, EditOutlined, LockOutlined, UnlockOutlined, 
   ReloadOutlined, MailOutlined, SearchOutlined

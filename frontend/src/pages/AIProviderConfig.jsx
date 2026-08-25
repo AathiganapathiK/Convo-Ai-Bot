@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { 
   Table, Card, Button, Tag, Space, Typography, Modal, Form, 
-  Input, Select, message, Tabs, Divider, Row, Col, Badge, Switch,
+  Input, Select, Tabs, Divider, Row, Col, Badge, Switch,
   Tooltip, Popconfirm, List, Alert, Spin
 } from "antd";
+import { message } from "../utils/message";
 import { 
   PlusOutlined, SettingOutlined, KeyOutlined, AppstoreOutlined, 
   NodeIndexOutlined, CheckCircleOutlined, CloseCircleOutlined,
@@ -281,6 +282,38 @@ export default function AIProviderConfig({ API, token }) {
     }
   };
 
+  const handleDeleteProvider = async (record) => {
+    Modal.confirm({
+      title: "Delete Provider?",
+      content: (
+        <div>
+          <p>Are you sure you want to delete <strong>{record.provider_name}</strong>?</p>
+          <p style={{ color: "var(--text-muted)", fontSize: "12px" }}>This action cannot be undone and will delete all models registered for this provider.</p>
+        </div>
+      ),
+      okText: "Delete",
+      okType: "danger",
+      cancelText: "Cancel",
+      onOk: async () => {
+        try {
+          const res = await fetch(`${API}/providers/${record.provider_id}`, {
+            method: "DELETE",
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          if (res.ok) {
+            message.success(`Provider "${record.provider_name}" deleted successfully.`);
+            loadData();
+          } else {
+            await handleRequestError(res, "Failed to delete provider");
+          }
+        } catch (err) {
+          console.error(err);
+          message.error("Network error while deleting provider");
+        }
+      }
+    });
+  };
+
   // --- Models API calls ---
   const handleCreateModel = async (values) => {
     try {
@@ -381,6 +414,38 @@ export default function AIProviderConfig({ API, token }) {
     } finally {
       setTestingModelId(null);
     }
+  };
+
+  const handleDeleteModel = async (record) => {
+    Modal.confirm({
+      title: "Delete Model?",
+      content: (
+        <div>
+          <p>Are you sure you want to delete <strong>{record.model_name}</strong>?</p>
+          <p style={{ color: "var(--text-muted)", fontSize: "12px" }}>This action cannot be undone.</p>
+        </div>
+      ),
+      okText: "Delete",
+      okType: "danger",
+      cancelText: "Cancel",
+      onOk: async () => {
+        try {
+          const res = await fetch(`${API}/models/${record.model_id}`, {
+            method: "DELETE",
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          if (res.ok) {
+            message.success(`Model "${record.model_name}" deleted successfully.`);
+            loadData();
+          } else {
+            await handleRequestError(res, "Failed to delete model");
+          }
+        } catch (err) {
+          console.error(err);
+          message.error("Network error while deleting model");
+        }
+      }
+    });
   };
 
   // --- Routing & Fallbacks API calls ---
@@ -516,7 +581,7 @@ export default function AIProviderConfig({ API, token }) {
   const renderOverviewHeader = () => (
     <Row gutter={[16, 16]} style={{ marginBottom: "24px" }}>
       <Col xs={24} sm={12} md={6}>
-        <Card bordered={false} style={{ background: "var(--bg-card)", border: "1px solid var(--border-color)", borderRadius: "10px" }} bodyStyle={{ padding: "16px" }}>
+        <Card bordered={false} style={{ background: "var(--bg-card)", border: "1px solid var(--border-color)", borderRadius: "10px" }} styles={{ body: { padding: "16px" } }}>
           <Space align="baseline">
             <DashboardOutlined style={{ fontSize: "20px", color: "#4f46e5" }} />
             <div>
@@ -527,7 +592,7 @@ export default function AIProviderConfig({ API, token }) {
         </Card>
       </Col>
       <Col xs={24} sm={12} md={6}>
-        <Card bordered={false} style={{ background: "var(--bg-card)", border: "1px solid var(--border-color)", borderRadius: "10px" }} bodyStyle={{ padding: "16px" }}>
+        <Card bordered={false} style={{ background: "var(--bg-card)", border: "1px solid var(--border-color)", borderRadius: "10px" }} styles={{ body: { padding: "16px" } }}>
           <Space align="baseline">
             <AppstoreOutlined style={{ fontSize: "20px", color: "#10b981" }} />
             <div>
@@ -538,7 +603,7 @@ export default function AIProviderConfig({ API, token }) {
         </Card>
       </Col>
       <Col xs={24} sm={12} md={6}>
-        <Card bordered={false} style={{ background: "var(--bg-card)", border: "1px solid var(--border-color)", borderRadius: "10px" }} bodyStyle={{ padding: "16px" }}>
+        <Card bordered={false} style={{ background: "var(--bg-card)", border: "1px solid var(--border-color)", borderRadius: "10px" }} styles={{ body: { padding: "16px" } }}>
           <Space align="baseline">
             <CheckCircleOutlined style={{ fontSize: "20px", color: "#10b981" }} />
             <div>
@@ -549,7 +614,7 @@ export default function AIProviderConfig({ API, token }) {
         </Card>
       </Col>
       <Col xs={24} sm={12} md={6}>
-        <Card bordered={false} style={{ background: "var(--bg-card)", border: "1px solid var(--border-color)", borderRadius: "10px" }} bodyStyle={{ padding: "16px" }}>
+        <Card bordered={false} style={{ background: "var(--bg-card)", border: "1px solid var(--border-color)", borderRadius: "10px" }} styles={{ body: { padding: "16px" } }}>
           <Space align="baseline">
             <NodeIndexOutlined style={{ fontSize: "20px", color: "#8b5cf6" }} />
             <div>
@@ -685,6 +750,15 @@ export default function AIProviderConfig({ API, token }) {
           >
             Test Connection
           </Button>
+          <Button 
+            type="text" 
+            danger 
+            icon={<DeleteOutlined />}
+            onClick={() => handleDeleteProvider(record)}
+            title="Delete Provider"
+          >
+            Delete
+          </Button>
         </Space>
       )
     }
@@ -770,6 +844,15 @@ export default function AIProviderConfig({ API, token }) {
             icon={<ExperimentOutlined />}
           >
             Test Model
+          </Button>
+          <Button 
+            type="text" 
+            danger 
+            icon={<DeleteOutlined />}
+            onClick={() => handleDeleteModel(record)}
+            title="Delete Model"
+          >
+            Delete
           </Button>
         </Space>
       )
