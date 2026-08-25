@@ -33,19 +33,53 @@ class ProviderAdminService:
         """
 
         with engine.connect() as connection:
-
-            result = connection.execute(
-                text(query),
-                {
-                    "company_id":
-                        company_id
-                }
-            )
-
-            return [
-                dict(row._mapping)
-                for row in result.fetchall()
-            ]
+            try:
+                result = connection.execute(
+                    text(query),
+                    {
+                        "company_id":
+                            company_id
+                    }
+                )
+                return [
+                    dict(row._mapping)
+                    for row in result.fetchall()
+                ]
+            except Exception as e:
+                if "consecutive_failures" in str(e):
+                    fallback_query = """
+                    SELECT
+                        p.provider_id,
+                        p.provider_name,
+                        p.provider_type,
+                        p.base_url,
+                        p.is_active,
+                        p.created_at,
+                        p.masked_api_key,
+                        h.status,
+                        h.last_success_at,
+                        h.last_failure_at,
+                        h.failure_count,
+                        0 AS consecutive_failures,
+                        h.last_error,
+                        h.average_response_ms
+                    FROM llm_providers p
+                    LEFT JOIN provider_health h ON p.provider_id = h.provider_id
+                    WHERE p.company_id = :company_id
+                    ORDER BY p.provider_name
+                    """
+                    result = connection.execute(
+                        text(fallback_query),
+                        {
+                            "company_id":
+                                company_id
+                        }
+                    )
+                    return [
+                        dict(row._mapping)
+                        for row in result.fetchall()
+                    ]
+                raise e
 
 
     @staticmethod
