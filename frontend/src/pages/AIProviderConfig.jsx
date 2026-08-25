@@ -635,6 +635,7 @@ export default function AIProviderConfig({ API, token }) {
               setSelectedProvider(record);
               setKeyModalVisible(true);
             }}
+            data-testid={`key-btn-${record.provider_id}`}
           />
         </Space>
       )

@@ -166,15 +166,16 @@ class SemanticPlanBuilder:
             for cand in candidates_list:
                 if isinstance(cand, dict):
                     val = cand.get("value")
-                    if val == "This Year":
+                    val_lower = val.lower() if val else ""
+                    if val_lower == "this year":
                         resolved_cols.append(SNAPSHOT_SALES_BINDINGS["CURRENT_YEAR"])
-                    elif val == "Last Year":
+                    elif val_lower == "last year":
                         resolved_cols.append(SNAPSHOT_SALES_BINDINGS["PREVIOUS_YEAR"])
-                    elif val == "2 Years Ago":
+                    elif val_lower == "2 years ago":
                         resolved_cols.append(SNAPSHOT_SALES_BINDINGS["PPY"])
-                    elif val == "3 Years Ago":
+                    elif val_lower == "3 years ago":
                         resolved_cols.append(SNAPSHOT_SALES_BINDINGS["PPPY"])
-                    elif val == "4 Years Ago":
+                    elif val_lower == "4 years ago":
                         resolved_cols.append(SNAPSHOT_SALES_BINDINGS["PPPPY"])
 
             if not resolved_cols:

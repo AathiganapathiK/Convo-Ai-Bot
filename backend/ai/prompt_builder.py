@@ -219,7 +219,8 @@ class PromptBuilder:
             for cand in candidates_list:
                 if isinstance(cand, dict):
                     val = cand.get("value")
-                    if val in ("This Year", "Last Year", "2 Years Ago", "3 Years Ago", "4 Years Ago"):
+                    val_lower = val.lower() if val else ""
+                    if val_lower in ("this year", "last year", "2 years ago", "3 years ago", "4 years ago"):
                         from semantic.temporal.models import TimeContext, CurrentYearIntent, PreviousYearIntent
                         from semantic.temporal.enums import TimeIntentType, TimeStrategyType
                         from semantic.temporal.models import BaseTimeIntent
@@ -229,21 +230,21 @@ class PromptBuilder:
                         capability = cached_entry.capability if cached_entry else None
                         
                         new_ctx = None
-                        if val == "This Year":
+                        if val_lower == "this year":
                             col = capability.snapshot_mapping.get(0) if capability and capability.snapshot_mapping else "CY"
                             new_ctx = TimeContext(
                                 intent=CurrentYearIntent(intent_type=TimeIntentType.CURRENT_YEAR),
                                 strategy=TimeStrategyType.SNAPSHOT,
                                 snapshot_columns=[col]
                             )
-                        elif val == "Last Year":
+                        elif val_lower == "last year":
                             col = capability.snapshot_mapping.get(1) if capability and capability.snapshot_mapping else "PY"
                             new_ctx = TimeContext(
                                 intent=PreviousYearIntent(intent_type=TimeIntentType.PREVIOUS_YEAR),
                                 strategy=TimeStrategyType.SNAPSHOT,
                                 snapshot_columns=[col]
                             )
-                        elif val == "2 Years Ago":
+                        elif val_lower == "2 years ago":
                             intent = BaseTimeIntent()
                             intent.intent_type = "PPY"
                             col = capability.snapshot_mapping.get(2) if capability and capability.snapshot_mapping else "PPY"
@@ -252,7 +253,7 @@ class PromptBuilder:
                                 strategy=TimeStrategyType.SNAPSHOT,
                                 snapshot_columns=[col]
                             )
-                        elif val == "3 Years Ago":
+                        elif val_lower == "3 years ago":
                             intent = BaseTimeIntent()
                             intent.intent_type = "PPPY"
                             col = capability.snapshot_mapping.get(3) if capability and capability.snapshot_mapping else "PPPY"
@@ -261,7 +262,7 @@ class PromptBuilder:
                                 strategy=TimeStrategyType.SNAPSHOT,
                                 snapshot_columns=[col]
                             )
-                        elif val == "4 Years Ago":
+                        elif val_lower == "4 years ago":
                             intent = BaseTimeIntent()
                             intent.intent_type = "PPPPY"
                             col = capability.snapshot_mapping.get(4) if capability and capability.snapshot_mapping else "PPPPY"
@@ -975,13 +976,14 @@ class PromptBuilder:
                     elif clarified_candidate:
                         cands = clarified_candidate if isinstance(clarified_candidate, list) else [clarified_candidate]
                         for c in cands:
-                            if isinstance(c, dict) and c.get("value") in ("This Year", "Last Year", "2 Years Ago", "3 Years Ago", "4 Years Ago"):
-                                val = c["value"]
-                                if val == "This Year": temp_intent_name = "CURRENT_YEAR"
-                                elif val == "Last Year": temp_intent_name = "PREVIOUS_YEAR"
-                                elif val == "2 Years Ago": temp_intent_name = "PPY"
-                                elif val == "3 Years Ago": temp_intent_name = "PPPY"
-                                elif val == "4 Years Ago": temp_intent_name = "PPPPY"
+                            val = c.get("value") if isinstance(c, dict) else ""
+                            val_lower = val.lower() if val else ""
+                            if val_lower in ("this year", "last year", "2 years ago", "3 years ago", "4 years ago"):
+                                if val_lower == "this year": temp_intent_name = "CURRENT_YEAR"
+                                elif val_lower == "last year": temp_intent_name = "PREVIOUS_YEAR"
+                                elif val_lower == "2 years ago": temp_intent_name = "PPY"
+                                elif val_lower == "3 years ago": temp_intent_name = "PPPY"
+                                elif val_lower == "4 years ago": temp_intent_name = "PPPPY"
                     
                     strategy_name = "SNAPSHOT"
                     if time_context and time_context.strategy:

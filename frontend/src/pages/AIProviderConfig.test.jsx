@@ -80,8 +80,8 @@ jest.mock("antd", () => {
     </div>
   );
 
-  const Button = ({ children, onClick, loading, disabled }) => (
-    <button onClick={onClick} disabled={disabled || loading}>
+  const Button = ({ children, onClick, loading, disabled, ...rest }) => (
+    <button onClick={onClick} disabled={disabled || loading} {...rest}>
       {loading ? "Loading..." : children}
     </button>
   );
@@ -410,6 +410,12 @@ describe("AIProviderConfig Component", () => {
           json: () => Promise.resolve({ status: "success", latency_ms: 105 })
         });
       }
+      if (url.includes("/providers")) {
+        return Promise.resolve({ ok: true, json: () => Promise.resolve(mockProviders) });
+      }
+      if (url.includes("/models")) {
+        return Promise.resolve({ ok: true, json: () => Promise.resolve(mockModels) });
+      }
       return Promise.resolve({
         ok: true,
         json: () => Promise.resolve([])
@@ -417,7 +423,7 @@ describe("AIProviderConfig Component", () => {
     });
 
     render(<AIProviderConfig API={API} token={token} />);
-
+    
     const tabProvidersBtn = screen.getAllByRole("tab").find(el => el.textContent.includes("Connection Providers"));
     fireEvent.click(tabProvidersBtn);
     
@@ -442,6 +448,12 @@ describe("AIProviderConfig Component", () => {
           ok: true,
           json: () => Promise.resolve({ status: "success", latency_ms: 215, response: "hello" })
         });
+      }
+      if (url.includes("/providers")) {
+        return Promise.resolve({ ok: true, json: () => Promise.resolve(mockProviders) });
+      }
+      if (url.includes("/models")) {
+        return Promise.resolve({ ok: true, json: () => Promise.resolve(mockModels) });
       }
       return Promise.resolve({
         ok: true,
@@ -529,9 +541,8 @@ describe("AIProviderConfig Component", () => {
     fireEvent.click(tabProvidersBtn);
     
     await waitFor(() => {
-      const keyBtns = screen.getAllByRole("button");
-      // Find credentials / API key update button (by triggering keys action)
-      fireEvent.click(keyBtns[2]);
+      const keyBtn = screen.getByTestId("key-btn-prov-1");
+      fireEvent.click(keyBtn);
     });
 
     await waitFor(() => {

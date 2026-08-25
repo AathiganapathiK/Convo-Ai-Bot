@@ -174,7 +174,8 @@ class DimensionValueResolver(metaclass=ThreadLocalMeta):
             for cand in candidates_list:
                 if isinstance(cand, dict):
                     val = cand.get("value")
-                    if val not in ("This Year", "Last Year", "2 Years Ago", "3 Years Ago"):
+                    val_lower = val.lower() if val else ""
+                    if val_lower not in ("this year", "last year", "2 years ago", "3 years ago", "4 years ago"):
                         non_temp_candidates.append(cand)
 
             if non_temp_candidates:

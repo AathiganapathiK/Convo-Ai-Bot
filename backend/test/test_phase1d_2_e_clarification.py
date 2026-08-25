@@ -229,7 +229,7 @@ class TestPhase1D2EClarificationOffline(unittest.TestCase):
             "show sales for pant",
             [],
             company_id="COMPANY001",
-            clarified_candidate=mock_options["2"]
+            clarified_candidate=[mock_options["2"]]
         )
         
         # Pending state must be cleared
@@ -282,7 +282,7 @@ class TestPhase1D2EClarificationOffline(unittest.TestCase):
             "show sales for pant",
             [],
             company_id="COMPANY001",
-            clarified_candidate=mock_options["2"]
+            clarified_candidate=[mock_options["2"]]
         )
         self.assertIsNone(get_pending_clarification(self.user["employee_id"], "42"))
 
@@ -431,7 +431,7 @@ class TestPhase1D2EClarificationOffline(unittest.TestCase):
         }
         app.ask_question(question="MENS PYJAMA PANT", session_id=42, request=self.mock_request, user=self.user)
         mock_gen_sql.assert_called_with(
-            "Show cotton pant sales", [], company_id="COMPANY001", clarified_candidate=mock_options["3"]
+            "Show cotton pant sales", [], company_id="COMPANY001", clarified_candidate=[mock_options["3"]]
         )
         self.assertIsNone(get_pending_clarification("EMP001", "42"))
 
@@ -456,7 +456,7 @@ class TestPhase1D2EClarificationOffline(unittest.TestCase):
         }
         app.ask_question(question="'MENS PYJAMA PANT'", session_id=42, request=self.mock_request, user=self.user)
         mock_gen_sql.assert_called_with(
-            "Show cotton pant sales", [], company_id="COMPANY001", clarified_candidate=mock_options["2"]
+            "Show cotton pant sales", [], company_id="COMPANY001", clarified_candidate=[mock_options["2"]]
         )
         self.assertIsNone(get_pending_clarification("EMP001", "42"))
 
@@ -482,7 +482,7 @@ class TestPhase1D2EClarificationOffline(unittest.TestCase):
         # Double quotes around the value
         app.ask_question(question='"MENS PYJAMA PANT"', session_id=42, request=self.mock_request, user=self.user)
         mock_gen_sql.assert_called_with(
-            "Show cotton pant sales", [], company_id="COMPANY001", clarified_candidate=mock_options["2"]
+            "Show cotton pant sales", [], company_id="COMPANY001", clarified_candidate=[mock_options["2"]]
         )
         self.assertIsNone(get_pending_clarification("EMP001", "42"))
 
@@ -512,7 +512,7 @@ class TestPhase1D2EClarificationOffline(unittest.TestCase):
             session_id=42, request=self.mock_request, user=self.user
         )
         mock_gen_sql.assert_called_with(
-            "Show cotton pant sales", [], company_id="COMPANY001", clarified_candidate=mock_options["3"]
+            "Show cotton pant sales", [], company_id="COMPANY001", clarified_candidate=[mock_options["3"]]
         )
         self.assertIsNone(get_pending_clarification("EMP001", "42"))
 
