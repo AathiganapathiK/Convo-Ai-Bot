@@ -1,3 +1,4 @@
+import re
 from typing import List, Optional, Any
 from semantic.models.semantic_plan import (
     SemanticPlan,
@@ -83,6 +84,23 @@ class SemanticPlanBuilder:
             return True
         return False
 
+    # Whole-word cues for shape classification.
+    #
+    # These were previously plain substring tests, which matched keywords hidden
+    # inside longer words: "stopped" and "laptop" both contain "top", so both were
+    # classified as ranking questions. Word forms are listed explicitly rather than
+    # using a stem-plus-wildcard, because "rank" must still catch "ranking" while
+    # "top" must NOT catch "topic".
+    _RANKING_CUES = re.compile(
+        r"\b(top|highest|lowest|best|worst|rank|ranks|ranked|ranking|limit)\b"
+    )
+    _COMPARISON_CUES = re.compile(
+        r"\b(compare|compares|compared|comparison)\b"
+    )
+    _TREND_CUES = re.compile(
+        r"\b(trend|trends|trending)\b|\bover\s+time\b"
+    )
+
     @staticmethod
     def classify_query_shape(
         question: str,
@@ -93,15 +111,15 @@ class SemanticPlanBuilder:
         q = question.lower()
 
         # 1. COMPARISON
-        if (time_ctx and time_ctx.comparison) or "compare" in q or "comparison" in q or len(metrics) > 1:
+        if (time_ctx and time_ctx.comparison) or SemanticPlanBuilder._COMPARISON_CUES.search(q) or len(metrics) > 1:
             return SemanticQueryShape.COMPARISON
 
         # 2. RANKED_LIST
-        if any(w in q for w in ["top", "limit", "highest", "lowest", "best", "worst", "rank"]):
+        if SemanticPlanBuilder._RANKING_CUES.search(q):
             return SemanticQueryShape.RANKED_LIST
 
         # 3. TREND
-        if "trend" in q or "over time" in q or (time_ctx and time_ctx.grouping and SemanticPlanBuilder._is_explicit_temporal_breakdown(question)):
+        if SemanticPlanBuilder._TREND_CUES.search(q) or (time_ctx and time_ctx.grouping and SemanticPlanBuilder._is_explicit_temporal_breakdown(question)):
             return SemanticQueryShape.TREND
 
         # 4. DETAIL (when dimensions exist)
