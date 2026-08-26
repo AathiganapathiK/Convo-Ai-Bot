@@ -378,6 +378,20 @@ MODE_FROM_QUERY_SHAPE: dict = {
     SemanticQueryShape.RANKED_LIST: AnalysisMode.RANKING,
 }
 
+# Preferred source for output format. SemanticQueryShape exists to describe display
+# layout, so it is the sharper signal: AnalysisMode.DESCRIPTIVE covers both a single
+# figure and a multi-row breakdown, which need different presentations.
+DEFAULT_OUTPUT_FROM_SHAPE: dict = {
+    SemanticQueryShape.SINGLE_VALUE: OutputFormat.KPI,
+    SemanticQueryShape.COMPARISON: OutputFormat.TABLE,
+    SemanticQueryShape.TREND: OutputFormat.CHART,
+    SemanticQueryShape.RANKED_LIST: OutputFormat.TABLE,
+    SemanticQueryShape.LARGE_SUMMARY: OutputFormat.TABLE,
+    SemanticQueryShape.DETAIL: OutputFormat.TABLE,
+    SemanticQueryShape.DISTRIBUTION: OutputFormat.CHART,
+}
+
+# Coarser fallback, used when no query shape was classified.
 # Default response shape per mode. Gate 4 response assembly reads plan.output
 # when set and falls back here, so mode drives presentation rather than the
 # returned row count.

@@ -3,6 +3,14 @@ from semantic.models.semantic_plan import (
     SemanticPlan,
     SemanticIntent,
     SemanticQueryShape,
+    AnalysisMode,
+    RankDirection,
+    SemanticOutput,
+    SemanticRanking,
+    MODE_FROM_INTENT,
+    MODE_FROM_QUERY_SHAPE,
+    DEFAULT_OUTPUT_FORMAT,
+    DEFAULT_OUTPUT_FROM_SHAPE,
     FilterOperator,
     SemanticMetric,
     SemanticDimension,
@@ -119,6 +127,10 @@ class SemanticPlanBuilder:
         if semantic_result is None:
             semantic_result = {}
 
+        # Gate 1 step 6: record decisions the builder makes on the user's behalf.
+        # These choices already happened; they were simply invisible until now.
+        assumptions: list[str] = []
+
         metric_objs = semantic_result.get("metric_objects", [])
         dimension_objs = semantic_result.get("dimension_objects", [])
         value_matches = semantic_result.get("value_matches", [])
@@ -204,8 +216,16 @@ class SemanticPlanBuilder:
                         resolved_cols.extend(time_context.snapshot_columns)
                     else:
                         resolved_cols.append("None")
+                        assumptions.append(
+                            "No time period could be determined for Sales; "
+                            "the period was left unresolved."
+                        )
                 else:
                     resolved_cols.append("None")
+                    assumptions.append(
+                        "No time period was stated for Sales and none could be "
+                        "inferred; the period was left unresolved."
+                    )
 
             for col in resolved_cols:
                 plan_metrics.append(SemanticMetric(
@@ -220,10 +240,14 @@ class SemanticPlanBuilder:
         # 2. Build dimensions
         plan_dims = []
         is_breakdown = cls._is_explicit_temporal_breakdown(question)
+        dropped_time_dims: list[str] = []
         for d in dimension_objs:
             if isinstance(d, dict):
                 # Filter out temporal dimensions if not an explicit breakdown
                 if cls._is_temporal_dimension(d) and not is_breakdown:
+                    dropped_time_dims.append(
+                        d.get("business_name") or d.get("dimension_name") or "a time dimension"
+                    )
                     continue
                 plan_dims.append(SemanticDimension(
                     dimension_name=d.get("dimension_name") or d.get("business_name") or "",
@@ -233,6 +257,13 @@ class SemanticPlanBuilder:
                     semantic_category=d.get("semantic_category"),
                     connection_id=connection_id
                 ))
+
+        if dropped_time_dims:
+            assumptions.append(
+                "Question did not ask for a breakdown over time, so "
+                + ", ".join(sorted(set(dropped_time_dims)))
+                + " was not used as a grouping."
+            )
 
         # 3. Build filters
         plan_filters = []
@@ -305,6 +336,39 @@ class SemanticPlanBuilder:
         # 8. Classify query shape
         query_shape = cls.classify_query_shape(question, plan_metrics, plan_dims, time_context)
 
+        # 9. Gate 1 step 6 - derive the new plan fields from what is already known.
+        # Translation and lookup only: no new detection happens here. Reading a
+        # top-N count out of the question, spotting a benchmark, or identifying a
+        # diagnostic question are all Gate 4 work, so ranking.top_n, benchmark and
+        # diagnostic are deliberately left unset.
+        # query_shape is the stronger signal and is tried first. The intent chain
+        # above can only ever return five of SemanticIntent's nine values - it has
+        # no branch producing RANKED_LIST, DISTRIBUTION, GROWTH or DEGROWTH - so
+        # deriving mode from intent alone silently loses rankings.
+        mode = MODE_FROM_QUERY_SHAPE.get(query_shape) if query_shape else None
+        if mode is None and intent is not None:
+            mode = MODE_FROM_INTENT.get(intent)
+
+        # Output likewise prefers the shape, which distinguishes a single figure
+        # from a breakdown; mode alone cannot.
+        output_format = None
+        if query_shape is not None:
+            output_format = DEFAULT_OUTPUT_FROM_SHAPE.get(query_shape)
+        if output_format is None and mode is not None:
+            output_format = DEFAULT_OUTPUT_FORMAT.get(mode)
+        output = SemanticOutput(output_format=output_format) if output_format else None
+
+        # Direction is inferable from the wording the shape classifier already
+        # matched; the count is not, so top_n stays None until Gate 4.
+        ranking = None
+        if mode == AnalysisMode.RANKING:
+            q_lower = question.lower()
+            if any(w in q_lower for w in ("lowest", "bottom", "worst", "least")):
+                direction = RankDirection.ASC
+            else:
+                direction = RankDirection.DESC
+            ranking = SemanticRanking(direction=direction)
+
         plan = SemanticPlan(
             intent=intent,
             metrics=plan_metrics,
@@ -315,7 +379,11 @@ class SemanticPlanBuilder:
             primary_table=primary_table,
             relevant_tables=plan_tables,
             joins=plan_joins,
-            confidence=plan_confidence
+            confidence=plan_confidence,
+            mode=mode,
+            output=output,
+            ranking=ranking,
+            assumptions_made=assumptions
         )
         cls._thread_local.last_plan = plan
         return plan
