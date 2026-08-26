@@ -66,7 +66,23 @@ engine = create_engine(
     max_overflow=10
 )
 
-print("DATABASE_url", DATABASE_URL)
+def _safe_connection_summary() -> str:
+    """
+    Connection descriptor safe to print.
+
+    DATABASE_URL embeds the password in every server dialect (PWD= inside the
+    ODBC string for SQL Server, user:pass@host for MySQL and PostgreSQL), so it
+    must never be logged. This is built from the individual parts instead, and
+    deliberately omits both user and password.
+    """
+    if DB_TYPE == "sqlite":
+        return f"sqlite -> {_name}.db"
+
+    endpoint = f"{_host}:{_port}" if _port else _host
+    return f"{DB_TYPE} -> {endpoint}/{_name}"
+
+
+print(f"Database         : {_safe_connection_summary()}")
 
 """
 
