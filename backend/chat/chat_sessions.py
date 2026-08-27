@@ -25,7 +25,6 @@ def create_chat_session(
     INSERT INTO chat_sessions
     (
         employee_id,
-        company_id,
         session_name,
         division_code
     )
@@ -33,7 +32,6 @@ def create_chat_session(
     VALUES
     (
         :employee_id,
-        :company_id,
         :session_name,
         :division_code
     )
@@ -44,7 +42,6 @@ def create_chat_session(
             text(query),
             {
                 "employee_id": user["employee_id"],
-                "company_id":  user["company_id"],
                 "session_name": request.session_name,
                 "division_code": division_code
             }
@@ -73,8 +70,9 @@ def get_chat_sessions(
             cs.created_at,
             cs.updated_at
         FROM chat_sessions cs
+        INNER JOIN users u ON u.employee_id = cs.employee_id
         WHERE
-            cs.company_id = :company_id
+            u.company_id = :company_id
         ORDER BY cs.updated_at DESC
         """
         params = {"company_id": user["company_id"]}
@@ -89,8 +87,9 @@ def get_chat_sessions(
                 cs.created_at,
                 cs.updated_at
             FROM chat_sessions cs
+            INNER JOIN users u ON u.employee_id = cs.employee_id
             WHERE
-                cs.company_id = :company_id
+                u.company_id = :company_id
                 AND (cs.employee_id = :employee_id OR cs.division_code = :division_code)
                 AND cs.division_code IS NOT NULL
             ORDER BY cs.updated_at DESC
@@ -109,9 +108,10 @@ def get_chat_sessions(
                 cs.created_at,
                 cs.updated_at
             FROM chat_sessions cs
+            INNER JOIN users u ON u.employee_id = cs.employee_id
             WHERE
                 cs.employee_id = :employee_id
-                AND cs.company_id = :company_id
+                AND u.company_id = :company_id
             ORDER BY cs.updated_at DESC
             """
             params = {"employee_id": user["employee_id"], "company_id": user["company_id"]}
@@ -135,13 +135,15 @@ def rename_chat_session(
     role = user.get("role", "").upper()
     if role == "SUPER_ADMIN":
         query = """
-        UPDATE chat_sessions
+        UPDATE cs
         SET
-            session_name = :session_name,
-            updated_at = GETDATE()
+            cs.session_name = :session_name,
+            cs.updated_at = GETDATE()
+        FROM chat_sessions cs
+        INNER JOIN users u ON u.employee_id = cs.employee_id
         WHERE
-            id = :session_id
-            AND company_id = :company_id
+            cs.id = :session_id
+            AND u.company_id = :company_id
         """
         params = {
             "session_name": request.session_name,
@@ -150,14 +152,16 @@ def rename_chat_session(
         }
     else:
         query = """
-        UPDATE chat_sessions
+        UPDATE cs
         SET
-            session_name = :session_name,
-            updated_at = GETDATE()
+            cs.session_name = :session_name,
+            cs.updated_at = GETDATE()
+        FROM chat_sessions cs
+        INNER JOIN users u ON u.employee_id = cs.employee_id
         WHERE
-            id = :session_id
-            AND employee_id = :employee_id
-            AND company_id = :company_id
+            cs.id = :session_id
+            AND cs.employee_id = :employee_id
+            AND u.company_id = :company_id
         """
         params = {
             "session_name": request.session_name,
@@ -192,10 +196,20 @@ def delete_chat_session(
     with engine.begin() as connection:
         # First check access to session
         if role == "SUPER_ADMIN":
-            check_query = "SELECT id FROM chat_sessions WHERE id = :session_id AND company_id = :company_id"
+            check_query = """
+            SELECT cs.id 
+            FROM chat_sessions cs 
+            INNER JOIN users u ON u.employee_id = cs.employee_id 
+            WHERE cs.id = :session_id AND u.company_id = :company_id
+            """
             check_params = {"session_id": session_id, "company_id": user["company_id"]}
         else:
-            check_query = "SELECT id FROM chat_sessions WHERE id = :session_id AND employee_id = :employee_id AND company_id = :company_id"
+            check_query = """
+            SELECT cs.id 
+            FROM chat_sessions cs 
+            INNER JOIN users u ON u.employee_id = cs.employee_id 
+            WHERE cs.id = :session_id AND cs.employee_id = :employee_id AND u.company_id = :company_id
+            """
             check_params = {"session_id": session_id, "employee_id": user["employee_id"], "company_id": user["company_id"]}
             
         session_row = connection.execute(text(check_query), check_params).fetchone()
@@ -230,11 +244,12 @@ def get_session_messages(
 
     if role == "SUPER_ADMIN":
         session_check = """
-        SELECT id
-        FROM chat_sessions
+        SELECT cs.id
+        FROM chat_sessions cs
+        INNER JOIN users u ON u.employee_id = cs.employee_id
         WHERE
-            id = :session_id
-            AND company_id = :company_id
+            cs.id = :session_id
+            AND u.company_id = :company_id
         """
         params = {
             "session_id": session_id,
@@ -243,12 +258,13 @@ def get_session_messages(
     else:
         if division_code:
             session_check = """
-            SELECT id
-            FROM chat_sessions
+            SELECT cs.id
+            FROM chat_sessions cs
+            INNER JOIN users u ON u.employee_id = cs.employee_id
             WHERE
-                id = :session_id
-                AND company_id = :company_id
-                AND (employee_id = :employee_id OR division_code = :division_code)
+                cs.id = :session_id
+                AND u.company_id = :company_id
+                AND (cs.employee_id = :employee_id OR cs.division_code = :division_code)
             """
             params = {
                 "session_id": session_id,
@@ -258,12 +274,13 @@ def get_session_messages(
             }
         else:
             session_check = """
-            SELECT id
-            FROM chat_sessions
+            SELECT cs.id
+            FROM chat_sessions cs
+            INNER JOIN users u ON u.employee_id = cs.employee_id
             WHERE
-                id = :session_id
-                AND employee_id = :employee_id
-                AND company_id = :company_id
+                cs.id = :session_id
+                AND cs.employee_id = :employee_id
+                AND u.company_id = :company_id
             """
             params = {
                 "session_id": session_id,

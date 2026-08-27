@@ -8,8 +8,16 @@ import {
   PlusOutlined, TagsOutlined, CompassOutlined, 
   EditOutlined, DeleteOutlined, SearchOutlined,
   ReloadOutlined, ClearOutlined, SyncOutlined,
-  SafetyCertificateOutlined, ThunderboltOutlined
+  SafetyCertificateOutlined, ThunderboltOutlined,
+  BulbOutlined, ApartmentOutlined, FieldTimeOutlined
 } from "@ant-design/icons";
+
+// Gate 2 Step 10 - configuration areas. Kept as separate components so this
+// page grows by a handful of lines rather than several hundred.
+import SuggestionsPanel from "../components/semanticConfig/SuggestionsPanel";
+import DomainsPanel from "../components/semanticConfig/DomainsPanel";
+import TableConfigPanel from "../components/semanticConfig/TableConfigPanel";
+import { getColumnState } from "../services/semanticConfigService";
 
 const { Title, Text, Paragraph } = Typography;
 const { Option } = Select;
@@ -63,6 +71,11 @@ export default function SemanticLayer({ API, token, userInfo }) {
   const [editingRecord, setEditingRecord] = useState(null);
   const [activeTab, setActiveTab] = useState("metrics");
   const [form] = Form.useForm();
+
+  // Gate 2 - role, exclusion and confirmation state, keyed by column id.
+  // Fetched from /semantic/config/columns and merged into the existing lists,
+  // so /semantic/metrics and /semantic/dimensions stay exactly as they were.
+  const [columnState, setColumnState] = useState({ metrics: {}, dimensions: {} });
 
   const [metricColWidths, setMetricColWidths] = useState({
     metric_name: 180,
@@ -138,6 +151,24 @@ export default function SemanticLayer({ API, token, userInfo }) {
 
       const metricsData = await metricsRes.json();
       const dimsData = await dimsRes.json();
+
+      // Gate 2 configuration state. Loaded separately and tolerated on
+      // failure: if the configuration endpoint is unavailable the page still
+      // shows metrics and dimensions exactly as it did before Gate 2.
+      try {
+        const state = await getColumnState(API, token);
+
+        setColumnState({
+          metrics: Object.fromEntries(
+            (state.metrics || []).map(m => [m.metric_id, m])
+          ),
+          dimensions: Object.fromEntries(
+            (state.dimensions || []).map(d => [d.dimension_id, d])
+          )
+        });
+      } catch (e) {
+        setColumnState({ metrics: {}, dimensions: {} });
+      }
 
       // Map metrics directly to UI structure
       setMetrics(metricsData.map(m => ({
@@ -609,6 +640,35 @@ export default function SemanticLayer({ API, token, userInfo }) {
       )
     },
     {
+      // Gate 2 - configuration state. Unconfirmed rows are tagged so a machine
+      // suggestion is never mistaken for reviewed configuration.
+      title: "Config",
+      key: "config_state",
+      width: 190,
+      render: (_, record) => {
+        const state = columnState.metrics[record.metric_id];
+
+        if (!state) {
+          return <Text style={{ color: "var(--text-muted)" }}>-</Text>;
+        }
+
+        return (
+          <Space direction="vertical" size={2}>
+            {state.is_excluded ? (
+              <Tag color="red">Excluded</Tag>
+            ) : (
+              <Tag color="blue">In use</Tag>
+            )}
+            {state.is_confirmed ? (
+              <Tag color="green">Confirmed</Tag>
+            ) : (
+              <Tag color="orange">Unconfirmed</Tag>
+            )}
+          </Space>
+        );
+      }
+    },
+    {
       title: "Description",
       dataIndex: "description",
       key: "description",
@@ -767,6 +827,40 @@ export default function SemanticLayer({ API, token, userInfo }) {
       )
     },
     {
+      // Gate 2 - dimension role plus configuration state. The role is what
+      // stops a load timestamp being offered as a grouping dimension.
+      title: "Role & config",
+      key: "config_state",
+      width: 200,
+      render: (_, record) => {
+        const state = columnState.dimensions[record.dimension_id];
+
+        if (!state) {
+          return <Text style={{ color: "var(--text-muted)" }}>-</Text>;
+        }
+
+        return (
+          <Space direction="vertical" size={2}>
+            {state.dimension_role ? (
+              <Tag color="purple">{state.dimension_role}</Tag>
+            ) : (
+              <Tag color="default">No role set</Tag>
+            )}
+            {state.is_excluded ? (
+              <Tag color="red">Excluded</Tag>
+            ) : (
+              <Tag color="blue">In use</Tag>
+            )}
+            {state.is_confirmed ? (
+              <Tag color="green">Confirmed</Tag>
+            ) : (
+              <Tag color="orange">Unconfirmed</Tag>
+            )}
+          </Space>
+        );
+      }
+    },
+    {
       title: "Description",
       dataIndex: "description",
       key: "description",
@@ -843,25 +937,33 @@ export default function SemanticLayer({ API, token, userInfo }) {
             >
               Run semantic discovery
             </Button>
-            <Button 
-              type="primary" 
-              icon={<PlusOutlined />}
-              style={{ backgroundColor: "#4f46e5", borderColor: "#4338ca" }}
-              onClick={() => {
-                setEditingRecord(null);
-                form.resetFields();
-                setIsModalVisible(true);
-              }}
-            >
-              Add Definition
-            </Button>
+            {/* Gate 2 - this opens the metric/dimension definition form, which
+                does not apply to the configuration tabs. Each of those has its
+                own create action. */}
+            {["metrics", "dimensions"].includes(activeTab) && (
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                style={{ backgroundColor: "#4f46e5", borderColor: "#4338ca" }}
+                onClick={() => {
+                  setEditingRecord(null);
+                  form.resetFields();
+                  setIsModalVisible(true);
+                }}
+              >
+                Add Definition
+              </Button>
+            )}
           </Space>
         )}
       </div>
 
       {/* Search and Filters Toolbar */}
-      <div style={{ 
-        display: "flex", 
+      {/* Gate 2 - these filters act on the metrics and dimensions lists only,
+          so they are hidden on the configuration tabs rather than sitting
+          there doing nothing. */}
+      <div style={{
+        display: ["metrics", "dimensions"].includes(activeTab) ? "flex" : "none",
         flexWrap: "wrap", 
         gap: "16px", 
         alignItems: "center", 
@@ -994,6 +1096,53 @@ export default function SemanticLayer({ API, token, userInfo }) {
                   locale={{ 
                     emptyText: <div style={{ padding: "24px", color: "var(--text-secondary)" }}>No semantic definitions found matching your criteria.</div> 
                   }}
+                />
+              )
+            },
+            {
+              // Gate 2 Step 10 - review queue for machine suggestions.
+              key: "suggestions",
+              label: (
+                <span style={{ color: "var(--text-main)" }}>
+                  <BulbOutlined /> Suggestions
+                </span>
+              ),
+              children: (
+                <SuggestionsPanel
+                  API={API}
+                  token={token}
+                  canEdit={!isAnalyst}
+                  onConfirmed={loadData}
+                />
+              )
+            },
+            {
+              key: "domains",
+              label: (
+                <span style={{ color: "var(--text-main)" }}>
+                  <ApartmentOutlined /> Domains
+                </span>
+              ),
+              children: (
+                <DomainsPanel
+                  API={API}
+                  token={token}
+                  canEdit={!isAnalyst}
+                />
+              )
+            },
+            {
+              key: "tables",
+              label: (
+                <span style={{ color: "var(--text-main)" }}>
+                  <FieldTimeOutlined /> Tables &amp; Temporal
+                </span>
+              ),
+              children: (
+                <TableConfigPanel
+                  API={API}
+                  token={token}
+                  canEdit={!isAnalyst}
                 />
               )
             }

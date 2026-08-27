@@ -1,0 +1,349 @@
+{
+  "_comment": [
+    "DEVELOPMENT FIXTURE - NOT PRODUCTION DATA, NOT A SECOND IMPLEMENTATION.",
+    "",
+    "Gate 2 Step 8 (the suggestion service, backend/semantic/config_suggester.py)",
+    "is owned by Person A and is not implemented at the time of writing. This file",
+    "exists only so that Step 9 (the configuration API) and Step 10 (the",
+    "configuration screens) can be built and tested against the agreed suggestion",
+    "SHAPE without waiting for the suggestion SOURCE.",
+    "",
+    "When Step 8 lands, config_service.get_pending_suggestions() switches from",
+    "reading this file to calling the real service. Nothing else changes.",
+    "",
+    "Table and column names below are drawn from the project's documented business",
+    "facts and the six known auto-discovery defects, so the screens are exercised",
+    "against realistic content rather than lorem ipsum."
+  ],
+
+  "table_suggestions": [
+    {
+      "suggestion_id": "tbl-0001",
+      "table_name": "SalesData",
+      "proposal": {
+        "domain_name": "Sales",
+        "temporal_strategy": "SNAPSHOT",
+        "date_column": null,
+        "month_column": "InvMonth",
+        "month_sort_column": "InvMonth",
+        "fiscal_year_start_month": 4
+      },
+      "current": {
+        "exists": false,
+        "domain_name": null,
+        "temporal_strategy": null,
+        "month_column": null,
+        "month_sort_column": null,
+        "fiscal_year_start_month": null
+      },
+      "snapshot_mappings": [
+        { "period_offset": 0, "measure_kind": "VALUE",    "period_scope": "TO_DATE", "column_name": "CY" },
+        { "period_offset": 1, "measure_kind": "VALUE",    "period_scope": "FULL",    "column_name": "PY" },
+        { "period_offset": 1, "measure_kind": "VALUE",    "period_scope": "TO_DATE", "column_name": "PYTD" },
+        { "period_offset": 2, "measure_kind": "VALUE",    "period_scope": "FULL",    "column_name": "PPY" },
+        { "period_offset": 0, "measure_kind": "QUANTITY", "period_scope": "TO_DATE", "column_name": "CYQ" },
+        { "period_offset": 1, "measure_kind": "QUANTITY", "period_scope": "FULL",    "column_name": "PYQ" }
+      ],
+      "evidence": {
+        "date_like_columns": ["createddate"],
+        "period_like_columns": ["CY", "PY", "PYTD", "PPY", "CYQ", "PYQ"],
+        "reasoning": "The period lives in separate columns rather than being filtered from a date column, so this is a snapshot table. InvMonth holds values prefixed A through L, which sorts April-to-March correctly as text; DocMonth is a calendar number and would place January first, which is wrong for a fiscal year starting in April."
+      },
+      "confidence": 0.88,
+      "is_confirmed": false,
+      "suggested_at": "2026-08-27T09:12:04Z",
+      "suggested_by": "fixture:development"
+    }
+  ],
+
+  "column_suggestions": [
+    {
+      "suggestion_id": "col-0001",
+      "table_name": "SalesData",
+      "column_name": "InvMonth",
+      "target": { "config_table": "semantic_dimensions", "action": "UPSERT" },
+      "proposal": {
+        "classification": "DIMENSION",
+        "business_name": "Invoice Month",
+        "description": "Fiscal month label running April through March.",
+        "synonyms": ["month", "invoice month", "period"],
+        "dimension_role": "TIME_LABEL",
+        "is_excluded": false,
+        "aggregation_type": null
+      },
+      "current": {
+        "exists": true,
+        "config_table": "semantic_metrics",
+        "classification": "MEASURE",
+        "business_name": "Inv Month",
+        "is_excluded": false
+      },
+      "evidence": {
+        "data_type": "nvarchar",
+        "distinct_count": 12,
+        "null_fraction": 0.0,
+        "samples": ["A April", "B May", "C June", "F September", "L March"],
+        "samples_withheld": false,
+        "samples_withheld_reason": null,
+        "row_count_profiled": 50000
+      },
+      "confidence": 0.96,
+      "reasoning": "Twelve distinct text values, each a month name carrying a single-letter fiscal-order prefix. This is a period label, not a quantity, and it is currently registered as a measure.",
+      "is_confirmed": false,
+      "suggested_at": "2026-08-27T09:12:04Z",
+      "suggested_by": "fixture:development"
+    },
+    {
+      "suggestion_id": "col-0002",
+      "table_name": "SalesData",
+      "column_name": "Sno",
+      "target": { "config_table": "semantic_metrics", "action": "UPSERT" },
+      "proposal": {
+        "classification": "EXCLUDED",
+        "business_name": "Serial Number",
+        "description": "Row serial number. Numeric, but an identifier rather than a measure.",
+        "synonyms": [],
+        "dimension_role": "IDENTIFIER",
+        "is_excluded": true,
+        "aggregation_type": null
+      },
+      "current": {
+        "exists": true,
+        "config_table": "semantic_metrics",
+        "classification": "MEASURE",
+        "business_name": "Sno",
+        "is_excluded": false
+      },
+      "evidence": {
+        "data_type": "int",
+        "distinct_count": 49873,
+        "null_fraction": 0.0,
+        "samples": [],
+        "samples_withheld": true,
+        "samples_withheld_reason": "High cardinality (49,873 distinct values across 50,000 rows) - values not sampled.",
+        "row_count_profiled": 50000
+      },
+      "confidence": 0.93,
+      "reasoning": "Distinct count is almost equal to the row count and the values increase monotonically. That is a row identifier. Summing or averaging it would produce a meaningless figure.",
+      "is_confirmed": false,
+      "suggested_at": "2026-08-27T09:12:04Z",
+      "suggested_by": "fixture:development"
+    },
+    {
+      "suggestion_id": "col-0003",
+      "table_name": "SalesData",
+      "column_name": "State2",
+      "target": { "config_table": "semantic_dimensions", "action": "UPSERT" },
+      "proposal": {
+        "classification": "DIMENSION",
+        "business_name": "State (duplicate)",
+        "description": "Duplicate of State1. Switched off so value resolution has one state column, not four.",
+        "synonyms": [],
+        "dimension_role": "INTERNAL",
+        "is_excluded": true,
+        "aggregation_type": null
+      },
+      "current": {
+        "exists": true,
+        "config_table": "semantic_dimensions",
+        "classification": "DIMENSION",
+        "business_name": "State2",
+        "is_excluded": false
+      },
+      "evidence": {
+        "data_type": "nvarchar",
+        "distinct_count": 31,
+        "null_fraction": 0.02,
+        "samples": ["TN", "KL", "KA", "AP", "UT"],
+        "samples_withheld": false,
+        "samples_withheld_reason": null,
+        "row_count_profiled": 50000
+      },
+      "confidence": 0.81,
+      "reasoning": "Holds the same 31 values as State1, State3 and StateCode. Keeping four identical state columns is what caused a question about a state to resolve against an arbitrary one of them.",
+      "is_confirmed": false,
+      "suggested_at": "2026-08-27T09:12:04Z",
+      "suggested_by": "fixture:development"
+    },
+    {
+      "suggestion_id": "col-0004",
+      "table_name": "SalesData",
+      "column_name": "createddate",
+      "target": { "config_table": "semantic_dimensions", "action": "UPSERT" },
+      "proposal": {
+        "classification": "EXCLUDED",
+        "business_name": "Record Created Date",
+        "description": "Warehouse load timestamp. Never the date of the sale.",
+        "synonyms": [],
+        "dimension_role": "INTERNAL",
+        "is_excluded": true,
+        "aggregation_type": null
+      },
+      "current": {
+        "exists": true,
+        "config_table": "semantic_dimensions",
+        "classification": "DIMENSION",
+        "business_name": "Createddate",
+        "is_excluded": false
+      },
+      "evidence": {
+        "data_type": "datetime",
+        "distinct_count": 46,
+        "null_fraction": 0.0,
+        "samples": ["2026-01-14 02:00:11", "2026-02-14 02:00:07"],
+        "samples_withheld": false,
+        "samples_withheld_reason": null,
+        "row_count_profiled": 50000
+      },
+      "confidence": 0.9,
+      "reasoning": "Only 46 distinct timestamps across 50,000 rows, all clustered at 02:00. That is a batch load stamp, not a business event date. Analysing by it would group sales by when they were loaded.",
+      "is_confirmed": false,
+      "suggested_at": "2026-08-27T09:12:04Z",
+      "suggested_by": "fixture:development"
+    },
+    {
+      "suggestion_id": "col-0005",
+      "table_name": "SalesData",
+      "column_name": "RMNAME",
+      "target": { "config_table": "semantic_dimensions", "action": "UPSERT" },
+      "proposal": {
+        "classification": "DIMENSION",
+        "business_name": "Regional Manager",
+        "description": "The regional manager responsible for the territory. A manager, not a sales representative.",
+        "synonyms": ["regional manager", "rm", "manager"],
+        "dimension_role": "GROUPING",
+        "is_excluded": false,
+        "aggregation_type": null
+      },
+      "current": {
+        "exists": true,
+        "config_table": "semantic_dimensions",
+        "classification": "DIMENSION",
+        "business_name": "Rmname",
+        "is_excluded": false
+      },
+      "evidence": {
+        "data_type": "nvarchar",
+        "distinct_count": 214,
+        "null_fraction": 0.01,
+        "samples": [],
+        "samples_withheld": true,
+        "samples_withheld_reason": "214 distinct values exceeds the sampling threshold of 50, and the column appears to hold personal names - values were not sent for classification.",
+        "row_count_profiled": 50000
+      },
+      "confidence": 0.72,
+      "reasoning": "Classified from the column name and type alone, because the values are personal names and were withheld. Confidence is lower for that reason and this proposal in particular deserves a human check.",
+      "is_confirmed": false,
+      "suggested_at": "2026-08-27T09:12:04Z",
+      "suggested_by": "fixture:development"
+    },
+    {
+      "suggestion_id": "col-0006",
+      "table_name": "SalesData",
+      "column_name": "MktType",
+      "target": { "config_table": "semantic_dimensions", "action": "UPSERT" },
+      "proposal": {
+        "classification": "DIMENSION",
+        "business_name": "Channel",
+        "description": "Route to market - the sales channel.",
+        "synonyms": ["channel", "market type", "route to market"],
+        "dimension_role": "GROUPING",
+        "is_excluded": false,
+        "aggregation_type": null
+      },
+      "current": {
+        "exists": true,
+        "config_table": "semantic_dimensions",
+        "classification": "DIMENSION",
+        "business_name": "Mkttype",
+        "is_excluded": false
+      },
+      "evidence": {
+        "data_type": "nvarchar",
+        "distinct_count": 4,
+        "null_fraction": 0.0,
+        "samples": ["DISTRIBUTOR", "DIRECT", "ECOM", "INSTITUTIONAL"],
+        "samples_withheld": false,
+        "samples_withheld_reason": null,
+        "row_count_profiled": 50000
+      },
+      "confidence": 0.94,
+      "reasoning": "Four distinct values naming routes to market. This is the channel dimension. MktType1 and Mkt_Type2 hold the same values and are proposed for exclusion separately.",
+      "is_confirmed": false,
+      "suggested_at": "2026-08-27T09:12:04Z",
+      "suggested_by": "fixture:development"
+    },
+    {
+      "suggestion_id": "col-0007",
+      "table_name": "SalesData",
+      "column_name": "CY",
+      "target": { "config_table": "semantic_metrics", "action": "UPSERT" },
+      "proposal": {
+        "classification": "MEASURE",
+        "business_name": "Current Year Sales",
+        "description": "Sales value for the current fiscal year TO DATE. Not a full year.",
+        "synonyms": ["sales", "current year sales", "revenue"],
+        "dimension_role": null,
+        "is_excluded": false,
+        "aggregation_type": "SUM"
+      },
+      "current": {
+        "exists": true,
+        "config_table": "semantic_metrics",
+        "classification": "MEASURE",
+        "business_name": "Cy",
+        "is_excluded": false
+      },
+      "evidence": {
+        "data_type": "decimal",
+        "distinct_count": 38211,
+        "null_fraction": 0.04,
+        "samples": [],
+        "samples_withheld": true,
+        "samples_withheld_reason": "High cardinality (38,211 distinct values) - values not sampled.",
+        "row_count_profiled": 50000
+      },
+      "confidence": 0.91,
+      "reasoning": "A continuous decimal measure that sums meaningfully. Paired with PYTD rather than PY for any year-on-year comparison, because this column covers a partial year.",
+      "is_confirmed": false,
+      "suggested_at": "2026-08-27T09:12:04Z",
+      "suggested_by": "fixture:development"
+    },
+    {
+      "suggestion_id": "col-0008",
+      "table_name": "SalesData",
+      "column_name": "DocMonth",
+      "target": { "config_table": "semantic_metrics", "action": "UPSERT" },
+      "proposal": {
+        "classification": "EXCLUDED",
+        "business_name": "Document Month",
+        "description": "Calendar month number. Sorts wrongly for an April-March fiscal year; InvMonth is the correct month column.",
+        "synonyms": [],
+        "dimension_role": "IDENTIFIER",
+        "is_excluded": true,
+        "aggregation_type": null
+      },
+      "current": {
+        "exists": true,
+        "config_table": "semantic_metrics",
+        "classification": "MEASURE",
+        "business_name": "Docmonth",
+        "is_excluded": false
+      },
+      "evidence": {
+        "data_type": "int",
+        "distinct_count": 12,
+        "null_fraction": 0.0,
+        "samples": [],
+        "samples_withheld": true,
+        "samples_withheld_reason": "Numeric column - distinct values summarised by range rather than sampled (observed range 1 to 12).",
+        "row_count_profiled": 50000
+      },
+      "confidence": 0.89,
+      "reasoning": "Twelve distinct integers between 1 and 12. Numeric, so auto-discovery registered it as a measure, but summing a month number is meaningless. It is a calendar month and sorts January first, which is wrong here.",
+      "is_confirmed": false,
+      "suggested_at": "2026-08-27T09:12:04Z",
+      "suggested_by": "fixture:development"
+    }
+  ]
+}

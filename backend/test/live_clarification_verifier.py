@@ -35,13 +35,12 @@ def setup_live_session():
     with engine.begin() as conn:
         res = conn.execute(
             text("""
-                INSERT INTO chat_sessions (employee_id, company_id, session_name)
+                INSERT INTO chat_sessions (employee_id, session_name)
                 OUTPUT INSERTED.id
-                VALUES (:emp, :comp, :name)
+                VALUES (:emp, :name)
             """),
             {
                 "emp": user["employee_id"],
-                "comp": user["company_id"],
                 "name": "Live Verify Session"
             }
         )

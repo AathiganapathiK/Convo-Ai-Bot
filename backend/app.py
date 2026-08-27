@@ -98,6 +98,8 @@ from chat.chat_sessions import router as chat_router
 
 from configuration.config_routes import (router as config_router)
 
+from semantic.config_routes import (router as semantic_config_router)
+
 QdrantService.initialize()
 
 logger = logging.getLogger(__name__)
@@ -352,7 +354,12 @@ def ask_question(
     # Validate session access
     with engine.connect() as connection:
         session_row = connection.execute(
-            text("SELECT employee_id, company_id FROM chat_sessions WHERE id = :session_id"),
+            text("""
+                SELECT cs.employee_id, u.company_id 
+                FROM chat_sessions cs
+                INNER JOIN users u ON u.employee_id = cs.employee_id
+                WHERE cs.id = :session_id
+            """),
             {"session_id": session_id}
         ).fetchone()
 
@@ -1506,6 +1513,7 @@ app.include_router(user_role_router)
 app.include_router(provider_router)
 app.include_router(provider_credentials_router)
 app.include_router(connection_router)
+app.include_router(semantic_config_router)
 
 
 

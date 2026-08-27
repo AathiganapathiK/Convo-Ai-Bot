@@ -26,12 +26,17 @@ def hydrate_history_from_db(employee_id: str, conversation_id: str, company_id: 
         with engine.connect() as connection:
             if company_id:
                 sess_check = connection.execute(
-                    text("SELECT employee_id, company_id FROM chat_sessions WHERE id = :session_id AND employee_id = :employee_id AND company_id = :company_id"),
+                    text("""
+                        SELECT cs.employee_id, u.company_id 
+                        FROM chat_sessions cs
+                        INNER JOIN users u ON u.employee_id = cs.employee_id
+                        WHERE cs.id = :session_id AND cs.employee_id = :employee_id AND u.company_id = :company_id
+                    """),
                     {"session_id": session_int, "employee_id": employee_id, "company_id": company_id}
                 ).fetchone()
             else:
                 sess_check = connection.execute(
-                    text("SELECT employee_id, company_id FROM chat_sessions WHERE id = :session_id AND employee_id = :employee_id"),
+                    text("SELECT employee_id FROM chat_sessions WHERE id = :session_id AND employee_id = :employee_id"),
                     {"session_id": session_int, "employee_id": employee_id}
                 ).fetchone()
 

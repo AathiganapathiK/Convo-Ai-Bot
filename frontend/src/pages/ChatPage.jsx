@@ -927,7 +927,18 @@ export default function ChatPage({ API, token, userInfo }) {
             session_name: queryToSend.substring(0, 30)
           })
         });
+
+        if (!response.ok) {
+          message.error("Unable to create chat session");
+          return;
+        }
+
         const sessionData = await response.json();
+        if (!sessionData || !sessionData.id) {
+          message.error("Unable to create chat session");
+          return;
+        }
+
         currentSessionId = sessionData.id;
         setSelectedSessionId(currentSessionId);
         await loadChatSessions(false);
@@ -935,6 +946,11 @@ export default function ChatPage({ API, token, userInfo }) {
         message.error("Unable to create chat session");
         return;
       }
+    }
+
+    if (!currentSessionId) {
+      message.error("No active chat session.");
+      return;
     }
 
     const userMsg = {
