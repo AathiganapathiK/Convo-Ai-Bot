@@ -24,7 +24,10 @@ MIGRATION_FILES = [
     "001_security_framework.sql",
     "002_semantic_audit_types.sql",
     "003_column_display_config.sql",
-    "004_semantic_config.sql"
+    "004_semantic_config.sql",
+    # 005 intentionally left free: 004_access_control_extension.sql exists on
+    # disk unregistered and should be renumbered into it.
+    "006_suggestion_evidence.sql"
 ]
 
 # Rollback scripts are NOT listed above and are never applied automatically.
