@@ -345,7 +345,7 @@ def ask_question(
     question: str,
     session_id: int,
     request: Request,
-    user: dict = Depends(require_permission("chat:query")),
+    user: dict = Depends(require_permission("chat:ask")),
 ):
     client_ip = request.client.host if request.client else None
 
@@ -386,8 +386,16 @@ def ask_question(
     if str(session_row["company_id"]) != str(user["company_id"]):
         raise HTTPException(status_code=403, detail="Access denied: chat session belongs to another company.")
 
-    if caller_role != "SUPER_ADMIN" and session_row["employee_id"] != user["employee_id"]:
-        raise HTTPException(status_code=403, detail="Access denied: chat session belongs to another user.")
+    if caller_role != "SUPER_ADMIN":
+        user_div = AccessScopeService.resolve_user_division(user)
+        session_div = dict(session_row).get("division_code")
+        
+        is_same_owner = session_row["employee_id"] == user["employee_id"]
+        is_same_division = bool(user_div and session_div and user_div == session_div)
+
+        if not (is_same_owner or is_same_division):
+            raise HTTPException(status_code=403, detail="Access denied: cross-division chat session access denied.")
+
 
     # Persist user message
     with engine.begin() as connection:

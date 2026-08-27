@@ -23,17 +23,22 @@ from typing import Optional
 
 from sqlalchemy import text
 from database import engine
+import sqlglot
+from sqlglot import parse_one, exp
 
 logger = logging.getLogger(__name__)
 
 
 # ---------------------------------------------------------------------------
-# Access type → SQL column mapping
+# Access type → SQL column candidate mapping
 # ---------------------------------------------------------------------------
 
 ACCESS_TYPE_COLUMNS = {
-    "REGION":       "SalesTerritoryKey",
-    "SALESPERSON":  "EmployeeKey",
+    "REGION":       ["SalesTerritoryKey", "region", "region_code", "territory"],
+    "DIVISION":     ["division", "division_code"],
+    "PRODUCT":      ["product", "product_name", "product_category", "product_code", "category"],
+    "CHANNEL":      ["channel", "sales_channel", "channel_code", "segment"],
+    "SALESPERSON":  ["EmployeeKey", "salesperson_id"]
 }
 
 
@@ -58,7 +63,7 @@ def get_user_access_rules(employee_id: str) -> dict[str, list[str]]:
 
     rules: dict[str, list[str]] = {}
     for row in rows:
-        access_type = row.access_type
+        access_type = row.access_type.upper()
         if access_type not in rules:
             rules[access_type] = []
         rules[access_type].append(row.access_value)
@@ -67,7 +72,7 @@ def get_user_access_rules(employee_id: str) -> dict[str, list[str]]:
 
 
 # ---------------------------------------------------------------------------
-# RLS filter injection
+# AST-Based RLS Filter Injection (sqlglot)
 # ---------------------------------------------------------------------------
 
 def apply_rls(
@@ -75,7 +80,8 @@ def apply_rls(
     user: dict,
 ) -> tuple[str, dict]:
     """
-    Inject RLS filters into a SQL query based on the user's data access rules and company_id context.
+    Inject AST-aware RLS filters into a SQL query based on the user's effective data matrix.
+    Uses sqlglot AST parsing for safe alias, JOIN, subquery, and CTE handling.
 
     Parameters:
         sql_query:  The generated SQL query string.
@@ -88,45 +94,124 @@ def apply_rls(
     employee_id = user.get("employee_id", "")
     company_id = user.get("company_id", "")
 
-    # Build filter clauses (company separation is handled at the connection level)
-    filters = []
-
     metadata = {"rls_applied": True, "filters": []}
 
-    # Non-admins get extra RLS restrictions
-    if role not in ("SUPER_ADMIN", "ADMIN"):
-        rules = get_user_access_rules(employee_id)
-        if rules:
-            for access_type, values in rules.items():
-                column = ACCESS_TYPE_COLUMNS.get(access_type)
-                if not column:
-                    logger.warning("Unknown RLS access_type '%s' for user '%s'.", access_type, employee_id)
-                    continue
+    # SUPER_ADMIN bypasses RLS
+    if role.upper() == "SUPER_ADMIN" or user.get("is_super_admin"):
+        return sql_query, {"rls_applied": False, "reason": "super_admin_bypass"}
 
-                # Build an IN clause with quoted values
-                quoted_values = ", ".join(f"'{v}'" for v in values)
-                filter_clause = f"{column} IN ({quoted_values})"
-                filters.append(filter_clause)
+    # Fetch effective user data matrix (role scopes + explicit user overrides)
+    from services.access_control_service import AccessControlService
+    effective_matrix = AccessControlService.get_effective_user_matrix(user)
+    effective_scopes = effective_matrix.get("data_scope", {})
 
-                metadata["filters"].append({
-                    "access_type": access_type,
-                    "column": column,
-                    "values": values,
-                })
+    # Determine dimensions to filter
+    active_filters = {}
+    for access_type, candidates in ACCESS_TYPE_COLUMNS.items():
+        values = effective_scopes.get(access_type, [])
+        if not values and access_type in ("REGION", "SALESPERSON"):
+            direct_rules = get_user_access_rules(employee_id)
+            values = direct_rules.get(access_type, [])
 
-    if not filters:
+        if values:
+            active_filters[access_type] = {
+                "candidates": candidates,
+                "values": values
+            }
+
+    if not active_filters:
         return sql_query, {"rls_applied": False, "reason": "no_filters"}
 
-    combined_filter = " AND ".join(filters)
+    # AST Processing via sqlglot
+    try:
+        ast = parse_one(sql_query, dialect="tsql")
+        
+        # Build map of candidate column names to table aliases
+        column_to_table = {}
+        tables = list(ast.find_all(exp.Table))
+        default_table_alias = tables[0].alias_or_name if tables else None
+
+        # Inspect all columns in AST
+        all_ast_columns = list(ast.find_all(exp.Column))
+        for col_node in all_ast_columns:
+            c_name = col_node.name.lower()
+            t_alias = col_node.table or default_table_alias
+            column_to_table[c_name] = t_alias
+
+        ast_modified = False
+
+        for access_type, info in active_filters.items():
+            candidates = info["candidates"]
+            values = info["values"]
+
+            # Match candidate column in query AST or fallback to first candidate
+            target_col = None
+            target_alias = default_table_alias
+
+            for col in candidates:
+                if col.lower() in column_to_table:
+                    target_col = col
+                    target_alias = column_to_table[col.lower()]
+                    break
+
+            if not target_col:
+                target_col = candidates[0]
+
+            # Construct AST exp.In expression
+            in_clause = exp.In(
+                this=exp.column(target_col, table=target_alias),
+                expressions=[exp.Literal.string(str(v)) for v in values]
+            )
+
+            ast = ast.where(in_clause, append=True)
+            ast_modified = True
+
+            metadata["filters"].append({
+                "access_type": access_type,
+                "column": target_col,
+                "table_alias": target_alias,
+                "values": values,
+            })
+
+        if ast_modified:
+            modified_sql = ast.sql(dialect="tsql")
+            logger.info(
+                "AST RLS applied for user='%s', company='%s': %s filters applied",
+                employee_id,
+                company_id,
+                len(metadata["filters"]),
+            )
+            return modified_sql, metadata
+
+    except Exception as err:
+        logger.warning("AST RLS parsing failed for user='%s': %s. Falling back to safe string injection.", employee_id, err)
+
+    # Fail-Safe Fallback: String-based injection with sanitized parameters
+    string_filters = []
+    sql_lower = sql_query.lower()
+    for access_type, info in active_filters.items():
+        candidates = info["candidates"]
+        values = info["values"]
+        matched_col = None
+        for col in candidates:
+            if col.lower() in sql_lower:
+                matched_col = col
+                break
+        if not matched_col:
+            matched_col = candidates[0]
+
+        clean_values = [str(v).replace("'", "''") for v in values]
+        quoted_values = ", ".join(f"'{v}'" for v in clean_values)
+        string_filters.append(f"{matched_col} IN ({quoted_values})")
+
+        metadata["filters"].append({
+            "access_type": access_type,
+            "column": matched_col,
+            "values": values,
+        })
+
+    combined_filter = " AND ".join(string_filters)
     modified_sql = _inject_where_clause(sql_query, combined_filter)
-
-    logger.info(
-        "RLS applied for user='%s', company='%s': %s",
-        employee_id,
-        company_id,
-        combined_filter,
-    )
-
     return modified_sql, metadata
 
 

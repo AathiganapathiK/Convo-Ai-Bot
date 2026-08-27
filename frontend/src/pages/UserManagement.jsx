@@ -31,8 +31,10 @@ export default function UserManagement({ API, token, userInfo }) {
   const [loading, setLoading] = useState(false);
   const [createFormVisible, setCreateFormVisible] = useState(false);
   const [editFormVisible, setEditFormVisible] = useState(false);
+  const [matrixModalVisible, setMatrixModalVisible] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
   const [companiesList, setCompaniesList] = useState([]);
+
   
   // Search and Filter States
   const [searchText, setSearchText] = useState("");
@@ -454,6 +456,7 @@ export default function UserManagement({ API, token, userInfo }) {
           </Button>
         </Space>
       </div>
+
 
       <Card bordered={false} style={{ background: "var(--bg-card)", border: "1px solid var(--border-color)", borderRadius: "12px", marginBottom: "16px" }}>
         {/* Search and Filters Bar */}

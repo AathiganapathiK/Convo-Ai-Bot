@@ -418,3 +418,33 @@ def update_user_status(
         )
 
     return {"message": "User status updated successfully"}
+
+
+@router.get("/admin/users/{employee_id}/matrix")
+def get_user_matrix(
+    employee_id: str,
+    user=Depends(require_permission("admin:users:read"))
+):
+    from services.access_control_service import AccessControlService
+    return AccessControlService.get_user_matrix(employee_id)
+
+
+@router.put("/admin/users/{employee_id}/matrix")
+def update_user_matrix(
+    employee_id: str,
+    payload: dict,
+    user=Depends(require_permission("admin:users:write"))
+):
+    from services.access_control_service import AccessControlService
+    page_overrides = payload.get("page_overrides", payload.get("page_access", {}))
+    chat_overrides = payload.get("chat_overrides", payload.get("chat_access", {}))
+    data_scope = payload.get("data_scope", {})
+
+    AccessControlService.save_user_matrix(
+        employee_id=employee_id,
+        page_overrides=page_overrides,
+        chat_overrides=chat_overrides,
+        data_scope=data_scope,
+        updated_by=user.get("employee_id")
+    )
+    return {"message": "User access control matrix updated successfully"}

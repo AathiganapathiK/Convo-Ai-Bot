@@ -95,35 +95,78 @@ def has_permission(role_name: str, permission_name: str) -> bool:
 # FastAPI dependency: require_permission(permission_name)
 # ---------------------------------------------------------------------------
 
+# Explicit Unidirectional Alias Map (Legacy Permission -> Matrix Permission)
+# Resolves requested legacy permission from new matrix permission without cross-granting
+PERMISSION_ALIAS_MAP = {
+    "admin:users:read":    ["page:users:v", "page:roles:v"],
+    "admin:users:write":   ["page:users:m", "page:roles:m"],
+    "chat:query":          ["chat:ask"],
+    "chat:history:read":   ["chat:history"],
+    "chat:export":         ["chat:history"],
+    "admin:audit:read":    ["page:audit:v"],
+    "connections:read":    ["page:connections:v"],
+    "connections:write":   ["page:connections:m"],
+    "schema:read":         ["page:schema:v"],
+    "schema:write":        ["page:schema:m"],
+    "semantic:read":       ["page:semantic:v"],
+    "semantic:write":      ["page:semantic:m"],
+    "providers:read":      ["page:providers:v"],
+    "providers:write":     ["page:providers:m"],
+    "prompts:read":        ["page:prompts:v"],
+    "prompts:write":       ["page:prompts:m"],
+    "intents:read":        ["page:intents:v"],
+    "intents:write":       ["page:intents:m"],
+}
+
 def require_permission(permission_name: str):
-
     def permission_checker(user: dict = Depends(get_current_user)) -> dict:
-
         user_roles = user.get("user_roles", [])
+        if not user_roles and user.get("role"):
+            user_roles = [user["role"]]
 
-        if not user_roles:
-            fallback_role = user.get("role")
+        # 1. Check SUPER_ADMIN bypass
+        if any(r.upper() == "SUPER_ADMIN" for r in user_roles):
+            return user
 
-            if fallback_role:
-                user_roles = [fallback_role]
+        employee_id = user.get("employee_id")
 
+        # 2. Check User Overrides from user_data_access (PERM_ALLOW / PERM_DENY)
+        allowed_aliases = [permission_name] + PERMISSION_ALIAS_MAP.get(permission_name, [])
+        
+        with engine.connect() as conn:
+            overrides = conn.execute(text("""
+                SELECT access_type, access_value
+                FROM user_data_access
+                WHERE employee_id = :employee_id AND access_type IN ('PERM_ALLOW', 'PERM_DENY')
+            """), {"employee_id": employee_id}).fetchall()
+
+            override_denies = {r.access_value for r in overrides if r.access_type == 'PERM_DENY'}
+            override_allows = {r.access_value for r in overrides if r.access_type == 'PERM_ALLOW'}
+
+            # Explicit Deny takes highest precedence
+            if any(p in override_denies for p in allowed_aliases):
+                logger.warning("Permission explicitly denied by user override: user='%s' perm='%s'", employee_id, permission_name)
+                raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=f"Access denied: permission '{permission_name}' revoked by user override.")
+
+            # Explicit Allow grants access
+            if any(p in override_allows for p in allowed_aliases):
+                return user
+
+        # 3. Inherit from Role permissions
         authorized = False
-
         for role_name in user_roles:
-
-            if has_permission(role_name, permission_name):
+            role_perms = get_role_permissions(role_name)
+            if any(p in role_perms for p in allowed_aliases):
                 authorized = True
                 break
 
         if not authorized:
-
             logger.warning(
                 "Permission denied: user='%s' roles='%s' needs '%s'.",
                 user.get("official_email"),
                 ",".join(user_roles),
                 permission_name,
             )
-
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail=f"Access denied: missing permission '{permission_name}'.",
@@ -132,6 +175,7 @@ def require_permission(permission_name: str):
         return user
 
     return permission_checker
+
 
 
     # ---------------------------------------------------------------------------

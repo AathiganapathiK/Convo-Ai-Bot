@@ -141,3 +141,46 @@ def get_role_permissions(
             role_id
         )
     )
+
+@router.get("/roles/{role_id}/matrix")
+def get_role_matrix(
+    role_id: int,
+    user=Depends(require_permission("admin:users:read"))
+):
+    from services.access_control_service import AccessControlService
+    return AccessControlService.get_role_matrix(role_id)
+
+@router.put("/roles/{role_id}/matrix")
+def update_role_matrix(
+    role_id: int,
+    payload: dict,
+    user=Depends(require_permission("admin:users:write"))
+):
+    from services.access_control_service import AccessControlService
+    page_access = payload.get("page_access", {})
+    chat_access = payload.get("chat_access", {})
+    data_scope = payload.get("data_scope", {})
+    
+    AccessControlService.save_role_matrix(
+        role_id=role_id,
+        page_access=page_access,
+        chat_access=chat_access,
+        data_scope=data_scope,
+        updated_by=user.get("employee_id")
+    )
+    return {"message": "Role access control matrix updated successfully"}
+
+@router.get("/access-control/effective")
+def get_effective_user_matrix(
+    user=Depends(get_current_user)
+):
+    from services.access_control_service import AccessControlService
+    return AccessControlService.get_effective_user_matrix(user)
+
+@router.get("/access-control/scopes/master")
+def get_master_scopes(
+    user=Depends(get_current_user)
+):
+    from services.access_control_service import AccessControlService
+    return AccessControlService.get_master_scopes()
+

@@ -18,6 +18,7 @@ export default function RoleManagement({ API, token }) {
   const [createModalVisible, setCreateModalVisible] = useState(false);
   const [form] = Form.useForm();
 
+
   const loadRoles = async () => {
     if (!token) return;
     setLoading(true);
@@ -179,6 +180,7 @@ export default function RoleManagement({ API, token }) {
           className="dark-table"
         />
       </Card>
+
 
       <Modal
         title={<span style={{ color: "var(--text-main)" }}>Create Security Role</span>}

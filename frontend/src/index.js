@@ -40,6 +40,3 @@ root.render(
   </React.StrictMode>
 );
 
-console.log(process.env.REACT_APP_AUTH0_DOMAIN);
-console.log(process.env.REACT_APP_AUTH0_CLIENT_ID);
-console.log(process.env.REACT_APP_AUTH0_AUDIENCE);

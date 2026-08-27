@@ -22,7 +22,7 @@ import {
 import {
   LayoutDashboard, MessageSquare, Database, Code, Tag as TagIcon,
   Cpu, Terminal, GitFork, Users, Shield, Activity, ChevronLeft,
-  ChevronRight, ChevronDown
+  ChevronRight, ChevronDown, Sliders
 } from "lucide-react";
 import { useTheme } from "./hooks/useTheme";
 
@@ -39,12 +39,13 @@ import MonitoringAudit from "./pages/MonitoringAudit";
 import UserManagement from "./pages/UserManagement";
 import RoleManagement from "./pages/RoleManagement";
 import ChatPage from "./pages/ChatPage";
+import RBAC from "./pages/RBAC";
 
 import ProfileModal from "./components/ProfileModal";
 import PlatformSettingsModal from "./components/PlatformSettingsModal";
 
 const { Header, Content } = Layout;
-const { Text, Title } = Typography;
+const { Text, Title, Paragraph } = Typography;
 const { Option } = Select;
 
 const API = process.env.REACT_APP_API_BASE_URL || "";
@@ -126,6 +127,16 @@ const SIDEBAR_SECTIONS = [
     ]
   },
   {
+    id: "ACCESS_CONTROL",
+    title: "ACCESS CONTROL",
+    icon: Sliders,
+    path: "/rbac",
+    isSingleLink: true,
+    items: [
+      { path: "/rbac", label: "ACCESS CONTROL", icon: Sliders, roles: ["SUPER_ADMIN", "ADMIN"] }
+    ]
+  },
+  {
     id: "MONITORING",
     title: "MONITORING",
     icon: Activity,
@@ -140,7 +151,6 @@ function MainAppLayout({
   userInfo,
   onLogout
 }) {
-  // const { logout } = useAuth0();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -153,15 +163,18 @@ function MainAppLayout({
   const [isHovered, setIsHovered] = useState(false);
   const [isPinned, setIsPinned] = useState(false);
   const isExpanded = isPinned || isHovered;
+  const [effectiveMatrix, setEffectiveMatrix] = useState(null);
 
-  // const handleLogout = () => {
-  //     logoutUser();
-
-  //     setToken("");
-  //     setUserInfo(null);
-  //     setIsAuthenticated(false);
-  //     setBackendStatus("idle");
-  // };
+  useEffect(() => {
+    if (token) {
+      fetch(`${API}/access-control/effective`, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+        .then(res => res.ok ? res.json() : null)
+        .then(data => { if (data) setEffectiveMatrix(data); })
+        .catch(err => console.error("Failed to load effective access control matrix", err));
+    }
+  }, [token]);
 
   const handleLogout = () => {
     onLogout();
@@ -169,13 +182,37 @@ function MainAppLayout({
 
   const role = userInfo?.role?.toUpperCase() || "";
 
-  // Filter sections by roles
+  // Helper map path to key
+  const pathToKey = {
+    "/": "overview",
+    "/assistant": "chat",
+    "/connections": "connections",
+    "/schema": "schema",
+    "/semantic": "semantic",
+    "/providers": "providers",
+    "/prompts": "prompts",
+    "/intents": "intents",
+    "/users": "users",
+    "/roles": "roles",
+    "/rbac": "rbac",
+    "/audit": "audit"
+  };
+
+  // Filter sections by roles AND Page Access V
   const filteredSections = SIDEBAR_SECTIONS.map(section => {
-    const items = section.items.filter(item => item.roles.includes(role));
+    const items = section.items.filter(item => {
+      if (role === "SUPER_ADMIN") return true;
+      const pageKey = pathToKey[item.path];
+      if (effectiveMatrix && effectiveMatrix.page_access && pageKey && pageKey in effectiveMatrix.page_access) {
+        return !!effectiveMatrix.page_access[pageKey]?.v;
+      }
+      return item.roles.includes(role);
+    });
     return { ...section, items };
   }).filter(section => section.items.length > 0);
 
   const [openSections, setOpenSections] = useState({});
+
 
   // Set default active section based on path
   useEffect(() => {
@@ -286,6 +323,26 @@ function MainAppLayout({
         <div className="sidebar-content">
           {isExpanded ? (
             filteredSections.map(section => {
+              if (section.isSingleLink && section.path) {
+                const isActive = location.pathname === section.path;
+                const Icon = section.icon;
+                return (
+                  <div key={section.id} className="sidebar-section">
+                    <Link
+                      to={section.path}
+                      className={`sidebar-item ${isActive ? 'active' : ''}`}
+                      style={{ paddingLeft: "10px", margin: "2px 0" }}
+                    >
+                      <div className="sidebar-item-icon-wrapper">
+                        <Icon size={18} />
+                      </div>
+                      <span className="sidebar-item-label" style={{ fontWeight: 600, fontSize: "12px", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                        {section.title}
+                      </span>
+                    </Link>
+                  </div>
+                );
+              }
               const isOpen = !!openSections[section.id];
               return (
                 <div key={section.id} className="sidebar-section">
@@ -334,8 +391,12 @@ function MainAppLayout({
                     <div
                       className={`sidebar-group-collapsed-icon ${isGroupActive ? 'active' : ''}`}
                       onClick={() => {
-                        setIsPinned(true);
-                        setOpenSections(prev => ({ ...prev, [section.id]: true }));
+                        if (section.isSingleLink && section.path) {
+                          navigate(section.path);
+                        } else {
+                          setIsPinned(true);
+                          setOpenSections(prev => ({ ...prev, [section.id]: true }));
+                        }
                       }}
                     >
                       <GroupIcon size={22} />
@@ -349,40 +410,19 @@ function MainAppLayout({
 
         {/* Sidebar Footer */}
         <div className="sidebar-footer">
-          <div style={{ display: "flex", justifyContent: isExpanded ? "space-between" : "center", alignItems: "center", width: "100%" }}>
+          <div style={{ display: "flex", alignItems: "center", width: "100%" }}>
             <Dropdown menu={{ items: userDropdownItems }} trigger={["click"]} placement="topRight">
-              <div className="sidebar-profile">
-                <Avatar style={{ backgroundColor: "#6366f1" }} icon={<UserOutlined />} />
+              <div className="sidebar-profile" style={{ width: "100%" }}>
+                <Avatar style={{ backgroundColor: "#6366f1", width: 36, height: 36 }} icon={<UserOutlined />} />
                 {isExpanded && (
                   <div className="sidebar-profile-info">
-                    <span className="sidebar-profile-name">{userInfo?.full_name || "Enterprise User"}</span>
-                    <span className="sidebar-profile-role">{userInfo?.role || "Operations"}</span>
+                    <span className="sidebar-profile-name">{userInfo?.full_name || "Aathiganapathi K"}</span>
+                    <span className="sidebar-profile-role">{userInfo?.role || "SUPER_ADMIN"}</span>
                   </div>
                 )}
               </div>
             </Dropdown>
-
-            {isExpanded && (
-              <Button
-                type="text"
-                size="small"
-                onClick={() => setIsPinned(!isPinned)}
-                icon={isPinned ? <ChevronLeft size={16} /> : <ChevronRight size={16} />}
-                style={{ color: "var(--text-muted)", padding: 0, width: "24px", height: "24px", display: "flex", alignItems: "center", justifyContent: "center" }}
-              />
-            )}
           </div>
-
-          {!isExpanded && (
-            <button
-              className="sidebar-toggle-btn"
-              onClick={() => setIsPinned(!isPinned)}
-              title={isPinned ? "Collapse Sidebar" : "Pin Sidebar"}
-              style={{ marginTop: "4px" }}
-            >
-              <ChevronRight size={14} />
-            </button>
-          )}
         </div>
       </div>
 
@@ -432,32 +472,47 @@ function MainAppLayout({
 
         {/* Content Router Area */}
         <Content style={{ padding: "24px", background: "var(--bg-layout)", minHeight: "calc(100vh - 64px)" }}>
-          <Routes>
-            <Route path="/assistant" element={<ChatPage API={API} token={token} userInfo={userInfo} />} />
-            <Route path="/schema" element={<SchemaDiscovery API={API} token={token} userInfo={userInfo} />} />
-            <Route path="/semantic" element={<SemanticLayer API={API} token={token} userInfo={userInfo} />} />
+          {(() => {
+            const isAllowed = (pageKey, legacyRoles) => {
+              if (role === "SUPER_ADMIN") return true;
+              if (effectiveMatrix && effectiveMatrix.page_access && pageKey) {
+                return !!effectiveMatrix.page_access[pageKey]?.v;
+              }
+              return legacyRoles.includes(role);
+            };
 
-            {(role === "ADMIN" || role === "SUPER_ADMIN") && (
-              <>
-                <Route path="/" element={<Overview API={API} token={token} />} />
-                <Route path="/audit" element={<MonitoringAudit API={API} token={token} />} />
-                <Route path="/users" element={<UserManagement API={API} token={token} userInfo={userInfo} />} />
-              </>
-            )}
+            const DeniedView = () => (
+              <Card style={{ textAlign: "center", marginTop: 40, padding: 30 }}>
+                <Title level={3} style={{ color: "#ef4444" }}>403 - Access Denied</Title>
+                <Paragraph style={{ color: "var(--text-secondary)" }}>
+                  You do not have View (V) permission to access this page. Contact your system administrator to update your Access Control Matrix.
+                </Paragraph>
+                <Button type="primary" onClick={() => navigate("/assistant")}>
+                  Return to Chat Assistant
+                </Button>
+              </Card>
+            );
 
-            {role === "SUPER_ADMIN" && (
-              <>
-                <Route path="/connections" element={<DataSources API={API} token={token} />} />
-                <Route path="/prompts" element={<PromptStudio />} />
-                <Route path="/providers" element={<AIProviderConfig API={API} token={token} />} />
-                <Route path="/intents" element={<IntentConfig />} />
-                <Route path="/pipeline" element={<QueryPipelineDebugger />} />
-                <Route path="/roles" element={<RoleManagement API={API} token={token} />} />
-              </>
-            )}
+            return (
+              <Routes>
+                <Route path="/assistant" element={isAllowed("chat", ["SUPER_ADMIN", "ADMIN", "ANALYST"]) ? <ChatPage API={API} token={token} userInfo={userInfo} /> : <DeniedView />} />
+                <Route path="/schema" element={isAllowed("schema", ["SUPER_ADMIN", "ADMIN", "ANALYST"]) ? <SchemaDiscovery API={API} token={token} userInfo={userInfo} /> : <DeniedView />} />
+                <Route path="/semantic" element={isAllowed("semantic", ["SUPER_ADMIN", "ADMIN", "ANALYST"]) ? <SemanticLayer API={API} token={token} userInfo={userInfo} /> : <DeniedView />} />
 
-            <Route path="*" element={role === "ANALYST" ? <ChatPage API={API} token={token} userInfo={userInfo} /> : <Overview API={API} token={token} />} />
-          </Routes>
+                <Route path="/" element={isAllowed("overview", ["SUPER_ADMIN", "ADMIN"]) ? <Overview API={API} token={token} /> : <DeniedView />} />
+                <Route path="/audit" element={isAllowed("audit", ["SUPER_ADMIN", "ADMIN"]) ? <MonitoringAudit API={API} token={token} /> : <DeniedView />} />
+                <Route path="/users" element={isAllowed("users", ["SUPER_ADMIN", "ADMIN"]) ? <UserManagement API={API} token={token} userInfo={userInfo} /> : <DeniedView />} />
+
+                <Route path="/connections" element={isAllowed("connections", ["SUPER_ADMIN"]) ? <DataSources API={API} token={token} /> : <DeniedView />} />
+                <Route path="/prompts" element={isAllowed("prompts", ["SUPER_ADMIN"]) ? <PromptStudio /> : <DeniedView />} />
+                <Route path="/providers" element={isAllowed("providers", ["SUPER_ADMIN"]) ? <AIProviderConfig API={API} token={token} /> : <DeniedView />} />
+                <Route path="/intents" element={isAllowed("intents", ["SUPER_ADMIN"]) ? <IntentConfig /> : <DeniedView />} />
+                <Route path="/pipeline" element={isAllowed("pipeline", ["SUPER_ADMIN"]) ? <QueryPipelineDebugger /> : <DeniedView />} />
+                <Route path="/roles" element={isAllowed("roles", ["SUPER_ADMIN"]) ? <RoleManagement API={API} token={token} /> : <DeniedView />} />
+                <Route path="/rbac" element={isAllowed("rbac", ["SUPER_ADMIN", "ADMIN"]) ? <RBAC API={API} token={token} userInfo={userInfo} /> : <DeniedView />} />
+              </Routes>
+            );
+          })()}
         </Content>
       </Layout>
 
