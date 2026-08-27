@@ -1,3 +1,4 @@
+from chat.chat_schema import UpdateSessionRequest, CreateSessionRequest
 import json
 from fastapi import (
     APIRouter,
