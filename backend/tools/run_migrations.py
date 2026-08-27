@@ -1,14 +1,19 @@
-import core.config
 import os
 import re
 import sys
 import logging
-from sqlalchemy import text, inspect
 
-# Add backend directory to path if run from root
+# The backend directory has to be importable BEFORE core.config or database are
+# imported. startup.sh runs this as "python -m tools.run_migrations" from /app
+# with PYTHONPATH=/app, which already satisfies that; running the file directly
+# as "python tools/run_migrations.py" does not, and failed with
+# ModuleNotFoundError: No module named 'core'. Both forms work now.
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from database import engine
+import core.config  # noqa: F401,E402  - selects and loads the runtime env file
+from sqlalchemy import text, inspect  # noqa: E402
+
+from database import engine  # noqa: E402
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)s] %(message)s')
 logger = logging.getLogger("migration_runner")
@@ -18,8 +23,12 @@ MIGRATIONS_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__
 MIGRATION_FILES = [
     "001_security_framework.sql",
     "002_semantic_audit_types.sql",
-    "003_column_display_config.sql"
+    "003_column_display_config.sql",
+    "004_semantic_config.sql"
 ]
+
+# Rollback scripts are NOT listed above and are never applied automatically.
+# They are run deliberately via tools/run_rollback.py.
 
 def ensure_migration_table():
     with engine.begin() as conn:
@@ -69,6 +78,17 @@ def run_sql_script(filepath):
                 raise e
 
 def main():
+    from database import _host, _name
+
+    # Printed prominently and on its own, because the startup banner buries the
+    # target among other lines and "I thought this was the local database" is
+    # exactly how a migration reaches the wrong server.
+    print("")
+    print("*" * 60)
+    print(f"  MIGRATION TARGET: {_host} / {_name}")
+    print("*" * 60)
+    print("")
+
     logger.info("Starting database migrations...")
     try:
         ensure_migration_table()
