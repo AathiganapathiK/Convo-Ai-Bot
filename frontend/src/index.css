@@ -112,12 +112,22 @@
 .dark-theme .ant-tag-success,
 .dark-theme .ant-tag-has-color[color="success"] {
   color: var(--color-allow) !important;
-  background: var(--color-allow-bg) !important;
-  border-color: var(--color-allow-border) !important;
+  background: transparent !important;
+  border: none !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+.dark-theme .ant-tag-default {
+  color: var(--text-muted) !important;
+  background: transparent !important;
+  border: none !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
 }
 
 .dark-theme .ant-switch-checked {
-  background-color: var(--color-allow) !important;
+  background-color: var(--color-accent-blue) !important;
 }
 
 .dark-theme .ant-switch-checked .ant-switch-handle::before {

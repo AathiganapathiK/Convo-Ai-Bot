@@ -416,7 +416,7 @@ export default function RBAC({ API, token, userInfo }) {
           size="small"
           checked={isAllowed}
           onChange={handleToggle}
-          style={{ backgroundColor: isAllowed ? "var(--color-allow)" : "#94a3b8" }}
+          style={{ backgroundColor: isAllowed ? "var(--color-accent-blue)" : "#475569" }}
         />
         <Tag color={isAllowed ? "success" : "default"} style={{ margin: 0, borderRadius: "5px", fontSize: "11px", fontWeight: 600, padding: "1px 6px" }}>
           {isAllowed ? "Allow" : "Deny"}
@@ -444,7 +444,7 @@ export default function RBAC({ API, token, userInfo }) {
           checked={isAllowed}
           disabled={roleObj.role_name === "SUPER_ADMIN"}
           onChange={handleToggle}
-          style={{ backgroundColor: isAllowed ? "var(--color-allow)" : "#94a3b8" }}
+          style={{ backgroundColor: isAllowed ? "var(--color-accent-blue)" : "#475569" }}
         />
         <Tag color={isAllowed ? "success" : "default"} style={{ margin: 0, borderRadius: "5px", fontSize: "11px", fontWeight: 600, padding: "1px 6px" }}>
           {isAllowed ? "Allow" : "Deny"}

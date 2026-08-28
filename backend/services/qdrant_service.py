@@ -33,7 +33,8 @@ class QdrantService:
         if QdrantService.client is None:
             QdrantService.client = QdrantClient(
                 host="localhost",
-                port=6333
+                port=6333,
+                timeout=0.5
             )
 
         try:

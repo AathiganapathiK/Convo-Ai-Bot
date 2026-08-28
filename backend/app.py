@@ -98,9 +98,8 @@ from chat.chat_sessions import router as chat_router
 
 from configuration.config_routes import (router as config_router)
 
+from contextlib import asynccontextmanager
 from semantic.config_routes import (router as semantic_config_router)
-
-QdrantService.initialize()
 
 logger = logging.getLogger(__name__)
 
@@ -150,12 +149,25 @@ def initialize_company_isolation():
     except Exception as e:
         logger.error(f"Error initializing company isolation schemas: {e}")
 
-initialize_company_isolation()
+@asynccontextmanager
+async def lifespan(app_instance: FastAPI):
+    # Perform startup operations during lifespan initialization
+    try:
+        QdrantService.initialize()
+    except Exception as e:
+        logger.warning(f"Qdrant startup initialization note: {e}")
 
+    try:
+        initialize_company_isolation()
+    except Exception as e:
+        logger.error(f"Company isolation initialization error: {e}")
 
+    try:
+        SchemaMonitorService.start()
+    except Exception as e:
+        logger.error(f"Schema monitor start error: {e}")
 
-SchemaMonitorService.start()
-
+    yield
 
 # ---------------------------------------------------------------------------
 # Application setup
@@ -165,6 +177,7 @@ app = FastAPI(
     title="Enterprise Conversational AI API",
     description="Auth0-authenticated, RBAC/CLS/RLS-enforced analytics backend.",
     version="2.0.0",
+    lifespan=lifespan,
 )
 
 app.add_exception_handler(

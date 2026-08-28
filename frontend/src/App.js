@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route, Link, useLocation, useNavigate } from "react-router-dom";
 // import { useAuth0 } from "@auth0/auth0-react";
 import {
@@ -26,23 +26,23 @@ import {
 } from "lucide-react";
 import { useTheme } from "./hooks/useTheme";
 
-// Import all subpages (Architecture removed)
-import Overview from "./pages/Overview";
-import DataSources from "./pages/DataSources";
-import SchemaDiscovery from "./pages/SchemaDiscovery";
-import SemanticLayer from "./pages/SemanticLayer";
-import PromptStudio from "./pages/PromptStudio";
-import AIProviderConfig from "./pages/AIProviderConfig";
-import IntentConfig from "./pages/IntentConfig";
-import QueryPipelineDebugger from "./pages/QueryPipelineDebugger";
-import MonitoringAudit from "./pages/MonitoringAudit";
-import UserManagement from "./pages/UserManagement";
-import RoleManagement from "./pages/RoleManagement";
-import ChatPage from "./pages/ChatPage";
-import RBAC from "./pages/RBAC";
-
 import ProfileModal from "./components/ProfileModal";
 import PlatformSettingsModal from "./components/PlatformSettingsModal";
+
+// Lazy-loaded page components for fast startup & code-splitting
+const Overview = lazy(() => import("./pages/Overview"));
+const DataSources = lazy(() => import("./pages/DataSources"));
+const SchemaDiscovery = lazy(() => import("./pages/SchemaDiscovery"));
+const SemanticLayer = lazy(() => import("./pages/SemanticLayer"));
+const PromptStudio = lazy(() => import("./pages/PromptStudio"));
+const AIProviderConfig = lazy(() => import("./pages/AIProviderConfig"));
+const IntentConfig = lazy(() => import("./pages/IntentConfig"));
+const QueryPipelineDebugger = lazy(() => import("./pages/QueryPipelineDebugger"));
+const MonitoringAudit = lazy(() => import("./pages/MonitoringAudit"));
+const UserManagement = lazy(() => import("./pages/UserManagement"));
+const RoleManagement = lazy(() => import("./pages/RoleManagement"));
+const ChatPage = lazy(() => import("./pages/ChatPage"));
+const RBAC = lazy(() => import("./pages/RBAC"));
 
 const { Header, Content } = Layout;
 const { Text, Title, Paragraph } = Typography;
@@ -123,17 +123,8 @@ const SIDEBAR_SECTIONS = [
     icon: Shield,
     items: [
       { path: "/users", label: "User Management", icon: Users, roles: ["SUPER_ADMIN", "ADMIN"] },
-      { path: "/roles", label: "Role Management", icon: Shield, roles: ["SUPER_ADMIN"] }
-    ]
-  },
-  {
-    id: "ACCESS_CONTROL",
-    title: "ACCESS CONTROL",
-    icon: Sliders,
-    path: "/rbac",
-    isSingleLink: true,
-    items: [
-      { path: "/rbac", label: "ACCESS CONTROL", icon: Sliders, roles: ["SUPER_ADMIN", "ADMIN"] }
+      { path: "/roles", label: "Role Management", icon: Shield, roles: ["SUPER_ADMIN"] },
+      { path: "/rbac", label: "Access Control", icon: Sliders, roles: ["SUPER_ADMIN", "ADMIN"] }
     ]
   },
   {
@@ -494,23 +485,25 @@ function MainAppLayout({
             );
 
             return (
-              <Routes>
-                <Route path="/assistant" element={isAllowed("chat", ["SUPER_ADMIN", "ADMIN", "ANALYST"]) ? <ChatPage API={API} token={token} userInfo={userInfo} /> : <DeniedView />} />
-                <Route path="/schema" element={isAllowed("schema", ["SUPER_ADMIN", "ADMIN", "ANALYST"]) ? <SchemaDiscovery API={API} token={token} userInfo={userInfo} /> : <DeniedView />} />
-                <Route path="/semantic" element={isAllowed("semantic", ["SUPER_ADMIN", "ADMIN", "ANALYST"]) ? <SemanticLayer API={API} token={token} userInfo={userInfo} /> : <DeniedView />} />
+              <Suspense fallback={<div style={{ padding: "40px", display: "flex", justifyContent: "center", alignItems: "center", minHeight: "200px" }}><Spin size="large" /></div>}>
+                <Routes>
+                  <Route path="/assistant" element={isAllowed("chat", ["SUPER_ADMIN", "ADMIN", "ANALYST"]) ? <ChatPage API={API} token={token} userInfo={userInfo} /> : <DeniedView />} />
+                  <Route path="/schema" element={isAllowed("schema", ["SUPER_ADMIN", "ADMIN", "ANALYST"]) ? <SchemaDiscovery API={API} token={token} userInfo={userInfo} /> : <DeniedView />} />
+                  <Route path="/semantic" element={isAllowed("semantic", ["SUPER_ADMIN", "ADMIN", "ANALYST"]) ? <SemanticLayer API={API} token={token} userInfo={userInfo} /> : <DeniedView />} />
 
-                <Route path="/" element={isAllowed("overview", ["SUPER_ADMIN", "ADMIN"]) ? <Overview API={API} token={token} /> : <DeniedView />} />
-                <Route path="/audit" element={isAllowed("audit", ["SUPER_ADMIN", "ADMIN"]) ? <MonitoringAudit API={API} token={token} /> : <DeniedView />} />
-                <Route path="/users" element={isAllowed("users", ["SUPER_ADMIN", "ADMIN"]) ? <UserManagement API={API} token={token} userInfo={userInfo} /> : <DeniedView />} />
+                  <Route path="/" element={isAllowed("overview", ["SUPER_ADMIN", "ADMIN"]) ? <Overview API={API} token={token} /> : <DeniedView />} />
+                  <Route path="/audit" element={isAllowed("audit", ["SUPER_ADMIN", "ADMIN"]) ? <MonitoringAudit API={API} token={token} /> : <DeniedView />} />
+                  <Route path="/users" element={isAllowed("users", ["SUPER_ADMIN", "ADMIN"]) ? <UserManagement API={API} token={token} userInfo={userInfo} /> : <DeniedView />} />
 
-                <Route path="/connections" element={isAllowed("connections", ["SUPER_ADMIN"]) ? <DataSources API={API} token={token} /> : <DeniedView />} />
-                <Route path="/prompts" element={isAllowed("prompts", ["SUPER_ADMIN"]) ? <PromptStudio /> : <DeniedView />} />
-                <Route path="/providers" element={isAllowed("providers", ["SUPER_ADMIN"]) ? <AIProviderConfig API={API} token={token} /> : <DeniedView />} />
-                <Route path="/intents" element={isAllowed("intents", ["SUPER_ADMIN"]) ? <IntentConfig /> : <DeniedView />} />
-                <Route path="/pipeline" element={isAllowed("pipeline", ["SUPER_ADMIN"]) ? <QueryPipelineDebugger /> : <DeniedView />} />
-                <Route path="/roles" element={isAllowed("roles", ["SUPER_ADMIN"]) ? <RoleManagement API={API} token={token} /> : <DeniedView />} />
-                <Route path="/rbac" element={isAllowed("rbac", ["SUPER_ADMIN", "ADMIN"]) ? <RBAC API={API} token={token} userInfo={userInfo} /> : <DeniedView />} />
-              </Routes>
+                  <Route path="/connections" element={isAllowed("connections", ["SUPER_ADMIN"]) ? <DataSources API={API} token={token} /> : <DeniedView />} />
+                  <Route path="/prompts" element={isAllowed("prompts", ["SUPER_ADMIN"]) ? <PromptStudio /> : <DeniedView />} />
+                  <Route path="/providers" element={isAllowed("providers", ["SUPER_ADMIN"]) ? <AIProviderConfig API={API} token={token} /> : <DeniedView />} />
+                  <Route path="/intents" element={isAllowed("intents", ["SUPER_ADMIN"]) ? <IntentConfig /> : <DeniedView />} />
+                  <Route path="/pipeline" element={isAllowed("pipeline", ["SUPER_ADMIN"]) ? <QueryPipelineDebugger /> : <DeniedView />} />
+                  <Route path="/roles" element={isAllowed("roles", ["SUPER_ADMIN"]) ? <RoleManagement API={API} token={token} /> : <DeniedView />} />
+                  <Route path="/rbac" element={isAllowed("rbac", ["SUPER_ADMIN", "ADMIN"]) ? <RBAC API={API} token={token} userInfo={userInfo} /> : <DeniedView />} />
+                </Routes>
+              </Suspense>
             );
           })()}
         </Content>
