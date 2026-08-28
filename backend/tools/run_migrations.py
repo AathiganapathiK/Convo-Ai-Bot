@@ -25,8 +25,7 @@ MIGRATION_FILES = [
     "002_semantic_audit_types.sql",
     "003_column_display_config.sql",
     "004_semantic_config.sql",
-    # 005 intentionally left free: 004_access_control_extension.sql exists on
-    # disk unregistered and should be renumbered into it.
+    "005_access_control_extension.sql",
     "006_suggestion_evidence.sql"
 ]
 

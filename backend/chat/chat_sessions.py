@@ -27,14 +27,16 @@ def create_chat_session(
     (
         employee_id,
         session_name,
-        division_code
+        division_code,
+        company_id
     )
     OUTPUT INSERTED.id
     VALUES
     (
         :employee_id,
         :session_name,
-        :division_code
+        :division_code,
+        :company_id
     )
     """
 
@@ -44,7 +46,8 @@ def create_chat_session(
             {
                 "employee_id": user["employee_id"],
                 "session_name": request.session_name,
-                "division_code": division_code
+                "division_code": division_code,
+                "company_id": user["company_id"]
             }
         ).scalar()
 
