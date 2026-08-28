@@ -341,6 +341,22 @@ class ConfigSuggester:
             return
 
         if distinct_count > ConfigSuggester.SAMPLE_CARDINALITY_LIMIT:
+            # A high-cardinality NUMERIC column gets a range instead of silence.
+            #
+            # Withholding numbers outright cost accuracy on the columns that
+            # matter most: with its values hidden, the model read the name "PY",
+            # decided it meant "previous year", and classified a column full of
+            # rupees as a year label. Nine core sales and quantity measures were
+            # about to be turned into dimensions on the strength of their names.
+            #
+            # A range says what a name cannot - values running 0.50 to 4,500,000
+            # are money, whereas a year label would run 2020 to 2026. It is also
+            # LESS exposure than sampling: three aggregates reveal far less than
+            # eight real transaction amounts.
+            if ConfigSuggester._is_numeric(profile["data_type"]):
+                if ConfigSuggester._describe_range(conn, table_name, profile):
+                    return
+
             profile["samples_withheld"] = True
             profile["samples_withheld_reason"] = (
                 f"High cardinality ({distinct_count:,} distinct values across "
@@ -358,6 +374,47 @@ class ConfigSuggester:
             logger.debug("No samples for %s.%s: %s", table_name, column_name, exc)
             profile["samples_withheld"] = True
             profile["samples_withheld_reason"] = "Sample values could not be read."
+
+    @staticmethod
+    def _is_numeric(data_type: Optional[str]) -> bool:
+        return any(
+            t in (data_type or "").lower()
+            for t in ("int", "decimal", "numeric", "money", "float", "real")
+        )
+
+    @staticmethod
+    def _describe_range(conn, table_name: str, profile: dict) -> bool:
+        """
+        Replace sample values with min, max and mean for a numeric column.
+
+        The descriptors go into the samples list rather than a new field, so the
+        shape agreed with Step 9 and Step 10 is unchanged - the review screen
+        renders them like any other evidence, and a reviewer sees the range that
+        justified the proposal.
+        """
+        column_name = profile["column_name"]
+        try:
+            row = conn.execute(text(
+                f"SELECT MIN([{column_name}]), MAX([{column_name}]), "
+                f"AVG(CAST([{column_name}] AS FLOAT)) FROM [{table_name}]"
+            )).fetchone()
+        except Exception as exc:
+            logger.debug("No range for %s.%s: %s", table_name, column_name, exc)
+            return False
+
+        if row is None or row[0] is None:
+            return False
+
+        low, high, mean = row
+        profile["samples"] = [
+            f"min: {low}",
+            f"max: {high}",
+            f"avg: {round(float(mean), 2) if mean is not None else 'n/a'}",
+        ]
+        profile["samples_withheld"] = False
+        profile["samples_withheld_reason"] = None
+        profile["_is_range"] = True
+        return True
 
     # ------------------------------------------------------------------
     # Current configuration, so a proposal reads as a change not a fact
@@ -536,15 +593,34 @@ class ConfigSuggester:
         lines = []
         for p in profiles:
             if p["samples_withheld"]:
+                label = "samples"
                 sample_text = f"(values not read - {p['samples_withheld_reason']})"
+            elif p.get("_is_range"):
+                # Individual values were not read; these are aggregates.
+                label = "value range"
+                sample_text = ", ".join(p["samples"])
             else:
+                label = "samples"
                 sample_text = ", ".join(
                     repr(v) for v in p["samples"][:ConfigSuggester.SAMPLE_SIZE]
                 )
+            # Show the uniqueness ratio rather than making the model divide.
+            # Asked to compare 132,955 distinct against 2,238,958 rows it
+            # concluded "close to row count" - it is 6% - and excluded four core
+            # sales measures as identifiers on that arithmetic. Stating the
+            # percentage removes the mistake entirely.
+            distinct = p["distinct_count"]
+            rows = p["row_count_profiled"]
+            if distinct is not None and rows:
+                uniqueness = f"{(distinct / rows) * 100:.2f}% of rows are unique"
+            else:
+                uniqueness = "uniqueness unknown"
+
             lines.append(
                 f"- {p['column_name']} | type={p['data_type']} "
-                f"| distinct={p['distinct_count']} | null_rate={p['null_fraction']} "
-                f"| samples: {sample_text}"
+                f"| distinct={p['distinct_count']} of {rows} rows ({uniqueness}) "
+                f"| null_rate={p['null_fraction']} "
+                f"| {label}: {sample_text}"
             )
         return "\n".join(lines)
 
@@ -567,7 +643,9 @@ For EACH column decide:
 - confidence: 0 to 1
 - reasoning: one sentence citing the evidence you used
 
-Judge from the VALUES, not the name. A numeric column whose distinct count approaches the row count is an identifier, not a measure - summing it yields a meaningless figure. Text values that read as month names are a period label. A column with a single distinct value across millions of rows is a load timestamp, not a business date.
+Judge from the VALUES, not the name. Use the stated uniqueness percentage; do not compute it yourself. Above roughly 95% the column is an identifier and summing it yields a meaningless figure. Well below that it is not an identifier, however many distinct values it has - a monetary column in a two-million-row table can hold a hundred thousand distinct amounts and still be an ordinary measure. Text values that read as month names are a period label. A column with a single distinct value across millions of rows is a load timestamp, not a business date.
+
+Where a VALUE RANGE is given instead of samples, use it. A column running from 0.50 to 4,500,000 holds amounts and is a measure, however its name reads. A year or period label would run only from about 2000 to 2100, and a month from 1 to 12. Never conclude that a column contains a period merely because its name abbreviates one.
 
 Return ONLY valid JSON, no prose, no code fences, and keep every string short:
 {{"columns": {{"COLUMN_NAME": {{"classification": "...", "business_name": "...", "description": "...", "synonyms": [], "dimension_role": "...", "aggregation_type": null, "confidence": 0.0, "reasoning": "..."}}}}}}"""
