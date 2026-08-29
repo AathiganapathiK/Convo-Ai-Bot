@@ -1,6 +1,7 @@
 from dataclasses import dataclass, field
 from typing import Optional
 
+from ai.ast.exceptions import ASTParserError
 from ai.ast.models import ValidationContext, SQLMetadata
 from ai.ast.schema import SchemaValidationResult
 from ai.ast.security import SecurityValidationResult
@@ -40,7 +41,30 @@ class ValidationPipeline:
 
     def validate(self, sql: str, schema_metadata: dict) -> ValidationPipelineResult:
         # Step 1: Parse AST
-        context = self.parser.parse(sql)
+        #
+        # SQLASTParser signals a parse failure by raising ASTParserError rather
+        # than returning a context with errors populated. ASTParserError is not
+        # an EnterpriseException, so letting it escape sent unparseable SQL to
+        # the generic handler and produced an HTTP 500 instead of the ordinary
+        # validation error - and the query was never recorded as a validation
+        # failure. Converting it here keeps every failure on one path.
+        #
+        # Behaviour is unchanged for the caller in every other respect, and the
+        # query is still rejected: malformed SQL has never reached execution
+        # and still does not.
+        try:
+            context = self.parser.parse(sql)
+        except ASTParserError as ex:
+            context = ValidationContext(original_sql=sql)
+            context.errors.append(str(ex))
+
+            return ValidationPipelineResult(
+                passed=False,
+                sql=sql,
+                context=context,
+                error=f"SQL could not be parsed: {ex}",
+            )
+
         if context.errors:
             return ValidationPipelineResult(
                 passed=False,

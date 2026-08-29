@@ -69,7 +69,7 @@ def get_llm_provider(
 
 
 
-def generate_sql_query(question: str, history = None, company_id = None, clarified_candidate = None):
+def generate_sql_query(question: str, history = None, company_id = None, clarified_candidate = None, guard_feedback = None):
 
     try:
 
@@ -83,6 +83,13 @@ def generate_sql_query(question: str, history = None, company_id = None, clarifi
     except EnterpriseException as ex:
 
         return ex.to_dict()
+
+    # Gate 5 Step 32: on a plan-conformance retry, the deterministic guard's
+    # findings are appended to the prompt the builder produced. Appending here
+    # rather than inside the prompt builder keeps that 1,200-line shared file
+    # untouched, since build_sql_prompt already returns the prompt as text.
+    if guard_feedback:
+        prompt = f"{prompt}\n\n{guard_feedback}"
     
     import time
     start_time = time.time()
@@ -248,7 +255,8 @@ def generate_business_summary(
     runtime_context,
     history=None,
     company_id=None,
-    connection_id=None
+    connection_id=None,
+    grounding_feedback=None
 ):
 
     data_shape = (
@@ -288,6 +296,13 @@ def generate_business_summary(
         serialized_data,
         template
     )
+
+    # Gate 6 Step 33: on a grounding retry, the deterministic validator's
+    # findings are appended to the prompt. Appended here rather than inside the
+    # prompt builder so that shared file stays untouched, matching how Step 32
+    # feeds SQL guard findings back.
+    if grounding_feedback:
+        prompt = f"{prompt}\n\n{grounding_feedback}"
 
     import time
     start_sum = time.time()

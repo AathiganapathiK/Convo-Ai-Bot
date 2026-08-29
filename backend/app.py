@@ -34,6 +34,8 @@ from auth.dependencies import get_current_user
 from database import engine
 
 from ai.sql_validator import validate_sql_query, enforce_row_limit
+from ai.guard.enforcement import guard_sql
+from ai.guard.grounding import ground_answer
 from ai.prompt_builder import build_summary_prompt
 from ai.intent_classifier import classify_intent
 from ai.ai_service import generate_sql_query, generate_business_summary
@@ -825,6 +827,37 @@ def ask_question(
             )
             raise SQLValidationException(message=validation_message)
 
+        # Gate 5 Step 32: plan conformance.
+        #
+        # Runs after security and schema validation, and before row limiting
+        # and RLS injection, so it judges the SQL the model wrote rather than
+        # the SQL after deterministic security predicates were added to it.
+        #
+        # Defaults to shadow mode: violations are logged and nothing is
+        # blocked until SQL_GUARD_MODE=enforce is set deliberately.
+        guard_decision = guard_sql(
+            plan=(semantic_result or {}).get("semantic_plan"),
+            sql=sql_query,
+            regenerate=lambda feedback: (
+                generate_sql_query(
+                    question,
+                    history,
+                    company_id=user["company_id"],
+                    guard_feedback=feedback,
+                ) or {}
+            ).get("sql_query"),
+            revalidate=validate_sql_query,
+        )
+
+        sql_query = guard_decision.sql
+
+        if guard_decision.blocked:
+            save_query_history(
+                user["employee_id"], session_id, question,
+                sql_query, "PLAN_GUARD_BLOCKED", 0, user["company_id"]
+            )
+            raise SQLValidationException(message=guard_decision.message)
+
     except EnterpriseException as ex:
         import traceback
         print("\n========== ERROR ==========")
@@ -955,6 +988,43 @@ def ask_question(
         business_summary = (
             summary_response["summary"]
         )
+
+        # Gate 6 Step 33: answer grounding.
+        #
+        # Runs after the summary is written and before it is persisted or
+        # returned, so a rejected answer is never saved to chat history.
+        # Validates against the rows already returned - no second query.
+        #
+        # Defaults to shadow mode: violations are logged and nothing changes
+        # until ANSWER_GUARD_MODE=enforce is set deliberately.
+        grounding_decision = ground_answer(
+            plan=(semantic_result or {}).get("semantic_plan"),
+            rows=rows,
+            answer=business_summary,
+            regenerate=lambda feedback: (
+                generate_business_summary(
+                    question,
+                    sql_query,
+                    rows,
+                    semantic_result=semantic_result,
+                    runtime_context=runtime_context,
+                    history=history,
+                    company_id=user["company_id"],
+                    connection_id=connection_id,
+                    grounding_feedback=feedback,
+                ) or {}
+            ).get("summary"),
+        )
+
+        business_summary = grounding_decision.answer
+
+        if grounding_decision.blocked:
+            business_summary = (
+                "A summary could not be produced for this result. "
+                "The figures in the generated answer could not be verified "
+                "against the data returned, so it was withheld. The result "
+                "table below is unaffected."
+            )
 
         followup_questions = (
             summary_response["followups"]
