@@ -28,6 +28,7 @@ import { useTheme } from "./hooks/useTheme";
 
 import ProfileModal from "./components/ProfileModal";
 import PlatformSettingsModal from "./components/PlatformSettingsModal";
+import LoginPage from "./components/LoginPage";
 
 // Lazy-loaded page components for fast startup & code-splitting
 const Overview = lazy(() => import("./pages/Overview"));
@@ -710,124 +711,12 @@ function InnerApp() {
   return (
     <div className={resolvedTheme === "dark" ? "dark-theme" : "light-theme"} style={{ minHeight: "100vh" }}>
       {!isAuthenticated || backendStatus !== "provisioned" ? (
-        <div
-          style={{
-            minHeight: "100vh",
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "center",
-            alignItems: "center",
-            background: "linear-gradient(135deg, var(--bg-layout) 0%, var(--bg-header) 50%, #1e1b4b 100%)",
-            padding: "20px"
-          }}
-        >
-          <Card
-            style={{
-              width: "420px",
-              borderRadius: "16px",
-              border: "1px solid var(--border-color)",
-              background: "var(--bg-card)"
-            }}
-            styles={{ body: { padding: "40px 30px" } }}
-          >
-              <div style={{ textAlign: "center", marginBottom: "30px" }}>
-                <Avatar
-                  size={54}
-                  icon={<DatabaseOutlined />}
-                  style={{ backgroundColor: "#4f46e5", marginBottom: "12px" }}
-                />
-                <Title level={3} style={{ color: "var(--text-main)", margin: 0, fontWeight: 700 }}>
-                  RR-AI BOT LOGIN
-                </Title>
-                <Text style={{ color: "var(--text-muted)", fontSize: "14px" }}>
-                  Retail Executive Business Intelligence & Analytics
-                </Text>
-              </div>
-
-              {/* <Button
-                type="primary"
-                size="large"
-                block
-                icon={<LockOutlined />}
-                disabled
-                style={{
-                  height: "48px",
-                  fontWeight: 600,
-                  borderRadius: "8px",
-                  background: "#4f46e5",
-                  fontSize: "15px"
-                }}
-              >
-                Login Screen Coming Next...
-              </Button> */}
-
-              <Form
-                form={loginForm}
-                layout="vertical"
-                onFinish={handleLogin}
-              >
-
-                <Form.Item
-                  label="Official Email"
-                  name="email"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Please enter your email"
-                    }
-                  ]}
-                >
-                  <Input
-                    placeholder="admin@company.com"
-                    size="large"
-                  />
-                </Form.Item>
-
-                <Form.Item
-                  label="Password"
-                  name="password"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Please enter your password"
-                    }
-                  ]}
-                >
-                  <Input.Password
-                    size="large"
-                    placeholder="Password"
-                  />
-                </Form.Item>
-
-                <Button
-                  htmlType="submit"
-                  type="primary"
-                  block
-                  size="large"
-                  loading={loginLoading}
-                  icon={<LockOutlined />}
-                  style={{
-                    marginTop: 8,
-                    height: "48px",
-                    fontWeight: 600,
-                    borderRadius: "8px",
-                    background: "#4f46e5",
-                    fontSize: "15px"
-                  }}
-                >
-                  Sign In
-                </Button>
-
-              </Form>
-
-              <div style={{ textAlign: "center", marginTop: "24px" }}>
-                <Tag color="blue">
-                  JWT · RBAC · RLS · CLS Protected
-                </Tag>
-              </div>
-            </Card>
-          </div>
-        ) : (
+        <LoginPage
+          onLogin={handleLogin}
+          loginForm={loginForm}
+          loginLoading={loginLoading}
+        />
+      ) : (
           <BrowserRouter>
             <MainAppLayout
               token={token}

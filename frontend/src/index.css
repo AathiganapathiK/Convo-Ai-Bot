@@ -233,16 +233,49 @@ code {
 
 /* Input Overrides */
 .ant-input {
-  background-color: var(--bg-chat-input) !important;
-  border-color: var(--border-chat-input) !important;
+  background-color: var(--bg-chat-input);
+  border-color: var(--border-chat-input);
   color: var(--text-main) !important;
 }
-.ant-input::placeholder {
+
+/* Ensure inner input element inside affix wrappers (with prefix/suffix icons) stays transparent */
+.ant-input-affix-wrapper {
+  background-color: var(--bg-chat-input);
+  border-color: var(--border-chat-input);
+  color: var(--text-main);
+}
+.ant-input-affix-wrapper .ant-input,
+.ant-input-affix-wrapper .ant-input:focus,
+.ant-input-affix-wrapper-focused .ant-input {
+  background-color: transparent !important;
+  background: transparent !important;
+  color: var(--text-main) !important;
+  box-shadow: none !important;
+}
+
+.ant-input::placeholder,
+.ant-input-affix-wrapper .ant-input::placeholder {
   color: var(--text-muted) !important;
 }
-.ant-input:focus, .ant-input-focused {
+
+.ant-input:focus,
+.ant-input-focused,
+.ant-input-affix-wrapper:focus,
+.ant-input-affix-wrapper-focused {
   border-color: #6366f1 !important;
   box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2) !important;
+}
+
+/* Prevent WebKit browser autofill from inserting a white background rectangle */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active,
+.ant-input:-webkit-autofill,
+.ant-input-affix-wrapper input:-webkit-autofill {
+  -webkit-text-fill-color: var(--text-main) !important;
+  transition: background-color 50000s ease-in-out 0s !important;
+  box-shadow: 0 0 0px 1000px transparent inset !important;
 }
 
 /* Select Overrides */
