@@ -324,28 +324,6 @@ export default function TableConfigPanel({ API, token, canEdit }) {
 
   const mappingColumns = [
     {
-      title: "Grain",
-      dataIndex: "period_grain",
-      width: "18%",
-      render: (v, r) => (
-        <Select
-          value={v}
-          size="small"
-          disabled={!canEdit}
-          onChange={(val) => editMapping(r.key, "period_grain", val)}
-          style={{ width: "100%" }}
-        >
-          {(options.period_grains || ["YEAR", "MONTH", "QUARTER"]).map(
-            (g) => (
-              <Option key={g} value={g}>
-                {g}
-              </Option>
-            )
-          )}
-        </Select>
-      )
-    },
-    {
       title: "Offset",
       dataIndex: "period_offset",
       width: "15%",

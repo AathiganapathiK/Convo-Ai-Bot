@@ -7,7 +7,7 @@ import {
   SearchOutlined, ClearOutlined, ReloadOutlined, EditOutlined,
   DeleteOutlined, CheckOutlined, CloseOutlined, ThunderboltOutlined,
   ArrowRightOutlined, BulbOutlined, CheckCircleOutlined, StopOutlined,
-  UndoOutlined
+  UndoOutlined, PlusOutlined
 } from "@ant-design/icons";
 
 import { message } from "../../utils/message";
@@ -21,7 +21,9 @@ import {
   generateSuggestions,
   getGenerationStatus,
   updateMetricConfig,
-  updateDimensionConfig
+  updateDimensionConfig,
+  createMetricDefinition,
+  createDimensionDefinition
 } from "../../services/semanticConfigService";
 
 import EvidencePanel from "./EvidencePanel";
@@ -37,7 +39,7 @@ const provisionalStyle = {
 const getColumnKey = (tableName, columnName) =>
   `${(tableName || "").toLowerCase().trim()}.${(columnName || "").toLowerCase().trim()}`;
 
-export default function ColumnsWorkbench({ API, token, canEdit, onUpdated }) {
+export default function ColumnsWorkbench({ API, token, canEdit, onUpdated, reloadSignal }) {
   const [loading, setLoading] = useState(false);
   const [unifiedColumns, setUnifiedColumns] = useState([]);
   const [columnState, setColumnState] = useState({ metrics: {}, dimensions: {} });
@@ -50,9 +52,11 @@ export default function ColumnsWorkbench({ API, token, canEdit, onUpdated }) {
   const [typeFilter, setTypeFilter] = useState("ALL");
   const [statusFilter, setStatusFilter] = useState("ALL");
 
-  // Review & Edit Modal
+  // Review & Edit Modal. `createMode` reuses the same modal/form to add a
+  // brand-new definition for a column discovery never registered.
   const [editingRow, setEditingRow] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
+  const [createMode, setCreateMode] = useState(false);
   const [saving, setSaving] = useState(false);
   const [formClass, setFormClass] = useState("MEASURE");
   const [form] = Form.useForm();
@@ -232,6 +236,18 @@ export default function ColumnsWorkbench({ API, token, canEdit, onUpdated }) {
     loadData();
   }, [loadData]);
 
+  // Parent (SemanticLayer) bumps reloadSignal after a discovery run so the
+  // workbench picks up the freshly discovered columns. Skipped on first mount,
+  // which the effect above already covers.
+  const firstReloadSignal = useRef(true);
+  useEffect(() => {
+    if (firstReloadSignal.current) {
+      firstReloadSignal.current = false;
+      return;
+    }
+    loadData();
+  }, [reloadSignal, loadData]);
+
   // Polling for Suggestion Generation
   useEffect(() => {
     let cancelled = false;
@@ -328,8 +344,29 @@ export default function ColumnsWorkbench({ API, token, canEdit, onUpdated }) {
     return matchesSearch && matchesTable && matchesType && matchesStatus;
   });
 
+  // Open the modal to add a brand-new definition for a column that discovery
+  // never registered. Reuses the same MEASURE/DIMENSION-aware form.
+  const handleOpenCreate = () => {
+    setCreateMode(true);
+    setEditingRow(null);
+    setFormClass("MEASURE");
+    form.resetFields();
+    form.setFieldsValue({
+      table_name: "",
+      column_name: "",
+      business_name: "",
+      classification: "MEASURE",
+      synonyms: "",
+      aggregation_type: "SUM",
+      dimension_role: null,
+      description: ""
+    });
+    setModalOpen(true);
+  };
+
   // Open Edit / Review Modal
   const handleOpenReview = (record) => {
+    setCreateMode(false);
     setEditingRow(record);
 
     const initialClass = record.classification === "MEASURE" ? "MEASURE" : "DIMENSION";
@@ -418,11 +455,83 @@ export default function ColumnsWorkbench({ API, token, canEdit, onUpdated }) {
     }
   };
 
+  // Submit the create form. Posts to the pre-Gate-2 create endpoints; the
+  // dimension_role (not part of the create body) is applied in a follow-up
+  // config PATCH only when one was chosen.
+  const handleCreateDefinition = async (values) => {
+    const tableName = (values.table_name || "").trim();
+    const columnName = (values.column_name || "").trim();
+
+    // The metrics create endpoint only dedups on metric_name, not on
+    // table+column, so guard the real duplicate here against the list we
+    // already hold. This is also the "validate identity" step: a definition
+    // for this physical column must not already exist.
+    const dupKey = getColumnKey(tableName, columnName);
+    if (unifiedColumns.some(c => c.key === dupKey)) {
+      message.error(
+        `A definition for ${tableName}.${columnName} already exists. ` +
+        "Edit that row instead of creating a duplicate."
+      );
+      return;
+    }
+
+    // Deterministic technical name, unique per table.column, so two tables
+    // sharing a column name cannot collide on the connection-wide name check.
+    const technicalName = `${tableName}_${columnName}`
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "_")
+      .replace(/^_+|_+$/g, "");
+
+    const synonymsStr = (values.synonyms || "").trim();
+
+    if (values.classification === "MEASURE") {
+      await createMetricDefinition(API, token, {
+        metric_name: technicalName,
+        business_name: values.business_name,
+        synonyms: synonymsStr || null,
+        description: values.description || null,
+        table_name: tableName,
+        column_name: columnName,
+        aggregation_type: values.aggregation_type,
+        is_active: true
+      });
+      message.success(`Metric "${values.business_name}" created.`);
+    } else {
+      const res = await createDimensionDefinition(API, token, {
+        dimension_name: technicalName,
+        business_name: values.business_name,
+        synonyms: synonymsStr || null,
+        description: values.description || null,
+        table_name: tableName,
+        column_name: columnName,
+        is_active: true
+      });
+
+      // dimension_role lives in the config layer, not the create body.
+      if (values.dimension_role && res?.dimension_id) {
+        await updateDimensionConfig(API, token, res.dimension_id, {
+          dimension_role: values.dimension_role
+        });
+      }
+      message.success(`Dimension "${values.business_name}" created.`);
+    }
+  };
+
   // Submit Modal
   const handleSaveModal = async () => {
     setSaving(true);
     try {
       const values = await form.validateFields();
+
+      if (createMode) {
+        await handleCreateDefinition(values);
+        setModalOpen(false);
+        setCreateMode(false);
+        setEditingRow(null);
+        await loadData();
+        if (onUpdated) onUpdated();
+        return;
+      }
 
       // Parse synonyms array
       const synonymsArray = typeof values.synonyms === "string"
@@ -431,7 +540,9 @@ export default function ColumnsWorkbench({ API, token, canEdit, onUpdated }) {
 
       const targetExcluded = !!editingRow.is_excluded;
 
-      // If suggestion exists, confirm it via suggestion API
+      // If suggestion exists, confirm it via suggestion API. The suggestion
+      // path supports reclassification because confirmSuggestion writes to
+      // whichever table the chosen classification requires.
       if (editingRow.suggestion?.suggestion_id) {
         const editedProposal = {
           classification: values.classification,
@@ -453,7 +564,13 @@ export default function ColumnsWorkbench({ API, token, canEdit, onUpdated }) {
         message.success(res.message || "Column configuration confirmed.");
         if (res.warnings) res.warnings.forEach(w => message.warning(w, 8));
       } else {
-        // Direct save to Metric or Dimension config endpoint
+        // Direct save to Metric or Dimension config endpoint. Track whether a
+        // record was actually written: for an existing definition with no
+        // suggestion driving it, there is no row to write into for the OTHER
+        // classification, so a type flip here must fail loudly rather than
+        // report a success that never happened.
+        let wrote = false;
+
         if (values.classification === "MEASURE" && editingRow.metric_id) {
           await updateMetricConfig(API, token, editingRow.metric_id, {
             business_name: values.business_name,
@@ -463,6 +580,7 @@ export default function ColumnsWorkbench({ API, token, canEdit, onUpdated }) {
             is_excluded: targetExcluded,
             is_confirmed: true
           });
+          wrote = true;
         } else if (values.classification === "DIMENSION" && editingRow.dimension_id) {
           await updateDimensionConfig(API, token, editingRow.dimension_id, {
             business_name: values.business_name,
@@ -472,7 +590,20 @@ export default function ColumnsWorkbench({ API, token, canEdit, onUpdated }) {
             is_excluded: targetExcluded,
             is_confirmed: true
           });
+          wrote = true;
         }
+
+        if (!wrote) {
+          message.error(
+            `This column is registered as ${editingRow.classification}, and ` +
+            `changing it to ${values.classification} is not supported from here. ` +
+            `To reclassify, exclude this definition and use "Add Definition" ` +
+            `to create the ${values.classification} for this column.`
+          );
+          setSaving(false);
+          return;
+        }
+
         message.success("Column configuration updated successfully.");
       }
 
@@ -804,6 +935,14 @@ export default function ColumnsWorkbench({ API, token, canEdit, onUpdated }) {
           )}
 
           <Button
+            icon={<PlusOutlined />}
+            onClick={handleOpenCreate}
+            disabled={!canEdit}
+          >
+            Add Definition
+          </Button>
+
+          <Button
             type="primary"
             icon={<ThunderboltOutlined />}
             onClick={() => setGenerateOpen(true)}
@@ -879,16 +1018,19 @@ export default function ColumnsWorkbench({ API, token, canEdit, onUpdated }) {
         </Form>
       </Modal>
 
-      {/* Unified Review & Edit Modal */}
+      {/* Unified Review / Edit / Create Modal */}
       <Modal
         title={
           <span style={{ color: "var(--text-main)" }}>
-            Review Column: {editingRow ? `${editingRow.table_name}.${editingRow.column_name}` : ""}
+            {createMode
+              ? "Add Column Definition"
+              : `Review Column: ${editingRow ? `${editingRow.table_name}.${editingRow.column_name}` : ""}`}
           </span>
         }
         open={modalOpen}
         onCancel={() => {
           setModalOpen(false);
+          setCreateMode(false);
           setEditingRow(null);
         }}
         width={740}
@@ -902,10 +1044,10 @@ export default function ColumnsWorkbench({ API, token, canEdit, onUpdated }) {
           }
         }}
         footer={
-          editingRow ? (
+          (editingRow || createMode) ? (
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%" }}>
               <Space>
-                {editingRow.suggestion?.suggestion_id && (
+                {!createMode && editingRow?.suggestion?.suggestion_id && (
                   <Button
                     danger
                     icon={<CloseOutlined />}
@@ -916,7 +1058,7 @@ export default function ColumnsWorkbench({ API, token, canEdit, onUpdated }) {
                     Reject proposal
                   </Button>
                 )}
-                {editingRow.has_config && (
+                {!createMode && editingRow?.has_config && (
                   <Button
                     danger
                     type="text"
@@ -930,7 +1072,7 @@ export default function ColumnsWorkbench({ API, token, canEdit, onUpdated }) {
               </Space>
 
               <Space>
-                <Button onClick={() => setModalOpen(false)}>
+                <Button onClick={() => { setModalOpen(false); setCreateMode(false); setEditingRow(null); }}>
                   Cancel
                 </Button>
                 <Button
@@ -938,20 +1080,20 @@ export default function ColumnsWorkbench({ API, token, canEdit, onUpdated }) {
                   onClick={handleSaveModal}
                   loading={saving}
                   disabled={!canEdit}
-                  icon={<CheckOutlined />}
+                  icon={createMode ? <PlusOutlined /> : <CheckOutlined />}
                   style={{ backgroundColor: "#4f46e5", borderColor: "#4338ca" }}
                 >
-                  Save &amp; Confirm
+                  {createMode ? "Create Definition" : "Save & Confirm"}
                 </Button>
               </Space>
             </div>
           ) : null
         }
       >
-        {editingRow && (
+        {(editingRow || createMode) && (
           <div>
             {/* Exclusion Alert Banner when Excluded */}
-            {editingRow.is_excluded && (
+            {editingRow?.is_excluded && (
               <Alert
                 type="warning"
                 showIcon
@@ -962,7 +1104,7 @@ export default function ColumnsWorkbench({ API, token, canEdit, onUpdated }) {
             )}
 
             {/* AI Proposal & Evidence Review Section */}
-            {editingRow.suggestion?.proposal && (
+            {editingRow?.suggestion?.proposal && (
               <Card
                 size="small"
                 style={{
@@ -1040,6 +1182,29 @@ export default function ColumnsWorkbench({ API, token, canEdit, onUpdated }) {
               form={form}
               layout="vertical"
             >
+              {createMode && (
+                <Row gutter={16}>
+                  <Col span={12}>
+                    <Form.Item
+                      name="table_name"
+                      label={<span style={{ color: "var(--text-secondary)" }}>Table</span>}
+                      rules={[{ required: true, message: "Table name is required" }]}
+                    >
+                      <Input placeholder="e.g. QB_MDJMD_SALES_5YRS_SUMMARY" />
+                    </Form.Item>
+                  </Col>
+                  <Col span={12}>
+                    <Form.Item
+                      name="column_name"
+                      label={<span style={{ color: "var(--text-secondary)" }}>Column</span>}
+                      rules={[{ required: true, message: "Column name is required" }]}
+                    >
+                      <Input placeholder="e.g. CY" />
+                    </Form.Item>
+                  </Col>
+                </Row>
+              )}
+
               <Row gutter={16}>
                 <Col span={12}>
                   <Form.Item

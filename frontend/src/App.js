@@ -753,7 +753,8 @@ export default function App() {
   return (
     <ConfigProvider
       theme={{
-        algorithm: resolvedTheme === "dark" ? theme.darkAlgorithm : theme.defaultAlgorithm
+        algorithm: resolvedTheme === "dark" ? theme.darkAlgorithm : theme.defaultAlgorithm,
+        token: resolvedTheme === "dark" ? darkThemeTokens : lightThemeTokens
       }}
     >
       <AppWrapper>

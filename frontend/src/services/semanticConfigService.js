@@ -184,3 +184,61 @@ export const updateMetricConfig = (API, token, metricId, payload) =>
     method: "PATCH",
     body: JSON.stringify(payload)
   });
+
+/* ------------------------------------------------------------------ */
+/* Manual definition creation                                          */
+/*                                                                     */
+/* These reuse the pre-Gate-2 create endpoints on /semantic/metrics    */
+/* and /semantic/dimensions (not the /semantic/config prefix), so they */
+/* cannot go through the `request` helper above. The active connection */
+/* is resolved server-side, exactly as the edit and delete calls the   */
+/* workbench already makes to these same endpoints.                    */
+/* ------------------------------------------------------------------ */
+
+const plainRequest = async (API, token, path, options = {}) => {
+  const response = await fetch(`${API}${path}`, {
+    ...options,
+    headers: {
+      Authorization: `Bearer ${token}`,
+      ...(options.body ? { "Content-Type": "application/json" } : {}),
+      ...(options.headers || {})
+    }
+  });
+
+  let payload = null;
+  try {
+    payload = await response.json();
+  } catch (e) {
+    payload = null;
+  }
+
+  if (!response.ok) {
+    const detail =
+      (payload && (payload.detail || payload.message)) ||
+      `Request failed with status ${response.status}`;
+    const error = new Error(
+      typeof detail === "string" ? detail : JSON.stringify(detail)
+    );
+    error.status = response.status;
+    throw error;
+  }
+
+  return payload;
+};
+
+// POST /semantic/metrics — MetricRequest: metric_name, business_name,
+// synonyms?, description?, table_name, column_name, aggregation_type, is_active.
+export const createMetricDefinition = (API, token, payload) =>
+  plainRequest(API, token, "/semantic/metrics", {
+    method: "POST",
+    body: JSON.stringify(payload)
+  });
+
+// POST /semantic/dimensions — DimensionRequest: dimension_name, business_name,
+// synonyms?, description?, table_name, column_name, is_active. dimension_role
+// is not part of this body; it is applied afterward via updateDimensionConfig.
+export const createDimensionDefinition = (API, token, payload) =>
+  plainRequest(API, token, "/semantic/dimensions", {
+    method: "POST",
+    body: JSON.stringify(payload)
+  });
