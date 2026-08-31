@@ -60,6 +60,11 @@ class TestSemanticMetadataPersistence(unittest.TestCase):
                     semantic_category VARCHAR(50),
                     source VARCHAR(20),
                     synonyms VARCHAR(255),
+                    -- Added by migration 004. Discovery reads both to know
+                    -- which rows a person has decided on and must not touch.
+                    dimension_role VARCHAR(30),
+                    is_excluded INTEGER DEFAULT 0,
+                    is_confirmed INTEGER DEFAULT 0,
                     is_active INTEGER DEFAULT 1,
                     created_by VARCHAR(50),
                     updated_by VARCHAR(50),
@@ -78,6 +83,9 @@ class TestSemanticMetadataPersistence(unittest.TestCase):
                     column_name VARCHAR(100),
                     aggregation_type VARCHAR(50),
                     source VARCHAR(20),
+                    -- Added by migration 004; see the note on semantic_dimensions.
+                    is_excluded INTEGER DEFAULT 0,
+                    is_confirmed INTEGER DEFAULT 0,
                     created_by VARCHAR(50),
                     updated_by VARCHAR(50),
                     created_at TIMESTAMP,

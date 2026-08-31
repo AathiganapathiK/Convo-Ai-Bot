@@ -156,9 +156,29 @@ class TimeStrategyResolver:
 
     def _discover_capability(self, connection_id: str) -> TimeCapability:
         """
-        Discovers temporal capability from schema metadata/tables.
+        Build the capability from configuration (Gate 2 Step 11a).
+
+        This returned an empty TimeCapability until now, which is why nothing
+        downstream could resolve a period from it and the column names had to
+        be hardcoded in two other modules instead.
+
+        date_columns is deliberately left empty even though two tables are
+        configured DATE_COLUMN. TimeCapability is scoped to a CONNECTION while
+        the configuration is scoped to a TABLE, so publishing Order Pending's
+        DocDate here would offer it for a query against Sales - a table whose
+        only date-like column is an ETL load timestamp that must never be used
+        for analysis. Handing a per-table fact to a per-connection consumer is
+        how a silently wrong grouping gets built, so it waits for the capability
+        to become table-aware.
         """
-        return TimeCapability()
+        from .snapshot_config import SnapshotConfigLoader
+
+        config = SnapshotConfigLoader.for_connection(connection_id)
+
+        return TimeCapability(
+            snapshot_mapping=config.offset_to_column("VALUE"),
+            snapshot_bindings=list(config.bindings),
+        )
 
     def _resolve_with_strategy(
         self,
@@ -194,7 +214,10 @@ class TimeStrategyResolver:
                             warnings=warns
                         )
                 
-                mapped_cols = self._map_to_snapshot_columns(intent, snapshot_mapping, ref_date)
+                mapped_cols = self._map_to_snapshot_columns(
+                    intent, snapshot_mapping, ref_date,
+                    capability=capability, warnings=warnings
+                )
                 if mapped_cols:
                     grouping = Granularity.YEAR
                     if isinstance(intent, (LastNMonthsIntent, PreviousMonthIntent, CurrentMonthIntent)):
@@ -254,7 +277,14 @@ class TimeStrategyResolver:
                 )
         return None
 
-    def _map_to_snapshot_columns(self, intent: BaseTimeIntent, snapshot_mapping: Dict[int, str], ref_date: datetime.date) -> Optional[List[str]]:
+    def _map_to_snapshot_columns(
+        self,
+        intent: BaseTimeIntent,
+        snapshot_mapping: Dict[int, str],
+        ref_date: datetime.date,
+        capability: Any = None,
+        warnings: Optional[List[str]] = None,
+    ) -> Optional[List[str]]:
         if isinstance(intent, CurrentYearIntent):
             if 0 in snapshot_mapping:
                 return [snapshot_mapping[0]]
@@ -287,11 +317,33 @@ class TimeStrategyResolver:
         elif isinstance(intent, YearComparisonIntent):
             start_offset = ref_date.year - intent.start_year
             end_offset = ref_date.year - intent.end_year
-            
+
+            offsets = [start_offset, end_offset]
+
+            if any(offset < 0 for offset in offsets):
+                return None
+
+            # Step 11b: a comparison involving the running period resolves the
+            # other periods to their to-date columns, so five months are not
+            # measured against twelve. Needs the scope-aware bindings; without
+            # them this falls through to the pre-11b behaviour below.
+            bindings = getattr(capability, "snapshot_bindings", None)
+
+            if bindings:
+                from .snapshot_config import SnapshotConfig
+
+                columns, comparison_warnings = SnapshotConfig.from_bindings(
+                    bindings
+                ).comparison_columns(offsets)
+
+                if warnings is not None:
+                    warnings.extend(comparison_warnings)
+
+                if columns:
+                    return columns
+
             mapped = []
-            for offset in [start_offset, end_offset]:
-                if offset < 0:
-                    return None
+            for offset in offsets:
                 if offset in snapshot_mapping:
                     mapped.append(snapshot_mapping[offset])
                 else:

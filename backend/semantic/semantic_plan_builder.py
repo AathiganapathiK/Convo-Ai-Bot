@@ -25,13 +25,12 @@ from semantic.temporal.models import TimeContext
 
 import threading
 
-SNAPSHOT_SALES_BINDINGS = {
-    "CURRENT_YEAR": "CY",
-    "PREVIOUS_YEAR": "PY",
-    "PPY": "PPY",
-    "PPPY": "PPPY",
-    "PPPPY": "PPPPY",
-}
+# SNAPSHOT_SALES_BINDINGS used to live here: five column names, one customer's
+# table, hardcoded into the query planner. It is now read from
+# semantic_snapshot_mapping through SnapshotConfigLoader (Gate 2 Step 11a).
+# The pre-configuration values survive as the documented fallback in
+# semantic/temporal/snapshot_config.py, used only by a caller with no
+# connection or no configuration.
 
 
 class SemanticPlanBuilder:
@@ -154,10 +153,24 @@ class SemanticPlanBuilder:
         value_matches = semantic_result.get("value_matches", [])
         retrieval = semantic_result.get("retrieval", {})
 
-        # Check if the query has any sales metrics
+        # Which table holds period-per-column measures, and which columns they
+        # are, both come from configuration now.
+        from semantic.temporal.snapshot_config import SnapshotConfigLoader
+
+        snapshot_config = SnapshotConfigLoader.for_connection(connection_id)
+
         has_sales = False
-        sales_table = "QB_MDJMD_SALES_5YRS_SUMMARY"
-        sales_columns = {"CY", "PY", "PPY", "PPPY", "PPPPY", "CYQ", "PYQ", "PPYQ", "PPPYQ", "PPPPYQ"}
+        sales_table = snapshot_config.table_name
+        sales_columns = snapshot_config.resolvable_columns
+
+        if not snapshot_config.is_configured:
+            # Said out loud rather than assumed. A plan built on the fallback
+            # bindings is built on one customer's column names, and a reviewer
+            # reading the plan should be able to see that.
+            assumptions.append(
+                "No snapshot configuration was found for this connection, so "
+                "the pre-configuration column bindings were used."
+            )
 
         # Collect non-sales metrics normally
         other_metrics = []
@@ -197,39 +210,56 @@ class SemanticPlanBuilder:
                 if isinstance(cand, dict):
                     val = cand.get("value")
                     val_lower = val.lower() if val else ""
-                    if val_lower == "this year":
-                        resolved_cols.append(SNAPSHOT_SALES_BINDINGS["CURRENT_YEAR"])
-                    elif val_lower == "last year":
-                        resolved_cols.append(SNAPSHOT_SALES_BINDINGS["PREVIOUS_YEAR"])
-                    elif val_lower == "2 years ago":
-                        resolved_cols.append(SNAPSHOT_SALES_BINDINGS["PPY"])
-                    elif val_lower == "3 years ago":
-                        resolved_cols.append(SNAPSHOT_SALES_BINDINGS["PPPY"])
-                    elif val_lower == "4 years ago":
-                        resolved_cols.append(SNAPSHOT_SALES_BINDINGS["PPPPY"])
+                    offset = {
+                        "this year": 0,
+                        "last year": 1,
+                        "2 years ago": 2,
+                        "3 years ago": 3,
+                        "4 years ago": 4,
+                    }.get(val_lower)
+
+                    if offset is not None:
+                        column = snapshot_config.column_for_offset(offset)
+                        if column:
+                            resolved_cols.append(column)
 
             if not resolved_cols:
                 if has_cy_word:
-                    resolved_cols.append(SNAPSHOT_SALES_BINDINGS["CURRENT_YEAR"])
+                    resolved_cols.append(snapshot_config.column_for_offset(0))
                 elif has_py_word:
-                    resolved_cols.append(SNAPSHOT_SALES_BINDINGS["PREVIOUS_YEAR"])
+                    resolved_cols.append(snapshot_config.column_for_offset(1))
                 elif time_context:
                     from semantic.temporal.enums import TimeIntentType
                     intent_type = getattr(time_context.intent, "intent_type", None)
                     intent_cls = time_context.intent.__class__.__name__ if time_context.intent else ""
 
                     if intent_type in (TimeIntentType.YEAR_COMPARISON, "YEAR_COMPARISON") or intent_cls == "YearComparisonIntent":
-                        resolved_cols.extend([SNAPSHOT_SALES_BINDINGS["CURRENT_YEAR"], SNAPSHOT_SALES_BINDINGS["PREVIOUS_YEAR"]])
+                        # Step 11b: the current year is part-finished, so last
+                        # year resolves to its to-date column. CY against PY
+                        # reads as a 63% collapse; CY against PYTD is 14.5%
+                        # growth, and that is the honest answer.
+                        comparison_cols, comparison_warnings = (
+                            snapshot_config.comparison_columns([0, 1])
+                        )
+
+                        if comparison_cols:
+                            resolved_cols.extend(comparison_cols)
+                            assumptions.extend(comparison_warnings)
+                        else:
+                            resolved_cols.extend([
+                                snapshot_config.column_for_offset(0),
+                                snapshot_config.column_for_offset(1),
+                            ])
                     elif intent_type in (TimeIntentType.CURRENT_YEAR, "CURRENT_YEAR") or intent_cls == "CurrentYearIntent":
-                        resolved_cols.append(SNAPSHOT_SALES_BINDINGS["CURRENT_YEAR"])
+                        resolved_cols.append(snapshot_config.column_for_offset(0))
                     elif intent_type in (TimeIntentType.PREVIOUS_YEAR, "PREVIOUS_YEAR") or intent_cls == "PreviousYearIntent":
-                        resolved_cols.append(SNAPSHOT_SALES_BINDINGS["PREVIOUS_YEAR"])
+                        resolved_cols.append(snapshot_config.column_for_offset(1))
                     elif intent_type == "PPY" or intent_cls == "PPY" or intent_type == "PPYIntent" or intent_cls == "PPYIntent":
-                        resolved_cols.append(SNAPSHOT_SALES_BINDINGS["PPY"])
+                        resolved_cols.append(snapshot_config.column_for_offset(2))
                     elif intent_type == "PPPY" or intent_cls == "PPPY" or intent_type == "PPPYIntent" or intent_cls == "PPPYIntent":
-                        resolved_cols.append(SNAPSHOT_SALES_BINDINGS["PPPY"])
+                        resolved_cols.append(snapshot_config.column_for_offset(3))
                     elif intent_type == "PPPPY" or intent_cls == "PPPPY" or intent_type == "PPPPYIntent" or intent_cls == "PPPPYIntent":
-                        resolved_cols.append(SNAPSHOT_SALES_BINDINGS["PPPPY"])
+                        resolved_cols.append(snapshot_config.column_for_offset(4))
                     elif time_context.snapshot_columns:
                         resolved_cols.extend(time_context.snapshot_columns)
                     else:

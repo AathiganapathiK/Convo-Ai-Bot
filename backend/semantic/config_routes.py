@@ -37,6 +37,7 @@ from semantic.config_schema import (
     MetricConfigRequest,
     SnapshotMappingSetRequest,
     SuggestionConfirmRequest,
+    SuggestionGenerateRequest,
     SuggestionRejectRequest,
     TableConfigRequest,
 )
@@ -102,6 +103,45 @@ def get_config_options(user=Depends(get_current_user)):
 # ---------------------------------------------------------------------------
 # Suggestions
 # ---------------------------------------------------------------------------
+
+@router.post("/suggestions/generate", status_code=status.HTTP_202_ACCEPTED)
+def generate_suggestions(
+    request: SuggestionGenerateRequest,
+    user=Depends(require_permission("semantic:write"))
+):
+    """
+    Profile the active connection and propose configuration for it.
+
+    Accepted, not completed: a run costs a profiling scan and several paced
+    model calls per table - minutes, not milliseconds - so it runs in the
+    background and the caller polls /suggestions/generation. Returning 202
+    rather than holding the request open keeps it clear of every proxy and
+    browser timeout between here and the screen.
+
+    Writes require semantic:write for the same reason confirming does: a run
+    replaces the review queue, and a queue is what an administrator works from.
+    Nothing it produces is applied to the configuration until somebody confirms
+    it, and a decision already made on an unchanged proposal is preserved.
+    """
+
+    return SuggestionService.start_generation(
+        table_names=request.table_names,
+        use_model=request.use_model,
+        user=user
+    )
+
+
+@router.get("/suggestions/generation")
+def generation_status(user=Depends(get_current_user)):
+    """
+    Where the current or last run got to.
+
+    A read, so an ordinary authenticated user may poll it - the screen shows
+    the state to whoever has the page open, not only to whoever started it.
+    """
+
+    return SuggestionService.generation_status()
+
 
 @router.get("/suggestions")
 def list_suggestions(
@@ -175,14 +215,15 @@ def reject_suggestion(
     """
     Reject a suggestion.
 
-    Returns persisted=false: there is nowhere in migration 004 to record a
-    rejection, so this holds for the life of the process only. The response
-    says so rather than letting the screen imply it saved.
+    Durable since migration 007 added review_status to the suggestion store, so
+    a declined suggestion stays declined across a restart and a reviewer can
+    work through the list over more than one sitting.
     """
 
     return SuggestionService.reject_suggestion(
         suggestion_id=suggestion_id,
-        reason=request.reason
+        reason=request.reason,
+        user=user
     )
 
 

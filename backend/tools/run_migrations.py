@@ -26,7 +26,8 @@ MIGRATION_FILES = [
     "003_column_display_config.sql",
     "004_semantic_config.sql",
     "005_access_control_extension.sql",
-    "006_suggestion_evidence.sql"
+    "006_suggestion_evidence.sql",
+    "007_suggestion_proposal.sql"
 ]
 
 # Rollback scripts are NOT listed above and are never applied automatically.

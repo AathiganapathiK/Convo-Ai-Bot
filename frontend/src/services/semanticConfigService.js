@@ -56,6 +56,23 @@ export const getConfigOptions = (API, token) =>
 /* Suggestions                                                         */
 /* ------------------------------------------------------------------ */
 
+/**
+ * Start a profiling run. Returns as soon as the run is accepted, not when it
+ * finishes - a full run takes minutes - so the caller polls
+ * getGenerationStatus until it stops reporting RUNNING.
+ */
+export const generateSuggestions = (API, token, { tableNames, useModel } = {}) =>
+  request(API, token, "/suggestions/generate", {
+    method: "POST",
+    body: JSON.stringify({
+      table_names: tableNames && tableNames.length ? tableNames : null,
+      use_model: useModel !== false
+    })
+  });
+
+export const getGenerationStatus = (API, token) =>
+  request(API, token, "/suggestions/generation");
+
 export const getSuggestions = (API, token, tableName) => {
   const query = tableName
     ? `?table_name=${encodeURIComponent(tableName)}`

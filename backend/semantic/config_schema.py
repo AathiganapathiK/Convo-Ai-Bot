@@ -150,3 +150,21 @@ class SuggestionConfirmRequest(BaseModel):
 
 class SuggestionRejectRequest(BaseModel):
     reason: Optional[str] = None
+
+
+class SuggestionGenerateRequest(BaseModel):
+    """
+    Start a profiling run.
+
+    table_names restricts the run to those tables. A full run over three tables
+    takes about four minutes because every table costs a profiling scan and
+    seven paced model calls, so being able to regenerate one table is the
+    difference between checking a change and waiting for the whole set.
+
+    use_model False profiles and proposes from the numbers alone, without
+    calling a model. It finishes in seconds, which makes it the way to confirm
+    that the run works at all before spending tokens on it.
+    """
+
+    table_names: Optional[List[str]] = None
+    use_model: bool = True

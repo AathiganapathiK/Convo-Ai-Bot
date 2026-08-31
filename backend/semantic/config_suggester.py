@@ -133,6 +133,17 @@ class ConfigSuggester:
     # provider asks for.
     RATE_LIMIT_RETRIES = 3
 
+    # How much smaller a column's mean must be, against the largest column for
+    # the same period, before it is read as counting things rather than
+    # measuring money.
+    #
+    # Ten is deliberately loose. The real separation on the sales table is
+    # roughly 280x - CY averages 4,404 rupees where CYQ averages 15.5 items -
+    # so anything from about 5 upwards classifies this data identically. The
+    # loose threshold is there so that a genuinely close pair is left alone
+    # rather than guessed at.
+    QUANTITY_MAGNITUDE_RATIO = 10.0
+
     # ------------------------------------------------------------------
     # Public entry point
     # ------------------------------------------------------------------
@@ -411,6 +422,12 @@ class ConfigSuggester:
             f"max: {high}",
             f"avg: {round(float(mean), 2) if mean is not None else 'n/a'}",
         ]
+        # Kept as a number as well as a label. The samples list is display text
+        # bound for a prompt and a screen; _resolve_measure_kinds needs to do
+        # arithmetic on the mean, and parsing it back out of a string it just
+        # formatted would be silly. Underscore-prefixed, so it stays out of the
+        # evidence record like _is_range does.
+        profile["_avg"] = float(mean) if mean is not None else None
         profile["samples_withheld"] = False
         profile["samples_withheld_reason"] = None
         profile["_is_range"] = True
@@ -645,17 +662,40 @@ For EACH column decide:
 
 Judge from the VALUES, not the name. Use the stated uniqueness percentage; do not compute it yourself. Above roughly 95% the column is an identifier and summing it yields a meaningless figure. Well below that it is not an identifier, however many distinct values it has - a monetary column in a two-million-row table can hold a hundred thousand distinct amounts and still be an ordinary measure. Text values that read as month names are a period label. A column with a single distinct value across millions of rows is a load timestamp, not a business date.
 
+Values withheld are not a reason to exclude. A column whose values were not read because they may name a person is still an ordinary grouping dimension: the business asks for sales by party and by regional manager, so those columns must be available to group by. Classify such a column DIMENSION with dimension_role GROUPING unless it holds a key or a code rather than a name. Reserve EXCLUDED for true identifiers - keys, codes, row numbers - along with load timestamps and duplicated columns.
+
 Where a VALUE RANGE is given instead of samples, use it. A column running from 0.50 to 4,500,000 holds amounts and is a measure, however its name reads. A year or period label would run only from about 2000 to 2100, and a month from 1 to 12. Never conclude that a column contains a period merely because its name abbreviates one.
 
 Return ONLY valid JSON, no prose, no code fences, and keep every string short:
 {{"columns": {{"COLUMN_NAME": {{"classification": "...", "business_name": "...", "description": "...", "synonyms": [], "dimension_role": "...", "aggregation_type": null, "confidence": 0.0, "reasoning": "..."}}}}}}"""
 
     @staticmethod
+    def _inventory_entry(profile: dict) -> str:
+        """
+        One column for the table-level prompt: name, type, cardinality, and the
+        magnitudes where they were measured.
+        """
+        base = (
+            f"{profile['column_name']}({profile['data_type']},"
+            f"d={profile['distinct_count']}"
+        )
+        if profile.get("_is_range"):
+            # _describe_range wrote "min: x", "max: y", "avg: z" into samples.
+            base += "," + ",".join(profile["samples"]).replace(": ", "=")
+        return base + ")"
+
+    @staticmethod
     def _build_table_prompt(table_name: str, profiles: List[dict]) -> str:
-        # Only names, types and counts here - the per-column detail already went
-        # out in the column batches, and repeating it risks truncation again.
+        # Names, types, counts - and, for a numeric column, its magnitudes.
+        #
+        # The per-column detail went out in the column batches and repeating all
+        # of it risks truncation again, but the magnitudes have to be here: this
+        # is the call that decides measure_kind, and nothing else on this prompt
+        # separates rupees from units. Without them the model read the trailing Q
+        # of CYQ as decoration and labelled five quantity columns VALUE, which
+        # collides them onto one unique key and silently drops four.
         inventory = ", ".join(
-            f"{p['column_name']}({p['data_type']},d={p['distinct_count']})" for p in profiles
+            ConfigSuggester._inventory_entry(p) for p in profiles
         )
         return f"""Decide how TIME works in this database table.
 
@@ -670,7 +710,7 @@ Decide:
 - fiscal_year_start_month: 1 to 12, or null if you cannot tell
 - snapshot_mappings: for a SNAPSHOT table, one entry per period column:
     period_offset (0 = current, 1 = previous, 2 = two back, ...)
-    measure_kind (VALUE for money or amount, QUANTITY for units)
+    measure_kind (VALUE for money or amount, QUANTITY for units or counts) - decide this from the magnitudes shown, not from the column name. Money and units for the SAME period differ by orders of magnitude: a column averaging thousands and reaching millions holds currency, while one for the same period averaging in the tens holds counts of items. A trailing Q or "qty" in the name is a hint, never the decision. Two entries that share period_offset, measure_kind and period_scope collide and all but one is discarded, so where several columns describe one period they must be told apart correctly here
     period_scope (FULL for a complete period, TO_DATE for one truncated to the same point as the current period)
     column_name
   The current period is still running, so a current-period column is TO_DATE. A prior period may appear in BOTH forms - a full-year column and a to-date column - and those are different figures. Never merge them; comparing a part-year against a full year misstates performance badly.
@@ -810,14 +850,34 @@ Return ONLY valid JSON, no prose, no code fences:
                 continue
             mappings.append({
                 "period_offset": offset,
+                # No default here. Defaulting a missing answer to VALUE is how a
+                # model that simply omitted the field ended up asserting that a
+                # quantity column holds money; _resolve_measure_kinds below
+                # decides it from the evidence instead.
                 "measure_kind": ConfigSuggester._clamp(
-                    m.get("measure_kind"), MEASURE_KINDS, "VALUE"
+                    m.get("measure_kind"), MEASURE_KINDS, None
                 ),
                 "period_scope": ConfigSuggester._clamp(
                     m.get("period_scope"), PERIOD_SCOPES, "FULL"
                 ),
                 "column_name": column_name,
             })
+
+        # The magnitudes decide quantity against value, not the model and not
+        # the column name; then no two mappings may claim the same key.
+        ConfigSuggester._resolve_measure_kinds(
+            mappings, {p["column_name"]: p.get("_avg") for p in profiles}
+        )
+
+        for mapping in mappings:
+            if mapping["measure_kind"] is None:
+                # Nothing to compare it against and the model said nothing
+                # usable. VALUE is the safer of the two: a money column read as
+                # a count is merely mislabelled, whereas a count promoted into
+                # the money slot displaces a real figure.
+                mapping["measure_kind"] = "VALUE"
+
+        mappings, mapping_conflicts = ConfigSuggester._drop_colliding_mappings(mappings)
 
         date_like = [
             p["column_name"] for p in profiles
@@ -853,12 +913,105 @@ Return ONLY valid JSON, no prose, no code fences:
                 "date_like_columns": date_like,
                 "period_like_columns": period_like,
                 "reasoning": verdict.get("reasoning"),
+                # Surfaced rather than swallowed: a dropped mapping means the
+                # proposal does not cover every period column on the table.
+                "mapping_conflicts": mapping_conflicts,
             },
             "confidence": ConfigSuggester._clamp_confidence(verdict.get("confidence")),
             "is_confirmed": False,
             "suggested_at": now,
             "suggested_by": f"llm:{LLM_PURPOSE}" if verdicts else "profile-only",
         }
+
+    @staticmethod
+    def _resolve_measure_kinds(mappings: List[dict], averages: dict) -> None:
+        """
+        Decide VALUE against QUANTITY from the magnitudes, in place.
+
+        This does not ask the model, and it overrides the model where the two
+        disagree, because the model has now got this wrong twice on the same
+        table. It was told to judge by magnitude and it still labelled all five
+        *Q columns VALUE - its own stated reasoning never mentions quantity at
+        all. Meanwhile the arithmetic is not close: at period offset 0, CY
+        averages 4,404 and CYQ averages 15.5.
+
+        The cost of getting it wrong is not a bad label. Every mapping is keyed
+        on (offset, measure_kind, period_scope), so calling CYQ a VALUE makes it
+        collide with CY, and one of the two is discarded - which is how five
+        quantity columns quietly vanished from the configuration.
+
+        Only acts where there are at least two mapped columns for the same
+        period to compare. A lone column has nothing to be smaller than, so it
+        keeps whatever it already had.
+        """
+        by_offset: Dict[int, List[dict]] = {}
+        for mapping in mappings:
+            by_offset.setdefault(mapping["period_offset"], []).append(mapping)
+
+        for group in by_offset.values():
+            measured = [
+                (mapping, abs(averages[mapping["column_name"]]))
+                for mapping in group
+                if averages.get(mapping["column_name"]) is not None
+            ]
+
+            if len(measured) < 2:
+                continue
+
+            largest = max(value for _, value in measured)
+            if not largest:
+                continue
+
+            for mapping, value in measured:
+                decided = (
+                    "QUANTITY"
+                    if value * ConfigSuggester.QUANTITY_MAGNITUDE_RATIO <= largest
+                    else "VALUE"
+                )
+
+                if decided != mapping["measure_kind"]:
+                    logger.info(
+                        "Reading %s as %s rather than %s: mean %.2f against %.2f "
+                        "for the same period.",
+                        mapping["column_name"], decided, mapping["measure_kind"],
+                        value, largest,
+                    )
+
+                mapping["measure_kind"] = decided
+
+    @staticmethod
+    def _drop_colliding_mappings(mappings: List[dict]) -> tuple:
+        """
+        One column per (period_offset, measure_kind, period_scope).
+
+        The database enforces this with a unique key, so a proposal carrying two
+        columns for one combination does not fail loudly - it is accepted, and
+        the second row is rejected on save while the screen shows a tick. Better
+        to drop the duplicate here and say so, so a reviewer can see that the
+        proposal is incomplete rather than discovering it as a missing number
+        months later.
+        """
+        seen, kept, conflicts = {}, [], []
+
+        for mapping in mappings:
+            key = (
+                mapping["period_offset"],
+                mapping["measure_kind"],
+                mapping["period_scope"],
+            )
+
+            if key in seen:
+                conflicts.append(
+                    f"{mapping['column_name']} was dropped: it claims the same "
+                    f"period, kind and scope as {seen[key]} "
+                    f"(offset={key[0]}, {key[1]}, {key[2]})."
+                )
+                continue
+
+            seen[key] = mapping["column_name"]
+            kept.append(mapping)
+
+        return kept, conflicts
 
     @staticmethod
     def _fallback_verdict(profile: dict) -> dict:
@@ -903,12 +1056,89 @@ Return ONLY valid JSON, no prose, no code fences:
     # ------------------------------------------------------------------
 
     @staticmethod
+    def _proposal_signature(proposal: dict) -> str:
+        """
+        The decision-bearing part of a proposal, as a stable string.
+
+        Deliberately not the whole record. suggestion_id is a fresh uuid and
+        suggested_at a fresh timestamp on every run, and the model's confidence
+        and its prose reasoning move a little between runs even when it reaches
+        the same conclusion. Comparing those would mean nothing ever matched and
+        the preservation below would never fire. What a reviewer approves is the
+        classification, the naming and the temporal mapping, so that - and only
+        that - decides whether their decision still stands.
+        """
+        return json.dumps(
+            {
+                "target": proposal.get("target"),
+                "proposal": proposal.get("proposal"),
+                "snapshot_mappings": proposal.get("snapshot_mappings"),
+            },
+            sort_keys=True,
+            default=str,
+        )
+
+    @staticmethod
+    def _load_reviewed(connection_id: str, table_names: set) -> dict:
+        """
+        Stored proposals for these tables, keyed by (table, column).
+
+        Read before the delete-and-reinsert below so a review decision can be
+        carried across it.
+        """
+        if not table_names:
+            return {}
+
+        platform = ConnectionManager.platform()
+        with platform.connect() as conn:
+            stored_rows = conn.execute(text(
+                "SELECT table_name, column_name, suggestion_id, proposal_json, "
+                "       review_status, reviewed_by, reviewed_at, review_note "
+                "FROM semantic_suggestion_evidence "
+                "WHERE connection_id = :connection_id AND proposal_json IS NOT NULL"
+            ), {"connection_id": connection_id}).fetchall()
+
+        out = {}
+        for r in stored_rows:
+            if r[0] not in table_names:
+                continue
+            try:
+                stored_proposal = json.loads(r[3])
+            except (TypeError, ValueError):
+                # An unreadable stored proposal cannot be compared, so it does
+                # not preserve anything - the row is replaced as PENDING.
+                continue
+            out[(r[0], r[1])] = {
+                "suggestion_id": r[2],
+                "signature": ConfigSuggester._proposal_signature(stored_proposal),
+                "review_status": r[4],
+                "reviewed_by": r[5],
+                "reviewed_at": r[6],
+                "review_note": r[7],
+            }
+        return out
+
+    @staticmethod
     def _persist_evidence(connection_id: str, result: dict) -> None:
         """
-        Record the profile and reasoning behind each proposal (migration 006).
+        Store each suggestion: the proposal itself, and the evidence behind it.
 
         Keyed on (connection, table, column), so re-running overwrites rather
         than accumulating. A table-level row carries column_name NULL.
+
+        The proposal is stored whole as JSON (migration 007) because generating
+        suggestions costs a profiling pass and several model calls - minutes,
+        not milliseconds - so the review screen must read a stored result rather
+        than regenerate one per page load.
+
+        Re-running preserves a review decision where the proposal is unchanged.
+        Resetting everything to PENDING was defensible in the abstract - a new
+        proposal has not been reviewed - but in practice a regeneration returns
+        the same answer for the great majority of 93 columns, and wiping the
+        review of all of them to catch the handful that moved makes the reviewer
+        start over each time. The configuration itself was never at risk; it
+        lives in semantic_metrics and semantic_dimensions. What was lost was the
+        record of which proposals a person had already worked through.
         """
         platform = ConnectionManager.platform()
         rows = []
@@ -919,6 +1149,8 @@ Return ONLY valid JSON, no prose, no code fences:
                 "connection_id": connection_id,
                 "table_name": s["table_name"],
                 "column_name": s["column_name"],
+                "suggestion_id": s["suggestion_id"],
+                "proposal_json": json.dumps(s),
                 "data_type": ev["data_type"],
                 "distinct_count": ev["distinct_count"],
                 "row_count_profiled": ev["row_count_profiled"],
@@ -929,6 +1161,7 @@ Return ONLY valid JSON, no prose, no code fences:
                 "confidence": s["confidence"],
                 "reasoning": s["reasoning"],
                 "suggested_by": s["suggested_by"],
+                "_source": s,
             })
 
         for s in result["table_suggestions"]:
@@ -936,6 +1169,8 @@ Return ONLY valid JSON, no prose, no code fences:
                 "connection_id": connection_id,
                 "table_name": s["table_name"],
                 "column_name": None,
+                "suggestion_id": s["suggestion_id"],
+                "proposal_json": json.dumps(s),
                 "data_type": None,
                 "distinct_count": None,
                 "row_count_profiled": None,
@@ -946,10 +1181,45 @@ Return ONLY valid JSON, no prose, no code fences:
                 "confidence": s["confidence"],
                 "reasoning": (s["evidence"] or {}).get("reasoning"),
                 "suggested_by": s["suggested_by"],
+                "_source": s,
             })
 
         if not rows:
             return
+
+        prior = ConfigSuggester._load_reviewed(
+            connection_id, {r["table_name"] for r in rows}
+        )
+
+        for row in rows:
+            source = row.pop("_source")
+            stored = prior.get((row["table_name"], row["column_name"]))
+            unchanged = (
+                stored is not None
+                and stored["signature"] == ConfigSuggester._proposal_signature(source)
+            )
+
+            if unchanged:
+                # The same proposal keeps the same handle, so a link or a review
+                # already holding the old suggestion_id still resolves to it.
+                row["suggestion_id"] = stored["suggestion_id"] or row["suggestion_id"]
+                row["review_status"] = stored["review_status"] or "PENDING"
+                row["reviewed_by"] = stored["reviewed_by"]
+                row["reviewed_at"] = stored["reviewed_at"]
+                row["review_note"] = stored["review_note"]
+            else:
+                # A changed proposal genuinely has not been reviewed.
+                row["review_status"] = "PENDING"
+                row["reviewed_by"] = None
+                row["reviewed_at"] = None
+                row["review_note"] = None
+
+            # These objects go straight back to the caller and on to the API, so
+            # they have to agree with what is about to be written.
+            source["suggestion_id"] = row["suggestion_id"]
+            source["review_status"] = row["review_status"]
+            source["is_confirmed"] = row["review_status"] == "CONFIRMED"
+            row["proposal_json"] = json.dumps(source)
 
         with platform.begin() as conn:
             for row in rows:
@@ -974,13 +1244,17 @@ Return ONLY valid JSON, no prose, no code fences:
 
                 conn.execute(text("""
                     INSERT INTO semantic_suggestion_evidence
-                        (connection_id, table_name, column_name, data_type, distinct_count,
-                         row_count_profiled, null_fraction, sample_values, samples_withheld,
-                         withheld_reason, confidence, reasoning, suggested_by)
+                        (connection_id, table_name, column_name, suggestion_id, proposal_json,
+                         data_type, distinct_count, row_count_profiled, null_fraction,
+                         sample_values, samples_withheld, withheld_reason, confidence,
+                         reasoning, suggested_by, review_status, reviewed_by, reviewed_at,
+                         review_note)
                     VALUES
-                        (:connection_id, :table_name, :column_name, :data_type, :distinct_count,
-                         :row_count_profiled, :null_fraction, :sample_values, :samples_withheld,
-                         :withheld_reason, :confidence, :reasoning, :suggested_by)
+                        (:connection_id, :table_name, :column_name, :suggestion_id, :proposal_json,
+                         :data_type, :distinct_count, :row_count_profiled, :null_fraction,
+                         :sample_values, :samples_withheld, :withheld_reason, :confidence,
+                         :reasoning, :suggested_by, :review_status, :reviewed_by, :reviewed_at,
+                         :review_note)
                 """), row)
 
         logger.info("Recorded evidence for %d suggestions.", len(rows))

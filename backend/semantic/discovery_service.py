@@ -145,6 +145,13 @@ class SemanticDiscoveryService:
             #     text("DELETE FROM semantic_dimensions WHERE connection_id = :connection_id AND source='AUTO'"),
             #     {"connection_id": connection_id}
             # )
+            # Gate 2 Step 12. Everything an administrator has already decided -
+            # confirmations, exclusions, which column is a table's business date -
+            # plus the profiling evidence the suggester already paid for.
+            from semantic.discovery_policy import DiscoveryPolicy
+
+            policy = DiscoveryPolicy.load(connection_id, conn)
+
             discovered_metrics = set()
             discovered_dimensions = set()
 
@@ -160,8 +167,39 @@ class SemanticDiscoveryService:
                 # Filter out technical and audit columns
                 if SemanticDiscoveryService.is_technical_column(column_name):
                     continue
-                # Generate metrics only for valid numeric business columns
-                if SemanticDiscoveryService.is_metric_column(column_name, data_type):
+
+                if policy.is_excluded(table_name, column_name):
+                    # An administrator removed this column from the semantic
+                    # layer, so nothing new is registered for it.
+                    #
+                    # It is NOT marked as discovered. The prune below already
+                    # spares any row carrying is_excluded, which protects the
+                    # decision itself; marking the whole column discovered
+                    # would also preserve every stale sibling row it happens to
+                    # have - createddate is excluded once but was registered
+                    # six times, and the other five are just noise.
+                    print(
+                        f"[DISCOVERY] excluded by configuration: "
+                        f"{table_name}.{column_name}"
+                    )
+                    continue
+                # Generate metrics only for valid numeric business columns.
+                # is_metric_column asks "is it numeric and does the name avoid
+                # id/key/code"; the policy then asks what the data actually
+                # looks like, which is what keeps DocMonth, Sno, OrderNo and
+                # Docnum out of the metric registry.
+                metric_rejection = policy.rejects_as_metric(table_name, column_name)
+
+                if metric_rejection and SemanticDiscoveryService.is_metric_column(
+                    column_name, data_type
+                ):
+                    print(
+                        f"[DISCOVERY] not a metric: {table_name}.{column_name} - "
+                        f"{metric_rejection}"
+                    )
+
+                if SemanticDiscoveryService.is_metric_column(column_name, data_type) \
+                        and not metric_rejection:
 
                     metric_key = (
                         table_name.lower(),
@@ -205,7 +243,19 @@ class SemanticDiscoveryService:
                             }
                         ).fetchone()
 
-                        if existing_metric:
+                        if existing_metric and policy.is_confirmed_metric(
+                            table_name, column_name
+                        ):
+                            # Confirmed by a person, who chose this aggregation.
+                            # The UPDATE below sets aggregation_type from the
+                            # heuristic unconditionally, so running discovery
+                            # again would quietly undo that choice.
+                            print(
+                                f"[DISCOVERY] keeping confirmed metric "
+                                f"{table_name}.{column_name} untouched"
+                            )
+
+                        elif existing_metric:
 
                             conn.execute(
                                 text("""
@@ -269,7 +319,25 @@ class SemanticDiscoveryService:
                             )
                 # Generate dimensions
                 if SemanticDiscoveryService.is_dimension_column(column_name, data_type):
-                    is_date = SemanticDiscoveryService.is_date_type(data_type)
+                    if policy.is_constant_column(table_name, column_name):
+                        # One value in every row. Nothing can be grouped by it,
+                        # and it is almost always an ETL load stamp -
+                        # createddate holds a single value across 2.2 million
+                        # rows and became six analytical dimensions.
+                        print(
+                            f"[DISCOVERY] not a dimension: {table_name}.{column_name} - "
+                            f"a single distinct value cannot group anything"
+                        )
+                        continue
+
+                    # Only the column configured as this table's business date
+                    # earns year/quarter/month/week/day variants. There is no
+                    # "it looks like a date" fallback: that is what produced
+                    # thirty redundant rows across six date columns.
+                    is_date = (
+                        SemanticDiscoveryService.is_date_type(data_type)
+                        and policy.should_expand_date(table_name, column_name)
+                    )
                     variants = []
                     
                     if is_date:
@@ -321,7 +389,7 @@ class SemanticDiscoveryService:
                     else:
                         dimension_name = lower.replace(" ", "_")
                         business_name = SemanticDiscoveryService.generate_business_name(table_name, column_name)
-                        semantic_category = SemanticDiscoveryService.detect_semantic_category(table_name, column_name, data_type)
+                        semantic_category = SemanticDiscoveryService.detect_semantic_category(table_name, column_name, data_type)  # table_name accepted for signature compatibility; ignored
                         sql_expression = f"{table_name}.{column_name}"
 
                         variants.append({
@@ -337,7 +405,14 @@ class SemanticDiscoveryService:
                         v_dim_name = f"{lower.replace(' ', '_')}_{suffix}" if suffix else lower.replace(" ", "_")
                         dimension_key = (table_name.lower(), v_dim_name)
                         
-                        discovered_dimensions.add((table_name.lower(), column_name.lower()))
+                        # Keyed by variant, not by column. Keyed by column, a
+                        # date that stops being expanded keeps all six of its
+                        # old grain rows - the column is still "discovered", so
+                        # the prune never looks at them. DueDate went from six
+                        # rows to seven that way.
+                        discovered_dimensions.add(
+                            (table_name.lower(), column_name.lower(), v_dim_name.lower())
+                        )
 
                         print(
                             f"[DISCOVERY] table={table_name}, "
@@ -373,11 +448,36 @@ class SemanticDiscoveryService:
                                 }
                             ).fetchone()
 
-                            if existing_dimension:
+                            if existing_dimension and policy.is_confirmed_dimension(
+                                table_name, column_name, v_dim_name
+                            ):
+                                # Confirmed by a person. Left exactly as it is.
+                                print(
+                                    f"[DISCOVERY] keeping confirmed dimension "
+                                    f"{table_name}.{column_name} ({v_dim_name}) untouched"
+                                )
+
+                            elif existing_dimension:
                                 # Preserve manually added/existing synonyms if they are already populated
                                 updated_synonyms = existing_dimension.synonyms if (existing_dimension.synonyms is not None and existing_dimension.synonyms != "") else synonyms
-                                # Preserve semantic category if it was customized (not UNKNOWN/None)
-                                updated_category = existing_dimension.semantic_category if (existing_dimension.semantic_category is not None and existing_dimension.semantic_category != "UNKNOWN") else semantic_category
+                                # A category this code could have written is
+                                # recomputed; one it could not is preserved.
+                                #
+                                # Fourteen dimensions here were filed under
+                                # Finance by the old table-name-polluted rule,
+                                # and preserving those would mean the fix never
+                                # reaches an installation that already ran. But
+                                # a value outside our own vocabulary -
+                                # "LOCATION_COUNTRY" - was chosen by a person,
+                                # and recomputing it would throw their work
+                                # away. is_own_category tells the two apart.
+                                from semantic.discovery_policy import is_own_category
+
+                                updated_category = (
+                                    semantic_category
+                                    if is_own_category(existing_dimension.semantic_category)
+                                    else existing_dimension.semantic_category
+                                )
 
                                 conn.execute(
                                     text("""
@@ -448,6 +548,8 @@ class SemanticDiscoveryService:
                     FROM semantic_metrics
                     WHERE connection_id = :connection_id
                     AND source = 'AUTO'
+                    AND is_confirmed = 0
+                    AND is_excluded = 0
                 """),
                 {"connection_id": connection_id}
             ).fetchall()
@@ -466,10 +568,12 @@ class SemanticDiscoveryService:
 
             existing_dimensions = conn.execute(
                 text("""
-                    SELECT dimension_id, table_name, column_name
+                    SELECT dimension_id, table_name, column_name, dimension_name
                     FROM semantic_dimensions
                     WHERE connection_id = :connection_id
                     AND source = 'AUTO'
+                    AND is_confirmed = 0
+                    AND is_excluded = 0
                 """),
                 {"connection_id": connection_id}
             ).fetchall()
@@ -477,7 +581,8 @@ class SemanticDiscoveryService:
             for dimension in existing_dimensions:
                 d_table = dimension.table_name.lower() if dimension.table_name else ""
                 d_column = dimension.column_name.lower() if dimension.column_name else ""
-                if (d_table, d_column) not in discovered_dimensions:
+                d_name = dimension.dimension_name.lower() if dimension.dimension_name else ""
+                if (d_table, d_column, d_name) not in discovered_dimensions:
 
                     # Delete indexed values first (child records)
                     conn.execute(
@@ -906,8 +1011,27 @@ class SemanticDiscoveryService:
         data_type: str
     ) -> str:
         """
-        Detect semantic category based on table name, column name, and data type.
+        Detect semantic category from the COLUMN name.
+
+        Gate 2 Step 12. table_name is still accepted so every caller keeps
+        working, but it is no longer consulted. It used to be tokenised into
+        the same set as the column name, which meant every column of
+        QB_MDJMD_SALES_5YRS_SUMMARY carried the token "sales" and matched
+        Finance before Document, Customer or Identifier could be reached -
+        which is why ProdGrp1-4, MktType, RMNAME, STG and KeyLine were all
+        filed under Finance. A column's category is a fact about the column.
         """
+        from semantic.discovery_policy import detect_semantic_category as _by_column
+
+        return _by_column(column_name, data_type)
+
+    @staticmethod
+    def _detect_semantic_category_legacy(
+        table_name: str,
+        column_name: str,
+        data_type: str
+    ) -> str:
+        """The pre-Step-12 implementation, kept only so the change is legible."""
         SEMANTIC_PATTERNS = {
             "Geography": {
                 "region", "country", "state", "city", "territory", "postal", "address", "location"

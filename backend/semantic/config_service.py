@@ -16,15 +16,20 @@ suggestions are served from a development fixture behind a single seam.
 """
 
 import json
+import logging
 import os
+import threading
 import uuid
-from typing import Optional
+from datetime import datetime, timezone
+from typing import List, Optional
 
 from fastapi import HTTPException, status
 from sqlalchemy import text
 
 from database import engine
 from services.connection_service import ConnectionService
+
+logger = logging.getLogger(__name__)
 
 
 # ---------------------------------------------------------------------------
@@ -400,6 +405,8 @@ class TableConfigService:
                     params
                 )
 
+        _invalidate_snapshot_cache(connection_id)
+
         return {
             "message": "Table configuration saved.",
             "config_id": str(config_id)
@@ -447,6 +454,22 @@ class TableConfigService:
 # year leaves a configuration that compares a partial current year against a
 # full previous year, which is the documented comparison trap.
 # ---------------------------------------------------------------------------
+
+def _invalidate_snapshot_cache(connection_id: str) -> None:
+    """
+    Drop the planner's cached copy of this connection's snapshot configuration.
+
+    The plan builder reads configuration on every question, so it caches. An
+    administrator who saves a mapping and then asks a question expects the new
+    mapping to be used, not one up to CACHE_TTL_SECONDS old.
+    """
+    try:
+        from semantic.temporal.snapshot_config import SnapshotConfigLoader
+        SnapshotConfigLoader.invalidate(connection_id)
+    except Exception as exc:
+        # A stale cache is a small problem; failing the save is a large one.
+        logger.warning("Could not invalidate the snapshot config cache: %s", exc)
+
 
 class SnapshotMappingService:
 
@@ -564,6 +587,8 @@ class SnapshotMappingService:
                     }
                 )
 
+        _invalidate_snapshot_cache(connection_id)
+
         return {
             "message": "Snapshot mappings saved.",
             "count": len(mappings),
@@ -652,7 +677,10 @@ class ColumnConfigService:
             table="semantic_dimensions",
             id_column="dimension_id",
             record_id=dimension_id,
-            allowed=("dimension_role", "is_excluded", "is_confirmed"),
+            allowed=(
+                "business_name", "description", "synonyms",
+                "dimension_role", "is_excluded", "is_confirmed",
+            ),
             bool_fields=("is_excluded", "is_confirmed"),
             data=data,
             user=user,
@@ -665,7 +693,10 @@ class ColumnConfigService:
             table="semantic_metrics",
             id_column="metric_id",
             record_id=metric_id,
-            allowed=("aggregation_type", "is_excluded", "is_confirmed"),
+            allowed=(
+                "business_name", "description", "synonyms",
+                "aggregation_type", "is_excluded", "is_confirmed",
+            ),
             bool_fields=("is_excluded", "is_confirmed"),
             data=data,
             user=user,
@@ -736,18 +767,14 @@ class ColumnConfigService:
 #
 # THE STEP 8 SEAM.
 #
-# Gate 2 Step 8 - the suggestion service that profiles each column and asks a
-# model what it means - is not implemented. Until it is, suggestions are read
-# from a development fixture so that the API and the review screens can be
-# built and tested against the agreed shape.
-#
-# When Step 8 lands, only _load_suggestions() changes: it calls the suggestion
-# service instead of reading the file. Route handlers, response shapes and the
-# entire frontend stay as they are.
+# Gate 2 Step 8 - semantic/config_suggester.py, which profiles each column and
+# asks a model what it means - is implemented. This module STARTS a run and
+# reads back what it stored; the fixture below survives only so the screens
+# render on a connection that has never been profiled.
 #
 # Nothing here is a second implementation of Step 8. There is no profiling, no
-# model call and no classification logic in this module - only reading a shape
-# that something else produced.
+# model call and no classification logic in this module - only invoking the
+# service that does that, and reading the shape it produced.
 # ---------------------------------------------------------------------------
 
 _FIXTURE_PATH = os.path.join(
@@ -760,15 +787,138 @@ _FIXTURE_PATH = os.path.join(
 
 class SuggestionService:
 
-    # Rejections have nowhere to persist. Migration 004 records confirmation on
-    # the configuration rows themselves, and a rejected suggestion has no
-    # configuration row to mark. Persisting them needs the suggestion evidence
-    # store that Step 8 proposes and that does not exist yet, so a rejection is
-    # held in memory and is lost on restart. Every reject response says so.
+    # Retained only so an unreviewed session still behaves if the store is
+    # empty. Rejections now persist in semantic_suggestion_evidence.review_status
+    # (migration 007) and survive a restart.
     _rejected: set = set()
 
     @staticmethod
+    def _stored_suggestions(connection_id: str) -> dict:
+        """
+        Read suggestions produced by the Step 8 service.
+
+        Generating them costs a profiling pass and several model calls - minutes
+        for three tables - so the result is stored (migration 007) and read back
+        here. Regenerating on every page load would hang the screen.
+        """
+        query = """
+            SELECT proposal_json, column_name, review_status
+            FROM semantic_suggestion_evidence
+            WHERE connection_id = :connection_id
+              AND proposal_json IS NOT NULL
+            ORDER BY table_name, column_name
+        """
+
+        tables, columns = [], []
+        with engine.connect() as conn:
+            for row in conn.execute(text(query), {"connection_id": connection_id}):
+                try:
+                    suggestion = json.loads(row[0])
+                except (TypeError, ValueError):
+                    continue
+
+                suggestion["review_status"] = row[2]
+                suggestion["is_confirmed"] = row[2] == "CONFIRMED"
+                suggestion["rejected"] = row[2] == "REJECTED"
+
+                (columns if row[1] is not None else tables).append(suggestion)
+
+        return {"table_suggestions": tables, "column_suggestions": columns}
+
+    @staticmethod
+    def _naming(proposal: dict, existing_synonyms: Optional[str] = None) -> dict:
+        """
+        The naming fields a confirmation should apply.
+
+        Confirming used to write only the aggregation, role and flags, leaving
+        business_name as whatever auto-discovery generated - so a reviewer
+        accepted "Current Year Sales" and the configuration still read "C Y".
+        Naming a column in business language is the main thing an administrator
+        is here to do, and it was being silently discarded.
+
+        Synonyms arrive as a list and are stored comma separated, matching the
+        existing convention on these tables. Empty values are omitted rather
+        than blanked, so a proposal that offers no name cannot erase a good one
+        somebody typed earlier.
+        """
+        naming = {}
+
+        business_name = (proposal.get("business_name") or "").strip()
+        if business_name:
+            naming["business_name"] = business_name
+
+        description = (proposal.get("description") or "").strip()
+        if description:
+            naming["description"] = description
+
+        # Synonyms are MERGED, not replaced. They are additive by nature - more
+        # ways to say the same thing can only help matching - and a reviewer
+        # confirming ninety columns in a sitting must not silently wipe out
+        # terms somebody added by hand. Case-insensitive on comparison, but the
+        # original spelling is what gets kept.
+        proposed = proposal.get("synonyms")
+        if isinstance(proposed, str):
+            proposed = [proposed]
+        elif not isinstance(proposed, (list, tuple)):
+            proposed = []
+
+        merged, seen = [], set()
+        for term in list(str(existing_synonyms or "").split(",")) + list(proposed):
+            term = str(term).strip()
+            if term and term.lower() not in seen:
+                seen.add(term.lower())
+                merged.append(term)
+
+        if merged:
+            naming["synonyms"] = ", ".join(merged)
+
+        return naming
+
+    @staticmethod
+    def _mark_reviewed(
+        suggestion_id: str,
+        status_value: str,
+        user: Optional[dict] = None,
+        note: Optional[str] = None
+    ) -> None:
+        """
+        Record the outcome on the stored suggestion (migration 007).
+
+        Confirming writes the configuration itself, which is what matters, but
+        without this the suggestion stays PENDING and the review screen keeps
+        offering a Confirm button for work already done - so a reviewer cannot
+        tell what they have already been through.
+        """
+        with engine.begin() as conn:
+            conn.execute(text("""
+                UPDATE semantic_suggestion_evidence
+                SET review_status = :status_value,
+                    reviewed_by   = :reviewed_by,
+                    reviewed_at   = GETDATE(),
+                    review_note   = :note
+                WHERE suggestion_id = :suggestion_id
+            """), {
+                "status_value": status_value,
+                "reviewed_by": (user or {}).get("employee_id"),
+                "note": note,
+                "suggestion_id": suggestion_id,
+            })
+
+    @staticmethod
     def _load_suggestions() -> dict:
+        """
+        Stored suggestions when there are any, the development fixture otherwise.
+
+        The fixture uses a made-up table name, so confirming anything from it
+        fails with "not registered as a metric or a dimension". It remains only
+        so the screens render before the suggester has ever been run.
+        """
+        connection = ConnectionService.get_active_connection_global()
+        if connection:
+            stored = SuggestionService._stored_suggestions(connection["connection_id"])
+            if stored["table_suggestions"] or stored["column_suggestions"]:
+                return stored
+
         if not os.path.exists(_FIXTURE_PATH):
             return {"table_suggestions": [], "column_suggestions": []}
 
@@ -780,22 +930,230 @@ class SuggestionService:
         """
         Tell the caller where suggestions came from.
 
-        The screens use this to state plainly that they are showing development
-        fixture data, so nobody mistakes it for a real profiling run.
+        The screens use this to state plainly when they are showing development
+        fixture data, so nobody mistakes it for a real profiling run - and the
+        fixture's table names do not exist, so nothing from it can be confirmed.
         """
+        connection = ConnectionService.get_active_connection_global()
+        stored_count = 0
 
-        available = os.path.exists(_FIXTURE_PATH)
+        if connection:
+            with engine.connect() as conn:
+                stored_count = conn.execute(text("""
+                    SELECT COUNT(*) FROM semantic_suggestion_evidence
+                    WHERE connection_id = :connection_id AND proposal_json IS NOT NULL
+                """), {"connection_id": connection["connection_id"]}).scalar() or 0
+
+        if stored_count:
+            return {
+                "source": "suggester",
+                "step_8_implemented": True,
+                "available": True,
+                "message": (
+                    f"{stored_count} suggestions from a profiling run against the "
+                    "live connection. Nothing is applied until it is confirmed."
+                )
+            }
 
         return {
             "source": "fixture",
-            "step_8_implemented": False,
-            "available": available,
+            "step_8_implemented": True,
+            "available": os.path.exists(_FIXTURE_PATH),
             "message": (
-                "Gate 2 Step 8 (suggestion service) is not implemented. "
-                "Suggestions shown are development fixture data, not a "
-                "profiling run against the live connection."
+                "No suggestions have been generated for this connection yet, so "
+                "development fixture data is shown. Its table names are not real, "
+                "so confirming from it will fail. Generate suggestions to replace it."
             )
         }
+
+    # ------------------------------------------------------------------
+    # Starting a run
+    #
+    # A run takes minutes - a profiling scan plus seven paced model calls per
+    # table - so it cannot be done inside the request. It runs on a background
+    # thread and the caller polls generation_status().
+    #
+    # The progress report lives in module state rather than a table because
+    # startup.sh runs a single uvicorn process with no --workers: there is
+    # exactly one of these, so a poll cannot land on a worker that knows
+    # nothing about the run. If the deployment ever grows workers this has to
+    # move into the database.
+    #
+    # The work itself is already durable either way. ConfigSuggester writes
+    # every suggestion to semantic_suggestion_evidence, so a restart mid-run
+    # loses the progress report, not the suggestions.
+    # ------------------------------------------------------------------
+
+    _generation_lock = threading.Lock()
+    _generation: dict = {
+        "status": "IDLE",
+        "started_at": None,
+        "finished_at": None,
+        "started_by": None,
+        "table_names": None,
+        "use_model": None,
+        "table_count": None,
+        "column_count": None,
+        "error": None,
+    }
+
+    @staticmethod
+    def start_generation(
+        table_names: Optional[List[str]] = None,
+        use_model: bool = True,
+        user: Optional[dict] = None
+    ) -> dict:
+        """
+        Profile the active connection and propose configuration for it.
+
+        Returns immediately with the run state; the run continues in the
+        background. Existing suggestions are replaced table by table as it
+        goes, and a review decision on an unchanged proposal is preserved
+        (see ConfigSuggester._persist_evidence).
+        """
+        connection = ConnectionService.get_active_connection_global()
+
+        if not connection:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=(
+                    "No active database connection, so there is nothing to "
+                    "profile. Activate a connection first."
+                )
+            )
+
+        with SuggestionService._generation_lock:
+            if SuggestionService._generation["status"] == "RUNNING":
+                # Two concurrent runs would delete and reinsert the same rows
+                # against each other. Refuse rather than interleave.
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail=(
+                        "A suggestion run is already in progress. Wait for it "
+                        "to finish before starting another."
+                    )
+                )
+
+            SuggestionService._generation = {
+                "status": "RUNNING",
+                "started_at": datetime.now(timezone.utc).isoformat(),
+                "finished_at": None,
+                "started_by": (user or {}).get("employee_id"),
+                "table_names": list(table_names) if table_names else None,
+                "use_model": use_model,
+                "table_count": None,
+                "column_count": None,
+                "error": None,
+            }
+
+        threading.Thread(
+            target=SuggestionService._run_generation,
+            args=(
+                connection["connection_id"],
+                connection.get("company_id"),
+                list(table_names) if table_names else None,
+                use_model,
+            ),
+            name="semantic-suggestion-run",
+            daemon=True,
+        ).start()
+
+        return SuggestionService.generation_status()
+
+    @staticmethod
+    def _run_generation(
+        connection_id: str,
+        company_id: Optional[str],
+        table_names: Optional[List[str]],
+        use_model: bool
+    ) -> None:
+        """The background half of start_generation. Never raises."""
+
+        # Imported here rather than at module scope: config_suggester pulls in
+        # the LLM stack, and this module is imported by the router at startup.
+        from semantic.config_suggester import ConfigSuggester
+
+        try:
+            result = ConfigSuggester.suggest(
+                connection_id=connection_id,
+                table_names=table_names,
+                company_id=company_id,
+                persist_evidence=True,
+                use_model=use_model,
+            )
+            outcome = {
+                "status": "SUCCEEDED",
+                "table_count": len(result.get("table_suggestions", [])),
+                "column_count": len(result.get("column_suggestions", [])),
+                "error": None,
+            }
+            logger.info(
+                "Suggestion run finished: %d table and %d column suggestions.",
+                outcome["table_count"], outcome["column_count"]
+            )
+        except Exception as exc:
+            logger.exception("Suggestion run failed.")
+            outcome = {
+                "status": "FAILED",
+                "table_count": None,
+                "column_count": None,
+                "error": str(exc),
+            }
+
+        with SuggestionService._generation_lock:
+            SuggestionService._generation.update(outcome)
+            SuggestionService._generation["finished_at"] = (
+                datetime.now(timezone.utc).isoformat()
+            )
+
+    @staticmethod
+    def generation_status() -> dict:
+        """
+        Where the last or current run got to.
+
+        elapsed_seconds is computed here rather than stored so it keeps moving
+        while a run is in progress and freezes once it ends.
+        """
+        with SuggestionService._generation_lock:
+            state = dict(SuggestionService._generation)
+
+        started = state.get("started_at")
+        if started:
+            ended = state.get("finished_at")
+            finish = (
+                datetime.fromisoformat(ended) if ended
+                else datetime.now(timezone.utc)
+            )
+            state["elapsed_seconds"] = round(
+                (finish - datetime.fromisoformat(started)).total_seconds(), 1
+            )
+        else:
+            state["elapsed_seconds"] = None
+
+        state["running"] = state["status"] == "RUNNING"
+
+        if state["status"] == "RUNNING":
+            scope = (
+                ", ".join(state["table_names"]) if state["table_names"]
+                else "every table on the connection"
+            )
+            state["message"] = (
+                f"Profiling {scope}. This takes a few minutes per table when a "
+                f"model is being asked; nothing changes on screen until it "
+                f"finishes."
+            )
+        elif state["status"] == "SUCCEEDED":
+            state["message"] = (
+                f"{state['column_count']} column and {state['table_count']} "
+                f"table suggestions written. Review decisions on proposals that "
+                f"did not change were kept."
+            )
+        elif state["status"] == "FAILED":
+            state["message"] = f"The run failed: {state['error']}"
+        else:
+            state["message"] = "No suggestion run has been started yet."
+
+        return state
 
     @staticmethod
     def list_suggestions(
@@ -818,24 +1176,35 @@ class SuggestionService:
                 if s["table_name"].lower() == table_name.lower()
             ]
 
+        def is_rejected(item: dict) -> bool:
+            # The store is authoritative; the in-memory set only covers
+            # suggestions that have no stored row, such as fixture data.
+            return (
+                item.get("review_status") == "REJECTED"
+                or item["suggestion_id"] in SuggestionService._rejected
+            )
+
         if not include_rejected:
-            tables = [
-                s for s in tables
-                if s["suggestion_id"] not in SuggestionService._rejected
-            ]
-            columns = [
-                s for s in columns
-                if s["suggestion_id"] not in SuggestionService._rejected
-            ]
+            tables = [s for s in tables if not is_rejected(s)]
+            columns = [s for s in columns if not is_rejected(s)]
 
         for s in tables + columns:
-            s["rejected"] = s["suggestion_id"] in SuggestionService._rejected
+            s["rejected"] = is_rejected(s)
+
+        # Genuinely awaiting review, not merely present. A confirmed suggestion
+        # stays in the list so a reviewer can see what they decided, but calling
+        # it pending would misreport how much work is left.
+        pending = [
+            s for s in tables + columns
+            if s.get("review_status", "PENDING") == "PENDING"
+        ]
 
         return {
             "source_status": SuggestionService.source_status(),
             "table_suggestions": tables,
             "column_suggestions": columns,
-            "pending_count": len(tables) + len(columns)
+            "pending_count": len(pending),
+            "reviewed_count": (len(tables) + len(columns)) - len(pending)
         }
 
     @staticmethod
@@ -884,20 +1253,26 @@ class SuggestionService:
         is_table_suggestion = "column_name" not in suggestion
 
         if is_table_suggestion:
-            return SuggestionService._confirm_table(
+            result = SuggestionService._confirm_table(
                 connection_id=connection_id,
                 suggestion=suggestion,
                 proposal=proposal,
                 edited_proposal=edited_proposal,
                 user=user
             )
+        else:
+            result = SuggestionService._confirm_column(
+                connection_id=connection_id,
+                suggestion=suggestion,
+                proposal=proposal,
+                user=user
+            )
 
-        return SuggestionService._confirm_column(
-            connection_id=connection_id,
-            suggestion=suggestion,
-            proposal=proposal,
-            user=user
-        )
+        # Only after the configuration write succeeded. Marking first would
+        # leave a suggestion recorded as confirmed when nothing was applied.
+        SuggestionService._mark_reviewed(suggestion_id, "CONFIRMED", user)
+        result["review_status"] = "CONFIRMED"
+        return result
 
     @staticmethod
     def _confirm_table(
@@ -953,8 +1328,12 @@ class SuggestionService:
                 "date_column": proposal.get("date_column"),
                 "month_column": proposal.get("month_column"),
                 "month_sort_column": proposal.get("month_sort_column"),
+                # `or 1`, not a get() default: the key is present and set to
+                # None whenever the model could not tell, and a get() default
+                # only fires on a missing key. The column is NOT NULL, so the
+                # None went all the way to the driver.
                 "fiscal_year_start_month":
-                    proposal.get("fiscal_year_start_month", 1),
+                    proposal.get("fiscal_year_start_month") or 1,
                 "is_confirmed": True
             },
             user=user
@@ -1017,7 +1396,7 @@ class SuggestionService:
 
             metric = conn.execute(
                 text("""
-                    SELECT metric_id
+                    SELECT metric_id, synonyms
                     FROM semantic_metrics
                     WHERE connection_id = :connection_id
                       AND table_name = :table_name
@@ -1032,7 +1411,7 @@ class SuggestionService:
 
             dimension = conn.execute(
                 text("""
-                    SELECT dimension_id
+                    SELECT dimension_id, synonyms
                     FROM semantic_dimensions
                     WHERE connection_id = :connection_id
                       AND table_name = :table_name
@@ -1065,6 +1444,7 @@ class SuggestionService:
                 "is_excluded":
                     is_excluded or classification in ("DIMENSION", "EXCLUDED")
             }
+            metric_data.update(SuggestionService._naming(proposal, metric[1]))
 
             if proposal.get("aggregation_type"):
                 metric_data["aggregation_type"] = proposal["aggregation_type"]
@@ -1078,14 +1458,17 @@ class SuggestionService:
             written.append("semantic_metrics")
 
         if dimension:
+            dimension_data = {
+                "dimension_role": proposal.get("dimension_role"),
+                "is_confirmed": True,
+                "is_excluded":
+                    is_excluded or classification in ("MEASURE", "EXCLUDED")
+            }
+            dimension_data.update(SuggestionService._naming(proposal, dimension[1]))
+
             ColumnConfigService.update_dimension_config(
                 dimension_id=str(dimension[0]),
-                data={
-                    "dimension_role": proposal.get("dimension_role"),
-                    "is_confirmed": True,
-                    "is_excluded":
-                        is_excluded or classification in ("MEASURE", "EXCLUDED")
-                },
+                data=dimension_data,
                 user=user
             )
 
@@ -1116,29 +1499,34 @@ class SuggestionService:
         }
 
     @staticmethod
-    def reject_suggestion(suggestion_id: str, reason: Optional[str]) -> dict:
+    def reject_suggestion(
+        suggestion_id: str,
+        reason: Optional[str],
+        user: Optional[dict] = None
+    ) -> dict:
         """
-        Mark a suggestion as rejected for this process only.
+        Decline a suggestion, durably.
 
-        There is deliberately no database write here. Nothing in migration 004
-        can hold a rejection, and inventing a table for it is not this step's
-        work. The response says plainly that it was not persisted so the screen
-        can say the same rather than implying it saved.
+        This used to be held in a set in memory and lost on restart, because
+        nothing could store it. Migration 007 added review_status to the
+        suggestion store, so a rejection now survives - a reviewer can work
+        through ninety-odd columns across more than one sitting without the
+        ones they already declined reappearing.
         """
 
         SuggestionService.get_suggestion(suggestion_id)
 
+        SuggestionService._mark_reviewed(suggestion_id, "REJECTED", user, reason)
+
+        # Kept in step for the current process, so a rejection is reflected even
+        # if the suggestion came from the fixture and has no stored row.
         SuggestionService._rejected.add(suggestion_id)
 
         return {
-            "message": f"Suggestion '{suggestion_id}' rejected for this session.",
-            "persisted": False,
+            "message": f"Suggestion '{suggestion_id}' rejected.",
+            "persisted": True,
             "reason": reason,
-            "limitation": (
-                "Rejections are held in memory and are lost when the API "
-                "restarts. Persisting them requires the suggestion evidence "
-                "store from Gate 2 Step 8, which is not implemented."
-            )
+            "review_status": "REJECTED"
         }
 
 

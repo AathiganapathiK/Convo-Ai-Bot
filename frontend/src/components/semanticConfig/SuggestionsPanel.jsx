@@ -1,11 +1,11 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
   Table, Tag, Button, Space, Typography, Alert, Modal,
   Form, Input, Select, Switch, Tooltip, Badge
 } from "antd";
 import {
   CheckOutlined, CloseOutlined, EditOutlined, ReloadOutlined,
-  ExperimentOutlined
+  ExperimentOutlined, ThunderboltOutlined
 } from "@ant-design/icons";
 
 import { message } from "../../utils/message";
@@ -13,7 +13,9 @@ import {
   getSuggestions,
   confirmSuggestion,
   rejectSuggestion,
-  getConfigOptions
+  getConfigOptions,
+  generateSuggestions,
+  getGenerationStatus
 } from "../../services/semanticConfigService";
 
 import EvidencePanel from "./EvidencePanel";
@@ -48,6 +50,42 @@ const classificationColour = (c) => {
   return "default";
 };
 
+// A suggestion that somebody has already decided on. Anything without an
+// explicit status is treated as still pending, so a row can never hide its
+// Confirm button just because a status field was missing.
+function isReviewed(record) {
+  return (
+    record.review_status === "CONFIRMED" || record.review_status === "REJECTED"
+  );
+}
+
+// Confirmed and rejected rows stay in the list rather than vanishing, so a
+// reviewer can see what they have already decided and change their mind. The
+// tag is what tells the two apart at a glance.
+function reviewStatusTag(record) {
+  if (record.review_status === "CONFIRMED") {
+    return (
+      <Tag color="green" style={{ fontWeight: 600 }}>
+        CONFIRMED — APPLIED
+      </Tag>
+    );
+  }
+
+  if (record.review_status === "REJECTED") {
+    return (
+      <Tag color="default" style={{ fontWeight: 600 }}>
+        REJECTED — NOT APPLIED
+      </Tag>
+    );
+  }
+
+  return (
+    <Tag color="orange" style={{ fontWeight: 600 }}>
+      PROPOSED — NOT CONFIRMED
+    </Tag>
+  );
+}
+
 export default function SuggestionsPanel({ API, token, canEdit, onConfirmed }) {
   const [loading, setLoading] = useState(false);
   const [tableSuggestions, setTableSuggestions] = useState([]);
@@ -74,6 +112,93 @@ export default function SuggestionsPanel({ API, token, canEdit, onConfirmed }) {
       setLoading(false);
     }
   }, [API, token]);
+
+  /* ---------------------------------------------------------------- */
+  /* Generating suggestions                                            */
+  /*                                                                   */
+  /* A run profiles every column and asks a model what it means, which */
+  /* takes minutes, so the server accepts it and runs it in the        */
+  /* background. This polls until it stops running. The run lives on   */
+  /* the server, so a reload mid-run picks the poll back up rather     */
+  /* than losing sight of it.                                          */
+  /* ---------------------------------------------------------------- */
+
+  const [generation, setGeneration] = useState(null);
+  const [generateOpen, setGenerateOpen] = useState(false);
+  const [starting, setStarting] = useState(false);
+  const [runTables, setRunTables] = useState([]);
+  const [useModel, setUseModel] = useState(true);
+  const [pollNonce, setPollNonce] = useState(0);
+
+  // Kept in a ref, not in state: the completion message must fire exactly once
+  // on the RUNNING -> finished edge, and comparing against a state value that
+  // the same tick is replacing would fire it on every poll.
+  const previousRunStatus = useRef(null);
+
+  const running = generation?.status === "RUNNING";
+
+  useEffect(() => {
+    let cancelled = false;
+    let timer = null;
+
+    const poll = async () => {
+      try {
+        const state = await getGenerationStatus(API, token);
+        if (cancelled) return;
+
+        const was = previousRunStatus.current;
+        previousRunStatus.current = state.status;
+        setGeneration(state);
+
+        if (was === "RUNNING" && state.status === "SUCCEEDED") {
+          message.success(state.message, 8);
+          load();
+        }
+
+        if (was === "RUNNING" && state.status === "FAILED") {
+          message.error(state.message, 12);
+        }
+
+        if (state.status === "RUNNING") {
+          timer = setTimeout(poll, 5000);
+        }
+      } catch (e) {
+        // The run itself is unaffected by a failed poll, and the banner keeps
+        // showing the last state we did get, so this is not worth an error
+        // toast every five seconds.
+      }
+    };
+
+    poll();
+
+    return () => {
+      cancelled = true;
+      if (timer) clearTimeout(timer);
+    };
+  }, [API, token, load, pollNonce]);
+
+  const handleGenerate = async () => {
+    setStarting(true);
+
+    try {
+      const state = await generateSuggestions(API, token, {
+        tableNames: runTables,
+        useModel
+      });
+
+      previousRunStatus.current = state.status;
+      setGeneration(state);
+      setGenerateOpen(false);
+      message.info(state.message || "Suggestion run started.", 8);
+
+      // Restart the polling effect, which otherwise only runs on mount.
+      setPollNonce((n) => n + 1);
+    } catch (e) {
+      message.error(`Could not start the run: ${e.message}`);
+    } finally {
+      setStarting(false);
+    }
+  };
 
   useEffect(() => {
     load();
@@ -132,13 +257,13 @@ export default function SuggestionsPanel({ API, token, canEdit, onConfirmed }) {
               : `The proposal for ${record.table_name} will be removed from the queue.`}
           </Paragraph>
           <Alert
-            type="warning"
+            type="info"
             showIcon
-            message="This rejection is not saved"
+            message="This is saved"
             description={
-              "Rejections are held in memory only and return when the API " +
-              "restarts. Persisting them needs the suggestion evidence store " +
-              "from Step 8, which is not implemented yet."
+              "The rejection is recorded and will not reappear after a " +
+              "restart. Nothing is written to the configuration, and you can " +
+              "reconsider it later from the reviewed list."
             }
           />
         </div>
@@ -155,7 +280,7 @@ export default function SuggestionsPanel({ API, token, canEdit, onConfirmed }) {
           );
 
           message.warning(
-            result.message || "Suggestion rejected for this session."
+            result.message || "Suggestion rejected."
           );
 
           await load();
@@ -275,57 +400,67 @@ export default function SuggestionsPanel({ API, token, canEdit, onConfirmed }) {
       title: "Status",
       key: "status",
       width: 190,
-      render: () => (
-        <Tag color="orange" style={{ fontWeight: 600 }}>
-          PROPOSED — NOT CONFIRMED
-        </Tag>
-      )
+      render: (_, r) => reviewStatusTag(r)
     },
     {
       title: "Action",
       key: "actions",
       width: 230,
-      render: (_, r) => (
-        <Space>
-          <Tooltip
-            title={
-              canEdit
-                ? "Write this proposal into the configuration"
-                : "You do not have permission to modify the semantic layer"
-            }
-          >
-            <Button
-              type="primary"
-              size="small"
-              icon={<CheckOutlined />}
-              disabled={!canEdit}
-              loading={saving}
-              onClick={() => handleConfirm(r, null)}
+      render: (_, r) =>
+        isReviewed(r) ? (
+          <Space>
+            <Tooltip title="Change what was applied for this column">
+              <Button
+                size="small"
+                icon={<EditOutlined />}
+                disabled={!canEdit}
+                onClick={() => openEditor(r)}
+              >
+                Change
+              </Button>
+            </Tooltip>
+          </Space>
+        ) : (
+          <Space>
+            <Tooltip
+              title={
+                canEdit
+                  ? "Write this proposal into the configuration"
+                  : "You do not have permission to modify the semantic layer"
+              }
             >
-              Confirm
+              <Button
+                type="primary"
+                size="small"
+                icon={<CheckOutlined />}
+                disabled={!canEdit}
+                loading={saving}
+                onClick={() => handleConfirm(r, null)}
+              >
+                Confirm
+              </Button>
+            </Tooltip>
+
+            <Button
+              size="small"
+              icon={<EditOutlined />}
+              disabled={!canEdit}
+              onClick={() => openEditor(r)}
+            >
+              Edit
             </Button>
-          </Tooltip>
 
-          <Button
-            size="small"
-            icon={<EditOutlined />}
-            disabled={!canEdit}
-            onClick={() => openEditor(r)}
-          >
-            Edit
-          </Button>
-
-          <Button
-            size="small"
-            danger
-            icon={<CloseOutlined />}
-            disabled={!canEdit}
-            onClick={() => handleReject(r)}
-          >
-            Reject
-          </Button>
-        </Space>
-      )
+            <Button
+              size="small"
+              danger
+              icon={<CloseOutlined />}
+              disabled={!canEdit}
+              onClick={() => handleReject(r)}
+            >
+              Reject
+            </Button>
+          </Space>
+        )
     }
   ];
 
@@ -373,39 +508,46 @@ export default function SuggestionsPanel({ API, token, canEdit, onConfirmed }) {
       title: "Status",
       key: "status",
       width: 190,
-      render: () => (
-        <Tag color="orange" style={{ fontWeight: 600 }}>
-          PROPOSED — NOT CONFIRMED
-        </Tag>
-      )
+      render: (_, r) => reviewStatusTag(r)
     },
     {
       title: "Action",
       key: "actions",
       width: 200,
-      render: (_, r) => (
-        <Space>
+      render: (_, r) =>
+        isReviewed(r) ? (
           <Button
-            type="primary"
             size="small"
             icon={<CheckOutlined />}
             disabled={!canEdit}
             loading={saving}
             onClick={() => handleConfirm(r, null)}
           >
-            Confirm
+            Apply again
           </Button>
-          <Button
-            size="small"
-            danger
-            icon={<CloseOutlined />}
-            disabled={!canEdit}
-            onClick={() => handleReject(r)}
-          >
-            Reject
-          </Button>
-        </Space>
-      )
+        ) : (
+          <Space>
+            <Button
+              type="primary"
+              size="small"
+              icon={<CheckOutlined />}
+              disabled={!canEdit}
+              loading={saving}
+              onClick={() => handleConfirm(r, null)}
+            >
+              Confirm
+            </Button>
+            <Button
+              size="small"
+              danger
+              icon={<CloseOutlined />}
+              disabled={!canEdit}
+              onClick={() => handleReject(r)}
+            >
+              Reject
+            </Button>
+          </Space>
+        )
     }
   ];
 
@@ -445,6 +587,15 @@ export default function SuggestionsPanel({ API, token, canEdit, onConfirmed }) {
 
   const pendingCount = tableSuggestions.length + columnSuggestions.length;
 
+  // Offered as the scope for a run. Taken from what has already been
+  // suggested, so on a connection nobody has profiled yet the list is empty
+  // and the run covers every table - which is the right default there anyway.
+  const knownTables = Array.from(
+    new Set(
+      [...tableSuggestions, ...columnSuggestions].map((s) => s.table_name)
+    )
+  ).sort();
+
   return (
     <div>
       {sourceStatus && !sourceStatus.step_8_implemented && (
@@ -459,6 +610,41 @@ export default function SuggestionsPanel({ API, token, canEdit, onConfirmed }) {
               {sourceStatus.message} Confirming a suggestion below{" "}
               <strong>does</strong> write real configuration, so the review flow
               is genuinely testable; only the proposals themselves are stand-ins.
+            </span>
+          }
+        />
+      )}
+
+      {running && (
+        <Alert
+          type="info"
+          showIcon
+          style={{ marginBottom: 16 }}
+          message={`Profiling in progress — ${Math.round(
+            generation.elapsed_seconds || 0
+          )}s elapsed`}
+          description={
+            <span>
+              {generation.message} The list below still shows the previous
+              suggestions and will refresh by itself when the run finishes. You
+              can leave this page; the run continues on the server.
+            </span>
+          }
+        />
+      )}
+
+      {generation?.status === "FAILED" && (
+        <Alert
+          type="error"
+          showIcon
+          closable
+          style={{ marginBottom: 16 }}
+          message="The last suggestion run failed"
+          description={
+            <span>
+              {generation.error} Nothing was lost: suggestions are written table
+              by table, so whatever completed before the failure is in the list
+              below.
             </span>
           }
         />
@@ -481,9 +667,29 @@ export default function SuggestionsPanel({ API, token, canEdit, onConfirmed }) {
           </Text>
         </Space>
 
-        <Button icon={<ReloadOutlined />} onClick={load} loading={loading}>
-          Refresh
-        </Button>
+        <Space>
+          <Tooltip
+            title={
+              canEdit
+                ? "Profile the connection and propose configuration for it"
+                : "You do not have permission to change semantic configuration"
+            }
+          >
+            <Button
+              type="primary"
+              icon={<ThunderboltOutlined />}
+              onClick={() => setGenerateOpen(true)}
+              disabled={!canEdit || running}
+              loading={running}
+            >
+              {running ? "Generating…" : "Generate suggestions"}
+            </Button>
+          </Tooltip>
+
+          <Button icon={<ReloadOutlined />} onClick={load} loading={loading}>
+            Refresh
+          </Button>
+        </Space>
       </div>
 
       {tableSuggestions.length > 0 && (
@@ -548,6 +754,71 @@ export default function SuggestionsPanel({ API, token, canEdit, onConfirmed }) {
           )
         }}
       />
+
+      <Modal
+        title={
+          <span style={{ color: "var(--text-main)" }}>
+            Generate suggestions
+          </span>
+        }
+        open={generateOpen}
+        onCancel={() => setGenerateOpen(false)}
+        onOk={handleGenerate}
+        okText="Start the run"
+        confirmLoading={starting}
+      >
+        <Alert
+          type="warning"
+          showIcon
+          style={{ marginBottom: 16 }}
+          message="This reads your data and calls a model"
+          description={
+            "Every column on the chosen tables is profiled, and a summary is " +
+            "sent for annotation: data type, distinct count, null rate, and " +
+            "either a value range or a few sample values. Columns whose names " +
+            "suggest they identify a person are never read. A full run over " +
+            "three tables takes about four minutes."
+          }
+        />
+
+        <Form layout="vertical">
+          <Form.Item
+            label="Tables"
+            extra="Leave empty to profile every table on the connection."
+          >
+            <Select
+              mode="multiple"
+              allowClear
+              placeholder="All tables"
+              value={runTables}
+              onChange={setRunTables}
+              options={knownTables.map((t) => ({ label: t, value: t }))}
+            />
+          </Form.Item>
+
+          <Form.Item
+            label="Ask the model"
+            extra={
+              "Off profiles the data and proposes from the numbers alone — " +
+              "seconds rather than minutes, no tokens spent, and visibly " +
+              "weaker proposals. Useful for checking that a run works."
+            }
+          >
+            <Switch checked={useModel} onChange={setUseModel} />
+          </Form.Item>
+        </Form>
+
+        <Alert
+          type="info"
+          showIcon
+          message="Your review decisions are kept"
+          description={
+            "A proposal that comes back unchanged keeps whatever you already " +
+            "decided about it. Only proposals that actually changed go back to " +
+            "pending."
+          }
+        />
+      </Modal>
 
       <Modal
         title={

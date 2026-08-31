@@ -278,6 +278,14 @@ class TimeCapability:
     """Declares the temporal capabilities discovered from a data source schema."""
     date_columns: List[str] = field(default_factory=list)
     snapshot_mapping: Dict[int, str] = field(default_factory=dict)
+
+    # The same bindings with measure_kind and period_scope kept, which
+    # snapshot_mapping cannot express - it holds one column per offset, and the
+    # sales table has eleven columns across five offsets. Additive on purpose:
+    # snapshot_mapping keeps its shape and its consumers, and anything that
+    # needs to tell PY from PYTD reads this instead. Populated from
+    # semantic_snapshot_mapping; empty when nothing is configured.
+    snapshot_bindings: List[Any] = field(default_factory=list)
     snapshot_year_columns: List[str] = field(default_factory=list)
     snapshot_month_columns: List[str] = field(default_factory=list)
     calendar_tables: List[str] = field(default_factory=list)
