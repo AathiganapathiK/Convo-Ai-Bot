@@ -5,6 +5,7 @@ import {
   Tooltip, Popconfirm, List, Alert, Spin
 } from "antd";
 import { message } from "../utils/message";
+import { modal } from "../utils/modal";
 import { 
   PlusOutlined, SettingOutlined, KeyOutlined, AppstoreOutlined, 
   NodeIndexOutlined, CheckCircleOutlined, CloseCircleOutlined,
@@ -283,7 +284,7 @@ export default function AIProviderConfig({ API, token }) {
   };
 
   const handleDeleteProvider = async (record) => {
-    Modal.confirm({
+    modal.confirm({
       title: "Delete Provider?",
       content: (
         <div>
@@ -417,7 +418,7 @@ export default function AIProviderConfig({ API, token }) {
   };
 
   const handleDeleteModel = async (record) => {
-    Modal.confirm({
+    modal.confirm({
       title: "Delete Model?",
       content: (
         <div>

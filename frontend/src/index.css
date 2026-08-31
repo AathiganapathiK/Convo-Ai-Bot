@@ -1031,6 +1031,57 @@ input:-webkit-autofill:active,
   100% { opacity: 1; transform: scale(1); }
 }
 
+/* ==========================================================================
+   Ant Design Overlay & Modal Theme Synchronization
+   ========================================================================== */
+
+.dark-theme .ant-modal-content,
+body.dark-theme .ant-modal-content {
+  background-color: var(--bg-card, #111827);
+  color: var(--text-main, #f8fafc);
+  border: 1px solid var(--border-color, #1f2937);
+}
+
+.dark-theme .ant-modal-header,
+body.dark-theme .ant-modal-header {
+  background-color: var(--bg-card, #111827);
+  border-bottom: 1px solid var(--border-color, #1f2937);
+  color: var(--text-main, #f8fafc);
+}
+
+.dark-theme .ant-modal-title,
+body.dark-theme .ant-modal-title {
+  color: var(--text-main, #f8fafc);
+}
+
+.dark-theme .ant-modal-footer,
+body.dark-theme .ant-modal-footer {
+  border-top: 1px solid var(--border-color, #1f2937);
+  background-color: var(--bg-card, #111827);
+}
+
+.light-theme .ant-modal-content,
+body.light-theme .ant-modal-content {
+  background-color: #ffffff;
+  color: #111827;
+  border: 1px solid #e5e7eb;
+}
+
+.light-theme .ant-modal-header,
+body.light-theme .ant-modal-header {
+  background-color: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+  color: #111827;
+}
+
+.light-theme .ant-modal-title,
+body.light-theme .ant-modal-title {
+  color: #111827;
+}
+
+
+
+
 
 
 

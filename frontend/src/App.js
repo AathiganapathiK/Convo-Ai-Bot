@@ -13,6 +13,7 @@ import {
   ConfigProvider, theme, Tooltip, Input, Form, App as AppWrapper
 } from "antd";
 import { message, setGlobalMessage } from "./utils/message";
+import { setGlobalModal } from "./utils/modal";
 
 import {
   SettingOutlined, UserOutlined, BellOutlined, DownOutlined,
@@ -29,6 +30,17 @@ import { useTheme } from "./hooks/useTheme";
 import ProfileModal from "./components/ProfileModal";
 import PlatformSettingsModal from "./components/PlatformSettingsModal";
 import LoginPage from "./components/LoginPage";
+
+const AntdBridge = () => {
+  const { message: appMessage, modal: appModal } = AppWrapper.useApp();
+
+  useEffect(() => {
+    if (appMessage) setGlobalMessage(appMessage);
+    if (appModal) setGlobalModal(appModal);
+  }, [appMessage, appModal]);
+
+  return null;
+};
 
 // Lazy-loaded page components for fast startup & code-splitting
 const Overview = lazy(() => import("./pages/Overview"));
@@ -732,16 +744,23 @@ function InnerApp() {
 export default function App() {
   const { resolvedTheme } = useTheme();
 
+  useEffect(() => {
+    const currentTheme = resolvedTheme === "dark" ? "dark-theme" : "light-theme";
+    document.documentElement.className = currentTheme;
+    document.body.className = currentTheme;
+  }, [resolvedTheme]);
+
   return (
     <ConfigProvider
       theme={{
-        algorithm: resolvedTheme === "dark" ? theme.darkAlgorithm : theme.defaultAlgorithm,
-        token: resolvedTheme === "dark" ? darkThemeTokens : lightThemeTokens
+        algorithm: resolvedTheme === "dark" ? theme.darkAlgorithm : theme.defaultAlgorithm
       }}
     >
       <AppWrapper>
+        <AntdBridge />
         <InnerApp />
       </AppWrapper>
     </ConfigProvider>
   );
 }
+

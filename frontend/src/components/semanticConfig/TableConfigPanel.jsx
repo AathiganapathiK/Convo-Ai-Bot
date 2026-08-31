@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import {
   Table, Tag, Button, Space, Typography, Modal, Form, Input,
-  Select, InputNumber, Switch, Alert, Tooltip
+  Select, InputNumber, Switch, Alert, Tooltip, Popconfirm
 } from "antd";
 import {
   EditOutlined, ReloadOutlined, PlusOutlined, DeleteOutlined,
@@ -69,7 +69,13 @@ export default function TableConfigPanel({ API, token, canEdit }) {
       setConfigs(c);
       setDomains(d);
     } catch (e) {
-      message.error(`Could not load table configuration: ${e.message}`);
+      if (e.status === 400 || (e.message && e.message.includes("active database connection"))) {
+        setConfigs([]);
+        setDomains([]);
+        message.warning("Please select an active database connection to view table configuration.");
+      } else {
+        message.error(`Could not load table configuration: ${e.message}`);
+      }
     } finally {
       setLoading(false);
     }
@@ -215,7 +221,7 @@ export default function TableConfigPanel({ API, token, canEdit }) {
     {
       title: "Table",
       key: "table_name",
-      width: 200,
+      width: "25%",
       render: (_, r) => (
         <Text strong style={{ color: "var(--text-main)" }}>
           {r.table_name}
@@ -225,7 +231,7 @@ export default function TableConfigPanel({ API, token, canEdit }) {
     {
       title: "Business area",
       key: "domain",
-      width: 160,
+      width: "20%",
       render: (_, r) =>
         r.domain_name ? (
           <Tag color="green">{r.domain_name}</Tag>
@@ -238,7 +244,7 @@ export default function TableConfigPanel({ API, token, canEdit }) {
     {
       title: "Time behaviour",
       key: "temporal",
-      width: 260,
+      width: "30%",
       render: (_, r) => (
         <Space direction="vertical" size={2}>
           {r.temporal_strategy ? (
@@ -263,7 +269,7 @@ export default function TableConfigPanel({ API, token, canEdit }) {
     {
       title: "Status",
       key: "is_confirmed",
-      width: 200,
+      width: "13%",
       render: (_, r) =>
         r.is_confirmed ? (
           <Tag color="green">Confirmed</Tag>
@@ -276,7 +282,8 @@ export default function TableConfigPanel({ API, token, canEdit }) {
     {
       title: "Action",
       key: "actions",
-      width: 210,
+      width: "12%",
+      align: "right",
       render: (_, r) => (
         <Space>
           <Button
@@ -284,6 +291,7 @@ export default function TableConfigPanel({ API, token, canEdit }) {
             icon={<EditOutlined />}
             disabled={!canEdit}
             onClick={() => openEdit(r)}
+            aria-label={`Configure table ${r.table_name}`}
           >
             Configure
           </Button>
@@ -292,16 +300,17 @@ export default function TableConfigPanel({ API, token, canEdit }) {
             title={
               r.temporal_strategy === "SNAPSHOT"
                 ? "Edit the period column mappings"
-                : "Period mappings apply to SNAPSHOT tables"
+                : "Mappings are only used when the strategy is SNAPSHOT"
             }
           >
             <Button
               size="small"
               icon={<FieldTimeOutlined />}
-              disabled={!canEdit}
+              disabled={!canEdit || r.temporal_strategy !== "SNAPSHOT"}
               onClick={() => openMappings(r)}
+              aria-label={`Period mappings for ${r.table_name}`}
             >
-              Periods
+              Mappings
             </Button>
           </Tooltip>
         </Space>
@@ -309,11 +318,37 @@ export default function TableConfigPanel({ API, token, canEdit }) {
     }
   ];
 
+  /* ---------------------------------------------------------------- */
+  /* Snapshot mapping columns                                          */
+  /* ---------------------------------------------------------------- */
+
   const mappingColumns = [
+    {
+      title: "Grain",
+      dataIndex: "period_grain",
+      width: "18%",
+      render: (v, r) => (
+        <Select
+          value={v}
+          size="small"
+          disabled={!canEdit}
+          onChange={(val) => editMapping(r.key, "period_grain", val)}
+          style={{ width: "100%" }}
+        >
+          {(options.period_grains || ["YEAR", "MONTH", "QUARTER"]).map(
+            (g) => (
+              <Option key={g} value={g}>
+                {g}
+              </Option>
+            )
+          )}
+        </Select>
+      )
+    },
     {
       title: "Offset",
       dataIndex: "period_offset",
-      width: 110,
+      width: "15%",
       render: (v, r) => (
         <InputNumber
           min={0}
@@ -328,7 +363,7 @@ export default function TableConfigPanel({ API, token, canEdit }) {
     {
       title: "Kind",
       dataIndex: "measure_kind",
-      width: 140,
+      width: "20%",
       render: (v, r) => (
         <Select
           value={v}
@@ -348,7 +383,7 @@ export default function TableConfigPanel({ API, token, canEdit }) {
     {
       title: "Scope",
       dataIndex: "period_scope",
-      width: 150,
+      width: "22%",
       render: (v, r) => (
         <Select
           value={v}
@@ -368,6 +403,7 @@ export default function TableConfigPanel({ API, token, canEdit }) {
     {
       title: "Column",
       dataIndex: "column_name",
+      width: "20%",
       render: (v, r) => (
         <Input
           value={v}
@@ -381,16 +417,26 @@ export default function TableConfigPanel({ API, token, canEdit }) {
     {
       title: "",
       key: "remove",
-      width: 60,
+      width: "5%",
+      align: "right",
       render: (_, r) => (
-        <Button
-          size="small"
-          danger
-          type="text"
-          icon={<DeleteOutlined />}
-          disabled={!canEdit}
-          onClick={() => removeMapping(r.key)}
-        />
+        <Popconfirm
+          title="Remove mapping?"
+          description="Are you sure you want to remove this period mapping?"
+          onConfirm={() => removeMapping(r.key)}
+          okText="Remove"
+          cancelText="Cancel"
+          okButtonProps={{ danger: true }}
+        >
+          <Button
+            size="small"
+            danger
+            type="text"
+            icon={<DeleteOutlined />}
+            disabled={!canEdit}
+            aria-label="Remove period mapping"
+          />
+        </Popconfirm>
       )
     }
   ];
@@ -415,7 +461,6 @@ export default function TableConfigPanel({ API, token, canEdit }) {
         columns={columns}
         loading={loading}
         pagination={{ pageSize: 10, showTotal: (t) => `Total ${t} items` }}
-        scroll={{ x: 1030 }}
         style={{ background: "var(--bg-card)" }}
         className="dark-table"
         locale={{
@@ -441,6 +486,15 @@ export default function TableConfigPanel({ API, token, canEdit }) {
         confirmLoading={saving}
         destroyOnClose
         width={620}
+        style={{ top: 30 }}
+        styles={{
+          body: {
+            backgroundColor: "var(--bg-card)",
+            maxHeight: "65vh",
+            overflowY: "auto",
+            padding: "16px 24px"
+          }
+        }}
       >
         <Form form={form} layout="vertical">
           <Form.Item name="domain_id" label="Business area">
@@ -535,6 +589,15 @@ export default function TableConfigPanel({ API, token, canEdit }) {
         confirmLoading={saving}
         destroyOnClose
         width={780}
+        style={{ top: 30 }}
+        styles={{
+          body: {
+            backgroundColor: "var(--bg-card)",
+            maxHeight: "65vh",
+            overflowY: "auto",
+            padding: "16px 24px"
+          }
+        }}
       >
         <Alert
           type="info"
@@ -567,7 +630,6 @@ export default function TableConfigPanel({ API, token, canEdit }) {
           columns={mappingColumns}
           pagination={false}
           size="small"
-          scroll={{ x: 620 }}
           style={{ background: "var(--bg-card)", marginBottom: 12 }}
           className="dark-table"
           locale={{

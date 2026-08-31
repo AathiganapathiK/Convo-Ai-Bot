@@ -1,66 +1,25 @@
 import React, { useState, useEffect } from "react";
 import { 
-  Table, Card, Button, Tag, Space, Typography, Modal, Form, 
+  Card, Button, Tag, Space, Typography, Modal, Form, 
   Input, Select, Tabs, Divider, Switch, Descriptions, Alert
 } from "antd";
 import { message } from "../utils/message";
+import { modal } from "../utils/modal";
 import { 
-  PlusOutlined, TagsOutlined, CompassOutlined, 
-  EditOutlined, DeleteOutlined, SearchOutlined,
-  ReloadOutlined, ClearOutlined, SyncOutlined,
-  SafetyCertificateOutlined, ThunderboltOutlined,
-  BulbOutlined, ApartmentOutlined, FieldTimeOutlined
+  PlusOutlined, TagsOutlined, 
+  EditOutlined, DeleteOutlined,
+  SyncOutlined, SafetyCertificateOutlined,
+  ThunderboltOutlined, ApartmentOutlined, FieldTimeOutlined
 } from "@ant-design/icons";
 
-// Gate 2 Step 10 - configuration areas. Kept as separate components so this
-// page grows by a handful of lines rather than several hundred.
-import SuggestionsPanel from "../components/semanticConfig/SuggestionsPanel";
+import ColumnsWorkbench from "../components/semanticConfig/ColumnsWorkbench";
 import DomainsPanel from "../components/semanticConfig/DomainsPanel";
 import TableConfigPanel from "../components/semanticConfig/TableConfigPanel";
 import { getColumnState } from "../services/semanticConfigService";
 
-const { Title, Text, Paragraph } = Typography;
+const { Title, Text } = Typography;
 const { Option } = Select;
 
-const ResizableHeaderCell = (props) => {
-  const { onResize, width, ...restProps } = props;
-
-  if (!width) {
-    return <th {...restProps} />;
-  }
-
-  return (
-    <th
-      {...restProps}
-      style={{ ...restProps.style, position: "relative" }}
-    >
-      {restProps.children}
-      <div
-        className="table-resize-handle"
-        onClick={(e) => e.stopPropagation()}
-        onMouseDown={(e) => {
-          e.preventDefault();
-          const startX = e.pageX;
-          const startWidth = width;
-
-          const onMouseMove = (moveEvent) => {
-            const currentX = moveEvent.pageX;
-            const newWidth = Math.max(50, startWidth + (currentX - startX));
-            onResize(newWidth);
-          };
-
-          const onMouseUp = () => {
-            document.removeEventListener("mousemove", onMouseMove);
-            document.removeEventListener("mouseup", onMouseUp);
-          };
-
-          document.addEventListener("mousemove", onMouseMove);
-          document.addEventListener("mouseup", onMouseUp);
-        }}
-      />
-    </th>
-  );
-};
 
 export default function SemanticLayer({ API, token, userInfo }) {
   const [metrics, setMetrics] = useState([]);
@@ -69,7 +28,7 @@ export default function SemanticLayer({ API, token, userInfo }) {
   const [modalLoading, setModalLoading] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingRecord, setEditingRecord] = useState(null);
-  const [activeTab, setActiveTab] = useState("metrics");
+  const [activeTab, setActiveTab] = useState("columns");
   const [form] = Form.useForm();
 
   // Gate 2 - role, exclusion and confirmation state, keyed by column id.
@@ -268,10 +227,10 @@ export default function SemanticLayer({ API, token, userInfo }) {
   };
 
   const confirmRebuildDimensionIndex = () => {
-    Modal.confirm({
+    modal.confirm({
       title: "Rebuild dimension value index?",
       content: (
-        <span style={{ color: "var(--text-secondary)" }}>
+        <span>
           This rescans distinct values for all active dimensions on the current connection.
           Raw date and datetime columns are skipped; year and month dimensions use extracted values.
           This may take several minutes on large databases.
@@ -285,10 +244,10 @@ export default function SemanticLayer({ API, token, userInfo }) {
   };
 
   const handleRunSemanticDiscovery = () => {
-    Modal.confirm({
+    modal.confirm({
       title: "Run full semantic discovery?",
       content: (
-        <span style={{ color: "var(--text-secondary)" }}>
+        <span>
           This refreshes auto-discovered metrics and dimensions from the synced schema,
           then rebuilds the dimension value index. Manual synonyms and categories you kept
           are preserved where discovery supports it. Use this instead of disabling and
@@ -477,9 +436,9 @@ export default function SemanticLayer({ API, token, userInfo }) {
   };
 
   const handleDelete = (record) => {
-    Modal.confirm({
-      title: <span style={{ color: "var(--text-main)" }}>Delete Definition</span>,
-      content: <span style={{ color: "var(--text-secondary)" }}>Are you sure you want to delete the semantic definition "{record.business_name}"? This action cannot be undone.</span>,
+    modal.confirm({
+      title: "Delete Definition",
+      content: <span>Are you sure you want to delete the semantic definition "{record.business_name}"? This action cannot be undone.</span>,
       okText: "Delete",
       okType: "danger",
       cancelText: "Cancel",
@@ -958,161 +917,24 @@ export default function SemanticLayer({ API, token, userInfo }) {
         )}
       </div>
 
-      {/* Search and Filters Toolbar */}
-      {/* Gate 2 - these filters act on the metrics and dimensions lists only,
-          so they are hidden on the configuration tabs rather than sitting
-          there doing nothing. */}
-      <div style={{
-        display: ["metrics", "dimensions"].includes(activeTab) ? "flex" : "none",
-        flexWrap: "wrap", 
-        gap: "16px", 
-        alignItems: "center", 
-        justifyContent: "space-between", 
-        marginBottom: "20px",
-        padding: "16px",
-        background: "var(--bg-card)",
-        border: "1px solid var(--border-color)",
-        borderRadius: "12px"
-      }}>
-        <Space wrap size="middle">
-          <Input
-            placeholder="Search name, table, column..."
-            prefix={<SearchOutlined style={{ color: "var(--text-muted)" }} />}
-            value={searchText}
-            onChange={(e) => setSearchText(e.target.value)}
-            style={{ width: 280 }}
-            allowClear
-          />
-          <Select
-            placeholder="Source"
-            value={sourceFilter}
-            onChange={setSourceFilter}
-            style={{ width: 140 }}
-          >
-            <Option value="ALL">All Sources</Option>
-            <Option value="AUTO">AUTO</Option>
-            <Option value="MANUAL">MANUAL</Option>
-          </Select>
-          <Select
-            placeholder="Status"
-            value={statusFilter}
-            onChange={setStatusFilter}
-            style={{ width: 140 }}
-          >
-            <Option value="ALL">All Statuses</Option>
-            <Option value="ACTIVE">Active</Option>
-            <Option value="INACTIVE">Inactive</Option>
-          </Select>
-          {(searchText || sourceFilter !== "ALL" || statusFilter !== "ALL") && (
-            <Button 
-              type="link" 
-              icon={<ClearOutlined />} 
-              onClick={() => {
-                setSearchText("");
-                setSourceFilter("ALL");
-                setStatusFilter("ALL");
-              }}
-              style={{ color: "#4f46e5" }}
-            >
-              Clear Filters
-            </Button>
-          )}
-        </Space>
-        
-        <Button
-          icon={<ReloadOutlined />}
-          onClick={loadData}
-          loading={loading}
-        >
-          Refresh
-        </Button>
-      </div>
-
       <Card bordered={false} style={{ background: "var(--bg-card)", border: "1px solid var(--border-color)", borderRadius: "12px" }}>
         <Tabs 
           activeKey={activeTab} 
           onChange={setActiveTab}
           items={[
             {
-              key: "metrics",
-              label: <span style={{ color: "var(--text-main)" }}><TagsOutlined /> Aggregation Metrics</span>,
-              children: (
-                <Table 
-                  dataSource={filteredMetrics} 
-                  columns={(isAnalyst ? metricColumns.filter(c => c.key !== "actions") : metricColumns).map(col => ({
-                    ...col,
-                    onHeaderCell: (column) => ({
-                      width: column.width,
-                      onResize: (width) => handleMetricColResize(column.key, width),
-                    }),
-                  }))} 
-                  components={{
-                    header: {
-                      cell: ResizableHeaderCell
-                    }
-                  }}
-                  pagination={{
-                    pageSize: 10,
-                    showSizeChanger: true,
-                    showTotal: (total) => `Total ${total} items`
-                  }}
-                  loading={loading}
-                  scroll={{ x: 1300 }}
-                  style={{ background: "var(--bg-card)" }}
-                  className="dark-table"
-                  locale={{ 
-                    emptyText: <div style={{ padding: "24px", color: "var(--text-secondary)" }}>No semantic definitions found matching your criteria.</div> 
-                  }}
-                />
-              )
-            },
-            {
-              key: "dimensions",
-              label: <span style={{ color: "var(--text-main)" }}><CompassOutlined /> Dimensions & Joins</span>,
-              children: (
-                <Table 
-                  dataSource={filteredDimensions} 
-                  columns={(isAnalyst ? dimensionColumns.filter(c => c.key !== "actions") : dimensionColumns).map(col => ({
-                    ...col,
-                    onHeaderCell: (column) => ({
-                      width: column.width,
-                      onResize: (width) => handleDimensionColResize(column.key, width),
-                    }),
-                  }))}
-                  components={{
-                    header: {
-                      cell: ResizableHeaderCell
-                    }
-                  }}
-                  pagination={{
-                    pageSize: 10,
-                    showSizeChanger: true,
-                    showTotal: (total) => `Total ${total} items`
-                  }}
-                  loading={loading}
-                  scroll={{ x: 1200 }}
-                  style={{ background: "var(--bg-card)" }}
-                  className="dark-table"
-                  locale={{ 
-                    emptyText: <div style={{ padding: "24px", color: "var(--text-secondary)" }}>No semantic definitions found matching your criteria.</div> 
-                  }}
-                />
-              )
-            },
-            {
-              // Gate 2 Step 10 - review queue for machine suggestions.
-              key: "suggestions",
+              key: "columns",
               label: (
                 <span style={{ color: "var(--text-main)" }}>
-                  <BulbOutlined /> Suggestions
+                  <TagsOutlined /> Columns
                 </span>
               ),
               children: (
-                <SuggestionsPanel
+                <ColumnsWorkbench
                   API={API}
                   token={token}
                   canEdit={!isAnalyst}
-                  onConfirmed={loadData}
+                  onUpdated={loadData}
                 />
               )
             },

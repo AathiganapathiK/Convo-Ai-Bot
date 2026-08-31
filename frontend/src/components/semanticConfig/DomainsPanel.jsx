@@ -40,7 +40,12 @@ export default function DomainsPanel({ API, token, canEdit }) {
     try {
       setDomains(await getDomains(API, token));
     } catch (e) {
-      message.error(`Could not load domains: ${e.message}`);
+      if (e.status === 400 || (e.message && e.message.includes("active database connection"))) {
+        setDomains([]);
+        message.warning("Please select an active database connection to view domains.");
+      } else {
+        message.error(`Could not load domains: ${e.message}`);
+      }
     } finally {
       setLoading(false);
     }
@@ -100,7 +105,7 @@ export default function DomainsPanel({ API, token, canEdit }) {
     {
       title: "Business area",
       key: "business_name",
-      width: 200,
+      width: "25%",
       render: (_, r) => (
         <div>
           <Text strong style={{ color: "var(--text-main)" }}>
@@ -116,7 +121,7 @@ export default function DomainsPanel({ API, token, canEdit }) {
       title: "Synonyms",
       dataIndex: "synonyms",
       key: "synonyms",
-      width: 220,
+      width: "25%",
       render: (v) =>
         v ? (
           <Space size={4} wrap>
@@ -136,33 +141,42 @@ export default function DomainsPanel({ API, token, canEdit }) {
       title: "Description",
       dataIndex: "description",
       key: "description",
+      width: "35%",
       render: (v) => (
-        <Text style={{ color: "var(--text-secondary)" }}>{v || "—"}</Text>
+        <Text
+          style={{ color: "var(--text-secondary)", maxWidth: 280, display: "inline-block" }}
+          ellipsis={{ tooltip: v }}
+        >
+          {v || "—"}
+        </Text>
       )
     },
     {
       title: "Active",
       key: "is_active",
-      width: 110,
+      width: "8%",
       render: (_, r) => (
         <Switch
           checked={!!r.is_active}
           disabled={!canEdit}
           onChange={(checked) => toggleActive(r, checked)}
           size="small"
+          aria-label={`Toggle active state for domain ${r.business_name}`}
         />
       )
     },
     {
       title: "Action",
       key: "actions",
-      width: 110,
+      width: "7%",
+      align: "right",
       render: (_, r) => (
         <Button
           size="small"
           icon={<EditOutlined />}
           disabled={!canEdit}
           onClick={() => openEdit(r)}
+          aria-label={`Edit domain ${r.business_name}`}
         >
           Edit
         </Button>
@@ -201,6 +215,7 @@ export default function DomainsPanel({ API, token, canEdit }) {
           icon={<PlusOutlined />}
           disabled={!canEdit}
           onClick={openCreate}
+          style={{ backgroundColor: "#4f46e5", borderColor: "#4338ca" }}
         >
           New domain
         </Button>
@@ -212,7 +227,6 @@ export default function DomainsPanel({ API, token, canEdit }) {
         columns={columns}
         loading={loading}
         pagination={{ pageSize: 10, showTotal: (t) => `Total ${t} items` }}
-        scroll={{ x: 850 }}
         style={{ background: "var(--bg-card)" }}
         className="dark-table"
         locale={{
@@ -235,6 +249,15 @@ export default function DomainsPanel({ API, token, canEdit }) {
         onOk={submit}
         confirmLoading={saving}
         destroyOnClose
+        style={{ top: 30 }}
+        styles={{
+          body: {
+            backgroundColor: "var(--bg-card)",
+            maxHeight: "65vh",
+            overflowY: "auto",
+            padding: "16px 24px"
+          }
+        }}
       >
         <Form form={form} layout="vertical">
           <Form.Item

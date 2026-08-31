@@ -9,6 +9,7 @@ import {
 } from "@ant-design/icons";
 
 import { message } from "../../utils/message";
+import { modal } from "../../utils/modal";
 import {
   getSuggestions,
   confirmSuggestion,
@@ -247,7 +248,7 @@ export default function SuggestionsPanel({ API, token, canEdit, onConfirmed }) {
   };
 
   const handleReject = (record) => {
-    Modal.confirm({
+    modal.confirm({
       title: "Reject this suggestion?",
       content: (
         <div>
