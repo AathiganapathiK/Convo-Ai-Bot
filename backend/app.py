@@ -75,6 +75,13 @@ from core.logger import debug_print as print
 from security.rbac_service import require_permission
 from security.middleware import SecurityPipeline, AuditMiddleware
 from security.audit_service import audit_log, AuditAction
+# Imported at module scope on purpose. ask_question() uses AccessScopeService
+# near the top of the function to resolve the caller's division, and also much
+# further down before applying Division RLS. While that second use was a
+# function-local import, Python treated the name as local for the whole
+# function body, so the earlier use raised UnboundLocalError for every caller
+# whose role is not SUPER_ADMIN.
+from security.access_scope_service import AccessScopeService
 
 from admin.user_management import router as admin_router
 from admin.role_management import router as role_router
@@ -909,8 +916,9 @@ def ask_question(
         if not active_connection:
             raise Exception("No active database connection configured")
 
-        # Resolve division access scope and apply Division RLS
-        from security.access_scope_service import AccessScopeService
+        # Resolve division access scope and apply Division RLS.
+        # AccessScopeService is imported at module scope; re-importing it here
+        # is what made the name function-local and broke the earlier use above.
         from security.division_rls_engine import DivisionRLSEngine
 
         division_code = AccessScopeService.resolve_user_division(user)
@@ -2054,5 +2062,3 @@ def debug_user(
         "employee_id_type": str(type(user.get("employee_id"))),
         "official_email": user.get("official_email")
     }
-
-    

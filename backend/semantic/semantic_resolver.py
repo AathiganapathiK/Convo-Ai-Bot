@@ -469,34 +469,95 @@ class SemanticResolver:
         intent_type = getattr(temporal_intent, "intent_type", None)
         intent_cls = temporal_intent.__class__.__name__ if temporal_intent else ""
 
-        if intent_type in (TimeIntentType.PREVIOUS_YEAR, "PREVIOUS_YEAR") or intent_cls == "PreviousYearIntent":
-            for m in metric_objects:
-                if m.get("column_name") == "CY" and m.get("table_name") == "QB_MDJMD_SALES_5YRS_SUMMARY":
-                    m["metric_name"] = "py"
-                    m["business_name"] = "P Y"
-                    m["column_name"] = "PY"
+        # Snapshot period rebinding.
+        #
+        # On a snapshot table a period is a separate column, so "last year's
+        # sales" is not a date filter - it is a different column. This block
+        # moves a metric from the current-period column to the previous-period
+        # one, and pairs the two for a comparison.
+        #
+        # It used to name the columns and the table literally - "CY", "PY" and
+        # QB_MDJMD_SALES_5YRS_SUMMARY - which meant it could only ever work for
+        # one customer's Sales table, and it fabricated metric rows with
+        # hand-written names. Both now come from Gate 2 configuration:
+        # SnapshotConfigLoader supplies the period columns for whichever table
+        # this connection has configured, and the names come from the metric
+        # registry that was already loaded above. Nothing here is read from the
+        # database that was not already fetched for this request - the loader is
+        # cached per connection and metric_rows is the metadata this call
+        # started with.
+        #
+        # If the connection has no snapshot configuration, or no column is
+        # bound to a period, the block does nothing: a table whose periods are
+        # rows rather than columns must not be rewritten this way.
+        from semantic.temporal.snapshot_config import SnapshotConfigLoader
+
+        snapshot_config = SnapshotConfigLoader.for_connection(connection_id)
+        snapshot_table = snapshot_config.table_name
+        current_column = snapshot_config.column_for_offset(0)
+        previous_column = snapshot_config.column_for_offset(1)
+
+        def _is_snapshot_metric(metric_obj, column_name):
+            """A metric bound to the given period column of the snapshot table."""
+            return (
+                column_name is not None
+                and metric_obj.get("column_name") == column_name
+                and metric_obj.get("table_name") == snapshot_table
+            )
+
+        def _configured_metric(column_name):
+            """
+            The registered metric for a period column, from the metadata this
+            request already loaded. Returns None when the administrator has not
+            configured one, in which case no metric is invented for it.
+            """
+            if not column_name:
+                return None
+
+            for row in metric_rows:
+                # (metric_name, business_name, table_name, column_name, ...)
+                if row[2] == snapshot_table and row[3] == column_name:
+                    return {
+                        "metric_name": row[0],
+                        "business_name": row[1],
+                        "table_name": row[2],
+                        "column_name": row[3],
+                        "aggregation_type": row[4] or "SUM"
+                    }
+            return None
+
+        snapshot_periods_configured = bool(current_column or previous_column)
+
+        if not snapshot_periods_configured:
+            pass
+
+        elif intent_type in (TimeIntentType.PREVIOUS_YEAR, "PREVIOUS_YEAR") or intent_cls == "PreviousYearIntent":
+            previous_metric = _configured_metric(previous_column)
+
+            if previous_metric:
+                for m in metric_objects:
+                    if _is_snapshot_metric(m, current_column):
+                        m["metric_name"] = previous_metric["metric_name"]
+                        m["business_name"] = previous_metric["business_name"]
+                        m["column_name"] = previous_metric["column_name"]
+
             metrics = [m["business_name"] for m in metric_objects]
 
         elif intent_type in (TimeIntentType.YEAR_COMPARISON, "YEAR_COMPARISON") or intent_cls == "YearComparisonIntent":
-            has_cy = any(m.get("column_name") == "CY" for m in metric_objects)
-            has_py = any(m.get("column_name") == "PY" for m in metric_objects)
-            if (has_cy or has_py) and not (has_cy and has_py):
-                if has_cy and not has_py:
-                    metric_objects.append({
-                        "metric_name": "py",
-                        "business_name": "P Y",
-                        "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY",
-                        "column_name": "PY",
-                        "aggregation_type": "SUM"
-                    })
-                elif has_py and not has_cy:
-                    metric_objects.append({
-                        "metric_name": "cy",
-                        "business_name": "C Y",
-                        "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY",
-                        "column_name": "CY",
-                        "aggregation_type": "SUM"
-                    })
+            has_current = any(_is_snapshot_metric(m, current_column) for m in metric_objects)
+            has_previous = any(_is_snapshot_metric(m, previous_column) for m in metric_objects)
+
+            if (has_current or has_previous) and not (has_current and has_previous):
+                counterpart = _configured_metric(
+                    previous_column if has_current else current_column
+                )
+
+                # Only a configured metric is added. Inventing one, as the
+                # previous hardcoded version did, would put a column into the
+                # plan that the administrator never approved.
+                if counterpart:
+                    metric_objects.append(counterpart)
+
             metrics = [m["business_name"] for m in metric_objects]
 
         dimension_objects = []
