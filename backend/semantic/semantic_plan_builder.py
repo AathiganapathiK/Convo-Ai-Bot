@@ -303,7 +303,8 @@ class SemanticPlanBuilder:
                     table_name=d.get("table_name") or "",
                     column_name=d.get("column_name") or "",
                     semantic_category=d.get("semantic_category"),
-                    connection_id=connection_id
+                    connection_id=connection_id,
+                    dimension_role=d.get("dimension_role")
                 ))
 
         if dropped_time_dims:

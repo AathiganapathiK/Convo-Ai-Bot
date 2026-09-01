@@ -149,6 +149,11 @@ class SemanticDimension(BaseModel):
     column_name: str
     semantic_category: Optional[str] = None
     connection_id: Optional[str] = None
+    # Gate 3 P0 - the administrator's classification, carried from
+    # semantic_dimensions.dimension_role. Optional so every existing
+    # construction site is unaffected. Step 17 reads this to decide whether a
+    # dimension is a grouping or a filter; nothing acts on it yet.
+    dimension_role: Optional[str] = None
 
     @field_validator("dimension_name", "business_name", "table_name", "column_name")
     @classmethod

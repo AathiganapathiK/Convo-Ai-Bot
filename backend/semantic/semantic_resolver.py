@@ -5,6 +5,7 @@ from sqlalchemy import text
 
 from database import engine
 from semantic.dimension_value_resolver import DimensionValueResolver
+from semantic import runtime_config_filter
 from core.logger import debug_print as print
 
 def _normalize_string(s: str) -> str:
@@ -169,7 +170,14 @@ class SemanticResolver:
         """
         Fetches active metrics and dimensions from database.
         """
-        metric_query = """
+        # Gate 3 P0 - the administrator's exclusions are applied here.
+        #
+        # These two queries used to filter on is_active alone, which meant a
+        # column excluded in the Semantic Control Center was still offered to
+        # every question. The predicates come from runtime_config_filter so
+        # that a database without migration 004 keeps working rather than
+        # failing on every question; see that module for why.
+        metric_query = f"""
         SELECT
             metric_name,
             business_name,
@@ -180,19 +188,22 @@ class SemanticResolver:
         FROM semantic_metrics
         WHERE connection_id = :connection_id
           AND is_active = 1
+          {runtime_config_filter.metric_filter()}
         """
-        
-        dimension_query = """
+
+        dimension_query = f"""
         SELECT
             dimension_name,
             business_name,
             table_name,
             column_name,
             synonyms,
-            semantic_category
+            semantic_category,
+            {runtime_config_filter.dimension_role_column()}
         FROM semantic_dimensions
         WHERE connection_id = :connection_id
           AND is_active = 1
+          {runtime_config_filter.dimension_filter()}
         """
 
         with engine.connect() as conn:
@@ -262,7 +273,11 @@ class SemanticResolver:
                     "matched_by": matched_by,
                     "matched_text": matched_text,
                     "spans": spans,
-                    "semantic_category": row[5] if len(row) > 5 else None
+                    "semantic_category": row[5] if len(row) > 5 else None,
+                    # Gate 3 P0 - carried, not acted on. Step 17 uses this to
+                    # tell a grouping dimension from a filter dimension; until
+                    # then it simply travels with the candidate.
+                    "dimension_role": row[6] if len(row) > 6 else None
                 })
 
         return candidates
@@ -496,7 +511,8 @@ class SemanticResolver:
                         "business_name": candidate["business_name"],
                         "table_name": candidate["table_name"],
                         "column_name": candidate["column_name"],
-                        "semantic_category": candidate.get("semantic_category")
+                        "semantic_category": candidate.get("semantic_category"),
+                        "dimension_role": candidate.get("dimension_role")
                     })
 
         dimension_context = [

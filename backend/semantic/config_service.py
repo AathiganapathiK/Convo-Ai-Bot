@@ -1368,6 +1368,88 @@ class SuggestionService:
         }
 
     @staticmethod
+    def _create_config_row(
+        connection_id: str,
+        table_name: str,
+        column_name: str,
+        target_table: str,
+        proposal: dict,
+        user: dict
+    ) -> str:
+        """
+        Create the registry row a suggestion targets when discovery never made
+        one, and return its id.
+
+        Only the identifying columns are written here. Everything the reviewer
+        can change - business name, synonyms, description, role, exclusion,
+        confirmation - is applied immediately afterwards by the ordinary update
+        path in _confirm_column, so there is exactly one place that interprets
+        a proposal.
+
+        The technical name follows discovery's own convention
+        (column_name.lower() with spaces underscored) so that a row created
+        here is indistinguishable from one discovery would have made, and
+        source stays 'AUTO' because the column did come from the schema - the
+        administrator confirmed an interpretation of it, they did not invent it.
+        """
+        new_id = str(uuid.uuid4())
+        technical_name = (column_name or "").lower().replace(" ", "_")
+
+        # business_name is NOT NULL; the update path overwrites it a moment
+        # later, but the insert still needs a value that is never blank.
+        business_name = proposal.get("business_name") or column_name
+
+        params = {
+            "id": new_id,
+            "connection_id": connection_id,
+            "technical_name": technical_name,
+            "business_name": business_name,
+            "table_name": table_name,
+            "column_name": column_name,
+            "created_by": user.get("employee_id"),
+            "updated_by": user.get("employee_id"),
+        }
+
+        if target_table == "semantic_metrics":
+            # A metric row needs an aggregation. SUM is the discovery default
+            # and is corrected by the update path when the proposal names one.
+            params["aggregation_type"] = proposal.get("aggregation_type") or "SUM"
+            insert_sql = """
+                INSERT INTO semantic_metrics (
+                    metric_id, connection_id, metric_name, business_name,
+                    table_name, column_name, aggregation_type,
+                    source, is_active, created_by, updated_by
+                ) VALUES (
+                    :id, :connection_id, :technical_name, :business_name,
+                    :table_name, :column_name, :aggregation_type,
+                    'AUTO', 1, :created_by, :updated_by
+                )
+            """
+        else:
+            insert_sql = """
+                INSERT INTO semantic_dimensions (
+                    dimension_id, connection_id, dimension_name, business_name,
+                    table_name, column_name,
+                    source, is_active, created_by, updated_by
+                ) VALUES (
+                    :id, :connection_id, :technical_name, :business_name,
+                    :table_name, :column_name,
+                    'AUTO', 1, :created_by, :updated_by
+                )
+            """
+
+        with engine.begin() as conn:
+            conn.execute(text(insert_sql), params)
+
+        logger.info(
+            "Created %s row for %s.%s from a confirmed suggestion; discovery "
+            "had not registered it.",
+            target_table, table_name, column_name
+        )
+
+        return new_id
+
+    @staticmethod
     def _confirm_column(
         connection_id: str,
         suggestion: dict,
@@ -1425,14 +1507,42 @@ class SuggestionService:
             ).fetchone()
 
         if not metric and not dimension:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=(
-                    f"Column '{table_name}.{column_name}' is not registered as "
-                    "a metric or a dimension, so there is no row to confirm. "
-                    "Run schema discovery for this connection first."
-                )
+            # The suggester profiles every physical column; discovery registers
+            # only a subset of them. Gate 2 Step 12 taught discovery to skip a
+            # constant column such as PBI_OUTSTANDING_ENES_SUMMARY.CreatedDate
+            # (one distinct value across 95,613 rows) and an identifier such as
+            # transid (99.4% unique). Both are correctly kept out of the
+            # registry, and both are still profiled and proposed - so every
+            # proposal for a column in that gap used to be unconfirmable, and
+            # sat in the review queue forever.
+            #
+            # The proposal already says what to do about it: its target carries
+            # action UPSERT and current.exists is false. Only the insert half
+            # was missing. Creating the row records the administrator's
+            # decision instead of leaving it implied by an absent row, which is
+            # ambiguous - absent means either "never examined" or "deliberately
+            # rejected", and the queue cannot distinguish them.
+            #
+            # This is safe only because the runtime now honours configuration
+            # (Gate 3 P0): a row created here with is_excluded = 1 or
+            # dimension_role = INTERNAL is recorded but never offered to a
+            # question. Discovery's prune spares it too, since Step 12 already
+            # excludes confirmed and excluded rows from pruning.
+            new_id = SuggestionService._create_config_row(
+                connection_id=connection_id,
+                table_name=table_name,
+                column_name=column_name,
+                target_table=target_table,
+                proposal=proposal,
+                user=user
             )
+
+            # Match the shape the SELECTs above return, (id, synonyms), so the
+            # update path below runs unchanged.
+            if target_table == "semantic_metrics":
+                metric = (new_id, None)
+            else:
+                dimension = (new_id, None)
 
         written = []
 

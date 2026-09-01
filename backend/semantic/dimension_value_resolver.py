@@ -3,6 +3,8 @@ from sqlalchemy import text
 import re
 from database import engine
 
+from semantic import runtime_config_filter
+
 from semantic.matching import (
     MatchType,
     MatchResult,
@@ -537,7 +539,12 @@ class DimensionValueResolver(metaclass=ThreadLocalMeta):
         if cached is not None:
             return cached
 
-        query = text("""
+        # Gate 3 P0 - an excluded dimension must not supply candidate values.
+        #
+        # Without this an excluded column still fed the matcher, so excluding a
+        # duplicate State column removed nothing: its values kept producing the
+        # cross-dimension ambiguity the exclusion was meant to settle.
+        query = text(f"""
             SELECT
                 dvi.semantic_dimension_id,
                 sd.business_name,
@@ -546,11 +553,12 @@ class DimensionValueResolver(metaclass=ThreadLocalMeta):
                 dvi.value,
                 dvi.normalized_value
             FROM dimension_value_index dvi
-            INNER JOIN semantic_dimensions sd 
+            INNER JOIN semantic_dimensions sd
                 ON sd.dimension_id = dvi.semantic_dimension_id
             WHERE
                 dvi.connection_id = :connection_id
                 AND sd.is_active = 1
+                {runtime_config_filter.dimension_filter("sd")}
             ORDER BY
                 sd.business_name,
                 dvi.value

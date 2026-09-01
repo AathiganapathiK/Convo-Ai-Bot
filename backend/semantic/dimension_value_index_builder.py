@@ -6,6 +6,7 @@ from services.database_connection_factory import DatabaseConnectionFactory
 from semantic.sql.temporal_mapper import TemporalMapper
 from sqlalchemy import text
 from database import engine
+from semantic import runtime_config_filter
 import re
 import time
 
@@ -220,13 +221,21 @@ class DimensionValueIndexBuilder:
         for all active semantic dimensions.
         """
 
-        query = """
+        # Gate 3 P0 - excluded and INTERNAL dimensions are not indexed.
+        #
+        # Filtering here as well as at read time is deliberate: it keeps the
+        # index from carrying values nobody may query, so a rebuild after an
+        # exclusion actually shrinks the index rather than leaving dead rows in
+        # it. The read-side filter in dimension_value_resolver still stands, so
+        # an exclusion takes effect immediately without waiting for a rebuild.
+        query = f"""
         SELECT
             dimension_id
         FROM semantic_dimensions
         WHERE
             connection_id = :connection_id
             AND is_active = 1
+            {runtime_config_filter.dimension_filter()}
         ORDER BY business_name
         """
         
