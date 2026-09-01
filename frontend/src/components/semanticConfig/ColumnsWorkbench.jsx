@@ -374,17 +374,26 @@ export default function ColumnsWorkbench({ API, token, canEdit, onUpdated, reloa
 
     const proposal = record.suggestion?.proposal || {};
 
-    const synonymsVal = record.synonyms ||
-      (Array.isArray(proposal.synonyms) ? proposal.synonyms.join(", ") : proposal.synonyms) || "";
+    const synonymsVal = record.has_config
+      ? (record.synonyms ?? "")
+      : ((Array.isArray(proposal.synonyms) ? proposal.synonyms.join(", ") : proposal.synonyms) || "");
+
+    const businessVal = record.has_config
+      ? (record.business_name || record.column_name)
+      : (proposal.business_name || record.column_name);
+
+    const descVal = record.has_config
+      ? (record.description ?? "")
+      : (proposal.description || "");
 
     form.setFieldsValue({
-      business_name: record.business_name || proposal.business_name || record.column_name,
+      business_name: businessVal,
       technical_name: record.technical_name || record.column_name,
       classification: initialClass,
       synonyms: synonymsVal,
       aggregation_type: record.aggregation_type || proposal.aggregation_type || "SUM",
       dimension_role: record.dimension_role || proposal.dimension_role || null,
-      description: record.description || proposal.description || ""
+      description: descVal
     });
 
     setModalOpen(true);

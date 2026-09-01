@@ -116,12 +116,18 @@ class SnapshotMappingSetRequest(BaseModel):
 # ---------------------------------------------------------------------------
 
 class DimensionConfigRequest(BaseModel):
+    business_name: Optional[str] = None
+    description: Optional[str] = None
+    synonyms: Optional[str] = None
     dimension_role: Optional[str] = None
     is_excluded: Optional[bool] = None
     is_confirmed: Optional[bool] = None
 
 
 class MetricConfigRequest(BaseModel):
+    business_name: Optional[str] = None
+    description: Optional[str] = None
+    synonyms: Optional[str] = None
     aggregation_type: Optional[str] = None
     is_excluded: Optional[bool] = None
     is_confirmed: Optional[bool] = None

@@ -729,8 +729,12 @@ class ColumnConfigService:
 
             value = data[field]
 
-            if field in bool_fields:
+            if field == "synonyms" and isinstance(value, (list, tuple)):
+                value = ", ".join(str(t).strip() for t in value if str(t).strip())
+            elif field in bool_fields:
                 value = 1 if value else 0
+            elif isinstance(value, str):
+                value = value.strip()
 
             assignments.append(f"{field} = :{field}")
             params[field] = value
@@ -826,7 +830,11 @@ class SuggestionService:
         return {"table_suggestions": tables, "column_suggestions": columns}
 
     @staticmethod
-    def _naming(proposal: dict, existing_synonyms: Optional[str] = None) -> dict:
+    def _naming(
+        proposal: dict,
+        existing_synonyms: Optional[str] = None,
+        is_edited: bool = False
+    ) -> dict:
         """
         The naming fields a confirmation should apply.
 
@@ -837,9 +845,9 @@ class SuggestionService:
         is here to do, and it was being silently discarded.
 
         Synonyms arrive as a list and are stored comma separated, matching the
-        existing convention on these tables. Empty values are omitted rather
-        than blanked, so a proposal that offers no name cannot erase a good one
-        somebody typed earlier.
+        existing convention on these tables. When reviewer edits are present,
+        their synonym list is authoritative and replaces previous synonyms
+        (allowing deletions and changes). Unedited proposals merge additively.
         """
         naming = {}
 
@@ -848,29 +856,34 @@ class SuggestionService:
             naming["business_name"] = business_name
 
         description = (proposal.get("description") or "").strip()
-        if description:
+        if description or is_edited:
             naming["description"] = description
 
-        # Synonyms are MERGED, not replaced. They are additive by nature - more
-        # ways to say the same thing can only help matching - and a reviewer
-        # confirming ninety columns in a sitting must not silently wipe out
-        # terms somebody added by hand. Case-insensitive on comparison, but the
-        # original spelling is what gets kept.
         proposed = proposal.get("synonyms")
         if isinstance(proposed, str):
-            proposed = [proposed]
+            proposed = [t.strip() for t in proposed.split(",") if t.strip()]
         elif not isinstance(proposed, (list, tuple)):
             proposed = []
 
-        merged, seen = [], set()
-        for term in list(str(existing_synonyms or "").split(",")) + list(proposed):
-            term = str(term).strip()
-            if term and term.lower() not in seen:
-                seen.add(term.lower())
-                merged.append(term)
+        if is_edited:
+            seen = set()
+            terms = []
+            for term in proposed:
+                term = str(term).strip()
+                if term and term.lower() not in seen:
+                    seen.add(term.lower())
+                    terms.append(term)
+            naming["synonyms"] = ", ".join(terms)
+        else:
+            merged, seen = [], set()
+            for term in list(str(existing_synonyms or "").split(",")) + list(proposed):
+                term = str(term).strip()
+                if term and term.lower() not in seen:
+                    seen.add(term.lower())
+                    merged.append(term)
 
-        if merged:
-            naming["synonyms"] = ", ".join(merged)
+            if merged:
+                naming["synonyms"] = ", ".join(merged)
 
         return naming
 
@@ -879,7 +892,8 @@ class SuggestionService:
         suggestion_id: str,
         status_value: str,
         user: Optional[dict] = None,
-        note: Optional[str] = None
+        note: Optional[str] = None,
+        updated_proposal: Optional[dict] = None
     ) -> None:
         """
         Record the outcome on the stored suggestion (migration 007).
@@ -890,6 +904,38 @@ class SuggestionService:
         tell what they have already been through.
         """
         with engine.begin() as conn:
+            if updated_proposal is not None:
+                row = conn.execute(text("""
+                    SELECT proposal_json FROM semantic_suggestion_evidence
+                    WHERE suggestion_id = :suggestion_id
+                """), {"suggestion_id": suggestion_id}).fetchone()
+
+                if row and row[0]:
+                    try:
+                        s_data = json.loads(row[0])
+                        s_data["proposal"] = updated_proposal
+                        s_data["review_status"] = status_value
+                        s_data["is_confirmed"] = (status_value == "CONFIRMED")
+                        new_json = json.dumps(s_data)
+                        conn.execute(text("""
+                            UPDATE semantic_suggestion_evidence
+                            SET proposal_json = :proposal_json,
+                                review_status = :status_value,
+                                reviewed_by   = :reviewed_by,
+                                reviewed_at   = GETDATE(),
+                                review_note   = :note
+                            WHERE suggestion_id = :suggestion_id
+                        """), {
+                            "proposal_json": new_json,
+                            "status_value": status_value,
+                            "reviewed_by": (user or {}).get("employee_id"),
+                            "note": note,
+                            "suggestion_id": suggestion_id,
+                        })
+                        return
+                    except Exception as ex:
+                        logger.warning("Could not update proposal_json in _mark_reviewed: %s", ex)
+
             conn.execute(text("""
                 UPDATE semantic_suggestion_evidence
                 SET review_status = :status_value,
@@ -1265,12 +1311,15 @@ class SuggestionService:
                 connection_id=connection_id,
                 suggestion=suggestion,
                 proposal=proposal,
-                user=user
+                user=user,
+                is_edited=bool(edited_proposal)
             )
 
         # Only after the configuration write succeeded. Marking first would
         # leave a suggestion recorded as confirmed when nothing was applied.
-        SuggestionService._mark_reviewed(suggestion_id, "CONFIRMED", user)
+        SuggestionService._mark_reviewed(
+            suggestion_id, "CONFIRMED", user, updated_proposal=proposal if edited_proposal else None
+        )
         result["review_status"] = "CONFIRMED"
         return result
 
@@ -1454,7 +1503,8 @@ class SuggestionService:
         connection_id: str,
         suggestion: dict,
         proposal: dict,
-        user: dict
+        user: dict,
+        is_edited: bool = False
     ) -> dict:
 
         table_name = suggestion["table_name"]
@@ -1554,7 +1604,9 @@ class SuggestionService:
                 "is_excluded":
                     is_excluded or classification in ("DIMENSION", "EXCLUDED")
             }
-            metric_data.update(SuggestionService._naming(proposal, metric[1]))
+            metric_data.update(
+                SuggestionService._naming(proposal, metric[1], is_edited=is_edited)
+            )
 
             if proposal.get("aggregation_type"):
                 metric_data["aggregation_type"] = proposal["aggregation_type"]
@@ -1574,7 +1626,9 @@ class SuggestionService:
                 "is_excluded":
                     is_excluded or classification in ("MEASURE", "EXCLUDED")
             }
-            dimension_data.update(SuggestionService._naming(proposal, dimension[1]))
+            dimension_data.update(
+                SuggestionService._naming(proposal, dimension[1], is_edited=is_edited)
+            )
 
             ColumnConfigService.update_dimension_config(
                 dimension_id=str(dimension[0]),
