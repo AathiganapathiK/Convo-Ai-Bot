@@ -74,7 +74,7 @@ export default function ColumnsWorkbench({ API, token, canEdit, onUpdated, reloa
 
   // Data Loader
   const loadData = useCallback(async () => {
-    if (!token || !API) return;
+    if (!token) return;
     setLoading(true);
 
     try {
