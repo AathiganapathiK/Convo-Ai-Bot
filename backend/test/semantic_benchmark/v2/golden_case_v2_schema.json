@@ -1,0 +1,154 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "GoldenRetrievalBenchmarkCaseSchemaV2",
+  "description": "Gate 3 Step 16 benchmark. Extends the v1 case schema with an expectation review (verdict A-E/VALID plus the evidence behind it) and the stable physical identity of every expected metric and dimension. v1 cases and their expectations are carried through byte-for-byte; nothing in `expected` is altered by this schema.",
+  "type": "object",
+  "required": [
+    "case_id",
+    "category",
+    "source",
+    "severity",
+    "question",
+    "conversation",
+    "datasource_ref",
+    "expected",
+    "notes",
+    "expectation_review",
+    "expected_identity"
+  ],
+  "properties": {
+    "expectation_review": {
+      "type": "object",
+      "description": "Step 16 triage. Exactly one verdict per case, with the evidence that produced it.",
+      "required": [
+        "verdict",
+        "verdict_meaning",
+        "rationale",
+        "evidence",
+        "original_expected",
+        "requires_human_review",
+        "expectation_changed_in_v2"
+      ],
+      "properties": {
+        "verdict": {
+          "type": "string",
+          "enum": ["A", "B", "C", "D", "E", "VALID"],
+          "description": "A = software defect (expectation is achievable under current configuration but the system does not meet it). B = outdated or incorrect benchmark expectation. C = database/data limitation. D = intentionally unsupported capability. E = genuine ambiguity requiring a human/business decision. VALID = expectation verified against live configuration and currently met."
+        },
+        "verdict_meaning": {
+          "type": "string",
+          "description": "Plain-language expansion of the verdict letter, so the file is readable without the schema."
+        },
+        "rationale": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Why this verdict and not another."
+        },
+        "evidence": {
+          "type": "object",
+          "description": "What the verdict was derived from. config_problems is empty when every expected metric, dimension and value exists and is usable.",
+          "required": ["config_problems", "diagnostic_run", "evidence_source"],
+          "properties": {
+            "config_problems": {
+              "type": "array",
+              "description": "Each expectation that cannot be met under live configuration.",
+              "items": {
+                "type": "object",
+                "required": ["field", "name", "issue", "detail"],
+                "properties": {
+                  "field": {"type": "string", "enum": ["metrics", "dimensions", "values"]},
+                  "name": {"type": "string"},
+                  "issue": {
+                    "type": "string",
+                    "enum": [
+                      "NOT_IN_CONFIG",
+                      "EXCLUDED_BY_ADMIN",
+                      "NOT_IN_INDEX",
+                      "ONLY_ON_EXCLUDED_DIMENSION"
+                    ]
+                  },
+                  "detail": {"type": "string"},
+                  "physical": {"type": "array"},
+                  "dimensions": {"type": "array"},
+                  "candidates": {"type": "array"},
+                  "candidate_count": {"type": "integer"},
+                  "confident_replacement": {"type": ["string", "null"]},
+                  "recommended_replacement": {"type": "string"}
+                },
+                "additionalProperties": false
+              }
+            },
+            "diagnostic_run": {
+              "type": "object",
+              "description": "Result of executing the case during Step 16 triage. Diagnostic only - this is NOT the Step 14 accuracy baseline.",
+              "properties": {
+                "pass_fail": {"type": "string"},
+                "failure_codes": {"type": "array", "items": {"type": "string"}}
+              },
+              "additionalProperties": false
+            },
+            "evidence_source": {"type": "string"}
+          },
+          "additionalProperties": false
+        },
+        "original_expected": {
+          "type": "object",
+          "description": "The v1 expectation, copied verbatim for historical comparison. Never modified."
+        },
+        "recommended_expected": {
+          "type": ["object", "null"],
+          "description": "Proposed replacement expectation for verdict B, where a single correct value is evidenced. Null otherwise. This is a RECOMMENDATION - it is not applied to `expected` in this step."
+        },
+        "requires_human_review": {
+          "type": "boolean",
+          "description": "True when the correct expectation is a business decision rather than a mechanical correction."
+        },
+        "expectation_changed_in_v2": {
+          "type": "boolean",
+          "description": "Whether `expected` differs from v1. Step 16 leaves this false for every case: verdicts and recommendations are recorded, no expectation is rewritten."
+        }
+      },
+      "additionalProperties": false
+    },
+    "expected_identity": {
+      "type": "object",
+      "description": "Stable physical identity for each expected metric and dimension, resolved from live configuration. Business names are display strings an administrator may rename at any time; (table_name, column_name) is what a rename cannot break. Recorded alongside the names rather than replacing them, so v1 and v2 stay comparable.",
+      "required": ["metrics", "dimensions"],
+      "properties": {
+        "metrics": {"type": "array", "items": {"$ref": "#/definitions/identity"}},
+        "dimensions": {"type": "array", "items": {"$ref": "#/definitions/identity"}}
+      },
+      "additionalProperties": false
+    }
+  },
+  "definitions": {
+    "identity": {
+      "type": "object",
+      "required": ["business_name", "resolved", "physical", "ambiguous_across_tables"],
+      "properties": {
+        "business_name": {"type": "string"},
+        "resolved": {
+          "type": "boolean",
+          "description": "False when no active, non-excluded row carries this business name."
+        },
+        "physical": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["table_name", "column_name"],
+            "properties": {
+              "table_name": {"type": "string"},
+              "column_name": {"type": "string"}
+            },
+            "additionalProperties": false
+          }
+        },
+        "ambiguous_across_tables": {
+          "type": "boolean",
+          "description": "True when the same business name is configured on more than one table, so the name alone cannot identify the column."
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

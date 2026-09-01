@@ -601,6 +601,96 @@ class SemanticResolver:
         )
 
         # --------------------------------------------------
+        # Gate 3 Step 21a - an explicit value that does not resolve.
+        #
+        # ResolutionStatus.NO_MATCH was produced by the matching pipeline and
+        # read by nothing, so a question naming a value that does not exist
+        # still came back executable:
+        #
+        #   "Show sales for xyzabc" -> metrics=['C Y'], values=[], PARTIAL
+        #
+        # which answers "all sales" - a question the user did not ask.
+        #
+        # The frozen rule is: an explicit value reference that does not resolve
+        # sets retrieval_status = INSUFFICIENT, and the existing SemanticGate
+        # (semantic/semantic_gate.py, called from prompt_builder) refuses to
+        # generate SQL for that status. No second blocking mechanism is added.
+        #
+        # Resolved metrics and dimensions are deliberately KEPT. They are what
+        # lets the clarification say "I understood you want sales, but I do not
+        # know 'xyzabc'" instead of pretending nothing was understood. Nothing
+        # is substituted and no nearest value is chosen.
+        # --------------------------------------------------
+
+        _ambiguity_result = (
+            getattr(value_matches, "resolution_result", None)
+            or DimensionValueResolver.last_resolution_result
+        )
+        _ambiguity_status = getattr(_ambiguity_result, "status", None)
+        _no_value_matched = (
+            not value_matches
+            and _ambiguity_status is not None
+            and getattr(_ambiguity_status, "value", _ambiguity_status) == "NO_MATCH"
+        )
+
+        unresolved_terms = []
+
+        if _no_value_matched:
+            from semantic.matching.stopwords import STOPWORDS
+
+            # Condition 2 - every word the configuration knows about, taken
+            # from the metadata this request already loaded. No extra query.
+            known_vocabulary = set()
+            for row in metric_rows:
+                for field in (row[0], row[1], row[5]):
+                    known_vocabulary.update(_get_words(field or ""))
+            for row in dimension_rows:
+                for field in (row[0], row[1], row[4]):
+                    known_vocabulary.update(_get_words(field or ""))
+
+            # Condition 3 - words already explained by a selected candidate.
+            claimed_words = set()
+            for candidate in selected_candidates:
+                claimed_words.update(_get_words(candidate.get("matched_text") or ""))
+                claimed_words.update(_get_words(candidate.get("business_name") or ""))
+
+            # Condition 4b - the trailing dimension words that mark a
+            # value-first phrasing such as "Ramraj brand" or "Chennai city".
+            dimension_name_words = set()
+            for row in dimension_rows:
+                dimension_name_words.update(_get_words(row[1] or ""))
+
+            ENTITY_PREPOSITIONS = ("for", "in", "of", "at")
+
+            question_tokens = _get_words(question)
+
+            for index, token in enumerate(question_tokens):
+                # Conditions 1, 2 and 3.
+                if token in STOPWORDS:
+                    continue
+                if token in known_vocabulary or token in claimed_words:
+                    continue
+
+                # Condition 4 - the token must sit in an entity position.
+                # Without this the guard fires on ordinary unknown words that
+                # name nothing: "orders" in "Show last year pending orders",
+                # "compare" in "compare current year and previous year sales".
+                # Refusing those questions would be worse than the defect.
+                after_preposition = (
+                    index > 0
+                    and question_tokens[index - 1] in ENTITY_PREPOSITIONS
+                )
+                before_dimension_word = (
+                    index + 1 < len(question_tokens)
+                    and question_tokens[index + 1] in dimension_name_words
+                )
+
+                if after_preposition or before_dimension_word:
+                    unresolved_terms.append(token)
+
+        explicit_value_unresolved = bool(unresolved_terms)
+
+        # --------------------------------------------------
         # Retrieval Statistics
         # --------------------------------------------------
 
@@ -641,7 +731,22 @@ class SemanticResolver:
             resolved_components += 1
 
 
-        if resolved_components == 0:
+        if explicit_value_unresolved:
+
+            # Gate 3 Step 21a. The component count below cannot express this:
+            # the question was understood well enough to know a value was
+            # named, and that value matched nothing. SemanticGate refuses
+            # INSUFFICIENT, so execution stops here.
+            retrieval_status = "INSUFFICIENT"
+
+            retrieval_reason = (
+                "The question refers to "
+                + ", ".join(sorted(set(unresolved_terms)))
+                + ", which does not match any known value. "
+                "No substitute value was used."
+            )
+
+        elif resolved_components == 0:
 
             retrieval_status = "INSUFFICIENT"
 
@@ -722,6 +827,12 @@ class SemanticResolver:
                 "status": retrieval_status,
 
                 "reason": retrieval_reason,
+
+                # Gate 3 Step 21a. The value terms the question named that
+                # matched nothing. Empty in the normal case. Carried so a
+                # clarification can name what was not found alongside the
+                # metrics and dimensions that were resolved.
+                "unresolved_terms": unresolved_terms,
 
                 "resolved_components": resolved_components,
 
