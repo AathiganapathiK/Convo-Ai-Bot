@@ -37,6 +37,32 @@ class SemanticGate:
                     "confidence": confidence,
                     "reason": "Partial semantic coverage requires clarification."
                 }
+            elif ambig_res.status == ResolutionStatus.WEAK_AMBIGUITY:
+                # Gate 3 Step 21c. WEAK_AMBIGUITY carries a dominant candidate,
+                # so it was never checked here before - it fell straight
+                # through to the count-based retrieval_status below and was
+                # silently allowed, regardless of how many genuine
+                # alternatives the resolver had retained alongside the
+                # dominant one.
+                #
+                # value_matches (not ambig_res.candidates) is the count that
+                # matters: candidates is the raw, unfiltered list the
+                # classifier considered, which can still include an accidental
+                # match ("city" fuzzy-matching ELECTRONIC CITY) that the
+                # candidate-retention step already discarded. value_matches is
+                # what survived that filtering - only genuine alternatives
+                # (same column, sharing a matched token with the dominant
+                # candidate) remain in it. A WEAK_AMBIGUITY case that filtered
+                # down to exactly one value has nothing left to ask about, so
+                # it is left exactly as before: allowed to fall through.
+                value_matches = semantic_result.get("value_matches") or []
+                if len(value_matches) > 1:
+                    return {
+                        "allowed": False,
+                        "status": "WEAK_AMBIGUITY",
+                        "confidence": confidence,
+                        "reason": "Multiple genuine candidate values remain. Clarification is required."
+                    }
 
 
 

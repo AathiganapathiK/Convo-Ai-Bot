@@ -469,21 +469,37 @@ class PromptBuilder:
                 from core.exceptions import AmbiguityException
                 value_matches = semantic_result.get("value_matches", [])
                 if value_matches:
+                    # Gate 3 Step 21c. value_matches already carries every
+                    # genuine value the resolver retained (dominant first,
+                    # from the candidate-retention fix), not just the top one -
+                    # build one option per entry instead of only value_matches[0]
+                    # so a real alternative like N--NIGHT WEARS is not silently
+                    # dropped from the choice a user is offered.
                     best_match = value_matches[0]
-                    msg = f"I couldn't find \"{question}\" in the available business data. I found \"{best_match['value']}\" instead. Would you like to use that?"
-                    options = [{
-                        "option_id": 1,
-                        "value": best_match["value"],
-                        "dimension": best_match.get("business_name") or best_match.get("dimension"),
-                        "business_name": best_match.get("business_name"),
-                        "dimension_id": best_match.get("dimension_id"),
-                        "table_name": best_match.get("table_name"),
-                        "column_name": best_match.get("column_name"),
-                        "normalized_value": best_match.get("normalized_value", best_match["value"].lower()),
-                        "match_type": best_match.get("match_type"),
-                        "matched_question_tokens": best_match.get("matched_question_tokens", []),
-                        "matched_value_tokens": best_match.get("matched_value_tokens", [])
-                    }]
+                    options = [
+                        {
+                            "option_id": idx + 1,
+                            "value": m["value"],
+                            "dimension": m.get("business_name") or m.get("dimension"),
+                            "business_name": m.get("business_name"),
+                            "dimension_id": m.get("dimension_id"),
+                            "table_name": m.get("table_name"),
+                            "column_name": m.get("column_name"),
+                            "normalized_value": m.get("normalized_value", m["value"].lower()),
+                            "match_type": m.get("match_type"),
+                            "matched_question_tokens": m.get("matched_question_tokens", []),
+                            "matched_value_tokens": m.get("matched_value_tokens", [])
+                        }
+                        for idx, m in enumerate(value_matches)
+                    ]
+
+                    if len(options) == 1:
+                        # Unchanged: the single "did you mean" prompt.
+                        msg = f"I couldn't find \"{question}\" in the available business data. I found \"{best_match['value']}\" instead. Would you like to use that?"
+                    else:
+                        opt_str = "\n".join(f"{opt['option_id']}. {opt['value']}" for opt in options[:5])
+                        msg = f"I couldn't find \"{question}\" exactly. I found multiple possible matches:\n\n{opt_str}\n\nPlease choose one:"
+
                     raise AmbiguityException(
                         message=msg,
                         details={
@@ -501,6 +517,46 @@ class PromptBuilder:
                             "retrieval": semantic_result["retrieval"]
                         }
                     )
+
+            if gate_result.get("status") == "WEAK_AMBIGUITY":
+                # Gate 3 Step 21c. The gate only reaches this status when
+                # value_matches held more than one genuine alternative (see
+                # semantic/semantic_gate.py) - a WEAK_AMBIGUITY that filtered
+                # down to one value never sets allowed=False, so this branch
+                # is never entered for the single-candidate case. Reuses the
+                # existing AmbiguityException/options clarification flow -
+                # same shape as PARTIAL_MATCH and STRONG_AMBIGUITY above, no
+                # new mechanism. Genuine alternatives are same-column by
+                # construction (that is what "genuine" means here), so this
+                # is always a same-dimension choice.
+                from core.exceptions import AmbiguityException
+                value_matches = semantic_result.get("value_matches", [])
+                options = [
+                    {
+                        "option_id": idx + 1,
+                        "value": m["value"],
+                        "dimension": m.get("business_name") or m.get("dimension"),
+                        "business_name": m.get("business_name"),
+                        "dimension_id": m.get("dimension_id"),
+                        "table_name": m.get("table_name"),
+                        "column_name": m.get("column_name"),
+                        "normalized_value": m.get("normalized_value", m["value"].lower()),
+                        "match_type": m.get("match_type"),
+                        "matched_question_tokens": m.get("matched_question_tokens", []),
+                        "matched_value_tokens": m.get("matched_value_tokens", [])
+                    }
+                    for idx, m in enumerate(value_matches)
+                ]
+                opt_str = "\n".join(f"{opt['option_id']}. {opt['value']}" for opt in options[:5])
+                msg = f"I found multiple possible matches for \"{question}\".\nPlease choose one:\n\n{opt_str}"
+                raise AmbiguityException(
+                    message=msg,
+                    details={
+                        "original_question": question,
+                        "ambiguity_type": "SAME_DIMENSION",
+                        "options": options
+                    }
+                )
 
             if gate_result.get("status") == "STRONG_AMBIGUITY":
                 from core.exceptions import AmbiguityException

@@ -27,6 +27,21 @@ class MatchResult:
     table_name: Optional[str] = None
     column_name: Optional[str] = None
 
+    # Gate 3 Step 21f - precise fuzzy token evidence.
+    #
+    # matched_question_tokens above records the SPAN the matcher searched
+    # with: FuzzyMatcher sets it to the whole n-gram phrase, so "COTTON PANT"
+    # and "LINEN PANT" both report ["cotton", "pant"] for the question
+    # "cotton pant" even though only one of them explains "cotton". That
+    # field is therefore unsafe as query-coverage evidence.
+    #
+    # This field records only the question token(s) a match actually
+    # justifies - for FuzzyMatcher, the token
+    # _has_token_level_evidence approved against this specific stored value.
+    # Optional and defaulted, so every existing construction site (and every
+    # other matcher, which does not set it) is unaffected.
+    matched_question_tokens_precise: Optional[List[str]] = None
+
 
 @dataclass(frozen=True)
 class QuestionContext:
@@ -99,6 +114,18 @@ class ResolutionStatus(Enum):
     WEAK_AMBIGUITY = "WEAK_AMBIGUITY"
     STRONG_AMBIGUITY = "STRONG_AMBIGUITY"
     PARTIAL_MATCH = "PARTIAL_MATCH"
+
+
+# Gate 3 Step 21d - RC-02. Three concrete words verified, by tracing real
+# benchmark failures, to be generic filler that explains nothing about which
+# value or dimension was meant ("total sales", "now show", "city instead").
+# Kept separate from the global STOPWORDS set - which candidate_phrase_extractor,
+# fuzzy_matcher and the Step 21a NO_MATCH guard also read - rather than adding
+# to it, so this narrow, investigation-backed exemption cannot silently change
+# behavior in those other consumers. Add a word here only when a specific
+# failing case demonstrates it is genuinely never disambiguating, the same way
+# these three were found; this is not a general-purpose stopword list.
+RC02_FILLER_WORDS = {"total", "now", "instead"}
 
 
 
@@ -223,6 +250,35 @@ class AmbiguityClassifier:
             if q_sing in val_singulars:
                 matched.append(q_raw)
 
+        # 4. Gate 3 Step 21e - a FUZZY match already passed
+        # FuzzyMatcher._has_token_level_evidence's token-level similarity
+        # check at match time, and recorded exactly which question token it
+        # was approved against in choice.result.matched_question_tokens.
+        # Steps 1-3 above only ever credit a token that is IDENTICAL (up to
+        # singular/plural) to one of the candidate's own STORED-VALUE
+        # tokens - which a fuzzy/misspelled match can never satisfy by
+        # definition: "coimbator" is not "coimbatore" even after
+        # singularizing, no matter how good the fuzzy similarity was. That
+        # silently discarded evidence the matcher had already approved,
+        # instead of ever reading it.
+        #
+        # Additive only: EXACT, NORMALIZED and SINGULAR_PLURAL candidates
+        # never take this branch, so steps 1-3 remain their only source of
+        # matched tokens, unchanged. A token can be added here only if BOTH
+        # the fuzzy matcher itself recorded it AND it is a real, non-stopword
+        # token of the actual question (present in q_map) - never a token
+        # invented for this check, and never a token the fuzzy matcher did
+        # not already approve.
+        if choice.result and choice.result.match_type == MatchType.FUZZY:
+            for raw_tok in (choice.result.matched_question_tokens or []):
+                norm_t = SingularPluralMatcher._normalize_text(raw_tok)
+                if not norm_t or norm_t in STOPWORDS:
+                    continue
+                sing_t = SingularPluralMatcher._to_singular(norm_t)
+                q_raw = q_map.get(sing_t)
+                if q_raw is not None and q_raw not in matched:
+                    matched.append(q_raw)
+
         return matched
 
     @classmethod
@@ -265,62 +321,70 @@ class AmbiguityClassifier:
             result_status = ResolutionStatus.SINGLE_MATCH
             dominant_match = choices[0]
         else:
-            # Multiple candidates. Compare Rank 1 (choices[0]) against Rank 2 (choices[1])
-            c1 = choices[0]
-            c2 = choices[1]
+            # Gate 3 Step 21b - evidence-based dominance.
+            #
+            # This used to be four rules over eight hand-tuned thresholds, all
+            # comparing MatchConfidence, which was a constant per matcher. Two
+            # exact matches therefore had a confidence gap of exactly 0.00 and
+            # no rule could ever fire, so the classifier returned
+            # STRONG_AMBIGUITY whenever two candidates matched the same way -
+            # regardless of how much of the question or of the stored value
+            # each one actually explained.
+            #
+            # Now every candidate carries an evidence vector (see
+            # matching/confidence.py) and the question asked first is
+            # parameter-free: does one candidate beat another on EVERY signal?
+            # Only when candidates genuinely trade off does a single margin
+            # arbitrate. Eight tunable numbers become one.
+            from semantic.matching.confidence import (
+                DOMINANCE_MARGIN,
+                score_candidates,
+            )
 
-            p1 = cls._type_priority(c1.match_type)
-            p2 = cls._type_priority(c2.match_type)
-            priority_gap = p1 - p2
+            entity_tokens = q_tokens or []
 
-            len1 = c1.actual_query_coverage
-            len2 = c2.actual_query_coverage
+            # What the administrator has said about each dimension. Absent on a
+            # connection that has not been configured, in which case the signal
+            # falls back to neutral rather than penalising anything.
+            dimension_meta = {}
+            for row in (all_dimensions or []):
+                try:
+                    dimension_meta[row[0]] = {
+                        "is_confirmed": bool(row[7]) if len(row) > 7 else False,
+                        "dimension_role": row[6] if len(row) > 6 else None,
+                    }
+                except (IndexError, TypeError):
+                    continue
 
-            conf_gap = c1.confidence - c2.confidence
+            metric_tables = [
+                m.get("table_name")
+                for m in (current_metrics or [])
+                if isinstance(m, dict)
+            ]
 
-            dominant = False
+            evidence = score_candidates(
+                choices,
+                entity_tokens=entity_tokens,
+                dimension_meta=dimension_meta,
+                metric_tables=metric_tables,
+            )
 
-            # Rule 1: High priority gap (gap >= 2, e.g. EXACT vs FUZZY) is dominant
-            # if the confidence of c1 is not significantly worse than c2
-            # AND c1 covers at least as many query tokens as c2.
-            # Without the coverage guard, a partial EXACT match (e.g. "Cotton"
-            # covering 1/2 tokens) would incorrectly dominate a full-coverage
-            # SINGULAR_PLURAL match (e.g. "Cotton Pants" covering 2/2 tokens).
-            if priority_gap >= 2:
-                if c1.confidence >= c2.confidence - 0.10 and len1 >= len2:
-                    dominant = True
+            for choice, score in zip(choices, evidence):
+                # Attached so a decision can be explained rather than asserted.
+                try:
+                    object.__setattr__(choice, "evidence", score)
+                except Exception:
+                    pass
 
-            # Rule 2: c1 has more matched question tokens (evidence span) than c2
-            # and equal/better priority, and confidence is not significantly worse.
-            # We allow up to an 8% confidence penalty for a better coverage match.
-            elif len1 > len2 and p1 >= p2 and c1.confidence >= c2.confidence - 0.08:
+            ranked = sorted(
+                zip(choices, evidence), key=lambda pair: -pair[1].scalar
+            )
+            (c1, e1), (c2, e2) = ranked[0], ranked[1]
+
+            if e1.dominates(e2):
                 dominant = True
-
-            # Rule 3: Same match priority
-            elif p1 == p2:
-                # If they matched the same number of tokens:
-                if len1 == len2:
-                    # c1 is dominant only if confidence gap is >= 0.05
-                    if conf_gap >= 0.05:
-                        dominant = True
-                elif len1 > len2:
-                    # c1 matched more tokens, so it dominates if confidence is within 0.08 of c2
-                    if conf_gap >= -0.08:
-                        dominant = True
-                else:
-                    # c1 matched fewer tokens than c2, so it needs a large confidence advantage to dominate
-                    if conf_gap >= 0.10:
-                        dominant = True
-
-            # Rule 4: Priority gap of exactly 1 (e.g. EXACT vs NORMALIZED, NORMALIZED vs SINGULAR_PLURAL)
-            elif priority_gap == 1:
-                if len1 > len2:
-                    if conf_gap >= -0.08:
-                        dominant = True
-                else:
-                    # Dominates if confidence is not worse
-                    if conf_gap >= -0.02:
-                        dominant = True
+            else:
+                dominant = (e1.scalar - e2.scalar) >= DOMINANCE_MARGIN
 
             if dominant:
                 result_status = ResolutionStatus.WEAK_AMBIGUITY
@@ -370,6 +434,43 @@ class AmbiguityClassifier:
                                             for word in norm.replace(",", " ").split():
                                                 cand_dim_names.add(SingularPluralMatcher._to_singular(word))
 
+                # Gate 3 Step 21d - RC-02. A token the question already spent
+                # on the METRIC ("pending" in "pending amount") was never
+                # exempted here, only tokens belonging to the dimension the
+                # value matched on. That is an arbitrary asymmetry: the
+                # metric was resolved with exactly as much confidence as the
+                # dimension, by the same pipeline, and a word it already
+                # explains is no more dangerous than a word the dimension
+                # explains. Reuses current_metrics (the metrics this request
+                # already resolved) and all_metrics (already-loaded metadata,
+                # the same list classify() already reads for all_dimensions)
+                # to add synonyms - no new query, no new business vocabulary.
+                if current_metrics and all_metrics:
+                    resolved_metric_names = set()
+                    for cm in current_metrics:
+                        if isinstance(cm, dict) and cm.get("business_name"):
+                            resolved_metric_names.add(cm["business_name"].lower())
+
+                    for row in all_metrics:
+                        if isinstance(row, dict):
+                            row_bus = row.get("business_name")
+                            row_metric = row.get("metric_name")
+                            row_syns = row.get("synonyms")
+                        else:
+                            row_bus = row[1]
+                            row_metric = row[0]
+                            row_syns = row[5] if len(row) > 5 else None
+
+                        if not row_bus or row_bus.lower() not in resolved_metric_names:
+                            continue
+
+                        for f in [row_metric, row_bus, row_syns]:
+                            if f:
+                                norm = SingularPluralMatcher._normalize_text(str(f))
+                                if norm:
+                                    for word in norm.replace(",", " ").split():
+                                        cand_dim_names.add(SingularPluralMatcher._to_singular(word))
+
                 has_dangerous_unmatched = False
                 for t in unmatched_tokens:
                     norm_t = SingularPluralMatcher._normalize_text(t)
@@ -377,9 +478,10 @@ class AmbiguityClassifier:
                         continue
 
                     # In simplified contract, any unmatched query token is dangerous unless
-                    # it is a stopword or matches the candidate's own dimension metadata.
+                    # it is a stopword, a verified-harmless filler word, or matches the
+                    # candidate's own dimension/metric metadata.
                     from semantic.matching.stopwords import STOPWORDS
-                    if norm_t in STOPWORDS:
+                    if norm_t in STOPWORDS or norm_t in RC02_FILLER_WORDS:
                         continue
 
                     sing_t = SingularPluralMatcher._to_singular(norm_t)
@@ -397,4 +499,4 @@ class AmbiguityClassifier:
             candidates=choices,
             dominant_match=dominant_match
         )
-
+

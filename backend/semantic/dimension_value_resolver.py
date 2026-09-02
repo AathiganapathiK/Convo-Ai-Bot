@@ -182,7 +182,15 @@ class DimensionValueResolver(metaclass=ThreadLocalMeta):
 
             if non_temp_candidates:
                 clarified = non_temp_candidates[0]
-                from semantic.matching.models import MatchResult, MatchType, AmbiguityChoice, ResolutionStatus, SemanticResolutionResult
+                # MatchResult, MatchType, AmbiguityChoice, ResolutionStatus and
+                # SemanticResolutionResult are already imported at module scope
+                # (see the semantic.matching import block above). A local
+                # import of the same names here made every one of them a local
+                # variable for the whole resolve() method under Python's
+                # function-scoping rules - any reference to e.g.
+                # ResolutionStatus reached before this branch executed UnboundLocalError'd,
+                # which is exactly what surfaced when the WEAK_AMBIGUITY fix
+                # below added the first such reference outside this branch.
                 m = MatchResult(
                     matched=True,
                     value=clarified["value"],
@@ -273,6 +281,32 @@ class DimensionValueResolver(metaclass=ThreadLocalMeta):
                 for m in matches:
                     val_norm = m.normalized_value or m.value.lower()
                     indices = self._find_match_span_indices(q_words, val_norm)
+
+                    # Gate 3 Step 17a. The lookup above finds the value by its
+                    # own spelling, so it can never locate a FUZZY match: the
+                    # question said "coimbator" and the stored value is
+                    # "COIMBATORE". With no span there are no adjacent words,
+                    # so the qualifier below never fired and "coimbator city"
+                    # kept District=COIMBATORE alongside City=COIMBATORE -
+                    # while the exactly-spelled "Chennai city" correctly
+                    # dropped District.
+                    #
+                    # matched_question_tokens_precise (added in 21f) holds the
+                    # token the fuzzy matcher actually approved for THIS
+                    # candidate, which does appear in the question and can
+                    # therefore be located. matched_question_tokens is
+                    # deliberately NOT used: it is the whole n-gram span the
+                    # matcher searched with, which would point at the wrong
+                    # words. The shared helper is reused unchanged, and this
+                    # only runs when the existing lookup found nothing, so
+                    # exact/normalized/singular-plural behaviour is untouched.
+                    if not indices and m.match_type == MatchType.FUZZY:
+                        precise_tokens = m.matched_question_tokens_precise or []
+                        if precise_tokens:
+                            indices = self._find_match_span_indices(
+                                q_words, " ".join(precise_tokens)
+                            )
+
                     explicit_dim = None
                     if indices:
                         min_idx = min(indices)
@@ -442,29 +476,87 @@ class DimensionValueResolver(metaclass=ThreadLocalMeta):
             )
 
 
-            # Map back to dicts for backward compatibility across downstream components (e.g. PromptBuilder)
-            # If there is a dominant match (e.g. in SINGLE_MATCH or WEAK_AMBIGUITY), only return that match
-            # to avoid cross-talk pollution when SQL generation is allowed.
+            # Map back to dicts for backward compatibility across downstream components (e.g. PromptBuilder).
+            #
+            # SINGLE_MATCH only: collapse to the one dominant match. There is
+            # nothing else to preserve - the ranker already discarded every
+            # other candidate before classification saw this question - and SQL
+            # generation for a single-candidate result must not see cross-talk
+            # from candidates that were never really in contention.
+            def _choice_dict(choice):
+                m = choice.result
+                return {
+                    "dimension_id": m.dimension_id,
+                    "business_name": m.business_name,
+                    "table_name": m.table_name,
+                    "column_name": m.column_name,
+                    "value": m.value,
+                    "normalized_value": m.normalized_value,
+                    "confidence": m.confidence,
+                    "match_type": m.match_type.value,
+                    # Use clean matched_query_tokens from classifier to avoid pollution
+                    "matched_question_tokens": choice.matched_query_tokens,
+                    "matched_value_tokens": m.matched_value_tokens,
+                    "reason": m.reason
+                }
+
+            if (
+                self.last_resolution_result.status == ResolutionStatus.SINGLE_MATCH
+                and self.last_resolution_result.dominant_match
+            ):
+                dom_choice = self.last_resolution_result.dominant_match
+                return ResolutionResultList(
+                    [_choice_dict(dom_choice)],
+                    resolution_result=self.last_resolution_result,
+                    followup_context=getattr(self, "followup_context", None),
+                    match_stats=self.last_match_stats
+                )
+
+            # WEAK_AMBIGUITY (the only other status carrying a dominant_match -
+            # classify() leaves it None for STRONG_AMBIGUITY):
+            #
+            # 21b's confidence model picked a preferred candidate, but
+            # WEAK_AMBIGUITY means alternatives remain live for clarification -
+            # collapsing to one here made the level indistinguishable from
+            # SINGLE_MATCH. Keeping every candidate unconditionally was tried
+            # next and over-corrected: a question ending in "city" also fuzzy-
+            # matches the stored value "ELECTRONIC CITY" on the same City
+            # column, and "Banians" singular/plural-matches an unrelated
+            # internal code "SECONDS_ RN BANIAN" on a different column. Neither
+            # is a competing answer to the question; both are matches on a
+            # token, or a substring, that isn't what the user was asking about.
+            #
+            # A candidate is a GENUINE alternative - one the user might really
+            # have meant - only when it competes with the dominant candidate on
+            # the same ground: the same physical column, matched through at
+            # least one of the same question tokens the dominant candidate
+            # itself was matched through. "Chennai city" and "ELECTRONIC CITY"
+            # share the column but not a token (chennai vs city - disjoint).
+            # "Banians" and "SECONDS_ RN BANIAN" share the token but not the
+            # column (ProdGrp1 vs ProdGrp3). "children wear" against ETHNIC
+            # WEAR and N--NIGHT WEARS share both - same ProdGrp2 column, both
+            # matched via "wear" - so both stay, and the existing clarification
+            # flow decides between them as it always has.
             if self.last_resolution_result.dominant_match:
                 dom_choice = self.last_resolution_result.dominant_match
-                m = dom_choice.result
+                dom_tokens = set(dom_choice.matched_query_tokens or [])
+
+                def _is_genuine_alternative(choice):
+                    same_column = (
+                        choice.table_name == dom_choice.table_name
+                        and choice.column_name == dom_choice.column_name
+                    )
+                    shares_matched_token = bool(
+                        dom_tokens & set(choice.matched_query_tokens or [])
+                    )
+                    return same_column and shares_matched_token
+
+                ordered = [dom_choice] + [
+                    choice for choice in self.last_resolution_result.candidates
+                    if choice is not dom_choice and _is_genuine_alternative(choice)
+                ]
                 return ResolutionResultList(
-                    [
-                        {
-                            "dimension_id": m.dimension_id,
-                            "business_name": m.business_name,
-                            "table_name": m.table_name,
-                            "column_name": m.column_name,
-                            "value": m.value,
-                            "normalized_value": m.normalized_value,
-                            "confidence": m.confidence,
-                            "match_type": m.match_type.value,
-                            # Use clean matched_query_tokens from classifier to avoid pollution
-                            "matched_question_tokens": dom_choice.matched_query_tokens,
-                            "matched_value_tokens": m.matched_value_tokens,
-                            "reason": m.reason
-                        }
-                    ],
+                    [_choice_dict(choice) for choice in ordered],
                     resolution_result=self.last_resolution_result,
                     followup_context=getattr(self, "followup_context", None),
                     match_stats=self.last_match_stats
@@ -473,22 +565,7 @@ class DimensionValueResolver(metaclass=ThreadLocalMeta):
             # Otherwise (e.g. STRONG_AMBIGUITY), return all candidates with clean matched_question_tokens
             # so they are returned in semantic_result for the UI/clarification.
             return ResolutionResultList(
-                [
-                    {
-                        "dimension_id": choice.result.dimension_id,
-                        "business_name": choice.result.business_name,
-                        "table_name": choice.result.table_name,
-                        "column_name": choice.result.column_name,
-                        "value": choice.result.value,
-                        "normalized_value": choice.result.normalized_value,
-                        "confidence": choice.result.confidence,
-                        "match_type": choice.result.match_type.value,
-                        "matched_question_tokens": choice.matched_query_tokens,
-                        "matched_value_tokens": choice.result.matched_value_tokens,
-                        "reason": choice.result.reason
-                    }
-                    for choice in self.last_resolution_result.candidates
-                ],
+                [_choice_dict(choice) for choice in self.last_resolution_result.candidates],
                 resolution_result=self.last_resolution_result,
                 followup_context=getattr(self, "followup_context", None),
                 match_stats=self.last_match_stats
@@ -846,15 +923,34 @@ class DimensionValueResolver(metaclass=ThreadLocalMeta):
         if not word or not dimension_context:
             return None
         w = word.lower()
+
+        # Gate 3 Step 19b - recognise a plural qualifier.
+        #
+        # This compared raw strings, so "Chennai city" found the City
+        # dimension but "Chennai cities" found nothing, and the qualifier
+        # filter below never fired for a plural - leaving District in
+        # contention alongside City. SingularPluralMatcher is the existing
+        # morphology authority used everywhere else in the matching stack
+        # (value matching, coverage, RC-02); it is reused here rather than
+        # adding a second pluralisation rule. Singular inputs are unchanged
+        # because _to_singular leaves an already-singular word alone.
+        w_singular = SingularPluralMatcher._to_singular(w)
+
+        def _same(candidate: str) -> bool:
+            if not candidate:
+                return False
+            c = candidate.lower()
+            return c == w or SingularPluralMatcher._to_singular(c) == w_singular
+
         for dim in dimension_context:
             bname = dim.get("business_name")
-            if bname and bname.lower() == w:
+            if _same(bname):
                 return bname
             dname = dim.get("dimension_name")
-            if dname and dname.lower() == w:
+            if _same(dname):
                 return bname or dname
             cname = dim.get("column_name")
-            if cname and cname.lower() == w:
+            if _same(cname):
                 return bname or cname
         if w in ["brand", "city", "state"]:
             return w.capitalize()

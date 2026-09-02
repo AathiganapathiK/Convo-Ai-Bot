@@ -146,13 +146,43 @@ def _get_match_info(technical_name: str, business_name: str, synonyms: str, ques
 
     if match_ratio >= 0.5:
         score = int(match_ratio * 8000)
-        matches.append((
-            score,
-            len(matched_stems),
-            [(0, len(q_norm))],
-            "Stem Overlap",
-            business_name,
-        ))
+
+        # Gate 3 Step 19b - report the span of the question tokens that
+        # actually matched, not the whole question.
+        #
+        # Every other priority above reports the span of the words it
+        # matched; this one claimed [(0, len(q_norm))]. A plural dimension
+        # name only ever reaches this path - "cities" matches no literal,
+        # whole-word or synonym rule - so it arrived at _remove_overlaps
+        # claiming the entire question, collided with the metric's span
+        # ("sales"), and was discarded. That is why every plural-qualified
+        # question resolved dimensions=[] while its singular form resolved
+        # correctly:
+        #
+        #   "…Chennai city"   -> (30000, 4, [(23, 27)], 'Business Name')
+        #   "…Chennai cities" -> ( 8000, 2, [(0, 29)],  'Stem Overlap')
+        #
+        # The stems themselves were always right; only the span contract
+        # was wrong. Score and matched length are deliberately unchanged,
+        # and no stem matching is broadened - this is purely the span.
+        matched_stem_set = set(matched_stems)
+        stem_spans = [
+            (m.start(), m.end())
+            for m in re.finditer(r"[a-zA-Z0-9]+", q_norm)
+            if _stem_word(m.group(0)) in matched_stem_set
+        ]
+
+        # If the matched stems cannot be located in the normalized question
+        # the candidate is dropped rather than falling back to the whole
+        # question, which is the behaviour being corrected here.
+        if stem_spans:
+            matches.append((
+                score,
+                len(matched_stems),
+                stem_spans,
+                "Stem Overlap",
+                business_name,
+            ))
 
     if not matches:
         return 0, 0, [], None, None
@@ -199,7 +229,8 @@ class SemanticResolver:
             column_name,
             synonyms,
             semantic_category,
-            {runtime_config_filter.dimension_role_column()}
+            {runtime_config_filter.dimension_role_column()},
+            {runtime_config_filter.dimension_confirmed_column()}
         FROM semantic_dimensions
         WHERE connection_id = :connection_id
           AND is_active = 1

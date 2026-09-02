@@ -82,6 +82,24 @@ class FuzzyMatcher(BaseMatcher):
                     if not keep_new:
                         continue
                 
+                # Gate 3 Step 21f. _has_token_level_evidence already decided
+                # WHICH question token justifies this particular candidate -
+                # "coimbator" for COIMBATORE, "city" for ELECTRONIC CITY - and
+                # that decision was being thrown away, leaving only the span
+                # below (phrase_tokens) for downstream evidence. Carry it
+                # through so the confidence model can measure coverage from
+                # what a candidate actually explains rather than from the
+                # whole phrase the matcher happened to search with.
+                #
+                # In the spacing-typo branch ("ram raj" vs "RAMRAJ") the
+                # approved evidence legitimately IS the whole phrase, because
+                # the phrase as a whole is what matched the value as a whole;
+                # splitting on whitespace yields its tokens in that case and a
+                # single token in every other.
+                precise_tokens = [
+                    t for t in str(evidence.get("matched_query_token") or "").split() if t
+                ]
+
                 mr = MatchResult(
                     matched=True,
                     value=val.value,
@@ -94,7 +112,8 @@ class FuzzyMatcher(BaseMatcher):
                     dimension_id=val.semantic_dimension_id,
                     business_name=val.business_name,
                     table_name=val.table_name,
-                    column_name=val.column_name
+                    column_name=val.column_name,
+                    matched_question_tokens_precise=precise_tokens or None
                 )
                 best_results[identity] = (mr, score, phrase)
 
