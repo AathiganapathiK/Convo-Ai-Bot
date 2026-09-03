@@ -485,6 +485,14 @@ class DimensionValueResolver(metaclass=ThreadLocalMeta):
             # from candidates that were never really in contention.
             def _choice_dict(choice):
                 m = choice.result
+                # A curated family stands for the rows it groups, so it carries
+                # them here. Downstream builds one IN filter over the members
+                # instead of an equality filter on a name that is not itself a
+                # stored value. Empty for every ordinary value, which leaves
+                # their handling untouched.
+                members = self._members_of(
+                    connection_id, m.table_name, m.column_name, m.value
+                )
                 return {
                     "dimension_id": m.dimension_id,
                     "business_name": m.business_name,
@@ -497,7 +505,8 @@ class DimensionValueResolver(metaclass=ThreadLocalMeta):
                     # Use clean matched_query_tokens from classifier to avoid pollution
                     "matched_question_tokens": choice.matched_query_tokens,
                     "matched_value_tokens": m.matched_value_tokens,
-                    "reason": m.reason
+                    "reason": m.reason,
+                    "family_members": list(members),
                 }
 
             if (
@@ -678,8 +687,94 @@ class DimensionValueResolver(metaclass=ThreadLocalMeta):
                 runtime_raw_singulars=val_singulars
             ))
 
+        cached_values.extend(self._family_candidates(connection_id))
+
         self.cache.put(connection_id, cached_values)
         return cached_values
+
+    def _family_candidates(self, connection_id: str) -> list[CachedDimensionValue]:
+        """
+        Curated value families, offered to the matchers as if they were stored
+        values.
+
+        WHY THE FAMILY IS A CANDIDATE RATHER THAN A POST-MATCH RULE
+
+        Some dimensions store a composite key instead of the entity a user
+        names. Brand holds brand x product-line pairs, so "Ramraj" matches no
+        stored value: every matcher fell through to fuzzy, and the 2-gram
+        "ramraj brand" scored 0.85 against RAMRAJ LITTLESTARS - just over the
+        cutoff. That longer span then suppressed the honest single-token
+        matches through span containment, leaving one arbitrary product line
+        standing alone as a confident SINGLE_MATCH.
+
+        Making the family a first-class candidate fixes that at the root. The
+        question token "ramraj" now matches the family value RAMRAJ EXACTLY, so
+        it beats every fuzzy member on tier, on value coverage, and on the
+        containment rule's own confidence guard - a shorter span survives a
+        longer one when its evidence is stronger. The user's word matches a
+        real configured thing instead of a near-miss on a narrower one.
+
+        Membership is never inferred here; see semantic/value_family.py. A
+        family the administrator has not confirmed, or one with fewer than two
+        members, is not offered at all - the resolver then behaves exactly as
+        it did before families existed, which surfaces the ambiguity rather
+        than answering from configuration nobody approved.
+        """
+        from semantic.value_family import ValueFamilyLoader
+
+        try:
+            config = ValueFamilyLoader.for_connection(connection_id)
+        except Exception:
+            return []
+
+        candidates = []
+        for family in config.usable():
+            norm_raw = self._normalize_text(family.family_name)
+            tokens = [t for t in norm_raw.split() if t not in STOPWORDS]
+            singulars = [SingularPluralMatcher._to_singular(t) for t in tokens]
+
+            candidates.append(CachedDimensionValue(
+                semantic_dimension_id=family.dimension_id,
+                business_name=family.business_name,
+                table_name=family.table_name,
+                column_name=family.column_name,
+                value=family.family_name,
+                normalized_value=norm_raw,
+                runtime_stored_norm=norm_raw,
+                runtime_stored_tokens=tokens,
+                runtime_stored_singulars=singulars,
+                runtime_raw_norm=norm_raw,
+                runtime_raw_tokens=tokens,
+                runtime_raw_singulars=singulars,
+            ))
+
+        return candidates
+
+    @staticmethod
+    def _members_of(connection_id, table_name, column_name, value) -> tuple:
+        """
+        The configured members of a matched value, or () if it is not a family.
+
+        Consulted where resolved values are handed downstream, so a family
+        expands to the rows it stands for without any matcher needing to know
+        families exist.
+
+        Reads the loader rather than any state left behind by
+        _family_candidates: that only runs when the value cache misses, so
+        instance state would be empty on every cached request. ValueFamilyLoader
+        keeps its own TTL cache, so this stays a dictionary lookup in the
+        normal case.
+        """
+        if not value or not connection_id:
+            return ()
+
+        try:
+            from semantic.value_family import ValueFamilyLoader
+            config = ValueFamilyLoader.for_connection(connection_id)
+        except Exception:
+            return ()
+
+        return config.members_for(table_name, column_name, value)
 
     @staticmethod
     def _rank_matches(matches: list[MatchResult], question_tokens: list) -> list[MatchResult]:

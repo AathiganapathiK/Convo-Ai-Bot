@@ -541,12 +541,34 @@ class SemanticPlanBuilder:
                     operator = FilterOperator.EQUAL
 
                 dim_name = v.get("business_name") or v.get("dimension") or v.get("dimension_name") or ""
+
+                # A curated value family (semantic_value_family) names a group
+                # of stored values rather than one of them - "Ramraj" is not a
+                # row in Brand; its twelve product lines are. Filtering on the
+                # family name would match nothing, so the filter is the members
+                # it stands for. Ordinary values carry no members and keep the
+                # single-value equality filter they always had.
+                family_members = v.get("family_members") or []
+                if family_members:
+                    filter_values = list(family_members)
+                    filter_operator = (
+                        FilterOperator.IN if len(filter_values) > 1 else operator
+                    )
+                    assumptions.append(
+                        "'%s' is a configured %s family, so it was expanded to "
+                        "its %d members."
+                        % (v.get("value"), dim_name or "value", len(filter_values))
+                    )
+                else:
+                    filter_values = [v.get("value")]
+                    filter_operator = operator
+
                 plan_filters.append(SemanticFilter(
                     dimension_name=dim_name,
                     table_name=v.get("table_name") or "",
                     column_name=v.get("column_name") or "",
-                    operator=operator,
-                    values=[v.get("value")]
+                    operator=filter_operator,
+                    values=filter_values
                 ))
 
         # 4. Build tables

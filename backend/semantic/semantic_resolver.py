@@ -876,6 +876,8 @@ class SemanticResolver:
 
         return {
 
+            "connection_id": connection_id,
+
             "metrics": metrics,
 
             "dimensions": dimensions,

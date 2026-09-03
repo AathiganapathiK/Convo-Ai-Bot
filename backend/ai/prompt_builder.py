@@ -609,7 +609,7 @@ class PromptBuilder:
                     }
                 )
 
-            msg = f"I couldn't find any data matching \"{question}\" in the available business data. Please try another product, category, or business term."
+            msg = gate_result.get("reason") or f"I couldn't find any data matching \"{question}\" in the available business data. Please try another product, category, or business term."
             raise SemanticRetrievalException(
                 message=msg,
                 details={
