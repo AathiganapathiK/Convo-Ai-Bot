@@ -116,18 +116,24 @@ class TestRC03aMetricSemantics(unittest.TestCase):
             self.assertIn(column, ("due", "Duedays", "nodays"),
                           msg="'due days' must resolve a days metric, got %s" % (got,))
 
-    # --- ruling 3: documented as NOT achieved ------------------------------
-    def test_due_amount_remains_blocked_by_technical_name_priority(self):
+    # --- ruling 3: achieved by RC-03b ---------------------------------------
+    def test_due_amount_resolves_to_pending_amount(self):
         """
-        Ruling 3 ("due amount" -> Pending Amount) is not reachable through
-        configuration: the days metric's TECHNICAL NAME is "due", matching at
-        Priority 4 (20000) and out-ranking Pending Amount's "due amount"
-        synonym (9000). Asserted at current behaviour so RC-03b changes it
-        deliberately.
+        Ruling 3 ("due amount" -> Pending Amount). Previously unreachable
+        through configuration alone: the days metric's TECHNICAL NAME is
+        "due", which matched at Priority 4 (20000, 3 characters) and
+        out-ranked Pending Amount's "due amount" synonym (Priority 6, 9000,
+        10 characters) purely because cross-candidate overlap resolution
+        compared priority TIER before matched LENGTH.
+        RC-03b (SemanticResolver._overlap_sort_key) makes matched length the
+        deciding factor within the bracket of genuine configured-phrase
+        evidence (Priority 3-6), so the longer, more specific synonym now
+        wins. See test_rc03b_metric_phrase_precedence.py for the full
+        regression suite this change is covered by.
         """
         got = self._metric_identities("Show due amount")
-        self.assertIn(self.DUE_DAYS, got)
-        self.assertNotIn(self.PENDING_AMOUNT, got)
+        self.assertIn(self.PENDING_AMOUNT, got)
+        self.assertNotIn(self.DUE_DAYS, got)
 
 
 @unittest.skipUnless(_db_reachable(), "database not reachable in this environment")

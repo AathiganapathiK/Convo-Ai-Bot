@@ -314,13 +314,61 @@ class SemanticResolver:
         return candidates
 
     @staticmethod
+    def _overlap_sort_key(candidate):
+        """
+        Gate 3 RC-03b - generic phrase-level precedence for overlap resolution.
+
+        _get_match_info's priority tiers (50000..8000) encode WHICH FIELD
+        matched - technical name, business name, synonym, or stem overlap -
+        not how much of the question that field explained. Comparing
+        candidates by raw tier therefore let a one-word technical name always
+        beat a longer, more specific business synonym: "due" (Business Name,
+        tier 30000, 3 chars) always outranked "due amount" (Synonym, tier
+        9000, 10 chars) for the question "Show due amount", even though the
+        synonym is the administrator's own configured phrase for a completely
+        different metric and explains more of what was actually asked.
+
+        Three tiers by evidence KIND, not by field:
+
+          bucket 2 (score >= 40000) - the ENTIRE question equals the
+          candidate's own name (Priority 1/2). This is already the strongest
+          possible signal and its matched length is already the maximum any
+          candidate can reach, so it keeps the original score-first ordering
+          unchanged.
+
+          bucket 1 (9000 <= score < 40000) - a literal, administrator
+          configured phrase - technical name, business name, or synonym -
+          found in the question (Priority 3-6). These are the SAME kind of
+          evidence differing only in which field held the phrase, so within
+          this bucket the longer matched phrase wins: more of the
+          administrator's own configured text explained is stronger evidence
+          of intent than which field it happened to live in. Score remains
+          the tie-breaker when two phrases match the same length.
+
+          bucket 0 (score < 9000) - heuristic stemmed token overlap
+          (Priority 7), not a literal configured phrase. Kept on its original
+          score-first ordering so it is never strengthened relative to a
+          genuine phrase match - it must keep losing to any Priority 1-6
+          candidate exactly as before.
+
+        This is data-driven throughout: nothing here names a metric, a
+        dimension, or a phrase. It reorders exactly one thing - whether tier
+        or length is compared first - and only inside the bracket where both
+        candidates are already genuine configured-phrase evidence.
+        """
+        score = candidate["score"]
+        length = candidate["length"]
+        is_metric = candidate["type"] == "metric"
+
+        if score >= 40000:
+            return (2, score, is_metric, length)
+        if score >= 9000:
+            return (1, length, is_metric, score)
+        return (0, score, is_metric, length)
+
+    @staticmethod
     def _remove_overlaps(candidates):
-        # Sort candidates:
-        # 1. Base score (integer part of score) descending
-        # 2. Type is metric descending (metrics first to prevent dimensions from discarding them)
-        # 3. Full score descending (tie-breaker for table-boosted dimensions)
-        # 4. Matched length descending
-        candidates.sort(key=lambda x: (int(x["score"]), x["type"] == "metric", x["score"], x["length"]), reverse=True)
+        candidates.sort(key=SemanticResolver._overlap_sort_key, reverse=True)
 
         selected_candidates = []
         global_selected_spans = []
