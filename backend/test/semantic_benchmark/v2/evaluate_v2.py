@@ -50,6 +50,105 @@ def _fmt(pairs):
     return sorted("%s.%s" % (t, c) for t, c in pairs)
 
 
+def _entry_physical(entry):
+    """The (table, column) pairs one expected business name may live on."""
+    out = set()
+    for physical in entry.get("physical") or []:
+        table = (physical.get("table_name") or "").strip().lower()
+        column = (physical.get("column_name") or "").strip().lower()
+        if table or column:
+            out.add((table, column))
+    return out
+
+
+def _identity_satisfied(expected_entries, act_set):
+    """
+    RC-07: does the actual identity set satisfy the expectation?
+
+    The rule this replaces required set EQUALITY against the union of every
+    physical table an expected business name lives on. For a dimension that is
+    replicated across tables - Division exists identically on all three, same
+    business name, same configured meaning, same ten values - that demanded the
+    resolver return all three copies. Selecting exactly one is the resolver's
+    job (RC-07, ratified), and with zero verified joins on this connection the
+    only executable copy is the one on the metric's table. The old contract
+    therefore made a correct answer unrepresentable.
+
+    What is checked now, per expected business name rather than against a
+    flattened union:
+
+      * every actual identity must be an allowed physical copy of SOME expected
+        business name - so Division-expected / btype-actual still fails, and
+        City-expected / District-actual still fails;
+      * every expected business name must be matched by EXACTLY ONE actual
+        identity - so a missing dimension fails, and returning two copies of
+        the same replicated dimension fails;
+      * nothing may be left over on either side.
+
+    A single-table expectation has exactly one allowed copy, so for it this is
+    identical to the equality test it replaces. An empty actual set can only
+    satisfy an empty expectation.
+
+    Deliberately NOT relaxed: this says nothing about which replica is right.
+    That is what makes it safe - it accepts any allowed copy and leaves the
+    question of whether the resolver chose sensibly to the value, ambiguity and
+    retrieval checks, which are untouched.
+    """
+    entries = [(e, _entry_physical(e)) for e in (expected_entries or [])]
+    entries = [(e, p) for e, p in entries if p]
+
+    if not entries:
+        return not act_set
+
+    if not act_set:
+        return False
+
+    allowed = set()
+    for _, physical in entries:
+        allowed |= physical
+    if not act_set <= allowed:
+        return False
+
+    consumed = set()
+    for _, physical in entries:
+        hit = act_set & physical
+        if len(hit) != 1:
+            return False
+        consumed |= hit
+
+    return consumed == act_set
+
+
+def _replicated_names(expected_entries):
+    """Business names whose expectation lists more than one physical copy."""
+    names = set()
+    for entry in expected_entries or []:
+        if entry.get("ambiguous_across_tables") and len(entry.get("physical") or []) > 1:
+            name = (entry.get("business_name") or "").strip().lower()
+            if name:
+                names.add(name)
+    return names
+
+
+def _distinct(values):
+    """
+    Values compared without multiplicity.
+
+    A replicated dimension puts the same stored value in the candidate list
+    once per physical copy: Division on three tables makes "VT" appear three
+    times. Those repeats record how many copies matched, not what the answer
+    is, and two identical strings are indistinguishable to this comparison
+    anyway - there is no per-value table attribution in `expected`.
+
+    Applied to BOTH sides, so this only ever collapses repeats of an identical
+    string. Distinct values stay distinct: CHENNAI and COIMBATORE are unaffected.
+    Candidate COUNT is still measured, by the ambiguity-status check below,
+    which is untouched - E1-097 keeps failing on STRONG vs WEAK exactly as it
+    should.
+    """
+    return sorted(set(values or []))
+
+
 def evaluate_case_v2(case, connection_id, resolver, normalize_list):
     """
     Score one v2 case. `resolver` and `normalize_list` are injected so this
@@ -197,7 +296,7 @@ def evaluate_case_v2(case, connection_id, resolver, normalize_list):
                                                          "(no resolvable identity)"}
                     continue
 
-                if exp_set != act_set:
+                if not _identity_satisfied(expected_entries, act_set):
                     codes.append("wrong %s" % field[:-1])
                     details[field] = {"expected": _fmt(exp_set),
                                       "actual": _fmt(act_set),
@@ -215,9 +314,11 @@ def evaluate_case_v2(case, connection_id, resolver, normalize_list):
                 codes.append("wrong dimension")
                 details["dimensions"] = {"expected": exp_d, "actual": act_d}
 
-        # 3. values - data, not names, so compared exactly as v1 does.
-        exp_v = normalize_list(expected.get("values"))
-        act_v = normalize_list(actual_values)
+        # 3. values - data, not names. Compared as v1 compares them, except
+        # that multiplicity is dropped: see _distinct(). Candidate count is
+        # still checked, by the ambiguity status in step 4.
+        exp_v = _distinct(normalize_list(expected.get("values")))
+        act_v = _distinct(normalize_list(actual_values))
         if act_v != exp_v:
             codes.append("wrong value")
             details["values"] = {"expected": exp_v, "actual": act_v}

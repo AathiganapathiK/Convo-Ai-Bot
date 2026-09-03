@@ -9,7 +9,7 @@ as such; do not quote 51/190 as a current figure.
 | Benchmark | v2 (Step 16 authoritative) |
 | Comparison contract | identity — `(table_name, column_name)` |
 | Runner | `run_v2_baseline.py` (unchanged) |
-| Commit | `2b8d98ff1d1f08df4d867b5b2571e86feaeb0e90` |
+| Resolver commit | `2b8d98ff1d1f08df4d867b5b2571e86feaeb0e90` |
 | Connection | `F82C2F8D-0BD6-40E2-8C8B-FF1D69E317D5` |
 
 ## The number
@@ -18,31 +18,63 @@ as such; do not quote 51/190 as a current figure.
 cases loaded    194
 scored          190
 unsupported       4   (E1-196, E1-197, E1-198, E1-199 — FUTURE_PHASE)
-PASS             82
-FAIL            108
+PASS             92
+FAIL             98
 errors            0
 
-AUTHORITATIVE BASELINE = 82/190 = 43.16%
+AUTHORITATIVE BASELINE = 92/190 = 48.42%     run 20260903T130444
 ```
 
 ## Read this before quoting the number
 
-The two runs below were produced by **identical resolver code**. Nothing in
-`semantic/`, `ai/`, the semantic configuration, or the benchmark runner changed
-between them. Only benchmark expectations changed.
+**All three runs below were produced by identical resolver code.** Nothing in
+`semantic/`, `ai/`, `confidence.py`, `table_affinity`, the Pareto logic, the
+semantic configuration, or the benchmark runner changed between them.
 
-| | Run | PASS | Rate |
-|---|---|---:|---:|
-| Pre-reconciliation — the measured software baseline | `20260903T113105` | 66/190 | 34.74% |
-| Post-reconciliation — this artifact | `20260903T122636` | 82/190 | 43.16% |
-| Delta | | **+16** | **+8.42 pts** |
+| | Run | PASS | Rate | What changed |
+|---|---|---:|---:|---|
+| Measured software baseline | `20260903T113105` | 66/190 | 34.74% | — |
+| After expectation reconciliation | `20260903T122636` | 82/190 | 43.16% | **+16** benchmark expectation reconciliation gain |
+| After RC-07 evaluator-contract fix | `20260903T130444` | 92/190 | 48.42% | **+10** evaluator-contract reconciliation gain |
 
-**The +16 is a benchmark expectation reconciliation gain, not a software
-accuracy improvement.** Every one of the sixteen cases was already behaving
-correctly; the benchmark was asserting the behaviour Gate 3 had deliberately
-replaced. The pre-reconciliation 66/190 was verified reproducible — two
-consecutive runs were bit-identical across `pass_fail`, `failure_codes` and the
-`actual` payloads.
+**Neither gain is a software accuracy improvement.** The +16 came from
+correcting expectations that asserted behaviour Gate 3 had deliberately
+replaced. The +10 came from `evaluate_v2` no longer demanding that the resolver
+return every physical copy of a replicated dimension — a demand that
+contradicted the ratified RC-07 ruling and made a correct answer
+unrepresentable. The honest statement of resolver accuracy over this period is
+that **it did not change**; what changed is that the benchmark now measures it.
+
+The 66/190 baseline was verified reproducible — two consecutive runs were
+bit-identical across `pass_fail`, `failure_codes` and the `actual` payloads.
+
+## RC-07 — ratified, and what the evaluator now checks
+
+Ruling: when a business dimension is replicated across tables (`Division` is
+identical on all three — same name, same synonyms, same GROUPING role,
+confirmed, same ten values), the resolver may select one physical copy, and
+normally selects the one on the resolved metric's table. Table affinity may
+resolve among replicas; it must never resolve between different dimensions,
+never override an explicit dimension qualifier, and never collapse genuine
+City-vs-District or Division-vs-btype ambiguity.
+
+`evaluate_v2._identity_satisfied()` implements the matching half of that, per
+expected business name rather than against a flattened union:
+
+* every actual identity must be an allowed copy of some expected name;
+* every expected name must be matched by exactly one actual identity;
+* nothing left over on either side.
+
+A single-table expectation therefore behaves exactly as the old equality test.
+`Division`-expected / `btype`-actual still fails, `City`-expected /
+`District`-actual still fails, and an empty actual set can only satisfy an
+empty expectation. Value multiplicity is dropped on both sides, because a
+replicated dimension repeats the same string once per copy and two identical
+strings are indistinguishable to this comparison; candidate *count* is still
+measured by the ambiguity-status check, which is untouched — E1-097 and E1-098
+still fail on STRONG vs WEAK, exactly as they should.
+
+Pinned by `backend/test/test_rc07_evaluator_contract.py` (26 tests).
 
 `FAIL → PASS` (16): E1-015, E1-016, E1-034, E1-084, E1-119, E1-126, E1-127,
 E1-128, E1-129, E1-130, E1-131, E1-132, E1-133, E1-134, E1-135, E1-145.
@@ -74,32 +106,32 @@ original v1 expectation is preserved in `expectation_review.original_expected`.
 | PENDING AMBIGUITY-STATUS RULING | E1-019 (now isolated: it fails on status alone) |
 | RE-AUTHOR / RE-CATEGORIZE REQUIRED | E1-185, E1-186 |
 | PENDING TEMPORAL/DIMENSION REVIEW | E1-020, E1-021 |
-| PENDING EVALUATOR CONTRACT FIX | systemic — see below |
+| ~~PENDING EVALUATOR CONTRACT FIX~~ | **resolved** — see the RC-07 section above |
 
-## Where the remaining 108 failures sit
+## Where the remaining 98 failures sit
 
 | Category | Pass | | Category | Pass |
 |---|---|---|---|---|
-| AMBIGUOUS_VALUES | 13/18 | | METRIC_SHIFT | 4/8 |
+| METRIC_DIMENSION_VALUE | 14/22 | | NO_MATCH_ADVERSARIAL | 7/10 |
+| AMBIGUOUS_VALUES | 13/18 | | TYPO_FUZZY | 7/18 |
 | SIMPLE_METRIC | 11/18 | | ENTITY_TOPIC_SHIFT | 2/8 |
-| METRIC_DIMENSION_VALUE | 11/22 | | **FOLLOW_UP** | **0/10** |
-| PARTIAL_COVERAGE | 11/18 | | **MULTI_DIMENSION** | **0/18** |
-| SINGULAR_PLURAL | 11/18 | | **TEMPORAL_QUESTIONS** | **0/6** |
-| NO_MATCH_ADVERSARIAL | 7/10 | | | |
-| EXPLICIT_DIMENSION | 6/18 | | | |
-| TYPO_FUZZY | 6/18 | | | |
+| PARTIAL_COVERAGE | 11/18 | | **FOLLOW_UP** | **0/10** |
+| SINGULAR_PLURAL | 11/18 | | **MULTI_DIMENSION** | **0/18** |
+| EXPLICIT_DIMENSION | 10/18 | | **TEMPORAL_QUESTIONS** | **0/6** |
+| METRIC_SHIFT | 6/8 | | | |
 
-Failure codes: `wrong value` 77 · `wrong ambiguity` 75 · `wrong dimension` 44 ·
+Failure codes: `wrong value` 64 · `wrong ambiguity` 75 · `wrong dimension` 11 ·
 `wrong metric` 22 · `wrong retrieval status` 18.
 
-**`wrong dimension` remains inflated.** `evaluate_v2._identity_set` unions every
-physical table carrying an expected dimension name, so a case whose dimension
-exists on several tables can only pass if the resolver returns all of them —
-the opposite of the single-table selection 17a and RC-07 exist to perform.
-E1-126 and E1-145 were corrected individually here; the general contract was
-deliberately **not** changed, because that is an evaluator-design decision and
-does not belong in an expectation reconciliation. 44 of the 108 remaining
-failures still carry the code.
+**`wrong dimension` fell 44 → 11, and all 11 are genuine:** the `createddate`
+temporal expectations (E1-022, E1-023, E1-190, E1-191, E1-192, E1-194, E1-195),
+the `docdate` leak on E1-020/E1-021, and E1-060/E1-072, where the resolver
+selected a replica that is **not** in the expected set — proof the contract is
+still strict about which copies are allowed.
+
+The three largest remaining clusters are untouched by any of this work:
+follow-up metric carry-over (0/10), MULTI_DIMENSION (0/18) and the per-table
+temporal capability (0/6).
 
 ## Reproducing
 
