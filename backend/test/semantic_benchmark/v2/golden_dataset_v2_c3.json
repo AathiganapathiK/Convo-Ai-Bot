@@ -171,7 +171,7 @@
     "datasource_ref": "Chatbot",
     "expected": {
       "metrics": [
-        "Amount"
+        "C Y"
       ],
       "dimensions": [],
       "values": [
@@ -199,7 +199,7 @@
         "evidence_source": "live connection F82C2F8D-0BD6-40E2-8C8B-FF1D69E317D5, semantic_metrics / semantic_dimensions / dimension_value_index",
         "answerability": {
           "metric_tables": [
-            "PBI_ENES_ORDER_PENDING_SUMMARY"
+            "QB_MDJMD_SALES_5YRS_SUMMARY"
           ],
           "dimension_tables": [],
           "cross_table_without_verified_join": false,
@@ -225,18 +225,19 @@
       "requires_human_review": false,
       "expectation_changed_in_v2": true,
       "change_log": [
-        "metrics ['Amt'] -> ['Amount']. Display-name drift only: the metric was renamed in configuration and still binds to the same physical column. Corrected so the case compares on identity."
+        "metrics ['Amt'] -> ['Amount']. Display-name drift only: the metric was renamed in configuration and still binds to the same physical column. Corrected so the case compares on identity.",
+        "Gate 3 Task 3 - metrics ['Amount'] -> ['C Y'] (QB_MDJMD_SALES_5YRS_SUMMARY.CY). RC-03a ruling 6: 'sales amount' -> C Y."
       ]
     },
     "expected_identity": {
       "metrics": [
         {
-          "business_name": "Amount",
+          "business_name": "C Y",
           "resolved": true,
           "physical": [
             {
-              "table_name": "PBI_ENES_ORDER_PENDING_SUMMARY",
-              "column_name": "Amt"
+              "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY",
+              "column_name": "CY"
             }
           ],
           "ambiguous_across_tables": false

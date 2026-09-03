@@ -1,4 +1,8 @@
 {
+  "_ARTIFACT_STATUS": "HISTORICAL - SUPERSEDED. Do not quote as the current Gate 3 result.",
+  "_superseded_by": "backend/test/semantic_benchmark/v2/authoritative_baseline.json (v2, 82/190 = 43.16%)",
+  "_why": "This is the v1 benchmark run by run_retrieval_benchmark.py against the v1 datasets and the business-name comparison contract. Gate 3 Step 16 replaced both: v2 compares on physical identity (table, column) and carries reviewed expectations. The 26.84% below is a real historical measurement of the v1 benchmark and is kept for the record.",
+  "_benchmark_version": "v1 (superseded by v2)",
   "total_cases": 194,
   "evaluated_cases": 190,
   "future_phase_cases": 4,

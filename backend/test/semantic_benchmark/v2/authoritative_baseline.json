@@ -1,0 +1,92 @@
+{
+  "artifact": "Gate 3 authoritative benchmark baseline",
+  "supersedes": "backend/test/semantic_benchmark/results/retrieval_benchmark_summary.json (v1, 51/190 = 26.84%, historical)",
+  "benchmark_version": "v2 (Step 16 authoritative)",
+  "comparison_contract": "identity - metrics and dimensions compared on (table_name, column_name)",
+  "runner": "backend/test/semantic_benchmark/v2/run_v2_baseline.py",
+  "connection_id": "F82C2F8D-0BD6-40E2-8C8B-FF1D69E317D5",
+
+  "current": {
+    "label": "post expectation reconciliation",
+    "run_id": "20260903T122636",
+    "commit_sha": "2b8d98ff1d1f08df4d867b5b2571e86feaeb0e90",
+    "commit_note": "resolver code identical to the pre-reconciliation run; only benchmark expectations changed",
+    "cases_loaded": 194,
+    "scored": 190,
+    "unsupported": 4,
+    "unsupported_case_ids": ["E1-196", "E1-197", "E1-198", "E1-199"],
+    "passed": 82,
+    "failed": 108,
+    "execution_errors": 0,
+    "pass_rate": 43.16
+  },
+
+  "previous": {
+    "label": "pre expectation reconciliation - the measured software baseline",
+    "run_id": "20260903T113105",
+    "reproducibility_run_id": "20260903T113733",
+    "commit_sha": "2b8d98ff1d1f08df4d867b5b2571e86feaeb0e90",
+    "cases_loaded": 194,
+    "scored": 190,
+    "unsupported": 4,
+    "passed": 66,
+    "failed": 124,
+    "execution_errors": 0,
+    "pass_rate": 34.74,
+    "note": "Two consecutive runs were bit-identical across pass_fail, failure_codes and actual payloads."
+  },
+
+  "delta": {
+    "passed": 16,
+    "pass_rate_points": 8.42,
+    "kind": "benchmark expectation reconciliation gain",
+    "warning": "This is NOT a software accuracy improvement. No resolver, semantic-configuration or runner code changed between the two runs. The gain comes entirely from correcting benchmark expectations that encoded behaviour Gate 3 had deliberately replaced.",
+    "fail_to_pass": [
+      "E1-015", "E1-016", "E1-034", "E1-084",
+      "E1-119",
+      "E1-126", "E1-127", "E1-128", "E1-129", "E1-130",
+      "E1-131", "E1-132", "E1-133", "E1-134", "E1-135",
+      "E1-145"
+    ],
+    "pass_to_fail": []
+  },
+
+  "failure_breakdown": {
+    "wrong value": 77,
+    "wrong ambiguity": 75,
+    "wrong dimension": 44,
+    "wrong metric": 22,
+    "wrong retrieval status": 18
+  },
+
+  "category_breakdown": {
+    "SIMPLE_METRIC":          { "total": 18, "passed": 11, "failed": 7 },
+    "METRIC_DIMENSION_VALUE": { "total": 22, "passed": 11, "failed": 11 },
+    "EXPLICIT_DIMENSION":     { "total": 18, "passed": 6,  "failed": 12 },
+    "MULTI_DIMENSION":        { "total": 18, "passed": 0,  "failed": 18 },
+    "AMBIGUOUS_VALUES":       { "total": 18, "passed": 13, "failed": 5 },
+    "PARTIAL_COVERAGE":       { "total": 18, "passed": 11, "failed": 7 },
+    "SINGULAR_PLURAL":        { "total": 18, "passed": 11, "failed": 7 },
+    "TYPO_FUZZY":             { "total": 18, "passed": 6,  "failed": 12 },
+    "FOLLOW_UP":              { "total": 10, "passed": 0,  "failed": 10 },
+    "METRIC_SHIFT":           { "total": 8,  "passed": 4,  "failed": 4 },
+    "ENTITY_TOPIC_SHIFT":     { "total": 8,  "passed": 2,  "failed": 6 },
+    "NO_MATCH_ADVERSARIAL":   { "total": 10, "passed": 7,  "failed": 3 },
+    "TEMPORAL_QUESTIONS":     { "total": 6,  "passed": 0,  "failed": 6 }
+  },
+
+  "expectation_verdicts": { "A": 92, "VALID": 42, "B": 30, "E": 26, "D": 4 },
+  "data_answerable": { "no": 94, "yes": 90, "partial": 10 },
+
+  "expectations_changed_in_this_reconciliation": 26,
+
+  "known_open_items": [
+    "PENDING QUALIFIER-REFUSAL RULING - E1-042, E1-060, E1-114, E1-146, E1-168, E1-173",
+    "PENDING RAMRAJ BUSINESS RULING - 26 cases, all verdict E",
+    "PENDING AMBIGUITY-STATUS RULING - E1-019 now fails on status alone",
+    "RE-AUTHOR / RE-CATEGORIZE REQUIRED - E1-185, E1-186",
+    "PENDING TEMPORAL/DIMENSION REVIEW - E1-020, E1-021",
+    "PENDING EVALUATOR CONTRACT FIX - a multi-table dimension expectation is expanded across every table holding it, which contradicts the resolver's single-table selection; 44 of the 108 remaining failures still carry 'wrong dimension'",
+    "RC-03b NOT IMPLEMENTED - E1-017, E1-018, E1-035 now carry the approved 'due amount' -> Pending Amount target and are expected to fail until RC-03b lands"
+  ]
+}

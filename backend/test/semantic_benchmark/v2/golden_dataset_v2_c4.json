@@ -127,7 +127,7 @@
       "values": [
         "BANIANS"
       ],
-      "status": "PARTIAL_MATCH",
+      "status": "WEAK_AMBIGUITY",
       "followup_context_applied": false,
       "dominant_candidate": null,
       "retrieval_status": "COMPLETE"
@@ -169,7 +169,10 @@
       },
       "recommended_expected": null,
       "requires_human_review": false,
-      "expectation_changed_in_v2": false
+      "expectation_changed_in_v2": true,
+      "change_log": [
+        "Gate 3 Task 3 - status PARTIAL_MATCH -> WEAK_AMBIGUITY. Step 21d made 'total' a verified filler word, so it is no longer a dangerous unmatched token and PARTIAL_MATCH no longer describes the question. Closes the open expectation review recorded in STEP_21D_E1119_CONFLICT.md."
+      ]
     },
     "expected_identity": {
       "metrics": [
@@ -2992,9 +2995,6 @@
         "Division"
       ],
       "values": [
-        "VT",
-        "VT",
-        "VT",
         "VT"
       ],
       "status": "WEAK_AMBIGUITY",
@@ -3051,7 +3051,10 @@
       },
       "recommended_expected": null,
       "requires_human_review": false,
-      "expectation_changed_in_v2": false
+      "expectation_changed_in_v2": true,
+      "change_log": [
+        "Gate 3 Task 3 - values ['VT','VT','VT','VT'] -> ['VT']; dimension identity narrowed to QB_MDJMD_SALES_5YRS_SUMMARY.Division. The fourth VT was PBI_OUTSTANDING_ENES_SUMMARY.btype, a different dimension the 'divisions' qualifier correctly drops; the other three were one dimension across three tables. The benchmark must not require the same dimension on every table - the resolver selects the one co-located with the C Y metric. Status left WEAK_AMBIGUITY as ruled."
+      ]
     },
     "expected_identity": {
       "metrics": [
@@ -3075,17 +3078,9 @@
             {
               "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY",
               "column_name": "Division"
-            },
-            {
-              "table_name": "PBI_OUTSTANDING_ENES_SUMMARY",
-              "column_name": "Division"
-            },
-            {
-              "table_name": "PBI_ENES_ORDER_PENDING_SUMMARY",
-              "column_name": "Division"
             }
           ],
-          "ambiguous_across_tables": true
+          "ambiguous_across_tables": false
         }
       ]
     },
@@ -3108,10 +3103,9 @@
         "City"
       ],
       "values": [
-        "CHENNAI",
         "CHENNAI"
       ],
-      "status": "WEAK_AMBIGUITY",
+      "status": "SINGLE_MATCH",
       "followup_context_applied": false,
       "dominant_candidate": null,
       "retrieval_status": "COMPLETE"
@@ -3161,7 +3155,10 @@
       },
       "recommended_expected": null,
       "requires_human_review": false,
-      "expectation_changed_in_v2": false
+      "expectation_changed_in_v2": true,
+      "change_log": [
+        "Gate 3 Task 3 - values ['CHENNAI', 'CHENNAI'] -> ['CHENNAI']; status WEAK_AMBIGUITY -> SINGLE_MATCH. Step 19b: the duplicate value was the same value on the other geographic dimension, which the explicit plural qualifier correctly removes. One candidate is SINGLE_MATCH by definition. The old expectation encoded the pre-19b unfiltered state."
+      ]
     },
     "expected_identity": {
       "metrics": [
@@ -3212,10 +3209,9 @@
         "City"
       ],
       "values": [
-        "COIMBATORE",
         "COIMBATORE"
       ],
-      "status": "WEAK_AMBIGUITY",
+      "status": "SINGLE_MATCH",
       "followup_context_applied": false,
       "dominant_candidate": null,
       "retrieval_status": "COMPLETE"
@@ -3265,7 +3261,10 @@
       },
       "recommended_expected": null,
       "requires_human_review": false,
-      "expectation_changed_in_v2": false
+      "expectation_changed_in_v2": true,
+      "change_log": [
+        "Gate 3 Task 3 - values ['COIMBATORE', 'COIMBATORE'] -> ['COIMBATORE']; status WEAK_AMBIGUITY -> SINGLE_MATCH. Step 19b: the duplicate value was the same value on the other geographic dimension, which the explicit plural qualifier correctly removes. One candidate is SINGLE_MATCH by definition. The old expectation encoded the pre-19b unfiltered state."
+      ]
     },
     "expected_identity": {
       "metrics": [
@@ -3316,10 +3315,9 @@
         "City"
       ],
       "values": [
-        "MADURAI",
         "MADURAI"
       ],
-      "status": "WEAK_AMBIGUITY",
+      "status": "SINGLE_MATCH",
       "followup_context_applied": false,
       "dominant_candidate": null,
       "retrieval_status": "COMPLETE"
@@ -3369,7 +3367,10 @@
       },
       "recommended_expected": null,
       "requires_human_review": false,
-      "expectation_changed_in_v2": false
+      "expectation_changed_in_v2": true,
+      "change_log": [
+        "Gate 3 Task 3 - values ['MADURAI', 'MADURAI'] -> ['MADURAI']; status WEAK_AMBIGUITY -> SINGLE_MATCH. Step 19b: the duplicate value was the same value on the other geographic dimension, which the explicit plural qualifier correctly removes. One candidate is SINGLE_MATCH by definition. The old expectation encoded the pre-19b unfiltered state."
+      ]
     },
     "expected_identity": {
       "metrics": [
@@ -3420,10 +3421,9 @@
         "District"
       ],
       "values": [
-        "CHENNAI",
         "CHENNAI"
       ],
-      "status": "WEAK_AMBIGUITY",
+      "status": "SINGLE_MATCH",
       "followup_context_applied": false,
       "dominant_candidate": null,
       "retrieval_status": "COMPLETE"
@@ -3473,7 +3473,10 @@
       },
       "recommended_expected": null,
       "requires_human_review": false,
-      "expectation_changed_in_v2": false
+      "expectation_changed_in_v2": true,
+      "change_log": [
+        "Gate 3 Task 3 - values ['CHENNAI', 'CHENNAI'] -> ['CHENNAI']; status WEAK_AMBIGUITY -> SINGLE_MATCH. Step 19b: the duplicate value was the same value on the other geographic dimension, which the explicit plural qualifier correctly removes. One candidate is SINGLE_MATCH by definition. The old expectation encoded the pre-19b unfiltered state."
+      ]
     },
     "expected_identity": {
       "metrics": [
@@ -3524,10 +3527,9 @@
         "District"
       ],
       "values": [
-        "COIMBATORE",
         "COIMBATORE"
       ],
-      "status": "WEAK_AMBIGUITY",
+      "status": "SINGLE_MATCH",
       "followup_context_applied": false,
       "dominant_candidate": null,
       "retrieval_status": "COMPLETE"
@@ -3577,7 +3579,10 @@
       },
       "recommended_expected": null,
       "requires_human_review": false,
-      "expectation_changed_in_v2": false
+      "expectation_changed_in_v2": true,
+      "change_log": [
+        "Gate 3 Task 3 - values ['COIMBATORE', 'COIMBATORE'] -> ['COIMBATORE']; status WEAK_AMBIGUITY -> SINGLE_MATCH. Step 19b: the duplicate value was the same value on the other geographic dimension, which the explicit plural qualifier correctly removes. One candidate is SINGLE_MATCH by definition. The old expectation encoded the pre-19b unfiltered state."
+      ]
     },
     "expected_identity": {
       "metrics": [
@@ -3628,10 +3633,9 @@
         "District"
       ],
       "values": [
-        "MADURAI",
         "MADURAI"
       ],
-      "status": "WEAK_AMBIGUITY",
+      "status": "SINGLE_MATCH",
       "followup_context_applied": false,
       "dominant_candidate": null,
       "retrieval_status": "COMPLETE"
@@ -3681,7 +3685,10 @@
       },
       "recommended_expected": null,
       "requires_human_review": false,
-      "expectation_changed_in_v2": false
+      "expectation_changed_in_v2": true,
+      "change_log": [
+        "Gate 3 Task 3 - values ['MADURAI', 'MADURAI'] -> ['MADURAI']; status WEAK_AMBIGUITY -> SINGLE_MATCH. Step 19b: the duplicate value was the same value on the other geographic dimension, which the explicit plural qualifier correctly removes. One candidate is SINGLE_MATCH by definition. The old expectation encoded the pre-19b unfiltered state."
+      ]
     },
     "expected_identity": {
       "metrics": [
@@ -3732,10 +3739,9 @@
         "City"
       ],
       "values": [
-        "ERODE",
         "ERODE"
       ],
-      "status": "WEAK_AMBIGUITY",
+      "status": "SINGLE_MATCH",
       "followup_context_applied": false,
       "dominant_candidate": null,
       "retrieval_status": "COMPLETE"
@@ -3785,7 +3791,10 @@
       },
       "recommended_expected": null,
       "requires_human_review": false,
-      "expectation_changed_in_v2": false
+      "expectation_changed_in_v2": true,
+      "change_log": [
+        "Gate 3 Task 3 - values ['ERODE', 'ERODE'] -> ['ERODE']; status WEAK_AMBIGUITY -> SINGLE_MATCH. Step 19b: the duplicate value was the same value on the other geographic dimension, which the explicit plural qualifier correctly removes. One candidate is SINGLE_MATCH by definition. The old expectation encoded the pre-19b unfiltered state."
+      ]
     },
     "expected_identity": {
       "metrics": [
@@ -3836,10 +3845,9 @@
         "City"
       ],
       "values": [
-        "SALEM",
         "SALEM"
       ],
-      "status": "WEAK_AMBIGUITY",
+      "status": "SINGLE_MATCH",
       "followup_context_applied": false,
       "dominant_candidate": null,
       "retrieval_status": "COMPLETE"
@@ -3889,7 +3897,10 @@
       },
       "recommended_expected": null,
       "requires_human_review": false,
-      "expectation_changed_in_v2": false
+      "expectation_changed_in_v2": true,
+      "change_log": [
+        "Gate 3 Task 3 - values ['SALEM', 'SALEM'] -> ['SALEM']; status WEAK_AMBIGUITY -> SINGLE_MATCH. Step 19b: the duplicate value was the same value on the other geographic dimension, which the explicit plural qualifier correctly removes. One candidate is SINGLE_MATCH by definition. The old expectation encoded the pre-19b unfiltered state."
+      ]
     },
     "expected_identity": {
       "metrics": [
@@ -3940,10 +3951,9 @@
         "City"
       ],
       "values": [
-        "TIRUNELVELI",
         "TIRUNELVELI"
       ],
-      "status": "WEAK_AMBIGUITY",
+      "status": "SINGLE_MATCH",
       "followup_context_applied": false,
       "dominant_candidate": null,
       "retrieval_status": "COMPLETE"
@@ -3993,7 +4003,10 @@
       },
       "recommended_expected": null,
       "requires_human_review": false,
-      "expectation_changed_in_v2": false
+      "expectation_changed_in_v2": true,
+      "change_log": [
+        "Gate 3 Task 3 - values ['TIRUNELVELI', 'TIRUNELVELI'] -> ['TIRUNELVELI']; status WEAK_AMBIGUITY -> SINGLE_MATCH. Step 19b: the duplicate value was the same value on the other geographic dimension, which the explicit plural qualifier correctly removes. One candidate is SINGLE_MATCH by definition. The old expectation encoded the pre-19b unfiltered state."
+      ]
     },
     "expected_identity": {
       "metrics": [
@@ -4122,9 +4135,9 @@
         "City"
       ],
       "values": [
-        "ELECTRONIC CITY"
+        "COIMBATORE"
       ],
-      "status": "WEAK_AMBIGUITY",
+      "status": "SINGLE_MATCH",
       "followup_context_applied": false,
       "dominant_candidate": null,
       "retrieval_status": "COMPLETE"
@@ -4172,7 +4185,10 @@
       },
       "recommended_expected": null,
       "requires_human_review": false,
-      "expectation_changed_in_v2": false
+      "expectation_changed_in_v2": true,
+      "change_log": [
+        "Gate 3 Task 3 - values ['ELECTRONIC CITY'] -> ['COIMBATORE']; status WEAK_AMBIGUITY -> SINGLE_MATCH. Step 17a/21f: the expectation named ELECTRONIC CITY instead of the city the user actually named, which is the pre-fix fuzzy accident and is not semantically defensible. Corrected to the named city. This case is expected to KEEP FAILING until the separate qualifier-token / fuzzy-value defect is fixed - the resolver still returns ELECTRONIC CITY as an extra candidate."
+      ]
     },
     "expected_identity": {
       "metrics": [
@@ -4223,9 +4239,9 @@
         "City"
       ],
       "values": [
-        "ELECTRONIC CITY"
+        "CHENNAI"
       ],
-      "status": "WEAK_AMBIGUITY",
+      "status": "SINGLE_MATCH",
       "followup_context_applied": false,
       "dominant_candidate": null,
       "retrieval_status": "COMPLETE"
@@ -4273,7 +4289,10 @@
       },
       "recommended_expected": null,
       "requires_human_review": false,
-      "expectation_changed_in_v2": false
+      "expectation_changed_in_v2": true,
+      "change_log": [
+        "Gate 3 Task 3 - values ['ELECTRONIC CITY'] -> ['CHENNAI']; status WEAK_AMBIGUITY -> SINGLE_MATCH. Step 17a/21f: the expectation named ELECTRONIC CITY instead of the city the user actually named, which is the pre-fix fuzzy accident and is not semantically defensible. Corrected to the named city. This case is expected to KEEP FAILING until the separate qualifier-token / fuzzy-value defect is fixed - the resolver still returns ELECTRONIC CITY as an extra candidate."
+      ]
     },
     "expected_identity": {
       "metrics": [
@@ -4324,9 +4343,9 @@
         "City"
       ],
       "values": [
-        "ELECTRONIC CITY"
+        "MADURAI"
       ],
-      "status": "WEAK_AMBIGUITY",
+      "status": "SINGLE_MATCH",
       "followup_context_applied": false,
       "dominant_candidate": null,
       "retrieval_status": "COMPLETE"
@@ -4374,7 +4393,10 @@
       },
       "recommended_expected": null,
       "requires_human_review": false,
-      "expectation_changed_in_v2": false
+      "expectation_changed_in_v2": true,
+      "change_log": [
+        "Gate 3 Task 3 - values ['ELECTRONIC CITY'] -> ['MADURAI']; status WEAK_AMBIGUITY -> SINGLE_MATCH. Step 17a/21f: the expectation named ELECTRONIC CITY instead of the city the user actually named, which is the pre-fix fuzzy accident and is not semantically defensible. Corrected to the named city. This case is expected to KEEP FAILING until the separate qualifier-token / fuzzy-value defect is fixed - the resolver still returns ELECTRONIC CITY as an extra candidate."
+      ]
     },
     "expected_identity": {
       "metrics": [
@@ -4425,9 +4447,9 @@
         "City"
       ],
       "values": [
-        "ELECTRONIC CITY"
+        "ERODE"
       ],
-      "status": "WEAK_AMBIGUITY",
+      "status": "SINGLE_MATCH",
       "followup_context_applied": false,
       "dominant_candidate": null,
       "retrieval_status": "COMPLETE"
@@ -4475,7 +4497,10 @@
       },
       "recommended_expected": null,
       "requires_human_review": false,
-      "expectation_changed_in_v2": false
+      "expectation_changed_in_v2": true,
+      "change_log": [
+        "Gate 3 Task 3 - values ['ELECTRONIC CITY'] -> ['ERODE']; status WEAK_AMBIGUITY -> SINGLE_MATCH. Step 17a/21f: the expectation named ELECTRONIC CITY instead of the city the user actually named, which is the pre-fix fuzzy accident and is not semantically defensible. Corrected to the named city. This case is expected to KEEP FAILING until the separate qualifier-token / fuzzy-value defect is fixed - the resolver still returns ELECTRONIC CITY as an extra candidate."
+      ]
     },
     "expected_identity": {
       "metrics": [
@@ -4526,9 +4551,9 @@
         "City"
       ],
       "values": [
-        "ELECTRONIC CITY"
+        "SALEM"
       ],
-      "status": "WEAK_AMBIGUITY",
+      "status": "SINGLE_MATCH",
       "followup_context_applied": false,
       "dominant_candidate": null,
       "retrieval_status": "COMPLETE"
@@ -4576,7 +4601,10 @@
       },
       "recommended_expected": null,
       "requires_human_review": false,
-      "expectation_changed_in_v2": false
+      "expectation_changed_in_v2": true,
+      "change_log": [
+        "Gate 3 Task 3 - values ['ELECTRONIC CITY'] -> ['SALEM']; status WEAK_AMBIGUITY -> SINGLE_MATCH. Step 17a/21f: the expectation named ELECTRONIC CITY instead of the city the user actually named, which is the pre-fix fuzzy accident and is not semantically defensible. Corrected to the named city. This case is expected to KEEP FAILING until the separate qualifier-token / fuzzy-value defect is fixed - the resolver still returns ELECTRONIC CITY as an extra candidate."
+      ]
     },
     "expected_identity": {
       "metrics": [
@@ -4627,9 +4655,9 @@
         "City"
       ],
       "values": [
-        "ELECTRONIC CITY"
+        "TIRUNELVELI"
       ],
-      "status": "WEAK_AMBIGUITY",
+      "status": "SINGLE_MATCH",
       "followup_context_applied": false,
       "dominant_candidate": null,
       "retrieval_status": "COMPLETE"
@@ -4677,7 +4705,10 @@
       },
       "recommended_expected": null,
       "requires_human_review": false,
-      "expectation_changed_in_v2": false
+      "expectation_changed_in_v2": true,
+      "change_log": [
+        "Gate 3 Task 3 - values ['ELECTRONIC CITY'] -> ['TIRUNELVELI']; status WEAK_AMBIGUITY -> SINGLE_MATCH. Step 17a/21f: the expectation named ELECTRONIC CITY instead of the city the user actually named, which is the pre-fix fuzzy accident and is not semantically defensible. Corrected to the named city. This case is expected to KEEP FAILING until the separate qualifier-token / fuzzy-value defect is fixed - the resolver still returns ELECTRONIC CITY as an extra candidate."
+      ]
     },
     "expected_identity": {
       "metrics": [
@@ -4922,11 +4953,7 @@
         "Category"
       ],
       "values": [
-        "MARKETING",
-        "MARKETING",
-        "MARKETING",
-        "Marketing",
-        "Marketing"
+        "MARKETING"
       ],
       "status": "WEAK_AMBIGUITY",
       "followup_context_applied": false,
@@ -4981,7 +5008,10 @@
       },
       "recommended_expected": null,
       "requires_human_review": false,
-      "expectation_changed_in_v2": false
+      "expectation_changed_in_v2": true,
+      "change_log": [
+        "Gate 3 Task 3 - values ['MARKETING' x3, 'Marketing' x2] -> ['MARKETING']; dimension identity narrowed to QB_MDJMD_SALES_5YRS_SUMMARY.Category. The two 'Marketing' entries belong to MktType / Mkt_Type2, which the user did not ask for; the three 'MARKETING' entries were one dimension across three tables. Category holds only MARKETING and OTHERS. Status left WEAK_AMBIGUITY, which already matched."
+      ]
     },
     "expected_identity": {
       "metrics": [
@@ -5005,13 +5035,9 @@
             {
               "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY",
               "column_name": "Category"
-            },
-            {
-              "table_name": "PBI_ENES_ORDER_PENDING_SUMMARY",
-              "column_name": "Category"
             }
           ],
-          "ambiguous_across_tables": true
+          "ambiguous_across_tables": false
         }
       ]
     },

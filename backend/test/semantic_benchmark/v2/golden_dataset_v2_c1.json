@@ -802,7 +802,7 @@
     "datasource_ref": "Chatbot",
     "expected": {
       "metrics": [
-        "Amount"
+        "billamt"
       ],
       "dimensions": [],
       "values": [],
@@ -827,7 +827,7 @@
         "evidence_source": "live connection F82C2F8D-0BD6-40E2-8C8B-FF1D69E317D5, semantic_metrics / semantic_dimensions / dimension_value_index",
         "answerability": {
           "metric_tables": [
-            "PBI_ENES_ORDER_PENDING_SUMMARY"
+            "PBI_OUTSTANDING_ENES_SUMMARY"
           ],
           "dimension_tables": [],
           "cross_table_without_verified_join": false,
@@ -850,18 +850,19 @@
       "requires_human_review": false,
       "expectation_changed_in_v2": true,
       "change_log": [
-        "metrics ['Amt'] -> ['Amount']. Display-name drift only: the metric was renamed in configuration and still binds to the same physical column. Corrected so the case compares on identity."
+        "metrics ['Amt'] -> ['Amount']. Display-name drift only: the metric was renamed in configuration and still binds to the same physical column. Corrected so the case compares on identity.",
+        "Gate 3 Task 3 - metrics ['Amount'] -> ['billamt'] (PBI_OUTSTANDING_ENES_SUMMARY.billamt). RC-03a ruling 2: 'bill amount' -> billamt."
       ]
     },
     "expected_identity": {
       "metrics": [
         {
-          "business_name": "Amount",
+          "business_name": "billamt",
           "resolved": true,
           "physical": [
             {
-              "table_name": "PBI_ENES_ORDER_PENDING_SUMMARY",
-              "column_name": "Amt"
+              "table_name": "PBI_OUTSTANDING_ENES_SUMMARY",
+              "column_name": "billamt"
             }
           ],
           "ambiguous_across_tables": false
@@ -882,7 +883,7 @@
     "datasource_ref": "Chatbot",
     "expected": {
       "metrics": [
-        "Amount"
+        "billamt"
       ],
       "dimensions": [],
       "values": [],
@@ -907,7 +908,7 @@
         "evidence_source": "live connection F82C2F8D-0BD6-40E2-8C8B-FF1D69E317D5, semantic_metrics / semantic_dimensions / dimension_value_index",
         "answerability": {
           "metric_tables": [
-            "PBI_ENES_ORDER_PENDING_SUMMARY"
+            "PBI_OUTSTANDING_ENES_SUMMARY"
           ],
           "dimension_tables": [],
           "cross_table_without_verified_join": false,
@@ -930,18 +931,19 @@
       "requires_human_review": false,
       "expectation_changed_in_v2": true,
       "change_log": [
-        "metrics ['Amt'] -> ['Amount']. Display-name drift only: the metric was renamed in configuration and still binds to the same physical column. Corrected so the case compares on identity."
+        "metrics ['Amt'] -> ['Amount']. Display-name drift only: the metric was renamed in configuration and still binds to the same physical column. Corrected so the case compares on identity.",
+        "Gate 3 Task 3 - metrics ['Amount'] -> ['billamt'] (PBI_OUTSTANDING_ENES_SUMMARY.billamt). RC-03a ruling 2: 'bill amount' -> billamt."
       ]
     },
     "expected_identity": {
       "metrics": [
         {
-          "business_name": "Amount",
+          "business_name": "billamt",
           "resolved": true,
           "physical": [
             {
-              "table_name": "PBI_ENES_ORDER_PENDING_SUMMARY",
-              "column_name": "Amt"
+              "table_name": "PBI_OUTSTANDING_ENES_SUMMARY",
+              "column_name": "billamt"
             }
           ],
           "ambiguous_across_tables": false
@@ -962,7 +964,7 @@
     "datasource_ref": "Chatbot",
     "expected": {
       "metrics": [
-        "due"
+        "Pending Amount"
       ],
       "dimensions": [],
       "values": [
@@ -996,7 +998,7 @@
         "evidence_source": "live connection F82C2F8D-0BD6-40E2-8C8B-FF1D69E317D5, semantic_metrics / semantic_dimensions / dimension_value_index",
         "answerability": {
           "metric_tables": [
-            "PBI_ENES_ORDER_PENDING_SUMMARY"
+            "PBI_OUTSTANDING_ENES_SUMMARY"
           ],
           "dimension_tables": [],
           "cross_table_without_verified_join": false,
@@ -1025,17 +1027,20 @@
       },
       "recommended_expected": null,
       "requires_human_review": false,
-      "expectation_changed_in_v2": false
+      "expectation_changed_in_v2": true,
+      "change_log": [
+        "Gate 3 Task 3 - metrics ['due'] -> ['Pending Amount'] (PBI_OUTSTANDING_ENES_SUMMARY.PAMT). RC-03b approved ruling 3: 'due amount' -> Pending Amount. Metric identity only. Value and ambiguity expectations are deliberately NOT regenerated: the correct Pending Amount value set is not established and guessing it was explicitly forbidden. This case is expected to keep failing until RC-03b is implemented."
+      ]
     },
     "expected_identity": {
       "metrics": [
         {
-          "business_name": "due",
+          "business_name": "Pending Amount",
           "resolved": true,
           "physical": [
             {
-              "table_name": "PBI_ENES_ORDER_PENDING_SUMMARY",
-              "column_name": "due"
+              "table_name": "PBI_OUTSTANDING_ENES_SUMMARY",
+              "column_name": "PAMT"
             }
           ],
           "ambiguous_across_tables": false
@@ -1056,7 +1061,7 @@
     "datasource_ref": "Chatbot",
     "expected": {
       "metrics": [
-        "due"
+        "Pending Amount"
       ],
       "dimensions": [],
       "values": [
@@ -1087,7 +1092,7 @@
         "evidence_source": "live connection F82C2F8D-0BD6-40E2-8C8B-FF1D69E317D5, semantic_metrics / semantic_dimensions / dimension_value_index",
         "answerability": {
           "metric_tables": [
-            "PBI_ENES_ORDER_PENDING_SUMMARY"
+            "PBI_OUTSTANDING_ENES_SUMMARY"
           ],
           "dimension_tables": [],
           "cross_table_without_verified_join": false,
@@ -1112,17 +1117,20 @@
       },
       "recommended_expected": null,
       "requires_human_review": false,
-      "expectation_changed_in_v2": false
+      "expectation_changed_in_v2": true,
+      "change_log": [
+        "Gate 3 Task 3 - metrics ['due'] -> ['Pending Amount'] (PBI_OUTSTANDING_ENES_SUMMARY.PAMT). RC-03b approved ruling 3: 'due amount' -> Pending Amount. Metric identity only. Value and ambiguity expectations are deliberately NOT regenerated: the correct Pending Amount value set is not established and guessing it was explicitly forbidden. This case is expected to keep failing until RC-03b is implemented."
+      ]
     },
     "expected_identity": {
       "metrics": [
         {
-          "business_name": "due",
+          "business_name": "Pending Amount",
           "resolved": true,
           "physical": [
             {
-              "table_name": "PBI_ENES_ORDER_PENDING_SUMMARY",
-              "column_name": "due"
+              "table_name": "PBI_OUTSTANDING_ENES_SUMMARY",
+              "column_name": "PAMT"
             }
           ],
           "ambiguous_across_tables": false
@@ -1143,7 +1151,7 @@
     "datasource_ref": "Chatbot",
     "expected": {
       "metrics": [
-        "Amount"
+        "Pending Amount"
       ],
       "dimensions": [],
       "values": [
@@ -1172,7 +1180,7 @@
         "evidence_source": "live connection F82C2F8D-0BD6-40E2-8C8B-FF1D69E317D5, semantic_metrics / semantic_dimensions / dimension_value_index",
         "answerability": {
           "metric_tables": [
-            "PBI_ENES_ORDER_PENDING_SUMMARY"
+            "PBI_OUTSTANDING_ENES_SUMMARY"
           ],
           "dimension_tables": [],
           "cross_table_without_verified_join": false,
@@ -1198,18 +1206,19 @@
       "requires_human_review": false,
       "expectation_changed_in_v2": true,
       "change_log": [
-        "metrics ['Amt'] -> ['Amount']. Display-name drift only: the metric was renamed in configuration and still binds to the same physical column. Corrected so the case compares on identity."
+        "metrics ['Amt'] -> ['Amount']. Display-name drift only: the metric was renamed in configuration and still binds to the same physical column. Corrected so the case compares on identity.",
+        "Gate 3 Task 3 - metrics ['Amount'] -> ['Pending Amount'] (PBI_OUTSTANDING_ENES_SUMMARY.PAMT). RC-03a ruling 4: 'payment amount' -> Pending Amount. The status expectation is deliberately left unchanged - the ambiguity-status contract is still unruled."
       ]
     },
     "expected_identity": {
       "metrics": [
         {
-          "business_name": "Amount",
+          "business_name": "Pending Amount",
           "resolved": true,
           "physical": [
             {
-              "table_name": "PBI_ENES_ORDER_PENDING_SUMMARY",
-              "column_name": "Amt"
+              "table_name": "PBI_OUTSTANDING_ENES_SUMMARY",
+              "column_name": "PAMT"
             }
           ],
           "ambiguous_across_tables": false
@@ -2746,7 +2755,7 @@
     "datasource_ref": "Chatbot",
     "expected": {
       "metrics": [
-        "Amount"
+        "billamt"
       ],
       "dimensions": [
         "City"
@@ -2776,12 +2785,12 @@
         "evidence_source": "live connection F82C2F8D-0BD6-40E2-8C8B-FF1D69E317D5, semantic_metrics / semantic_dimensions / dimension_value_index",
         "answerability": {
           "metric_tables": [
-            "PBI_ENES_ORDER_PENDING_SUMMARY"
+            "PBI_OUTSTANDING_ENES_SUMMARY"
           ],
           "dimension_tables": [
             "PBI_OUTSTANDING_ENES_SUMMARY"
           ],
-          "cross_table_without_verified_join": true,
+          "cross_table_without_verified_join": false,
           "verified_joins_for_connection": 0,
           "note": "Physical answerability only. This never influences the verdict."
         }
@@ -2805,18 +2814,19 @@
       "requires_human_review": false,
       "expectation_changed_in_v2": true,
       "change_log": [
-        "metrics ['Amt'] -> ['Amount']. Display-name drift only: the metric was renamed in configuration and still binds to the same physical column. Corrected so the case compares on identity."
+        "metrics ['Amt'] -> ['Amount']. Display-name drift only: the metric was renamed in configuration and still binds to the same physical column. Corrected so the case compares on identity.",
+        "Gate 3 Task 3 - metrics ['Amount'] -> ['billamt'] (PBI_OUTSTANDING_ENES_SUMMARY.billamt). RC-03a ruling 2: 'bill amount' -> billamt. Metric and dimension now sit on the same table, so data_answerable moves no -> yes and missing_data clears."
       ]
     },
     "expected_identity": {
       "metrics": [
         {
-          "business_name": "Amount",
+          "business_name": "billamt",
           "resolved": true,
           "physical": [
             {
-              "table_name": "PBI_ENES_ORDER_PENDING_SUMMARY",
-              "column_name": "Amt"
+              "table_name": "PBI_OUTSTANDING_ENES_SUMMARY",
+              "column_name": "billamt"
             }
           ],
           "ambiguous_across_tables": false
@@ -2836,10 +2846,8 @@
         }
       ]
     },
-    "data_answerable": "no",
-    "missing_data": [
-      "City on PBI_ENES_ORDER_PENDING_SUMMARY, or a verified join path from PBI_ENES_ORDER_PENDING_SUMMARY to PBI_OUTSTANDING_ENES_SUMMARY"
-    ]
+    "data_answerable": "yes",
+    "missing_data": []
   },
   {
     "case_id": "E1-035",
@@ -2851,7 +2859,7 @@
     "datasource_ref": "Chatbot",
     "expected": {
       "metrics": [
-        "due"
+        "Pending Amount"
       ],
       "dimensions": [
         "City"
@@ -2881,12 +2889,12 @@
         "evidence_source": "live connection F82C2F8D-0BD6-40E2-8C8B-FF1D69E317D5, semantic_metrics / semantic_dimensions / dimension_value_index",
         "answerability": {
           "metric_tables": [
-            "PBI_ENES_ORDER_PENDING_SUMMARY"
+            "PBI_OUTSTANDING_ENES_SUMMARY"
           ],
           "dimension_tables": [
             "PBI_OUTSTANDING_ENES_SUMMARY"
           ],
-          "cross_table_without_verified_join": true,
+          "cross_table_without_verified_join": false,
           "verified_joins_for_connection": 0,
           "note": "Physical answerability only. This never influences the verdict."
         }
@@ -2908,17 +2916,20 @@
       },
       "recommended_expected": null,
       "requires_human_review": false,
-      "expectation_changed_in_v2": false
+      "expectation_changed_in_v2": true,
+      "change_log": [
+        "Gate 3 Task 3 - metrics ['due'] -> ['Pending Amount'] (PBI_OUTSTANDING_ENES_SUMMARY.PAMT). RC-03b approved ruling 3: 'due amount' -> Pending Amount. Metric identity only. Value and ambiguity expectations are deliberately NOT regenerated: the correct Pending Amount value set is not established and guessing it was explicitly forbidden. This case is expected to keep failing until RC-03b is implemented. Metric and dimension now sit on the same table, so data_answerable moves no -> yes and missing_data clears."
+      ]
     },
     "expected_identity": {
       "metrics": [
         {
-          "business_name": "due",
+          "business_name": "Pending Amount",
           "resolved": true,
           "physical": [
             {
-              "table_name": "PBI_ENES_ORDER_PENDING_SUMMARY",
-              "column_name": "due"
+              "table_name": "PBI_OUTSTANDING_ENES_SUMMARY",
+              "column_name": "PAMT"
             }
           ],
           "ambiguous_across_tables": false
@@ -2938,10 +2949,8 @@
         }
       ]
     },
-    "data_answerable": "no",
-    "missing_data": [
-      "City on PBI_ENES_ORDER_PENDING_SUMMARY, or a verified join path from PBI_ENES_ORDER_PENDING_SUMMARY to PBI_OUTSTANDING_ENES_SUMMARY"
-    ]
+    "data_answerable": "yes",
+    "missing_data": []
   },
   {
     "case_id": "E1-036",
