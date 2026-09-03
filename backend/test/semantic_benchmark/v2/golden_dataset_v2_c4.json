@@ -211,7 +211,7 @@
       "values": [
         "RAMRAJ"
       ],
-      "status": "WEAK_AMBIGUITY",
+      "status": "SINGLE_MATCH",
       "followup_context_applied": false,
       "dominant_candidate": null,
       "retrieval_status": "COMPLETE"
@@ -4758,11 +4758,13 @@
       "dimensions": [
         "Brand"
       ],
-      "values": [],
-      "status": "NO_MATCH",
+      "values": [
+        "RAMRAJ"
+      ],
+      "status": "SINGLE_MATCH",
       "followup_context_applied": false,
       "dominant_candidate": null,
-      "retrieval_status": "PARTIAL"
+      "retrieval_status": "COMPLETE"
     },
     "notes": "Typo 'ramrj' fuzzy matches 'RAMRAJ' brand with brand qualifier.",
     "expectation_review": {

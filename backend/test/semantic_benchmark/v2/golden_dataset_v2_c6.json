@@ -521,11 +521,13 @@
         "C Y"
       ],
       "dimensions": [],
-      "values": [],
-      "status": "NO_MATCH",
+      "values": [
+        "RAMRAJ"
+      ],
+      "status": "SINGLE_MATCH",
       "followup_context_applied": false,
       "dominant_candidate": null,
-      "retrieval_status": "INSUFFICIENT"
+      "retrieval_status": "COMPLETE"
     },
     "notes": "Typo with distance too large (fuzzy matching threshold gate must reject it).",
     "expectation_review": {
