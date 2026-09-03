@@ -696,6 +696,7 @@ class SemanticResolver:
                 "business_name": cand.get("business_name"),
                 "table_name": cand.get("table_name"),
                 "column_name": cand.get("column_name"),
+                "synonyms": cand.get("synonyms"),
                 "matched_text": cand.get("matched_text"),
                 "spans": cand.get("spans")
             }

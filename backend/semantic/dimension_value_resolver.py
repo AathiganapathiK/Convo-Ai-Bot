@@ -273,7 +273,30 @@ class DimensionValueResolver(metaclass=ThreadLocalMeta):
             # Remove genuinely contained candidate values.
             matches = self._remove_contained_matches(matches, q_tokens)
 
-            # Apply explicit dimension context filtering if dimension_context is provided
+            # Apply explicit dimension context filtering if dimension_context or all_dimensions is provided
+            if not dimension_context and all_dimensions:
+                dimension_context = [
+                    {
+                        "dimension_name": row[0] if len(row) > 0 else None,
+                        "business_name": row[1] if len(row) > 1 else None,
+                        "table_name": row[2] if len(row) > 2 else None,
+                        "column_name": row[3] if len(row) > 3 else None,
+                        "synonyms": row[4] if len(row) > 4 else None,
+                    }
+                    for row in all_dimensions
+                ]
+            elif dimension_context and all_dimensions:
+                syn_map = {}
+                for row in all_dimensions:
+                    bname = (row[1] or row[0] or "").lower()
+                    if bname and len(row) > 4:
+                        syn_map[bname] = row[4]
+                for d in dimension_context:
+                    if not d.get("synonyms"):
+                        bname = (d.get("business_name") or d.get("dimension_name") or "").lower()
+                        if bname in syn_map:
+                            d["synonyms"] = syn_map[bname]
+
             has_explicit_label = False
             if dimension_context:
                 q_words = normalized_question.split()
@@ -311,13 +334,20 @@ class DimensionValueResolver(metaclass=ThreadLocalMeta):
                     if indices:
                         min_idx = min(indices)
                         max_idx = max(indices)
-                        adjacent_words = []
-                        if min_idx > 0:
-                            adjacent_words.append(q_words[min_idx - 1])
-                        if max_idx < len(q_words) - 1:
-                            adjacent_words.append(q_words[max_idx + 1])
-                        for word in adjacent_words:
-                            matched_dim_name = self._find_matching_dimension(word, dimension_context)
+                        adjacent_phrases = []
+                        # Check n-gram phrases (3-gram, 2-gram, 1-gram) after max_idx
+                        for n in (3, 2, 1):
+                            if max_idx + n < len(q_words):
+                                phrase = " ".join(q_words[max_idx + 1 : max_idx + 1 + n])
+                                adjacent_phrases.append(phrase)
+                        # Check n-gram phrases (3-gram, 2-gram, 1-gram) before min_idx
+                        for n in (3, 2, 1):
+                            if min_idx - n >= 0:
+                                phrase = " ".join(q_words[min_idx - n : min_idx])
+                                adjacent_phrases.append(phrase)
+
+                        for phrase in adjacent_phrases:
+                            matched_dim_name = self._find_matching_dimension(phrase, dimension_context)
                             if matched_dim_name:
                                 explicit_dim = matched_dim_name
                                 break
@@ -1017,36 +1047,54 @@ class DimensionValueResolver(metaclass=ThreadLocalMeta):
     def _find_matching_dimension(word: str, dimension_context: list) -> str | None:
         if not word or not dimension_context:
             return None
-        w = word.lower()
+        w = word.lower().strip()
 
         # Gate 3 Step 19b - recognise a plural qualifier.
-        #
-        # This compared raw strings, so "Chennai city" found the City
-        # dimension but "Chennai cities" found nothing, and the qualifier
-        # filter below never fired for a plural - leaving District in
-        # contention alongside City. SingularPluralMatcher is the existing
-        # morphology authority used everywhere else in the matching stack
-        # (value matching, coverage, RC-02); it is reused here rather than
-        # adding a second pluralisation rule. Singular inputs are unchanged
-        # because _to_singular leaves an already-singular word alone.
         w_singular = SingularPluralMatcher._to_singular(w)
 
         def _same(candidate: str) -> bool:
             if not candidate:
                 return False
-            c = candidate.lower()
-            return c == w or SingularPluralMatcher._to_singular(c) == w_singular
+            c = str(candidate).lower().strip()
+            c_norm = c.replace("grp", "group").replace("prod", "product")
+            w_norm = w.replace("grp", "group").replace("prod", "product")
+            if c == w or c_norm == w_norm:
+                return True
+            return (
+                SingularPluralMatcher._to_singular(c) == w_singular
+                or SingularPluralMatcher._to_singular(c_norm) == SingularPluralMatcher._to_singular(w_norm)
+            )
+
+        def _get_val(dim_item, key):
+            if hasattr(dim_item, "_mapping"):
+                return dim_item._mapping.get(key)
+            elif isinstance(dim_item, dict):
+                return dim_item.get(key)
+            return getattr(dim_item, key, None)
 
         for dim in dimension_context:
-            bname = dim.get("business_name")
+            bname = _get_val(dim, "business_name")
             if _same(bname):
                 return bname
-            dname = dim.get("dimension_name")
+            dname = _get_val(dim, "dimension_name")
             if _same(dname):
                 return bname or dname
-            cname = dim.get("column_name")
+            cname = _get_val(dim, "column_name")
             if _same(cname):
                 return bname or cname
+
+            syns = _get_val(dim, "synonyms")
+            if syns:
+                if isinstance(syns, str):
+                    syn_list = [s.strip() for s in syns.replace(";", ",").split(",") if s.strip()]
+                elif isinstance(syns, list):
+                    syn_list = syns
+                else:
+                    syn_list = []
+                for syn in syn_list:
+                    if _same(syn):
+                        return bname or dname or cname
+
         if w in ["brand", "city", "state"]:
             return w.capitalize()
         return None
