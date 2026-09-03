@@ -154,6 +154,18 @@ class SemanticDimension(BaseModel):
     # construction site is unaffected. Step 17 reads this to decide whether a
     # dimension is a grouping or a filter; nothing acts on it yet.
     dimension_role: Optional[str] = None
+    # Gate 3 Step 7b - the column this dimension must be ORDERed BY, from
+    # semantic_table_config.month_sort_column. Optional, following the
+    # dimension_role precedent above, so every existing construction site is
+    # unaffected.
+    #
+    # It exists because the label and its sort key are not always the same
+    # column. On the sales table InvMonth's leading letter encodes fiscal order
+    # (A April ... L March) and sorts correctly as text, while a calendar month
+    # number would place January first - wrong for an April-March year. Carried
+    # onto the plan and surfaced to SQL generation; the conformance guard does
+    # not yet verify it, exactly as dimension_role is carried but unenforced.
+    order_by_column: Optional[str] = None
 
     @field_validator("dimension_name", "business_name", "table_name", "column_name")
     @classmethod

@@ -380,14 +380,15 @@ class SnapshotConfigLoader:
         `for_connection()` keeps its fallback because its callers have no table
         to be wrong about.
 
-        WHAT IT DELIBERATELY DOES NOT DO
+        CONFIRMATION (Step 7c)
 
-        It does not filter on is_confirmed. That predicate belongs to Step 7c
-        and is not required by the table-specific lookup, so adding it here
-        would change which rows are authoritative under cover of a scoping
-        change. It also does not read month_column, month_sort_column or
-        fiscal_year_start_month - those are carried on the returned object
-        exactly as before and are consumed by nobody until Step 7b.
+        Only is_confirmed = 1 rows are read, on both the table row and its
+        period mappings. Migration 004 states the contract - "0 = system
+        suggestion awaiting review... Nothing unconfirmed may be treated as
+        authoritative" - and the query did not honour it, so an unreviewed
+        machine suggestion could plan real SQL. An unconfirmed table now reads
+        as unconfigured, which is the safe direction: the caller leaves the
+        metric alone rather than binding it to columns nobody approved.
 
         Never raises, for the same reason for_connection() does not: a planner
         that cannot read its configuration must still produce a plan.
@@ -446,6 +447,7 @@ class SnapshotConfigLoader:
                     WHERE connection_id = :connection_id
                       AND table_name = :table_name
                       AND temporal_strategy = 'SNAPSHOT'
+                      AND is_confirmed = 1
                 """), {
                     "connection_id": connection_id,
                     "table_name": table_name,
@@ -457,6 +459,7 @@ class SnapshotConfigLoader:
                     FROM semantic_table_config
                     WHERE connection_id = :connection_id
                       AND temporal_strategy = 'SNAPSHOT'
+                      AND is_confirmed = 1
                     ORDER BY table_name
                 """), {"connection_id": connection_id}).fetchone()
 
@@ -468,6 +471,7 @@ class SnapshotConfigLoader:
                 FROM semantic_snapshot_mapping
                 WHERE connection_id = :connection_id
                   AND table_name = :table_name
+                  AND is_confirmed = 1
                 ORDER BY period_offset, measure_kind, period_scope
             """), {
                 "connection_id": connection_id,
@@ -487,6 +491,14 @@ class SnapshotConfigLoader:
             ],
             month_column=table_row[1],
             month_sort_column=table_row[2],
-            fiscal_year_start_month=table_row[3] or 4,
+            # Gate 3 Step 7b - the configured value is authoritative. This read
+            # `table_row[3] or 4`, which silently replaced a configured 1 with
+            # April: `or` treats 1 as truthy, so January survived, but a NULL
+            # became April rather than the calendar default the column's own
+            # DEFAULT constraint specifies. Only a genuinely absent value now
+            # falls back, and it falls back to the dataclass default.
+            fiscal_year_start_month=(
+                table_row[3] if table_row[3] is not None else 4
+            ),
             is_configured=bool(mapping_rows),
         )

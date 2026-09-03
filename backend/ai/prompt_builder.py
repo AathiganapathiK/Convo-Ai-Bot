@@ -1054,7 +1054,44 @@ class PromptBuilder:
                         f"Date Filter Required: {date_filter_req}\n"
                         f"Authoritative Binding: You MUST use physical column '{m.column_name}' for any references to Business Metric '{m.business_name}' in SELECT, GROUP BY, and aggregations (e.g. SUM({m.column_name}))."
                     )
-        
+
+            # Gate 3 Step 7b Fix B - the plan's dimension bindings, stated with
+            # the same authority as the metric binding above.
+            #
+            # SemanticPlanBuilder can already replace a matched dimension with
+            # the administrator's configured one - "sales by month" resolves
+            # to Document Month, but the sales table's configured month column
+            # is Inv Month, and the plan swaps it in because Inv Month's
+            # leading letter (A April ... L March) sorts fiscally while
+            # DocMonth is a calendar number that would place January first.
+            # Until this block existed that correction lived only in the
+            # SemanticPlan object: the prompt still rendered the resolver's
+            # original dimension under SEMANTIC CONTEXT, and nothing told the
+            # model to group or order by the configured one, so the plan's
+            # decision never reached SQL. This is prompt-only - it does not
+            # touch what SemanticPlanBuilder decides, does not change
+            # dimension_objects/SEMANTIC CONTEXT, and does not touch the guard.
+            for d in semantic_plan.dimensions:
+                dim_lines = [
+                    f"Business Dimension: {d.business_name}",
+                    f"Physical Dimension: {d.column_name}",
+                    (
+                        f"Authoritative Binding: You MUST use physical column "
+                        f"'{d.column_name}' for any references to Business "
+                        f"Dimension '{d.business_name}' in SELECT and GROUP BY."
+                    ),
+                ]
+                if d.order_by_column:
+                    dim_lines.append(
+                        f"Authoritative Ordering: You MUST ORDER BY physical "
+                        f"column '{d.order_by_column}' when the query is "
+                        f"broken down by Business Dimension '{d.business_name}' "
+                        f"- it is the configured sort column and is not "
+                        f"necessarily the same column as the one displayed or "
+                        f"grouped by."
+                    )
+                semantic_plan_context_lines.append("\n".join(dim_lines))
+
         semantic_plan_context = "\n".join(semantic_plan_context_lines) if semantic_plan_context_lines else "None"
 
         prompt = f"""
@@ -1163,6 +1200,7 @@ SEMANTIC SQL RULES
 10. If a dimension has a specified SQL Expression under SEMANTIC CONTEXT, you MUST use that SQL Expression in the SELECT, GROUP BY, WHERE, and ORDER BY clauses instead of the raw physical column name.
 11. Every REQUIRED VALUE FILTER listed in the prompt is an authoritative semantic decision already resolved by the backend. The generated SQL MUST apply every required value filter using the specified column or a validated/required join path to constrain the query results. You are NOT allowed to decide if the filter is relevant, nor are you allowed to omit, replace, generalize, reinterpret, silently discard, or merely comment on a required value filter.
 12. You MUST use the exact physical column name specified for the metric in the SEMANTIC PLAN or SEMANTIC CONTEXT (e.g. use 'PY' for Sales if Column/Physical Metric is PY, 'PPY' if Column/Physical Metric is PPY, etc.). The physical column binding is authoritative and must not be overridden or defaulted back to 'CY'. When Temporal Strategy is SNAPSHOT and Date Filter Required is NO, you MUST NOT generate any additional date-column predicate or filter (such as YEAR(createddate) = ... or createddate BETWEEN ...) representing the same time period.
+13. Where the SEMANTIC PLAN section lists a Business Dimension with a Physical Dimension, that Physical Dimension is the authoritative column for that dimension in SELECT and GROUP BY - it overrides any different physical column shown for the same Business Dimension under SEMANTIC CONTEXT or RELEVANT DIMENSIONS. Where that Business Dimension also carries an Authoritative Ordering line, you MUST ORDER BY the physical column it names whenever the query is broken down by that dimension. The ordering column is not necessarily the column displayed or grouped by - do not substitute the grouping column for it.
 
 ===========================================================
 SQL SERVER RULES
