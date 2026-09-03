@@ -8,6 +8,7 @@ from semantic.models.semantic_plan import (
     RankDirection,
     SemanticOutput,
     SemanticRanking,
+    SemanticBenchmark,
     MODE_FROM_INTENT,
     MODE_FROM_QUERY_SHAPE,
     DEFAULT_OUTPUT_FORMAT,
@@ -139,8 +140,13 @@ class SemanticPlanBuilder:
         time_context: Optional[TimeContext] = None,
         relevant_tables: Optional[List[str]] = None,
         connection_id: Optional[str] = None,
-        clarified_candidate: Optional[dict] = None
+        clarified_candidate: Optional[dict] = None,
+        extracted: Optional[Any] = None
     ) -> SemanticPlan:
+        # `extracted` is Gate 4's ExtractedIntent. Typed as Any and defaulted to
+        # None on purpose: this keeps semantic_plan_builder importable without
+        # ai.extraction, so Gate 3 work and the existing tests are unaffected by
+        # the new module, and every current call site keeps working untouched.
         if semantic_result is None:
             semantic_result = {}
 
@@ -418,6 +424,66 @@ class SemanticPlanBuilder:
                 direction = RankDirection.DESC
             ranking = SemanticRanking(direction=direction)
 
+        # Benchmark has no heuristic source - Gate 1 left it unset and said so.
+        # It is populated only by extraction, below.
+        benchmark = None
+
+        # 9b. Gate 4 step 27 - extraction overrides the heuristics above.
+        #
+        # Everything from here to the plan construction is additive. When no
+        # extraction is supplied - Gate 3's tests, the benchmark runner, any
+        # existing caller - `extracted` is None and this block does nothing, so
+        # the derivation above remains exactly as it was.
+        #
+        # Why override rather than replace: the heuristics read a keyword-
+        # classified query shape, which cannot tell "top 5 by sales" from "top 5
+        # whose sales are falling". The extractor reads the sentence. Where the
+        # extractor filled a field it is the better answer; where it did not,
+        # the heuristic result is still better than nothing.
+        if extracted is not None:
+            if getattr(extracted, "mode", None) is not None:
+                mode = extracted.mode
+
+                # Output was derived from the pre-override mode, so it is
+                # re-derived here rather than left describing the old one.
+                if getattr(extracted, "output", None) is not None:
+                    output = SemanticOutput(output_format=extracted.output)
+                elif query_shape is None:
+                    fallback_format = DEFAULT_OUTPUT_FORMAT.get(mode)
+                    output = SemanticOutput(output_format=fallback_format) if fallback_format else output
+
+            extracted_direction = getattr(extracted, "direction", None)
+            extracted_measure = getattr(extracted, "measure", None)
+            extracted_top_n = getattr(extracted, "top_n", None)
+
+            if mode == AnalysisMode.RANKING and (
+                extracted_direction is not None
+                or extracted_measure is not None
+                or extracted_top_n is not None
+            ):
+                # Preserve whatever the heuristic already settled, so a field the
+                # extractor left empty is not blanked by the override.
+                base_direction = extracted_direction or (ranking.direction if ranking else None)
+                base_measure = extracted_measure or (ranking.measure if ranking else None)
+                base_top_n = extracted_top_n if extracted_top_n is not None else (
+                    ranking.top_n if ranking else None
+                )
+                ranking = SemanticRanking(
+                    top_n=base_top_n,
+                    direction=base_direction,
+                    measure=base_measure,
+                )
+
+            extracted_benchmark = getattr(extracted, "benchmark", None)
+            if extracted_benchmark is not None:
+                benchmark = SemanticBenchmark(benchmark_type=extracted_benchmark)
+
+            # Disclosures are appended, never assigned: the snapshot-configuration
+            # note recorded earlier in this method must survive.
+            for sentence in getattr(extracted, "assumptions_made", None) or []:
+                if sentence and sentence not in assumptions:
+                    assumptions.append(sentence)
+
         plan = SemanticPlan(
             intent=intent,
             metrics=plan_metrics,
@@ -432,6 +498,7 @@ class SemanticPlanBuilder:
             mode=mode,
             output=output,
             ranking=ranking,
+            benchmark=benchmark,
             assumptions_made=assumptions
         )
         cls._thread_local.last_plan = plan
