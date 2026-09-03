@@ -155,22 +155,58 @@ class SemanticPlanBuilder:
 
         # Which table holds period-per-column measures, and which columns they
         # are, both come from configuration now.
-        from semantic.temporal.snapshot_config import SnapshotConfigLoader
+        #
+        # Gate 3 Step 7a - resolved for the table this plan's own metric sits
+        # on. The previous call asked for_connection(), whose loader settles the
+        # question with SELECT TOP 1 ... ORDER BY table_name, so one SNAPSHOT
+        # table per connection won alphabetically and a metric on any other one
+        # was measured against the wrong table's period columns.
+        #
+        # A table that is not configured SNAPSHOT comes back unconfigured, which
+        # leaves sales_table None and sales_columns empty, so the snapshot
+        # branch below is skipped entirely - correct for a table whose periods
+        # are rows rather than columns.
+        from semantic.temporal.snapshot_config import SnapshotConfig, SnapshotConfigLoader
 
-        snapshot_config = SnapshotConfigLoader.for_connection(connection_id)
+        snapshot_config = SnapshotConfig()
+        sales_table = None
+
+        for m in metric_objs:
+            if not isinstance(m, dict):
+                continue
+            candidate_table = m.get("table_name")
+            if not candidate_table or candidate_table == sales_table:
+                continue
+            candidate_config = SnapshotConfigLoader.for_table(
+                connection_id, candidate_table
+            )
+            if candidate_config.is_configured:
+                snapshot_config = candidate_config
+                sales_table = candidate_table
+                break
+
+        if sales_table is None:
+            # No metric sits on a configured snapshot table - which is also the
+            # case when there is no connection at all, or the connection has
+            # never been configured. Fall back to the connection-wide answer,
+            # exactly as this code did before Step 7a, so an unconfigured
+            # environment keeps working and the fallback stays visible on the
+            # plan. Where a metric DID resolve per table, that precise
+            # configuration is used and this branch never runs.
+            snapshot_config = SnapshotConfigLoader.for_connection(connection_id)
+            sales_table = snapshot_config.table_name
+
+            if not snapshot_config.is_configured:
+                # Said out loud rather than assumed. A plan built on the
+                # fallback bindings is built on one customer's column names,
+                # and a reviewer reading the plan should be able to see that.
+                assumptions.append(
+                    "No snapshot configuration was found for this connection, "
+                    "so the pre-configuration column bindings were used."
+                )
 
         has_sales = False
-        sales_table = snapshot_config.table_name
         sales_columns = snapshot_config.resolvable_columns
-
-        if not snapshot_config.is_configured:
-            # Said out loud rather than assumed. A plan built on the fallback
-            # bindings is built on one customer's column names, and a reviewer
-            # reading the plan should be able to see that.
-            assumptions.append(
-                "No snapshot configuration was found for this connection, so "
-                "the pre-configuration column bindings were used."
-            )
 
         # Collect non-sales metrics normally
         other_metrics = []

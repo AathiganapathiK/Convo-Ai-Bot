@@ -521,10 +521,45 @@ class SemanticResolver:
         # If the connection has no snapshot configuration, or no column is
         # bound to a period, the block does nothing: a table whose periods are
         # rows rather than columns must not be rewritten this way.
-        from semantic.temporal.snapshot_config import SnapshotConfigLoader
+        # Gate 3 Step 7a - the configuration is per TABLE, so it is read for the
+        # table this request's own metric sits on rather than for a single
+        # connection-wide snapshot table. The previous call asked
+        # for_connection(), whose loader settles the question with
+        # SELECT TOP 1 ... ORDER BY table_name: one SNAPSHOT table per
+        # connection won alphabetically and a metric on any other one was
+        # rewritten against the wrong table's columns, or not rewritten at all.
+        #
+        # A table that is not configured SNAPSHOT comes back unconfigured, so
+        # current_column and previous_column stay None and every branch below
+        # is skipped - which is what must happen for a table whose periods are
+        # rows rather than columns.
+        from semantic.temporal.snapshot_config import SnapshotConfig, SnapshotConfigLoader
 
-        snapshot_config = SnapshotConfigLoader.for_connection(connection_id)
-        snapshot_table = snapshot_config.table_name
+        snapshot_config = SnapshotConfig()
+        snapshot_table = None
+
+        for metric_obj in metric_objects:
+            candidate_table = metric_obj.get("table_name")
+            if not candidate_table or candidate_table == snapshot_table:
+                continue
+            candidate_config = SnapshotConfigLoader.for_table(
+                connection_id, candidate_table
+            )
+            if candidate_config.is_configured:
+                snapshot_config = candidate_config
+                snapshot_table = candidate_table
+                break
+
+        if snapshot_table is None:
+            # No metric sits on a configured snapshot table - which is also the
+            # case when there is no connection, or the connection has never
+            # been configured. Fall back to the connection-wide answer, exactly
+            # as this code did before Step 7a, so an unconfigured environment
+            # keeps behaving as it did. Where a metric DID resolve per table,
+            # that precise configuration is used and this branch never runs.
+            snapshot_config = SnapshotConfigLoader.for_connection(connection_id)
+            snapshot_table = snapshot_config.table_name
+
         current_column = snapshot_config.column_for_offset(0)
         previous_column = snapshot_config.column_for_offset(1)
 
