@@ -292,6 +292,52 @@ class PromptBuilder:
                         previous_semantic_context = sem_ctx
                         break
 
+        # --------------------------------------------------
+        # Gate 4 Steps 25-28: structured intent extraction
+        # --------------------------------------------------
+        # Placed above semantic resolution deliberately. Extraction reads the
+        # question's wording, not the resolver's output, so it is valid whether
+        # or not retrieval runs - and when the gate blocks, the extracted
+        # mode is what lets the block explain itself in the user's own terms.
+        #
+        # Wrapped whole: extraction is an enrichment, and the plan builder falls
+        # back to its Gate 1 heuristics when `extracted` is None. A failure here
+        # must never cost the user their answer.
+        extracted_intent = None
+        try:
+            from ai.extraction.slot_extractor import extract_intent
+            from ai import assumptions as gate4_assumptions
+
+            extracted_intent = extract_intent(
+                question=question,
+                connection_id=active_connection["connection_id"],
+                company_id=company_id,
+                history_summary=history_text or "",
+            )
+
+            outcome = gate4_assumptions.resolve(extracted_intent)
+            extracted_intent.assumptions_made = gate4_assumptions.merge_into(
+                extracted_intent.assumptions_made,
+                outcome.assumptions,
+            )
+            if outcome.clarification is not None:
+                extracted_intent.clarification = outcome.clarification
+
+            print("\n========== GATE 4 EXTRACTION ==========")
+            print(f"Mode        : {extracted_intent.mode}")
+            print(f"Ranking     : dir={extracted_intent.direction} "
+                  f"measure={extracted_intent.measure} top_n={extracted_intent.top_n}")
+            print(f"Benchmark   : {extracted_intent.benchmark}")
+            print(f"Period      : {extracted_intent.time_period} "
+                  f"vs {extracted_intent.comparison_period}")
+            print(f"Tier        : {extracted_intent.escalation_tier.value}")
+            print(f"Assumptions : {extracted_intent.assumptions_made}")
+            print(f"Unsupported : {extracted_intent.unsupported}")
+            print("=======================================")
+        except Exception as exc:
+            extracted_intent = None
+            print(f"\n[Gate 4] Extraction skipped: {exc}")
+
         semantic_start_time = time.time()
         semantic_result = (
             SemanticResolver.resolve(
@@ -306,6 +352,11 @@ class PromptBuilder:
             ret_dict = semantic_result.setdefault("retrieval", {})
             if isinstance(ret_dict, dict):
                 ret_dict["time"] = semantic_time
+
+        # Gate 4: the extraction above ran before the resolver, so its
+        # diagnostic form is attached here, once semantic_result exists.
+        if extracted_intent is not None and isinstance(semantic_result, dict):
+            semantic_result["extracted_intent"] = extracted_intent.to_dict()
 
         # TEMP_PIPELINE_TRACE_REMOVE_LATER
         try:
@@ -502,54 +553,6 @@ class PromptBuilder:
         # --------------------------------------------------
         # Semantic Retrieval Gate
         # --------------------------------------------------
-
-        # --------------------------------------------------
-        # Gate 4 Steps 25-28: structured intent extraction
-        # --------------------------------------------------
-        # Placed above the retrieval gate deliberately. Extraction reads the
-        # question's wording, not the resolver's output, so it is valid whether
-        # or not retrieval succeeded - and when the gate blocks, the extracted
-        # mode is what lets the block explain itself in the user's own terms.
-        #
-        # Wrapped whole: extraction is an enrichment, and the plan builder falls
-        # back to its Gate 1 heuristics when `extracted` is None. A failure here
-        # must never cost the user their answer.
-        extracted_intent = None
-        try:
-            from ai.extraction.slot_extractor import extract_intent
-            from ai import assumptions as gate4_assumptions
-
-            extracted_intent = extract_intent(
-                question=question,
-                connection_id=active_connection["connection_id"],
-                company_id=company_id,
-                history_summary=history_text or "",
-            )
-
-            outcome = gate4_assumptions.resolve(extracted_intent)
-            extracted_intent.assumptions_made = gate4_assumptions.merge_into(
-                extracted_intent.assumptions_made,
-                outcome.assumptions,
-            )
-            if outcome.clarification is not None:
-                extracted_intent.clarification = outcome.clarification
-
-            semantic_result["extracted_intent"] = extracted_intent.to_dict()
-
-            print("\n========== GATE 4 EXTRACTION ==========")
-            print(f"Mode        : {extracted_intent.mode}")
-            print(f"Ranking     : dir={extracted_intent.direction} "
-                  f"measure={extracted_intent.measure} top_n={extracted_intent.top_n}")
-            print(f"Benchmark   : {extracted_intent.benchmark}")
-            print(f"Period      : {extracted_intent.time_period} "
-                  f"vs {extracted_intent.comparison_period}")
-            print(f"Tier        : {extracted_intent.escalation_tier.value}")
-            print(f"Assumptions : {extracted_intent.assumptions_made}")
-            print(f"Unsupported : {extracted_intent.unsupported}")
-            print("=======================================")
-        except Exception as exc:
-            extracted_intent = None
-            print(f"\n[Gate 4] Extraction skipped: {exc}")
 
         gate_result = SemanticGate.evaluate(semantic_result)
 
