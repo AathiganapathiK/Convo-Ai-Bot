@@ -364,6 +364,70 @@ class PromptBuilder:
                     warnings=raw_ctx.warnings
                 )
                 temporal_section = self.temporal_pipeline.temporal_formatter.format(time_ctx, style="llm")
+
+        # Gate 3 - table-aware DATE_COLUMN. TemporalPipeline.build() ran
+        # before any metric table was known, so it could only ever use the
+        # connection-wide capability - which never carries date_columns (see
+        # TimeStrategyResolver._discover_capability()'s own docstring: that
+        # is a per-TABLE fact, and publishing one table's date column
+        # connection-wide would offer it for a query against an unrelated
+        # table). Once the metric's table IS known, re-resolve the SAME
+        # detected intent against THAT table's own capability
+        # (discover_capability_for_table() - Step 7a's SnapshotConfigLoader.
+        # for_table() pattern, validated against the real schema the same
+        # way month_column already is). That capability is a strict
+        # superset of the connection-wide one (only date_columns is ever
+        # added), so re-resolving can only make a DATE_COLUMN-dependent
+        # strategy available, never change or remove anything the original
+        # resolution already produced. Mutually exclusive with the SNAPSHOT
+        # correction above: a snapshot metric's table has no DATE_COLUMN
+        # configuration, so the two never both fire.
+        elif not has_snapshot_metric:
+            last_intent = TemporalPipeline.get_last_intent()
+            if last_intent and metric_objs:
+                metric_table = None
+                for m in metric_objs:
+                    if isinstance(m, dict) and m.get("table_name"):
+                        metric_table = m["table_name"]
+                        break
+
+                if metric_table:
+                    from semantic.temporal.resolver import TimeStrategyResolver
+
+                    table_capability = TimeStrategyResolver().discover_capability_for_table(
+                        context.connection_id, metric_table
+                    )
+                    if table_capability.date_columns:
+                        active_settings = settings or TimeSettings()
+                        # connection_id deliberately NOT passed through here:
+                        # TimeStrategySelector.select() memoizes its winning
+                        # strategy per (connection_id, intent_type) in
+                        # TimeResolutionCache and reuses it on a later call
+                        # for the SAME connection regardless of which
+                        # capability is passed in. Two different tables on
+                        # one connection share a connection_id, so the first
+                        # table's chosen strategy for an intent type was
+                        # being wrongly replayed for the second table's
+                        # explicit, table-scoped capability. capability is
+                        # already supplied directly here, so no connection_id
+                        # is needed for resolve_intent's own cache fallback
+                        # either - this omission is safe and touches no
+                        # shared state.
+                        new_res = self.temporal_pipeline.time_resolver.resolve_intent(
+                            intent=last_intent,
+                            capability=table_capability,
+                            settings=active_settings,
+                        )
+                        if new_res.resolved and new_res.plan:
+                            new_ctx = self.temporal_pipeline.context_builder.build(
+                                new_res, active_settings
+                            )
+                            temporal_section = self.temporal_pipeline.temporal_formatter.format(
+                                new_ctx, style="llm"
+                            )
+                            self.temporal_pipeline._thread_local.last_time_context = new_ctx
+                            self.temporal_pipeline._thread_local.last_resolution = new_res
+
         dimension_objs = semantic_result.get("dimension_objects", []) if isinstance(semantic_result, dict) else []
         value_matches = semantic_result.get("value_matches", []) if isinstance(semantic_result, dict) else []
         

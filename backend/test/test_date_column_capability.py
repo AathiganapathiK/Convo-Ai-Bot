@@ -4,8 +4,9 @@ Gate 3 - table-aware DATE_COLUMN capability.
 TimeStrategyResolver._discover_capability() (connection-scoped) deliberately
 never populates date_columns. discover_capability_for_table() is the
 table-aware counterpart these tests pin: given a specific table, it reads
-that table's own DATE_COLUMN configuration (DateColumnConfigLoader) and
-still returns the same SNAPSHOT bindings _discover_capability() always did.
+that table's own DATE_COLUMN configuration (DateColumnConfigLoader) and its
+own SNAPSHOT bindings (SnapshotConfigLoader.for_table()) - never another
+table's, unlike the connection-wide _discover_capability().
 
 Stubs the database access rather than requiring a live connection, so this
 runs anywhere. Run with PYTHONPATH=backend:
@@ -54,9 +55,12 @@ def fake_date_load(cls, connection_id, table_name):
     )
 
 
-def fake_snapshot_load(cls, connection_id, table_name=None):
-    if table_name:
-        # Only the SNAPSHOT table in this stub carries bindings.
+def fake_snapshot_for_table(cls, connection_id, table_name):
+    # Only the SNAPSHOT table in this stub carries bindings - a genuinely
+    # table-scoped stub, matching discover_capability_for_table() reading
+    # SnapshotConfigLoader.for_table() rather than the connection-wide
+    # for_connection().
+    if table_name != SALES:
         return SnapshotConfig()
     from semantic.temporal.snapshot_config import SnapshotBinding
     return SnapshotConfig(
@@ -121,16 +125,16 @@ class TestTableAwareCapability(unittest.TestCase):
         self.resolver = TimeStrategyResolver()
 
     @patch.object(DateColumnConfigLoader, "_load", classmethod(fake_date_load))
-    @patch("semantic.temporal.snapshot_config.SnapshotConfigLoader.for_connection",
-           classmethod(fake_snapshot_load))
+    @patch("semantic.temporal.snapshot_config.SnapshotConfigLoader.for_table",
+           classmethod(fake_snapshot_for_table))
     def test_date_column_table_gets_its_own_column(self):
         cap = self.resolver.discover_capability_for_table(CONN, DATE_TABLE_OK)
         self.assertEqual(cap.date_columns, ["DocMonth"])
         self.assertEqual(cap.default_date_column, "DocMonth")
 
     @patch.object(DateColumnConfigLoader, "_load", classmethod(fake_date_load))
-    @patch("semantic.temporal.snapshot_config.SnapshotConfigLoader.for_connection",
-           classmethod(fake_snapshot_load))
+    @patch("semantic.temporal.snapshot_config.SnapshotConfigLoader.for_table",
+           classmethod(fake_snapshot_for_table))
     def test_snapshot_table_keeps_snapshot_mapping_and_no_date_columns(self):
         # 5 - existing snapshot-table behaviour is unchanged by this addition.
         cap = self.resolver.discover_capability_for_table(CONN, SALES)
@@ -138,8 +142,8 @@ class TestTableAwareCapability(unittest.TestCase):
         self.assertEqual(cap.snapshot_mapping, {0: "CY", 1: "PY"})
 
     @patch.object(DateColumnConfigLoader, "_load", classmethod(fake_date_load))
-    @patch("semantic.temporal.snapshot_config.SnapshotConfigLoader.for_connection",
-           classmethod(fake_snapshot_load))
+    @patch("semantic.temporal.snapshot_config.SnapshotConfigLoader.for_table",
+           classmethod(fake_snapshot_for_table))
     def test_multiple_tables_get_independent_capabilities(self):
         # 3 - two tables in the same connection resolve independently; one
         # table's DATE_COLUMN never leaks onto another's capability.
@@ -149,15 +153,14 @@ class TestTableAwareCapability(unittest.TestCase):
         self.assertFalse(snapshot_cap.date_columns)
 
     @patch.object(DateColumnConfigLoader, "_load", classmethod(fake_date_load))
-    @patch("semantic.temporal.snapshot_config.SnapshotConfigLoader.for_connection",
-           classmethod(fake_snapshot_load))
+    @patch("semantic.temporal.snapshot_config.SnapshotConfigLoader.for_table",
+           classmethod(fake_snapshot_for_table))
     def test_unconfigured_table_gets_empty_capability(self):
-        # 4 - no DATE_COLUMN configuration for this table. snapshot_mapping
-        # is unaffected: it is the connection-wide part _discover_capability()
-        # has always returned regardless of which table is asked about - this
-        # method only ever adds date_columns on top of it, never removes it.
+        # 4 - neither DATE_COLUMN nor SNAPSHOT configuration for this table:
+        # a fully empty, genuinely table-scoped capability.
         cap = self.resolver.discover_capability_for_table(CONN, UNCONFIGURED_TABLE)
         self.assertEqual(cap.date_columns, [])
+        self.assertEqual(cap.snapshot_mapping, {})
 
     def test_no_connection_or_table_returns_empty_capability(self):
         self.assertEqual(
