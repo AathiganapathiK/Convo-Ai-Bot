@@ -12,14 +12,11 @@
         "C Y"
       ],
       "dimensions": [],
-      "values": [
-        "CHENNAI",
-        "CHENNAI"
-      ],
+      "values": [],
       "status": "STRONG_AMBIGUITY",
       "followup_context_applied": false,
       "dominant_candidate": null,
-      "retrieval_status": "COMPLETE"
+      "retrieval_status": "PARTIAL"
     },
     "notes": "Chennai matches multiple dimensions (City vs District); clarification card required.",
     "expectation_review": {
@@ -93,14 +90,11 @@
         "C Y"
       ],
       "dimensions": [],
-      "values": [
-        "CHENNAI",
-        "CHENNAI"
-      ],
+      "values": [],
       "status": "STRONG_AMBIGUITY",
       "followup_context_applied": false,
       "dominant_candidate": null,
-      "retrieval_status": "COMPLETE"
+      "retrieval_status": "PARTIAL"
     },
     "notes": "Unqualified Chennai with Total sales; requires clarification card.",
     "expectation_review": {
@@ -174,14 +168,11 @@
         "C Y"
       ],
       "dimensions": [],
-      "values": [
-        "CHENNAI",
-        "CHENNAI"
-      ],
+      "values": [],
       "status": "STRONG_AMBIGUITY",
       "followup_context_applied": false,
       "dominant_candidate": null,
-      "retrieval_status": "COMPLETE"
+      "retrieval_status": "PARTIAL"
     },
     "notes": "Unqualified Chennai with Sales amount; requires clarification card.",
     "expectation_review": {
@@ -261,14 +252,11 @@
         "Qty"
       ],
       "dimensions": [],
-      "values": [
-        "CHENNAI",
-        "CHENNAI"
-      ],
+      "values": [],
       "status": "STRONG_AMBIGUITY",
       "followup_context_applied": false,
       "dominant_candidate": null,
-      "retrieval_status": "COMPLETE"
+      "retrieval_status": "PARTIAL"
     },
     "notes": "Unqualified Chennai with Quantity metric; requires clarification card.",
     "expectation_review": {
@@ -480,14 +468,11 @@
         "C Y"
       ],
       "dimensions": [],
-      "values": [
-        "COIMBATORE",
-        "COIMBATORE"
-      ],
+      "values": [],
       "status": "STRONG_AMBIGUITY",
       "followup_context_applied": false,
       "dominant_candidate": null,
-      "retrieval_status": "COMPLETE"
+      "retrieval_status": "PARTIAL"
     },
     "notes": "Coimbatore matches multiple dimensions (City vs District); clarification card required.",
     "expectation_review": {
@@ -561,14 +546,11 @@
         "C Y"
       ],
       "dimensions": [],
-      "values": [
-        "COIMBATORE",
-        "COIMBATORE"
-      ],
+      "values": [],
       "status": "STRONG_AMBIGUITY",
       "followup_context_applied": false,
       "dominant_candidate": null,
-      "retrieval_status": "COMPLETE"
+      "retrieval_status": "PARTIAL"
     },
     "notes": "Unqualified Coimbatore with Total sales; requires clarification card.",
     "expectation_review": {
@@ -642,14 +624,11 @@
         "Qty"
       ],
       "dimensions": [],
-      "values": [
-        "COIMBATORE",
-        "COIMBATORE"
-      ],
+      "values": [],
       "status": "STRONG_AMBIGUITY",
       "followup_context_applied": false,
       "dominant_candidate": null,
-      "retrieval_status": "COMPLETE"
+      "retrieval_status": "PARTIAL"
     },
     "notes": "Unqualified Coimbatore with Quantity metric; requires clarification card.",
     "expectation_review": {
@@ -861,14 +840,11 @@
         "C Y"
       ],
       "dimensions": [],
-      "values": [
-        "MADURAI",
-        "MADURAI"
-      ],
+      "values": [],
       "status": "STRONG_AMBIGUITY",
       "followup_context_applied": false,
       "dominant_candidate": null,
-      "retrieval_status": "COMPLETE"
+      "retrieval_status": "PARTIAL"
     },
     "notes": "Madurai matches multiple dimensions (City vs District); clarification card required.",
     "expectation_review": {
@@ -942,14 +918,11 @@
         "C Y"
       ],
       "dimensions": [],
-      "values": [
-        "MADURAI",
-        "MADURAI"
-      ],
+      "values": [],
       "status": "STRONG_AMBIGUITY",
       "followup_context_applied": false,
       "dominant_candidate": null,
-      "retrieval_status": "COMPLETE"
+      "retrieval_status": "PARTIAL"
     },
     "notes": "Unqualified Madurai with Total sales; requires clarification card.",
     "expectation_review": {
@@ -1023,14 +996,11 @@
         "Qty"
       ],
       "dimensions": [],
-      "values": [
-        "MADURAI",
-        "MADURAI"
-      ],
+      "values": [],
       "status": "STRONG_AMBIGUITY",
       "followup_context_applied": false,
       "dominant_candidate": null,
-      "retrieval_status": "COMPLETE"
+      "retrieval_status": "PARTIAL"
     },
     "notes": "Unqualified Madurai with Quantity metric; requires clarification card.",
     "expectation_review": {
