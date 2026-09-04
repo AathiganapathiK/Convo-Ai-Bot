@@ -281,8 +281,26 @@ class AmbiguityClassifier:
         # token of the actual question (present in q_map) - never a token
         # invented for this check, and never a token the fuzzy matcher did
         # not already approve.
+        #
+        # Gate 3 - reads matched_question_tokens_precise, not the raw
+        # matched_question_tokens above. The raw field is the whole n-gram
+        # SPAN the matcher searched with, not what it actually approved -
+        # "chennai city ramraj" for a fuzzy hit that only really explains
+        # "ramraj" ("Show sales for Chennai city and Ramraj brand" fuzzy-
+        # matched RAMRAJ PANT against a 3-token window). Crediting the whole
+        # span here let that candidate's computed matched_query_tokens share
+        # a token with an unrelated concept's candidates (CHENNAI,
+        # ELECTRONIC CITY), which _competes() reads to decide what competes -
+        # bridging two independently-qualified concepts (City, Brand) into
+        # one false STRONG_AMBIGUITY tie instead of two MULTI_MATCH
+        # resolutions. matched_question_tokens_precise is FuzzyMatcher's own
+        # per-candidate answer to "which token did I actually approve this
+        # against" (see fuzzy_matcher.py) and is always populated whenever a
+        # FUZZY MatchResult is constructed at all - the one production
+        # call site guarantees it, so this substitution never loses
+        # evidence, only the accidental over-wide kind.
         if choice.result and choice.result.match_type == MatchType.FUZZY:
-            for raw_tok in (choice.result.matched_question_tokens or []):
+            for raw_tok in (choice.result.matched_question_tokens_precise or []):
                 norm_t = SingularPluralMatcher._normalize_text(raw_tok)
                 if not norm_t or norm_t in STOPWORDS:
                     continue

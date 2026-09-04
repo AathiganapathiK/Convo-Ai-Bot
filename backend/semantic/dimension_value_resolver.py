@@ -645,8 +645,97 @@ class DimensionValueResolver(metaclass=ThreadLocalMeta):
 
             # Otherwise (e.g. STRONG_AMBIGUITY), return all candidates with clean matched_question_tokens
             # so they are returned in semantic_result for the UI/clarification.
+            #
+            # Gate 3 - a genuine tie is not worth asking about when EVERY tied
+            # candidate sits on a table unreachable from the resolved
+            # metric's table. "Show sales for Chennai" ties City against
+            # District (both on PBI_OUTSTANDING_ENES_SUMMARY, neither
+            # reachable from Sales) - classify() correctly could not break
+            # that tie on its own evidence (table_affinity is 0 for both, so
+            # it cannot discriminate), but asking the user to pick between
+            # two answers that are both dead ends is not a real
+            # clarification. This runs strictly AFTER classify() has already
+            # decided the tie exists - it never influences which candidates
+            # competed or who would have won, so it cannot reproduce the
+            # regressions candidate-level filtering caused (VT's Division
+            # still wins over btype via table_affinity INSIDE classify(),
+            # long before this code ever runs, because that tie is NOT
+            # all-unreachable - Division is on the metric's own table). If
+            # even one candidate is reachable, the full tied set is returned
+            # exactly as before - only an all-unreachable tie collapses to
+            # empty, falling through to the resolver's existing unresolved-
+            # value handling (Step 21a) instead of a clarification prompt
+            # that can never be satisfied either way it is answered.
+            #
+            # Reuses RelationshipExpander.build_graph() - the exact graph
+            # SemanticGate itself checks - so nothing is judged reachable or
+            # unreachable here that SemanticGate would not also decide.
+            # Fails open (keeps the full tied set) on any lookup error.
+            #
+            # Gated on `not has_explicit_label`: "coimbator city" ties
+            # COIMBATORE against a fuzzy false-positive, ELECTRONIC CITY -
+            # both on the same unreachable table, but the user explicitly
+            # named the dimension ("city"), so this is a which-VALUE tie
+            # within a deliberately chosen business concept, not a
+            # which-DIMENSION-and-is-any-of-them-even-real tie like bare
+            # "Chennai". An explicitly qualified tie is left exactly as
+            # before regardless of table reachability - only a tie with no
+            # qualifier at all is eligible to collapse.
+            candidates = self.last_resolution_result.candidates
+            if candidates and current_metrics and not has_explicit_label:
+                metric_tables = {
+                    (m.get("table_name") or "").strip().upper()
+                    for m in current_metrics
+                    if isinstance(m, dict) and m.get("table_name")
+                }
+                metric_tables.discard("")
+
+                if metric_tables:
+                    try:
+                        from collections import deque
+                        from semantic.relationship_expander import RelationshipExpander
+
+                        raw_graph = RelationshipExpander.build_graph(connection_id)
+                        graph = {}
+                        for src, targets in raw_graph.items():
+                            key = src.strip().upper()
+                            graph.setdefault(key, set()).update(
+                                t.strip().upper() for t in targets
+                            )
+
+                        reachable_cache = {}
+
+                        def _is_reachable(table_name_raw):
+                            table = (table_name_raw or "").strip().upper()
+                            if not table or table in metric_tables:
+                                return True
+                            if table in reachable_cache:
+                                return reachable_cache[table]
+                            found = False
+                            for start in metric_tables:
+                                queue = deque([start])
+                                visited = {start}
+                                while queue:
+                                    curr = queue.popleft()
+                                    if curr == table:
+                                        found = True
+                                        break
+                                    for nxt in graph.get(curr, set()):
+                                        if nxt not in visited:
+                                            visited.add(nxt)
+                                            queue.append(nxt)
+                                if found:
+                                    break
+                            reachable_cache[table] = found
+                            return found
+
+                        if not any(_is_reachable(c.table_name) for c in candidates):
+                            candidates = []
+                    except Exception:
+                        pass  # fail open - keep the full tied set
+
             return ResolutionResultList(
-                [_choice_dict(choice) for choice in self.last_resolution_result.candidates],
+                [_choice_dict(choice) for choice in candidates],
                 resolution_result=self.last_resolution_result,
                 followup_context=getattr(self, "followup_context", None),
                 match_stats=self.last_match_stats

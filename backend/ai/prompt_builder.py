@@ -703,21 +703,51 @@ class PromptBuilder:
                 if not matched_phrase:
                     matched_phrase = question
                 
-                opt_str = "\n".join(f"{opt['option_id']}. {opt['value']}" for opt in options[:5])
-                msg = f"I found multiple possible matches for \"{matched_phrase}\".\nPlease choose one:\n\n{opt_str}"
-                
-                dimensions_seen = {opt["dimension"] for opt in options if opt["dimension"]}
-                if len(dimensions_seen) <= 1:
-                    ambiguity_type = "SAME_DIMENSION"
-                else:
-                    ambiguity_type = "CROSS_DIMENSION"
-                
-                raise AmbiguityException(
+                # Gate 3 - a STRONG_AMBIGUITY tie that already collapsed to
+                # zero candidates (see dimension_value_resolver.py's
+                # all-unreachable/unqualified collapse) has nothing left to
+                # offer a choice between. Raising "please choose one" with no
+                # options was the actual live symptom for "Show sales for
+                # Mumbai": value_matches was already correctly empty, but
+                # this block raised the clarification unconditionally
+                # anyway. Only raise it when there is something to choose;
+                # an empty options list falls through, unmodified, to the
+                # existing unresolved-value/escalation handling below.
+                if options:
+                    opt_str = "\n".join(f"{opt['option_id']}. {opt['value']}" for opt in options[:5])
+                    msg = f"I found multiple possible matches for \"{matched_phrase}\".\nPlease choose one:\n\n{opt_str}"
+
+                    dimensions_seen = {opt["dimension"] for opt in options if opt["dimension"]}
+                    if len(dimensions_seen) <= 1:
+                        ambiguity_type = "SAME_DIMENSION"
+                    else:
+                        ambiguity_type = "CROSS_DIMENSION"
+
+                    raise AmbiguityException(
+                        message=msg,
+                        details={
+                            "original_question": question,
+                            "ambiguity_type": ambiguity_type,
+                            "options": options
+                        }
+                    )
+
+                # Falls through here only when the tie collapsed to zero
+                # options. gate_result["reason"] is SemanticGate's own
+                # STRONG_AMBIGUITY text ("...Clarification is required.") -
+                # accurate when options were offered, misleading here since
+                # none were. State plainly that nothing matched instead of
+                # asking for a clarification this flow cannot provide.
+                msg = (
+                    f"I couldn't find a specific value matching \"{matched_phrase}\" "
+                    f"that applies to this data. Please try another product, "
+                    f"category, or business term."
+                )
+                raise SemanticRetrievalException(
                     message=msg,
                     details={
-                        "original_question": question,
-                        "ambiguity_type": ambiguity_type,
-                        "options": options
+                        "question": question,
+                        "retrieval": semantic_result["retrieval"]
                     }
                 )
 
