@@ -391,6 +391,47 @@ class SemanticResolver:
         return selected_candidates
 
     @staticmethod
+    def _drop_metric_subsumed_dimension_candidates(selected_candidates, metric_vocabulary, question):
+        """
+        See the call site for the "Show due days" -> Docdate Day example.
+
+        Reconstructs, the same way _get_match_info's Priority 7 did, which
+        stems a "Stem Overlap" dimension candidate actually shares with the
+        question - not its whole business name, only the words that overlap.
+        Dropped only when THAT overlap (non-empty) is entirely covered by the
+        already-selected metrics' own configured vocabulary AND at least one
+        metric was in fact selected for this question; otherwise a bare
+        dimension mention with no metric in play, or one matched on a
+        literal name/synonym phrase (Priority 1-6), is left exactly as
+        before.
+        """
+        if not metric_vocabulary:
+            return selected_candidates
+
+        has_metric = any(c.get("type") == "metric" for c in selected_candidates)
+        if not has_metric:
+            return selected_candidates
+
+        metric_stems = {_stem_word(w) for w in metric_vocabulary}
+        q_stems = {_stem_word(w) for w in _get_words(question)}
+
+        survivors = []
+        for cand in selected_candidates:
+            if cand.get("type") == "dimension" and cand.get("matched_by") == "Stem Overlap":
+                cand_words = _get_words(cand.get("business_name") or "") + _get_words(
+                    cand.get("dimension_name") or ""
+                )
+                cand_stems = {_stem_word(w) for w in cand_words}
+                # The words this candidate actually overlapped the question
+                # on - the same intersection Priority 7 computed.
+                matched_stems = cand_stems & q_stems
+                if matched_stems and matched_stems <= metric_stems:
+                    continue
+            survivors.append(cand)
+
+        return survivors
+
+    @staticmethod
     def resolve(connection_id, question, clarified_candidate=None, previous_semantic_context=None):
         print("Entered: resolve")
         print(f"connection_id = {connection_id}")
@@ -400,6 +441,17 @@ class SemanticResolver:
         # 1. Candidate Generation & Fetching
         metric_rows, dimension_rows = SemanticResolver._fetch_active_metadata(connection_id)
         candidates = SemanticResolver._generate_candidates(metric_rows, dimension_rows, question)
+
+        # Gate 3 - every word a configured METRIC's own name/business name/
+        # synonym carries, for this connection. Built once and reused by
+        # both the dimension-candidate subsumption filter just below and the
+        # Step 21a escalation guard further down, so both read the exact
+        # same, connection-configured vocabulary - no word, table or column
+        # is named here.
+        metric_vocabulary = set()
+        for row in metric_rows:
+            for field in (row[0], row[1], row[5]):
+                metric_vocabulary.update(_get_words(field or ""))
 
         # 2. Extract resolved metric tables by doing a quick first pass on metrics
         temp_selected = SemanticResolver._remove_overlaps(candidates)
@@ -436,6 +488,21 @@ class SemanticResolver:
 
         # 4. Overlap Removal
         selected_candidates = SemanticResolver._remove_overlaps(candidates)
+
+        # Gate 3 - a dimension candidate whose ONLY evidence is Priority 7's
+        # generic stemmed-token overlap (_get_match_info) is not genuine
+        # dimension evidence when every stem it overlaps on is already part
+        # of a selected metric's own configured vocabulary. "Docdate Day"
+        # (business name words "docdate"/"day") stem-overlaps "days" in
+        # "Show due days" purely because "day" and "days" share a stem - but
+        # the Due metric's own synonym "Due number of days" already claims
+        # "days" for this question. A candidate matched on a literal phrase
+        # (Priority 1-6, matched_by != "Stem Overlap") is never touched -
+        # only the single weakest tier is ever subsumed this way, so an
+        # explicit "Docdate" / "Doc Date" request keeps resolving normally.
+        selected_candidates = SemanticResolver._drop_metric_subsumed_dimension_candidates(
+            selected_candidates, metric_vocabulary, question
+        )
 
         # Build selected dimension list
         selected_dims = []
@@ -863,12 +930,9 @@ class SemanticResolver:
             # a trailing dimension marker. A word that belongs to a metric's
             # own configured phrase is metric vocabulary first; it cannot
             # simultaneously stand as evidence that the PRECEDING word must be
-            # a dimension value.
-            metric_vocabulary = set()
-            for row in metric_rows:
-                for field in (row[0], row[1], row[5]):
-                    metric_vocabulary.update(_get_words(field or ""))
-
+            # a dimension value. Reuses metric_vocabulary computed once near
+            # the top of resolve() - same set the dimension-candidate
+            # subsumption filter (step 4, above) already reads.
             dimension_name_words = set()
             for row in dimension_rows:
                 dimension_name_words.update(_get_words(row[1] or ""))

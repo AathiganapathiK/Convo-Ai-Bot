@@ -180,6 +180,50 @@ class TimeStrategyResolver:
             snapshot_bindings=list(config.bindings),
         )
 
+    def discover_capability_for_table(
+        self, connection_id: str, table_name: str
+    ) -> TimeCapability:
+        """
+        Gate 3 - the table-aware counterpart to _discover_capability().
+
+        For a caller that already knows which table a question resolved
+        to - the same position semantic_resolver.py / semantic_plan_builder.py
+        are in once they know the metric table, and the reason
+        SnapshotConfigLoader.for_table() exists (Gate 3 Step 7a) - this
+        answers "what temporal capability does THIS table have?" rather than
+        the connection-wide question _discover_capability() answers.
+
+        Starts from the same SNAPSHOT bindings _discover_capability() would
+        return (unchanged - existing snapshot-table behaviour is untouched),
+        and adds date_columns from DateColumnConfigLoader.for_table() when
+        this specific table is configured DATE_COLUMN and confirmed. A table
+        with neither configuration comes back with an empty capability, the
+        same as calling TimeStrategyResolver.resolve() with no capability at
+        all today.
+
+        Does not read or write TimeResolutionCache (that cache is keyed on
+        connection_id alone and holds the connection-wide capability
+        _discover_capability() builds - mixing a table-scoped result into it
+        would leak one table's date column onto every other table's
+        questions, exactly what _discover_capability()'s own docstring warns
+        against). A caller wanting to reuse a table-scoped result across
+        requests should cache it itself, keyed on (connection_id,
+        table_name).
+        """
+        if not connection_id or not table_name:
+            return TimeCapability()
+
+        capability = self._discover_capability(connection_id)
+
+        from .date_column_config import DateColumnConfigLoader
+
+        date_config = DateColumnConfigLoader.for_table(connection_id, table_name)
+        if date_config.is_configured and date_config.date_column:
+            capability.date_columns = [date_config.date_column]
+            capability.default_date_column = date_config.date_column
+
+        return capability
+
     def _resolve_with_strategy(
         self,
         strategy_type: TimeStrategyType,
