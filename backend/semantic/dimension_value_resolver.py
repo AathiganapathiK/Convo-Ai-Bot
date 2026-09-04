@@ -134,7 +134,8 @@ class DimensionValueResolver(metaclass=ThreadLocalMeta):
         previous_semantic_context: dict = None,
         current_metrics: list = None,
         all_metrics: list = None,
-        all_dimensions: list = None
+        all_dimensions: list = None,
+        metric_claimed_tokens: set = None
     ):
         """
         Backward-compatible static entry point.
@@ -148,7 +149,8 @@ class DimensionValueResolver(metaclass=ThreadLocalMeta):
             previous_semantic_context,
             current_metrics,
             all_metrics,
-            all_dimensions
+            all_dimensions,
+            metric_claimed_tokens
         )
         cls.last_match_stats = resolver.last_match_stats
         cls.last_resolution_result = resolver.last_resolution_result
@@ -164,7 +166,8 @@ class DimensionValueResolver(metaclass=ThreadLocalMeta):
         previous_semantic_context: dict = None,
         current_metrics: list = None,
         all_metrics: list = None,
-        all_dimensions: list = None
+        all_dimensions: list = None,
+        metric_claimed_tokens: set = None
     ):
 
         """
@@ -272,6 +275,25 @@ class DimensionValueResolver(metaclass=ThreadLocalMeta):
             # Step 2:
             # Remove genuinely contained candidate values.
             matches = self._remove_contained_matches(matches, q_tokens)
+
+            # Step 2b - Gate 3. A configured multi-word METRIC phrase already
+            # explained some of the question's tokens; a value candidate that
+            # explains nothing beyond those same tokens is not genuine
+            # dimension/value evidence, it is the metric's own words being
+            # re-matched against an unrelated column. "Show due amount for
+            # Chennai city" configures "due amount" as a Pending Amount
+            # synonym - once that synonym has claimed "due" and "amount",
+            # every DueStatus label that only overlaps the question on "due"
+            # (NO DUE, OVER DUE, Future Due, ...) is dropped. A candidate that
+            # explains a token the metric did NOT claim survives untouched:
+            # "due today" contributes "today", "delayed due" contributes
+            # "delayed", so those stay live business qualifiers. Generic: no
+            # word, table or column is named here - only whichever tokens the
+            # metric phrase this connection's own configuration matched.
+            if matches and metric_claimed_tokens:
+                matches = self._drop_metric_subsumed_matches(
+                    matches, q_tokens, metric_claimed_tokens
+                )
 
             # Apply explicit dimension context filtering if dimension_context or all_dimensions is provided
             if not dimension_context and all_dimensions:
@@ -546,6 +568,26 @@ class DimensionValueResolver(metaclass=ThreadLocalMeta):
                 dom_choice = self.last_resolution_result.dominant_match
                 return ResolutionResultList(
                     [_choice_dict(dom_choice)],
+                    resolution_result=self.last_resolution_result,
+                    followup_context=getattr(self, "followup_context", None),
+                    match_stats=self.last_match_stats
+                )
+
+            # MULTI_MATCH, and PARTIAL_MATCH reached by way of MULTI_MATCH (a
+            # dangerous unmatched token downgraded it - see classify()): every
+            # distinct requested concept already resolved to its own single
+            # dominant candidate, so there is nothing to disambiguate between
+            # them. One row per concept, same as SINGLE_MATCH's one row for
+            # its one concept.
+            #
+            # dominant_matches is populated ONLY by classify()'s multi-group
+            # path - a single-group SINGLE_MATCH/WEAK_AMBIGUITY leaves it
+            # empty and is already handled above/below via dominant_match -
+            # so this can never intercept those and skip the "genuine
+            # alternative" expansion a WEAK_AMBIGUITY result depends on.
+            if self.last_resolution_result.dominant_matches:
+                return ResolutionResultList(
+                    [_choice_dict(c) for c in self.last_resolution_result.dominant_matches],
                     resolution_result=self.last_resolution_result,
                     followup_context=getattr(self, "followup_context", None),
                     match_stats=self.last_match_stats
@@ -845,6 +887,44 @@ class DimensionValueResolver(metaclass=ThreadLocalMeta):
                     return q_tokens[i : i + width]
                     
         return []
+
+    @staticmethod
+    def _drop_metric_subsumed_matches(
+        matches: list[MatchResult], q_tokens: list[str], metric_claimed_tokens: set
+    ) -> list[MatchResult]:
+        """
+        Drop a value candidate whose entire question evidence was already
+        spent on a configured metric phrase - see the call site in
+        resolve_matches() for the "due amount" / DueStatus example this
+        exists for.
+
+        A candidate survives if it explains at least one question token
+        `metric_claimed_tokens` does NOT cover - genuine additional evidence,
+        singular/plural normalized so "days" vs "day" is not treated as new.
+        A candidate that explains no question token at all (nothing to
+        compare) is left untouched; this filter only ever removes a
+        candidate whose explained tokens are a non-empty subset of the
+        metric's own claimed tokens.
+        """
+        claimed = {SingularPluralMatcher._to_singular(t.lower()) for t in metric_claimed_tokens}
+        if not claimed:
+            return matches
+
+        q_singulars = {SingularPluralMatcher._to_singular(t.lower()) for t in q_tokens}
+
+        survivors = []
+        for m in matches:
+            value_singulars = {
+                SingularPluralMatcher._to_singular(SingularPluralMatcher._normalize_text(t))
+                for t in (m.matched_value_tokens or [])
+                if t and SingularPluralMatcher._normalize_text(t) not in STOPWORDS
+            }
+            explained = value_singulars & q_singulars
+            if explained and explained <= claimed:
+                continue
+            survivors.append(m)
+
+        return survivors
 
     @staticmethod
     def _remove_contained_matches(matches: list[MatchResult], q_tokens: list[str]) -> list[MatchResult]:

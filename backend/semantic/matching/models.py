@@ -1,6 +1,6 @@
 from enum import Enum
 from dataclasses import dataclass, field
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 
 class MatchType(Enum):
@@ -114,6 +114,13 @@ class ResolutionStatus(Enum):
     WEAK_AMBIGUITY = "WEAK_AMBIGUITY"
     STRONG_AMBIGUITY = "STRONG_AMBIGUITY"
     PARTIAL_MATCH = "PARTIAL_MATCH"
+    # Gate 3 - the ambiguity-status contract. Two or more DISTINCT requested
+    # concepts (different (table, column) targets - Brand and Category, City
+    # and Division) each independently resolved, with no candidate ever asked
+    # to out-compete a candidate for a different concept. Never assigned
+    # unless classify() found more than one such target; see the grouping
+    # step there.
+    MULTI_MATCH = "MULTI_MATCH"
 
 
 # Gate 3 Step 21d - RC-02. Three concrete words verified, by tracing real
@@ -188,6 +195,11 @@ class SemanticResolutionResult:
     status: ResolutionStatus
     candidates: List[AmbiguityChoice]
     dominant_match: Optional[AmbiguityChoice] = None
+    # Populated only for MULTI_MATCH: one dominant candidate per distinct
+    # (table, column) target, in place of the single `dominant_match` a
+    # one-concept result carries. Every other status leaves this empty -
+    # existing readers of `dominant_match` are unaffected.
+    dominant_matches: List[AmbiguityChoice] = field(default_factory=list)
 
 
 class AmbiguityClassifier:
@@ -281,6 +293,140 @@ class AmbiguityClassifier:
 
         return matched
 
+    @staticmethod
+    def _competes(a, b) -> bool:
+        """
+        Do candidates `a` and `b` compete for the same requested concept?
+
+        Gate 3 - ambiguity-status contract. Two things make a pair of
+        candidates alternatives for what the user meant, rather than two
+        different things the user asked for in the same breath:
+
+          * they sit on the SAME physical column, so at most one of them can
+            be true for a given row - VIVEAGHAM WHITE SHIRT and VIVEAGHAM
+            COLOUR SHIRT both sit on Brand and cannot both be "the" brand
+            meant; or
+          * they were matched through the SAME question token(s) - Division
+            replicated on three tables is matched via "vt" on all three, so
+            even though the columns differ physically, all three are candidate
+            answers to the identical word the user typed, and the existing
+            table-affinity/specificity evidence is what should pick among
+            them, unchanged.
+
+        Two candidates that share neither - different columns AND disjoint
+        question tokens, like Brand=RAMRAJ (from "ramraj") and
+        Category=FRANCHISE (from "franchise category") - are never asked to
+        out-compete each other; see the grouping step in classify().
+        """
+        res_a = getattr(a, "result", a)
+        res_b = getattr(b, "result", b)
+        same_column = (
+            (getattr(res_a, "table_name", None) or "").lower()
+            == (getattr(res_b, "table_name", None) or "").lower()
+            and (getattr(res_a, "column_name", None) or "").lower()
+            == (getattr(res_b, "column_name", None) or "").lower()
+        )
+        if same_column:
+            return True
+        tokens_a = set(getattr(a, "matched_query_tokens", None) or [])
+        tokens_b = set(getattr(b, "matched_query_tokens", None) or [])
+        return bool(tokens_a & tokens_b)
+
+    @classmethod
+    def _group_by_concept(cls, choices) -> List[List]:
+        """
+        Partition choices into groups that genuinely compete with each other
+        (see _competes()), using connected components so competition is
+        transitive: if A competes with B and B competes with C, all three
+        stay one group even where A and C alone would not have merged.
+        """
+        n = len(choices)
+        parent = list(range(n))
+
+        def find(i):
+            while parent[i] != i:
+                parent[i] = parent[parent[i]]
+                i = parent[i]
+            return i
+
+        def union(i, j):
+            ri, rj = find(i), find(j)
+            if ri != rj:
+                parent[ri] = rj
+
+        for i in range(n):
+            for j in range(i + 1, n):
+                if cls._competes(choices[i], choices[j]):
+                    union(i, j)
+
+        groups: Dict[int, List] = {}
+        for i, choice in enumerate(choices):
+            groups.setdefault(find(i), []).append(choice)
+        return list(groups.values())
+
+    @classmethod
+    def _resolve_group(cls, choices, q_tokens, dimension_meta, metric_tables):
+        """
+        Gate 3 Step 21b - evidence-based dominance, decided within ONE target
+        (one physical column). Unchanged from the pre-Gate-3-ambiguity-status
+        logic; classify() now calls this once per group instead of once over
+        every match regardless of what each one was a candidate FOR.
+
+        Returns (ResolutionStatus, dominant_choice_or_None). Only ever
+        SINGLE_MATCH, WEAK_AMBIGUITY or STRONG_AMBIGUITY - PARTIAL_MATCH and
+        MULTI_MATCH are decided by the caller, once, over the group results.
+        """
+        if len(choices) == 1:
+            return ResolutionStatus.SINGLE_MATCH, choices[0]
+
+        # This used to be four rules over eight hand-tuned thresholds, all
+        # comparing MatchConfidence, which was a constant per matcher. Two
+        # exact matches therefore had a confidence gap of exactly 0.00 and
+        # no rule could ever fire, so the classifier returned
+        # STRONG_AMBIGUITY whenever two candidates matched the same way -
+        # regardless of how much of the question or of the stored value
+        # each one actually explained.
+        #
+        # Now every candidate carries an evidence vector (see
+        # matching/confidence.py) and the question asked first is
+        # parameter-free: does one candidate beat another on EVERY signal?
+        # Only when candidates genuinely trade off does a single margin
+        # arbitrate. Eight tunable numbers become one.
+        from semantic.matching.confidence import (
+            DOMINANCE_MARGIN,
+            score_candidates,
+        )
+
+        entity_tokens = q_tokens or []
+
+        evidence = score_candidates(
+            choices,
+            entity_tokens=entity_tokens,
+            dimension_meta=dimension_meta,
+            metric_tables=metric_tables,
+        )
+
+        for choice, score in zip(choices, evidence):
+            # Attached so a decision can be explained rather than asserted.
+            try:
+                object.__setattr__(choice, "evidence", score)
+            except Exception:
+                pass
+
+        ranked = sorted(
+            zip(choices, evidence), key=lambda pair: -pair[1].scalar
+        )
+        (c1, e1), (c2, e2) = ranked[0], ranked[1]
+
+        if e1.dominates(e2):
+            dominant = True
+        else:
+            dominant = (e1.scalar - e2.scalar) >= DOMINANCE_MARGIN
+
+        if dominant:
+            return ResolutionStatus.WEAK_AMBIGUITY, c1
+        return ResolutionStatus.STRONG_AMBIGUITY, None
+
     @classmethod
     def classify(
         cls,
@@ -317,92 +463,99 @@ class AmbiguityClassifier:
             choice.matched_query_tokens = matched_toks
             choices.append(choice)
 
-        if len(choices) == 1:
-            result_status = ResolutionStatus.SINGLE_MATCH
-            dominant_match = choices[0]
-        else:
-            # Gate 3 Step 21b - evidence-based dominance.
-            #
-            # This used to be four rules over eight hand-tuned thresholds, all
-            # comparing MatchConfidence, which was a constant per matcher. Two
-            # exact matches therefore had a confidence gap of exactly 0.00 and
-            # no rule could ever fire, so the classifier returned
-            # STRONG_AMBIGUITY whenever two candidates matched the same way -
-            # regardless of how much of the question or of the stored value
-            # each one actually explained.
-            #
-            # Now every candidate carries an evidence vector (see
-            # matching/confidence.py) and the question asked first is
-            # parameter-free: does one candidate beat another on EVERY signal?
-            # Only when candidates genuinely trade off does a single margin
-            # arbitrate. Eight tunable numbers become one.
-            from semantic.matching.confidence import (
-                DOMINANCE_MARGIN,
-                score_candidates,
+        # What the administrator has said about each dimension. Absent on a
+        # connection that has not been configured, in which case the signal
+        # falls back to neutral rather than penalising anything. Computed
+        # once, ahead of grouping, because every group's dominance decision
+        # reads it.
+        dimension_meta = {}
+        for row in (all_dimensions or []):
+            try:
+                dimension_meta[row[0]] = {
+                    "is_confirmed": bool(row[7]) if len(row) > 7 else False,
+                    "dimension_role": row[6] if len(row) > 6 else None,
+                }
+            except (IndexError, TypeError):
+                continue
+
+        metric_tables = [
+            m.get("table_name")
+            for m in (current_metrics or [])
+            if isinstance(m, dict)
+        ]
+
+        # Gate 3 - ambiguity-status contract. See _competes() for what makes
+        # two candidates alternatives for one requested concept rather than
+        # two different concepts requested together.
+        groups = cls._group_by_concept(choices)
+
+        # Left empty for the single-group path: dominant_match alone already
+        # carries that result, exactly as before this change, and the
+        # "dangerous unmatched tokens" check below falls back to it whenever
+        # dominant_matches is empty. Only ever populated by the multi-group
+        # branch, so a status of MULTI_MATCH is the only case a caller need
+        # check to know this list matters (see resolve_matches()).
+        dominant_matches: List[AmbiguityChoice] = []
+
+        if len(groups) <= 1:
+            result_status, dominant_match = cls._resolve_group(
+                choices, q_tokens, dimension_meta, metric_tables
             )
-
-            entity_tokens = q_tokens or []
-
-            # What the administrator has said about each dimension. Absent on a
-            # connection that has not been configured, in which case the signal
-            # falls back to neutral rather than penalising anything.
-            dimension_meta = {}
-            for row in (all_dimensions or []):
-                try:
-                    dimension_meta[row[0]] = {
-                        "is_confirmed": bool(row[7]) if len(row) > 7 else False,
-                        "dimension_role": row[6] if len(row) > 6 else None,
-                    }
-                except (IndexError, TypeError):
-                    continue
-
-            metric_tables = [
-                m.get("table_name")
-                for m in (current_metrics or [])
-                if isinstance(m, dict)
+        else:
+            group_results = [
+                cls._resolve_group(g, q_tokens, dimension_meta, metric_tables)
+                for g in groups
             ]
 
-            evidence = score_candidates(
-                choices,
-                entity_tokens=entity_tokens,
-                dimension_meta=dimension_meta,
-                metric_tables=metric_tables,
-            )
-
-            for choice, score in zip(choices, evidence):
-                # Attached so a decision can be explained rather than asserted.
-                try:
-                    object.__setattr__(choice, "evidence", score)
-                except Exception:
-                    pass
-
-            ranked = sorted(
-                zip(choices, evidence), key=lambda pair: -pair[1].scalar
-            )
-            (c1, e1), (c2, e2) = ranked[0], ranked[1]
-
-            if e1.dominates(e2):
-                dominant = True
-            else:
-                dominant = (e1.scalar - e2.scalar) >= DOMINANCE_MARGIN
-
-            if dominant:
-                result_status = ResolutionStatus.WEAK_AMBIGUITY
-                dominant_match = c1
-            else:
+            if any(
+                status == ResolutionStatus.STRONG_AMBIGUITY
+                for status, _ in group_results
+            ):
+                # One of the requested concepts itself has no dominant
+                # candidate. The whole request cannot be answered
+                # confidently, so this is not "some concepts resolved,
+                # others not" (PARTIAL_MATCH) - it is a live competing
+                # interpretation, same as the single-concept case.
                 result_status = ResolutionStatus.STRONG_AMBIGUITY
                 dominant_match = None
+            else:
+                # Every distinct requested concept resolved on its own -
+                # this is the case the CRITICAL DISTINCTION guards: multiple
+                # dimensions requested together is not ambiguity between
+                # alternatives.
+                result_status = ResolutionStatus.MULTI_MATCH
+                dominant_match = None
+                dominant_matches = [d for _, d in group_results if d is not None]
 
-        # Check if the dominant match has dangerous unmatched tokens
-        if result_status in (ResolutionStatus.SINGLE_MATCH, ResolutionStatus.WEAK_AMBIGUITY) and dominant_match:
-            unmatched_tokens = [t for t in q_tokens if t not in dominant_match.matched_query_tokens]
+        # Check if the dominant match(es) have dangerous unmatched tokens.
+        # Generalized from the single-dominant check: MULTI_MATCH carries
+        # several dominants (one per concept), and a token none of them
+        # explains is exactly as dangerous as one a lone dominant leaves
+        # unexplained.
+        dominants_to_check = (
+            [dominant_match] if dominant_match is not None else dominant_matches
+        )
+        if result_status in (
+            ResolutionStatus.SINGLE_MATCH,
+            ResolutionStatus.WEAK_AMBIGUITY,
+            ResolutionStatus.MULTI_MATCH,
+        ) and dominants_to_check:
+            explained_tokens = set()
+            for d in dominants_to_check:
+                explained_tokens.update(d.matched_query_tokens or [])
+            unmatched_tokens = [t for t in q_tokens if t not in explained_tokens]
             if unmatched_tokens:
                 from semantic.matching.singular_plural_matcher import SingularPluralMatcher
 
-                # Candidate's own dimension name, business name, column name, and synonyms are harmless
+                # Every dominant's own dimension name, business name, column
+                # name and synonyms are harmless - collected across all of
+                # them so a MULTI_MATCH's second concept is exempted exactly
+                # as its first one is.
                 cand_dim_names = set()
-                if dominant_match.result:
-                    res = dominant_match.result
+                for dominant in dominants_to_check:
+                    if not dominant.result:
+                        continue
+                    res = dominant.result
                     if res.business_name:
                         cand_dim_names.add(SingularPluralMatcher._to_singular(SingularPluralMatcher._normalize_text(res.business_name)))
                         norm = SingularPluralMatcher._normalize_text(res.business_name)
@@ -497,6 +650,7 @@ class AmbiguityClassifier:
         return SemanticResolutionResult(
             status=result_status,
             candidates=choices,
-            dominant_match=dominant_match
+            dominant_match=dominant_match,
+            dominant_matches=dominant_matches
         )
 

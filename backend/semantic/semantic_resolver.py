@@ -764,6 +764,19 @@ class SemanticResolver:
             if cand.get("type") == "dimension"
         ]
 
+        # Gate 3 - the tokens a selected METRIC candidate's own configured
+        # phrase (technical name, business name, or synonym) already
+        # accounted for in this question. Passed to DimensionValueResolver so
+        # a value candidate whose only question evidence is the same words -
+        # "due" for "Show due amount", already spent on the Pending Amount
+        # synonym "due amount" - is not treated as independent dimension/
+        # value evidence. Generic: built only from whichever metric this
+        # connection's own configuration matched, never a fixed word list.
+        metric_claimed_tokens = set()
+        for candidate in selected_candidates:
+            if candidate.get("type") == "metric":
+                metric_claimed_tokens.update(_get_words(candidate.get("matched_text") or ""))
+
         value_matches = DimensionValueResolver.resolve(
             connection_id,
             question,
@@ -771,6 +784,7 @@ class SemanticResolver:
             dimension_context=dimension_context,
             previous_semantic_context=previous_semantic_context,
             current_metrics=metric_objects,
+            metric_claimed_tokens=metric_claimed_tokens,
             all_metrics=metric_rows,
             all_dimensions=dimension_rows
         )
@@ -831,9 +845,35 @@ class SemanticResolver:
 
             # Condition 4b - the trailing dimension words that mark a
             # value-first phrasing such as "Ramraj brand" or "Chennai city".
+            #
+            # Gate 3 Step 21a escalation - a configured SYNONYM is as much a
+            # "this is a dimension label" marker as the business name is.
+            # known_vocabulary (Condition 2, above) already reads synonyms;
+            # this set did not, so an unresolved value trailing only a
+            # synonym word - never the literal business name - fell through
+            # Condition 4 unescalated. Generic: reads whatever synonyms this
+            # connection's own configuration carries, names none of its own.
+            #
+            # Excludes any word that is ALSO part of a configured METRIC's own
+            # vocabulary (name/business name/synonym): "amount" is a dimension
+            # synonym word here but also sits inside the metric synonym "due
+            # amount"/"pending amount". Without the exclusion, "Total pending
+            # amount" escalated on "total" - a metric-completing word, not an
+            # attempted value - because "amount" alone was enough to look like
+            # a trailing dimension marker. A word that belongs to a metric's
+            # own configured phrase is metric vocabulary first; it cannot
+            # simultaneously stand as evidence that the PRECEDING word must be
+            # a dimension value.
+            metric_vocabulary = set()
+            for row in metric_rows:
+                for field in (row[0], row[1], row[5]):
+                    metric_vocabulary.update(_get_words(field or ""))
+
             dimension_name_words = set()
             for row in dimension_rows:
                 dimension_name_words.update(_get_words(row[1] or ""))
+                dimension_name_words.update(_get_words(row[4] if len(row) > 4 else ""))
+            dimension_name_words -= metric_vocabulary
 
             ENTITY_PREPOSITIONS = ("for", "in", "of", "at")
 
