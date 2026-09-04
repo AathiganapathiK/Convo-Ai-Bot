@@ -364,6 +364,70 @@ class PromptBuilder:
                     warnings=raw_ctx.warnings
                 )
                 temporal_section = self.temporal_pipeline.temporal_formatter.format(time_ctx, style="llm")
+
+        # Gate 3 - table-aware DATE_COLUMN. TemporalPipeline.build() ran
+        # before any metric table was known, so it could only ever use the
+        # connection-wide capability - which never carries date_columns (see
+        # TimeStrategyResolver._discover_capability()'s own docstring: that
+        # is a per-TABLE fact, and publishing one table's date column
+        # connection-wide would offer it for a query against an unrelated
+        # table). Once the metric's table IS known, re-resolve the SAME
+        # detected intent against THAT table's own capability
+        # (discover_capability_for_table() - Step 7a's SnapshotConfigLoader.
+        # for_table() pattern, validated against the real schema the same
+        # way month_column already is). That capability is a strict
+        # superset of the connection-wide one (only date_columns is ever
+        # added), so re-resolving can only make a DATE_COLUMN-dependent
+        # strategy available, never change or remove anything the original
+        # resolution already produced. Mutually exclusive with the SNAPSHOT
+        # correction above: a snapshot metric's table has no DATE_COLUMN
+        # configuration, so the two never both fire.
+        elif not has_snapshot_metric:
+            last_intent = TemporalPipeline.get_last_intent()
+            if last_intent and metric_objs:
+                metric_table = None
+                for m in metric_objs:
+                    if isinstance(m, dict) and m.get("table_name"):
+                        metric_table = m["table_name"]
+                        break
+
+                if metric_table:
+                    from semantic.temporal.resolver import TimeStrategyResolver
+
+                    table_capability = TimeStrategyResolver().discover_capability_for_table(
+                        context.connection_id, metric_table
+                    )
+                    if table_capability.date_columns:
+                        active_settings = settings or TimeSettings()
+                        # connection_id deliberately NOT passed through here:
+                        # TimeStrategySelector.select() memoizes its winning
+                        # strategy per (connection_id, intent_type) in
+                        # TimeResolutionCache and reuses it on a later call
+                        # for the SAME connection regardless of which
+                        # capability is passed in. Two different tables on
+                        # one connection share a connection_id, so the first
+                        # table's chosen strategy for an intent type was
+                        # being wrongly replayed for the second table's
+                        # explicit, table-scoped capability. capability is
+                        # already supplied directly here, so no connection_id
+                        # is needed for resolve_intent's own cache fallback
+                        # either - this omission is safe and touches no
+                        # shared state.
+                        new_res = self.temporal_pipeline.time_resolver.resolve_intent(
+                            intent=last_intent,
+                            capability=table_capability,
+                            settings=active_settings,
+                        )
+                        if new_res.resolved and new_res.plan:
+                            new_ctx = self.temporal_pipeline.context_builder.build(
+                                new_res, active_settings
+                            )
+                            temporal_section = self.temporal_pipeline.temporal_formatter.format(
+                                new_ctx, style="llm"
+                            )
+                            self.temporal_pipeline._thread_local.last_time_context = new_ctx
+                            self.temporal_pipeline._thread_local.last_resolution = new_res
+
         dimension_objs = semantic_result.get("dimension_objects", []) if isinstance(semantic_result, dict) else []
         value_matches = semantic_result.get("value_matches", []) if isinstance(semantic_result, dict) else []
         
@@ -517,21 +581,37 @@ class PromptBuilder:
                 from core.exceptions import AmbiguityException
                 value_matches = semantic_result.get("value_matches", [])
                 if value_matches:
+                    # Gate 3 Step 21c. value_matches already carries every
+                    # genuine value the resolver retained (dominant first,
+                    # from the candidate-retention fix), not just the top one -
+                    # build one option per entry instead of only value_matches[0]
+                    # so a real alternative like N--NIGHT WEARS is not silently
+                    # dropped from the choice a user is offered.
                     best_match = value_matches[0]
-                    msg = f"I couldn't find \"{question}\" in the available business data. I found \"{best_match['value']}\" instead. Would you like to use that?"
-                    options = [{
-                        "option_id": 1,
-                        "value": best_match["value"],
-                        "dimension": best_match.get("business_name") or best_match.get("dimension"),
-                        "business_name": best_match.get("business_name"),
-                        "dimension_id": best_match.get("dimension_id"),
-                        "table_name": best_match.get("table_name"),
-                        "column_name": best_match.get("column_name"),
-                        "normalized_value": best_match.get("normalized_value", best_match["value"].lower()),
-                        "match_type": best_match.get("match_type"),
-                        "matched_question_tokens": best_match.get("matched_question_tokens", []),
-                        "matched_value_tokens": best_match.get("matched_value_tokens", [])
-                    }]
+                    options = [
+                        {
+                            "option_id": idx + 1,
+                            "value": m["value"],
+                            "dimension": m.get("business_name") or m.get("dimension"),
+                            "business_name": m.get("business_name"),
+                            "dimension_id": m.get("dimension_id"),
+                            "table_name": m.get("table_name"),
+                            "column_name": m.get("column_name"),
+                            "normalized_value": m.get("normalized_value", m["value"].lower()),
+                            "match_type": m.get("match_type"),
+                            "matched_question_tokens": m.get("matched_question_tokens", []),
+                            "matched_value_tokens": m.get("matched_value_tokens", [])
+                        }
+                        for idx, m in enumerate(value_matches)
+                    ]
+
+                    if len(options) == 1:
+                        # Unchanged: the single "did you mean" prompt.
+                        msg = f"I couldn't find \"{question}\" in the available business data. I found \"{best_match['value']}\" instead. Would you like to use that?"
+                    else:
+                        opt_str = "\n".join(f"{opt['option_id']}. {opt['value']}" for opt in options[:5])
+                        msg = f"I couldn't find \"{question}\" exactly. I found multiple possible matches:\n\n{opt_str}\n\nPlease choose one:"
+
                     raise AmbiguityException(
                         message=msg,
                         details={
@@ -549,6 +629,46 @@ class PromptBuilder:
                             "retrieval": semantic_result["retrieval"]
                         }
                     )
+
+            if gate_result.get("status") == "WEAK_AMBIGUITY":
+                # Gate 3 Step 21c. The gate only reaches this status when
+                # value_matches held more than one genuine alternative (see
+                # semantic/semantic_gate.py) - a WEAK_AMBIGUITY that filtered
+                # down to one value never sets allowed=False, so this branch
+                # is never entered for the single-candidate case. Reuses the
+                # existing AmbiguityException/options clarification flow -
+                # same shape as PARTIAL_MATCH and STRONG_AMBIGUITY above, no
+                # new mechanism. Genuine alternatives are same-column by
+                # construction (that is what "genuine" means here), so this
+                # is always a same-dimension choice.
+                from core.exceptions import AmbiguityException
+                value_matches = semantic_result.get("value_matches", [])
+                options = [
+                    {
+                        "option_id": idx + 1,
+                        "value": m["value"],
+                        "dimension": m.get("business_name") or m.get("dimension"),
+                        "business_name": m.get("business_name"),
+                        "dimension_id": m.get("dimension_id"),
+                        "table_name": m.get("table_name"),
+                        "column_name": m.get("column_name"),
+                        "normalized_value": m.get("normalized_value", m["value"].lower()),
+                        "match_type": m.get("match_type"),
+                        "matched_question_tokens": m.get("matched_question_tokens", []),
+                        "matched_value_tokens": m.get("matched_value_tokens", [])
+                    }
+                    for idx, m in enumerate(value_matches)
+                ]
+                opt_str = "\n".join(f"{opt['option_id']}. {opt['value']}" for opt in options[:5])
+                msg = f"I found multiple possible matches for \"{question}\".\nPlease choose one:\n\n{opt_str}"
+                raise AmbiguityException(
+                    message=msg,
+                    details={
+                        "original_question": question,
+                        "ambiguity_type": "SAME_DIMENSION",
+                        "options": options
+                    }
+                )
 
             if gate_result.get("status") == "STRONG_AMBIGUITY":
                 from core.exceptions import AmbiguityException
@@ -601,7 +721,7 @@ class PromptBuilder:
                     }
                 )
 
-            msg = f"I couldn't find any data matching \"{question}\" in the available business data. Please try another product, category, or business term."
+            msg = gate_result.get("reason") or f"I couldn't find any data matching \"{question}\" in the available business data. Please try another product, category, or business term."
             raise SemanticRetrievalException(
                 message=msg,
                 details={
@@ -1047,7 +1167,44 @@ class PromptBuilder:
                         f"Date Filter Required: {date_filter_req}\n"
                         f"Authoritative Binding: You MUST use physical column '{m.column_name}' for any references to Business Metric '{m.business_name}' in SELECT, GROUP BY, and aggregations (e.g. SUM({m.column_name}))."
                     )
-        
+
+            # Gate 3 Step 7b Fix B - the plan's dimension bindings, stated with
+            # the same authority as the metric binding above.
+            #
+            # SemanticPlanBuilder can already replace a matched dimension with
+            # the administrator's configured one - "sales by month" resolves
+            # to Document Month, but the sales table's configured month column
+            # is Inv Month, and the plan swaps it in because Inv Month's
+            # leading letter (A April ... L March) sorts fiscally while
+            # DocMonth is a calendar number that would place January first.
+            # Until this block existed that correction lived only in the
+            # SemanticPlan object: the prompt still rendered the resolver's
+            # original dimension under SEMANTIC CONTEXT, and nothing told the
+            # model to group or order by the configured one, so the plan's
+            # decision never reached SQL. This is prompt-only - it does not
+            # touch what SemanticPlanBuilder decides, does not change
+            # dimension_objects/SEMANTIC CONTEXT, and does not touch the guard.
+            for d in semantic_plan.dimensions:
+                dim_lines = [
+                    f"Business Dimension: {d.business_name}",
+                    f"Physical Dimension: {d.column_name}",
+                    (
+                        f"Authoritative Binding: You MUST use physical column "
+                        f"'{d.column_name}' for any references to Business "
+                        f"Dimension '{d.business_name}' in SELECT and GROUP BY."
+                    ),
+                ]
+                if d.order_by_column:
+                    dim_lines.append(
+                        f"Authoritative Ordering: You MUST ORDER BY physical "
+                        f"column '{d.order_by_column}' when the query is "
+                        f"broken down by Business Dimension '{d.business_name}' "
+                        f"- it is the configured sort column and is not "
+                        f"necessarily the same column as the one displayed or "
+                        f"grouped by."
+                    )
+                semantic_plan_context_lines.append("\n".join(dim_lines))
+
         semantic_plan_context = "\n".join(semantic_plan_context_lines) if semantic_plan_context_lines else "None"
 
         prompt = f"""
@@ -1156,6 +1313,7 @@ SEMANTIC SQL RULES
 10. If a dimension has a specified SQL Expression under SEMANTIC CONTEXT, you MUST use that SQL Expression in the SELECT, GROUP BY, WHERE, and ORDER BY clauses instead of the raw physical column name.
 11. Every REQUIRED VALUE FILTER listed in the prompt is an authoritative semantic decision already resolved by the backend. The generated SQL MUST apply every required value filter using the specified column or a validated/required join path to constrain the query results. You are NOT allowed to decide if the filter is relevant, nor are you allowed to omit, replace, generalize, reinterpret, silently discard, or merely comment on a required value filter.
 12. You MUST use the exact physical column name specified for the metric in the SEMANTIC PLAN or SEMANTIC CONTEXT (e.g. use 'PY' for Sales if Column/Physical Metric is PY, 'PPY' if Column/Physical Metric is PPY, etc.). The physical column binding is authoritative and must not be overridden or defaulted back to 'CY'. When Temporal Strategy is SNAPSHOT and Date Filter Required is NO, you MUST NOT generate any additional date-column predicate or filter (such as YEAR(createddate) = ... or createddate BETWEEN ...) representing the same time period.
+13. Where the SEMANTIC PLAN section lists a Business Dimension with a Physical Dimension, that Physical Dimension is the authoritative column for that dimension in SELECT and GROUP BY - it overrides any different physical column shown for the same Business Dimension under SEMANTIC CONTEXT or RELEVANT DIMENSIONS. Where that Business Dimension also carries an Authoritative Ordering line, you MUST ORDER BY the physical column it names whenever the query is broken down by that dimension. The ordering column is not necessarily the column displayed or grouped by - do not substitute the grouping column for it.
 
 ===========================================================
 SQL SERVER RULES

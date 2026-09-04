@@ -242,7 +242,7 @@
       "values": [
         "RAMRAJ"
       ],
-      "status": "WEAK_AMBIGUITY",
+      "status": "SINGLE_MATCH",
       "followup_context_applied": false,
       "dominant_candidate": null,
       "retrieval_status": "COMPLETE"
@@ -267,7 +267,7 @@
       "values": [
         "RAMRAJ"
       ],
-      "status": "WEAK_AMBIGUITY",
+      "status": "SINGLE_MATCH",
       "followup_context_applied": false,
       "dominant_candidate": null,
       "retrieval_status": "COMPLETE"
@@ -292,7 +292,7 @@
       "values": [
         "RAMRAJ"
       ],
-      "status": "WEAK_AMBIGUITY",
+      "status": "SINGLE_MATCH",
       "followup_context_applied": false,
       "dominant_candidate": null,
       "retrieval_status": "COMPLETE"
@@ -789,7 +789,7 @@
       "values": [
         "RAMRAJ"
       ],
-      "status": "WEAK_AMBIGUITY",
+      "status": "PARTIAL_MATCH",
       "followup_context_applied": false,
       "dominant_candidate": null,
       "retrieval_status": "COMPLETE"
@@ -841,7 +841,7 @@
       "values": [
         "RAMRAJ"
       ],
-      "status": "WEAK_AMBIGUITY",
+      "status": "PARTIAL_MATCH",
       "followup_context_applied": false,
       "dominant_candidate": null,
       "retrieval_status": "COMPLETE"

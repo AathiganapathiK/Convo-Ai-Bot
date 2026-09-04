@@ -1,0 +1,4794 @@
+{
+  "step": 15,
+  "scope": "verdict A cases from Step 16 v2 benchmark",
+  "case_count": 92,
+  "primary_root_cause_counts": {
+    "RC-03_SYNONYM_SPECIFICITY_NOT_WEIGHTED": 21,
+    "RC-08_UNRESOLVED_STALE_DIAGNOSTIC": 5,
+    "RC-06_VALUE_MATCHER_ACCEPTS_WEAK_CANDIDATES": 9,
+    "RC-02_AMBIGUITY_OVERRIDDEN_BY_UNMATCHED_TOKEN_HEURISTIC": 23,
+    "RC-07_NO_CONFIDENCE_MODEL": 9,
+    "RC-05_RETRIEVAL_STATUS_IS_BUCKET_COUNT": 5,
+    "RC-04_NAME_MATCHER_HAS_NO_MORPHOLOGY": 10,
+    "RC-01_NO_MATCH_NOT_ENFORCED": 10
+  },
+  "first_failing_stage_counts": {
+    "METRIC": 22,
+    "NONE": 5,
+    "VALUE": 9,
+    "AMBIGUITY": 32,
+    "DIMENSION": 19,
+    "RETRIEVAL_STATUS": 5
+  },
+  "cases": [
+    {
+      "case_id": "E1-011",
+      "question": "Show amount",
+      "category": "SIMPLE_METRIC",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "METRIC",
+      "recorded_failure_codes": [
+        "wrong metric"
+      ],
+      "effective_failure_codes": [
+        "wrong metric"
+      ],
+      "primary_root_cause": "RC-03_SYNONYM_SPECIFICITY_NOT_WEIGHTED",
+      "secondary_contributing_factors": [],
+      "data_answerable": "yes",
+      "expected": {
+        "metrics": [
+          "Amt"
+        ],
+        "dimensions": [],
+        "values": [],
+        "status": "NO_MATCH",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "PARTIAL"
+      },
+      "actual": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [],
+        "values": [],
+        "status": "NO_MATCH",
+        "retrieval_status": "PARTIAL",
+        "followup_context_applied": false,
+        "dominant_candidate": null
+      }
+    },
+    {
+      "case_id": "E1-012",
+      "question": "Total amount",
+      "category": "SIMPLE_METRIC",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "METRIC",
+      "recorded_failure_codes": [
+        "wrong metric"
+      ],
+      "effective_failure_codes": [
+        "wrong metric"
+      ],
+      "primary_root_cause": "RC-03_SYNONYM_SPECIFICITY_NOT_WEIGHTED",
+      "secondary_contributing_factors": [],
+      "data_answerable": "yes",
+      "expected": {
+        "metrics": [
+          "Amt"
+        ],
+        "dimensions": [],
+        "values": [],
+        "status": "NO_MATCH",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "PARTIAL"
+      },
+      "actual": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [],
+        "values": [],
+        "status": "NO_MATCH",
+        "retrieval_status": "PARTIAL",
+        "followup_context_applied": false,
+        "dominant_candidate": null
+      }
+    },
+    {
+      "case_id": "E1-013",
+      "question": "Show pending amount",
+      "category": "SIMPLE_METRIC",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "NONE",
+      "recorded_failure_codes": [
+        "wrong metric"
+      ],
+      "effective_failure_codes": [],
+      "primary_root_cause": "RC-08_UNRESOLVED_STALE_DIAGNOSTIC",
+      "secondary_contributing_factors": [],
+      "data_answerable": "yes",
+      "expected": {
+        "metrics": [
+          "P A M T"
+        ],
+        "dimensions": [],
+        "values": [],
+        "status": "NO_MATCH",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "PARTIAL"
+      },
+      "actual": {
+        "metrics": [
+          "P A M T"
+        ],
+        "dimensions": [],
+        "values": [],
+        "status": "NO_MATCH",
+        "retrieval_status": "PARTIAL",
+        "followup_context_applied": false,
+        "dominant_candidate": null
+      }
+    },
+    {
+      "case_id": "E1-014",
+      "question": "Total pending amount",
+      "category": "SIMPLE_METRIC",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "NONE",
+      "recorded_failure_codes": [
+        "wrong metric"
+      ],
+      "effective_failure_codes": [],
+      "primary_root_cause": "RC-08_UNRESOLVED_STALE_DIAGNOSTIC",
+      "secondary_contributing_factors": [],
+      "data_answerable": "yes",
+      "expected": {
+        "metrics": [
+          "P A M T"
+        ],
+        "dimensions": [],
+        "values": [],
+        "status": "NO_MATCH",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "PARTIAL"
+      },
+      "actual": {
+        "metrics": [
+          "P A M T"
+        ],
+        "dimensions": [],
+        "values": [],
+        "status": "NO_MATCH",
+        "retrieval_status": "PARTIAL",
+        "followup_context_applied": false,
+        "dominant_candidate": null
+      }
+    },
+    {
+      "case_id": "E1-015",
+      "question": "Show bill amount",
+      "category": "SIMPLE_METRIC",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "METRIC",
+      "recorded_failure_codes": [
+        "wrong metric"
+      ],
+      "effective_failure_codes": [
+        "wrong metric"
+      ],
+      "primary_root_cause": "RC-03_SYNONYM_SPECIFICITY_NOT_WEIGHTED",
+      "secondary_contributing_factors": [],
+      "data_answerable": "yes",
+      "expected": {
+        "metrics": [
+          "Amt"
+        ],
+        "dimensions": [],
+        "values": [],
+        "status": "NO_MATCH",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "PARTIAL"
+      },
+      "actual": {
+        "metrics": [
+          "billamt"
+        ],
+        "dimensions": [],
+        "values": [],
+        "status": "NO_MATCH",
+        "retrieval_status": "PARTIAL",
+        "followup_context_applied": false,
+        "dominant_candidate": null
+      }
+    },
+    {
+      "case_id": "E1-016",
+      "question": "Total bill amount",
+      "category": "SIMPLE_METRIC",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "METRIC",
+      "recorded_failure_codes": [
+        "wrong metric"
+      ],
+      "effective_failure_codes": [
+        "wrong metric"
+      ],
+      "primary_root_cause": "RC-03_SYNONYM_SPECIFICITY_NOT_WEIGHTED",
+      "secondary_contributing_factors": [],
+      "data_answerable": "yes",
+      "expected": {
+        "metrics": [
+          "Amt"
+        ],
+        "dimensions": [],
+        "values": [],
+        "status": "NO_MATCH",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "PARTIAL"
+      },
+      "actual": {
+        "metrics": [
+          "billamt"
+        ],
+        "dimensions": [],
+        "values": [],
+        "status": "NO_MATCH",
+        "retrieval_status": "PARTIAL",
+        "followup_context_applied": false,
+        "dominant_candidate": null
+      }
+    },
+    {
+      "case_id": "E1-017",
+      "question": "Show due amount",
+      "category": "SIMPLE_METRIC",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "METRIC",
+      "recorded_failure_codes": [
+        "wrong ambiguity",
+        "wrong metric"
+      ],
+      "effective_failure_codes": [
+        "wrong ambiguity",
+        "wrong metric"
+      ],
+      "primary_root_cause": "RC-03_SYNONYM_SPECIFICITY_NOT_WEIGHTED",
+      "secondary_contributing_factors": [
+        "RC-09_SPAN_GREEDY_SELECTION"
+      ],
+      "data_answerable": "yes",
+      "expected": {
+        "metrics": [
+          "due"
+        ],
+        "dimensions": [],
+        "values": [
+          "NO DUE",
+          "OVER DUE",
+          "Due Today",
+          "Future Due",
+          "Current Due (1-7)",
+          "Delayed Due (16-30)",
+          "Critical Due (31-60)"
+        ],
+        "status": "PARTIAL_MATCH",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "actual": {
+        "metrics": [
+          "due",
+          "C Y"
+        ],
+        "dimensions": [],
+        "values": [
+          "Due Today",
+          "NO DUE",
+          "OVER DUE",
+          "Future Due",
+          "Current Due (1-7)",
+          "Delayed Due (16-30)",
+          "Critical Due (31-60)"
+        ],
+        "status": "STRONG_AMBIGUITY",
+        "retrieval_status": "COMPLETE",
+        "followup_context_applied": false,
+        "dominant_candidate": null
+      }
+    },
+    {
+      "case_id": "E1-018",
+      "question": "Total due amount",
+      "category": "SIMPLE_METRIC",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "METRIC",
+      "recorded_failure_codes": [
+        "wrong ambiguity",
+        "wrong metric",
+        "wrong value"
+      ],
+      "effective_failure_codes": [
+        "wrong ambiguity",
+        "wrong metric",
+        "wrong value"
+      ],
+      "primary_root_cause": "RC-03_SYNONYM_SPECIFICITY_NOT_WEIGHTED",
+      "secondary_contributing_factors": [
+        "RC-09_SPAN_GREEDY_SELECTION"
+      ],
+      "data_answerable": "yes",
+      "expected": {
+        "metrics": [
+          "due"
+        ],
+        "dimensions": [],
+        "values": [
+          "Current Due (1-7)",
+          "Delayed Due (16-30)",
+          "Critical Due (31-60)"
+        ],
+        "status": "SINGLE_MATCH",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "actual": {
+        "metrics": [
+          "due",
+          "C Y"
+        ],
+        "dimensions": [],
+        "values": [
+          "Due Today",
+          "Current Due (1-7)",
+          "Delayed Due (16-30)",
+          "Critical Due (31-60)"
+        ],
+        "status": "STRONG_AMBIGUITY",
+        "retrieval_status": "COMPLETE",
+        "followup_context_applied": false,
+        "dominant_candidate": null
+      }
+    },
+    {
+      "case_id": "E1-019",
+      "question": "Show payment amount",
+      "category": "SIMPLE_METRIC",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "METRIC",
+      "recorded_failure_codes": [
+        "wrong ambiguity",
+        "wrong metric"
+      ],
+      "effective_failure_codes": [
+        "wrong ambiguity",
+        "wrong metric"
+      ],
+      "primary_root_cause": "RC-03_SYNONYM_SPECIFICITY_NOT_WEIGHTED",
+      "secondary_contributing_factors": [
+        "RC-09_SPAN_GREEDY_SELECTION"
+      ],
+      "data_answerable": "yes",
+      "expected": {
+        "metrics": [
+          "Amt"
+        ],
+        "dimensions": [],
+        "values": [
+          "FULL PAYMENT",
+          "PARTIAL PAYMENT"
+        ],
+        "status": "PARTIAL_MATCH",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "actual": {
+        "metrics": [
+          "P A M T",
+          "C Y"
+        ],
+        "dimensions": [],
+        "values": [
+          "FULL PAYMENT",
+          "PARTIAL PAYMENT"
+        ],
+        "status": "STRONG_AMBIGUITY",
+        "retrieval_status": "COMPLETE",
+        "followup_context_applied": false,
+        "dominant_candidate": null
+      }
+    },
+    {
+      "case_id": "E1-020",
+      "question": "Show due days",
+      "category": "SIMPLE_METRIC",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "VALUE",
+      "recorded_failure_codes": [
+        "wrong ambiguity",
+        "wrong value"
+      ],
+      "effective_failure_codes": [
+        "wrong ambiguity",
+        "wrong value"
+      ],
+      "primary_root_cause": "RC-06_VALUE_MATCHER_ACCEPTS_WEAK_CANDIDATES",
+      "secondary_contributing_factors": [
+        "RC-07_NO_CONFIDENCE_MODEL"
+      ],
+      "data_answerable": "yes",
+      "expected": {
+        "metrics": [
+          "due"
+        ],
+        "dimensions": [],
+        "values": [
+          "Current Due (1-7)",
+          "Delayed Due (16-30)",
+          "Critical Due (31-60)"
+        ],
+        "status": "PARTIAL_MATCH",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "actual": {
+        "metrics": [
+          "due"
+        ],
+        "dimensions": [],
+        "values": [
+          "Due Today",
+          "NO DUE",
+          "OVER DUE",
+          "Future Due",
+          "Current Due (1-7)",
+          "Delayed Due (16-30)",
+          "Critical Due (31-60)"
+        ],
+        "status": "STRONG_AMBIGUITY",
+        "retrieval_status": "COMPLETE",
+        "followup_context_applied": false,
+        "dominant_candidate": null
+      }
+    },
+    {
+      "case_id": "E1-021",
+      "question": "Average due days",
+      "category": "SIMPLE_METRIC",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "VALUE",
+      "recorded_failure_codes": [
+        "wrong ambiguity",
+        "wrong value"
+      ],
+      "effective_failure_codes": [
+        "wrong ambiguity",
+        "wrong value"
+      ],
+      "primary_root_cause": "RC-06_VALUE_MATCHER_ACCEPTS_WEAK_CANDIDATES",
+      "secondary_contributing_factors": [
+        "RC-07_NO_CONFIDENCE_MODEL"
+      ],
+      "data_answerable": "yes",
+      "expected": {
+        "metrics": [
+          "due"
+        ],
+        "dimensions": [],
+        "values": [
+          "Current Due (1-7)",
+          "Delayed Due (16-30)",
+          "Critical Due (31-60)",
+          "Future Due",
+          "Due Today"
+        ],
+        "status": "SINGLE_MATCH",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "actual": {
+        "metrics": [
+          "due"
+        ],
+        "dimensions": [],
+        "values": [
+          "Due Today",
+          "Current Due (1-7)",
+          "Delayed Due (16-30)",
+          "Critical Due (31-60)"
+        ],
+        "status": "STRONG_AMBIGUITY",
+        "retrieval_status": "COMPLETE",
+        "followup_context_applied": false,
+        "dominant_candidate": null
+      }
+    },
+    {
+      "case_id": "E1-032",
+      "question": "Show pending amount for Chennai city",
+      "category": "METRIC_DIMENSION_VALUE",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "AMBIGUITY",
+      "recorded_failure_codes": [
+        "wrong ambiguity",
+        "wrong metric"
+      ],
+      "effective_failure_codes": [
+        "wrong ambiguity"
+      ],
+      "primary_root_cause": "RC-02_AMBIGUITY_OVERRIDDEN_BY_UNMATCHED_TOKEN_HEURISTIC",
+      "secondary_contributing_factors": [],
+      "data_answerable": "yes",
+      "expected": {
+        "metrics": [
+          "P A M T"
+        ],
+        "dimensions": [
+          "City"
+        ],
+        "values": [
+          "CHENNAI"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "actual": {
+        "metrics": [
+          "P A M T"
+        ],
+        "dimensions": [
+          {
+            "dimension_name": "city",
+            "business_name": "City",
+            "table_name": "PBI_OUTSTANDING_ENES_SUMMARY",
+            "column_name": "City"
+          }
+        ],
+        "values": [
+          "CHENNAI"
+        ],
+        "status": "PARTIAL_MATCH",
+        "retrieval_status": "COMPLETE",
+        "followup_context_applied": false,
+        "dominant_candidate": "CHENNAI"
+      }
+    },
+    {
+      "case_id": "E1-033",
+      "question": "Pending amount in Madurai city",
+      "category": "METRIC_DIMENSION_VALUE",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "AMBIGUITY",
+      "recorded_failure_codes": [
+        "wrong ambiguity",
+        "wrong metric"
+      ],
+      "effective_failure_codes": [
+        "wrong ambiguity"
+      ],
+      "primary_root_cause": "RC-02_AMBIGUITY_OVERRIDDEN_BY_UNMATCHED_TOKEN_HEURISTIC",
+      "secondary_contributing_factors": [],
+      "data_answerable": "yes",
+      "expected": {
+        "metrics": [
+          "P A M T"
+        ],
+        "dimensions": [
+          "City"
+        ],
+        "values": [
+          "MADURAI"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "actual": {
+        "metrics": [
+          "P A M T"
+        ],
+        "dimensions": [
+          {
+            "dimension_name": "city",
+            "business_name": "City",
+            "table_name": "PBI_OUTSTANDING_ENES_SUMMARY",
+            "column_name": "City"
+          }
+        ],
+        "values": [
+          "MADURAI"
+        ],
+        "status": "PARTIAL_MATCH",
+        "retrieval_status": "COMPLETE",
+        "followup_context_applied": false,
+        "dominant_candidate": "MADURAI"
+      }
+    },
+    {
+      "case_id": "E1-034",
+      "question": "Show bill amount for Coimbatore city",
+      "category": "METRIC_DIMENSION_VALUE",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "METRIC",
+      "recorded_failure_codes": [
+        "wrong ambiguity",
+        "wrong metric"
+      ],
+      "effective_failure_codes": [
+        "wrong ambiguity",
+        "wrong metric"
+      ],
+      "primary_root_cause": "RC-03_SYNONYM_SPECIFICITY_NOT_WEIGHTED",
+      "secondary_contributing_factors": [],
+      "data_answerable": "no",
+      "expected": {
+        "metrics": [
+          "Amt"
+        ],
+        "dimensions": [
+          "City"
+        ],
+        "values": [
+          "COIMBATORE"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "actual": {
+        "metrics": [
+          "billamt"
+        ],
+        "dimensions": [
+          {
+            "dimension_name": "city",
+            "business_name": "City",
+            "table_name": "PBI_OUTSTANDING_ENES_SUMMARY",
+            "column_name": "City"
+          }
+        ],
+        "values": [
+          "COIMBATORE"
+        ],
+        "status": "PARTIAL_MATCH",
+        "retrieval_status": "COMPLETE",
+        "followup_context_applied": false,
+        "dominant_candidate": "COIMBATORE"
+      }
+    },
+    {
+      "case_id": "E1-035",
+      "question": "Show due amount for Chennai city",
+      "category": "METRIC_DIMENSION_VALUE",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "METRIC",
+      "recorded_failure_codes": [
+        "wrong ambiguity",
+        "wrong metric"
+      ],
+      "effective_failure_codes": [
+        "wrong ambiguity",
+        "wrong metric"
+      ],
+      "primary_root_cause": "RC-03_SYNONYM_SPECIFICITY_NOT_WEIGHTED",
+      "secondary_contributing_factors": [
+        "RC-09_SPAN_GREEDY_SELECTION"
+      ],
+      "data_answerable": "no",
+      "expected": {
+        "metrics": [
+          "due"
+        ],
+        "dimensions": [
+          "City"
+        ],
+        "values": [
+          "CHENNAI"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "actual": {
+        "metrics": [
+          "due",
+          "C Y"
+        ],
+        "dimensions": [
+          {
+            "dimension_name": "city",
+            "business_name": "City",
+            "table_name": "PBI_OUTSTANDING_ENES_SUMMARY",
+            "column_name": "City"
+          }
+        ],
+        "values": [
+          "CHENNAI"
+        ],
+        "status": "PARTIAL_MATCH",
+        "retrieval_status": "COMPLETE",
+        "followup_context_applied": false,
+        "dominant_candidate": "CHENNAI"
+      }
+    },
+    {
+      "case_id": "E1-036",
+      "question": "Show sales for Chennai district",
+      "category": "METRIC_DIMENSION_VALUE",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "AMBIGUITY",
+      "recorded_failure_codes": [
+        "wrong ambiguity"
+      ],
+      "effective_failure_codes": [
+        "wrong ambiguity"
+      ],
+      "primary_root_cause": "RC-07_NO_CONFIDENCE_MODEL",
+      "secondary_contributing_factors": [
+        "RC-02_AMBIGUITY_OVERRIDDEN_BY_UNMATCHED_TOKEN_HEURISTIC"
+      ],
+      "data_answerable": "no",
+      "expected": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          "District"
+        ],
+        "values": [
+          "CHENNAI"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "actual": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          {
+            "dimension_name": "district",
+            "business_name": "District",
+            "table_name": "PBI_OUTSTANDING_ENES_SUMMARY",
+            "column_name": "District"
+          }
+        ],
+        "values": [
+          "CHENNAI"
+        ],
+        "status": "SINGLE_MATCH",
+        "retrieval_status": "COMPLETE",
+        "followup_context_applied": false,
+        "dominant_candidate": "CHENNAI"
+      }
+    },
+    {
+      "case_id": "E1-037",
+      "question": "sales in Coimbatore district",
+      "category": "METRIC_DIMENSION_VALUE",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "AMBIGUITY",
+      "recorded_failure_codes": [
+        "wrong ambiguity"
+      ],
+      "effective_failure_codes": [
+        "wrong ambiguity"
+      ],
+      "primary_root_cause": "RC-07_NO_CONFIDENCE_MODEL",
+      "secondary_contributing_factors": [
+        "RC-02_AMBIGUITY_OVERRIDDEN_BY_UNMATCHED_TOKEN_HEURISTIC"
+      ],
+      "data_answerable": "no",
+      "expected": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          "District"
+        ],
+        "values": [
+          "COIMBATORE"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "actual": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          {
+            "dimension_name": "district",
+            "business_name": "District",
+            "table_name": "PBI_OUTSTANDING_ENES_SUMMARY",
+            "column_name": "District"
+          }
+        ],
+        "values": [
+          "COIMBATORE"
+        ],
+        "status": "SINGLE_MATCH",
+        "retrieval_status": "COMPLETE",
+        "followup_context_applied": false,
+        "dominant_candidate": "COIMBATORE"
+      }
+    },
+    {
+      "case_id": "E1-038",
+      "question": "Show sales for Madurai district",
+      "category": "METRIC_DIMENSION_VALUE",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "AMBIGUITY",
+      "recorded_failure_codes": [
+        "wrong ambiguity"
+      ],
+      "effective_failure_codes": [
+        "wrong ambiguity"
+      ],
+      "primary_root_cause": "RC-07_NO_CONFIDENCE_MODEL",
+      "secondary_contributing_factors": [
+        "RC-02_AMBIGUITY_OVERRIDDEN_BY_UNMATCHED_TOKEN_HEURISTIC"
+      ],
+      "data_answerable": "no",
+      "expected": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          "District"
+        ],
+        "values": [
+          "MADURAI"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "actual": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          {
+            "dimension_name": "district",
+            "business_name": "District",
+            "table_name": "PBI_OUTSTANDING_ENES_SUMMARY",
+            "column_name": "District"
+          }
+        ],
+        "values": [
+          "MADURAI"
+        ],
+        "status": "SINGLE_MATCH",
+        "retrieval_status": "COMPLETE",
+        "followup_context_applied": false,
+        "dominant_candidate": "MADURAI"
+      }
+    },
+    {
+      "case_id": "E1-043",
+      "question": "Show sales for category Marketing",
+      "category": "METRIC_DIMENSION_VALUE",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "DIMENSION",
+      "recorded_failure_codes": [
+        "wrong ambiguity",
+        "wrong dimension",
+        "wrong value"
+      ],
+      "effective_failure_codes": [
+        "wrong ambiguity",
+        "wrong dimension",
+        "wrong value"
+      ],
+      "primary_root_cause": "RC-03_SYNONYM_SPECIFICITY_NOT_WEIGHTED",
+      "secondary_contributing_factors": [
+        "RC-09_SPAN_GREEDY_SELECTION"
+      ],
+      "data_answerable": "yes",
+      "expected": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          "Category"
+        ],
+        "values": [
+          "MARKETING",
+          "MARKETING",
+          "MARKETING"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "actual": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          {
+            "dimension_name": "category",
+            "business_name": "Category",
+            "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY",
+            "column_name": "Category"
+          },
+          {
+            "dimension_name": "prodgrp4",
+            "business_name": "Prod Grp4",
+            "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY",
+            "column_name": "ProdGrp4"
+          }
+        ],
+        "values": [
+          "MARKETING",
+          "MARKETING"
+        ],
+        "status": "STRONG_AMBIGUITY",
+        "retrieval_status": "COMPLETE",
+        "followup_context_applied": false,
+        "dominant_candidate": null
+      }
+    },
+    {
+      "case_id": "E1-044",
+      "question": "Show sales for category Others",
+      "category": "METRIC_DIMENSION_VALUE",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "VALUE",
+      "recorded_failure_codes": [
+        "wrong ambiguity",
+        "wrong value"
+      ],
+      "effective_failure_codes": [
+        "wrong ambiguity",
+        "wrong value"
+      ],
+      "primary_root_cause": "RC-06_VALUE_MATCHER_ACCEPTS_WEAK_CANDIDATES",
+      "secondary_contributing_factors": [
+        "RC-07_NO_CONFIDENCE_MODEL"
+      ],
+      "data_answerable": "yes",
+      "expected": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          "Category"
+        ],
+        "values": [
+          "OTHERS",
+          "OTHERS",
+          "OTHERS"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "actual": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          {
+            "dimension_name": "category",
+            "business_name": "Category",
+            "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY",
+            "column_name": "Category"
+          }
+        ],
+        "values": [
+          "OTHERS",
+          "OTHERS"
+        ],
+        "status": "STRONG_AMBIGUITY",
+        "retrieval_status": "COMPLETE",
+        "followup_context_applied": false,
+        "dominant_candidate": null
+      }
+    },
+    {
+      "case_id": "E1-045",
+      "question": "Show quantity for category Marketing",
+      "category": "METRIC_DIMENSION_VALUE",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "DIMENSION",
+      "recorded_failure_codes": [
+        "wrong ambiguity",
+        "wrong dimension",
+        "wrong value"
+      ],
+      "effective_failure_codes": [
+        "wrong ambiguity",
+        "wrong dimension",
+        "wrong value"
+      ],
+      "primary_root_cause": "RC-03_SYNONYM_SPECIFICITY_NOT_WEIGHTED",
+      "secondary_contributing_factors": [
+        "RC-09_SPAN_GREEDY_SELECTION"
+      ],
+      "data_answerable": "yes",
+      "expected": {
+        "metrics": [
+          "Qty"
+        ],
+        "dimensions": [
+          "Category"
+        ],
+        "values": [
+          "MARKETING",
+          "MARKETING",
+          "MARKETING"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "actual": {
+        "metrics": [
+          "Qty"
+        ],
+        "dimensions": [
+          {
+            "dimension_name": "category",
+            "business_name": "Category",
+            "table_name": "PBI_ENES_ORDER_PENDING_SUMMARY",
+            "column_name": "Category"
+          },
+          {
+            "dimension_name": "prodgrp4",
+            "business_name": "Prod Grp4",
+            "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY",
+            "column_name": "ProdGrp4"
+          }
+        ],
+        "values": [
+          "MARKETING",
+          "MARKETING"
+        ],
+        "status": "STRONG_AMBIGUITY",
+        "retrieval_status": "COMPLETE",
+        "followup_context_applied": false,
+        "dominant_candidate": null
+      }
+    },
+    {
+      "case_id": "E1-046",
+      "question": "Total sales for Chennai city",
+      "category": "EXPLICIT_DIMENSION",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "AMBIGUITY",
+      "recorded_failure_codes": [
+        "wrong ambiguity"
+      ],
+      "effective_failure_codes": [
+        "wrong ambiguity"
+      ],
+      "primary_root_cause": "RC-02_AMBIGUITY_OVERRIDDEN_BY_UNMATCHED_TOKEN_HEURISTIC",
+      "secondary_contributing_factors": [],
+      "data_answerable": "no",
+      "expected": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          "City"
+        ],
+        "values": [
+          "CHENNAI"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "actual": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          {
+            "dimension_name": "city",
+            "business_name": "City",
+            "table_name": "PBI_OUTSTANDING_ENES_SUMMARY",
+            "column_name": "City"
+          }
+        ],
+        "values": [
+          "CHENNAI"
+        ],
+        "status": "PARTIAL_MATCH",
+        "retrieval_status": "COMPLETE",
+        "followup_context_applied": false,
+        "dominant_candidate": "CHENNAI"
+      }
+    },
+    {
+      "case_id": "E1-047",
+      "question": "Total sales in Coimbatore city",
+      "category": "EXPLICIT_DIMENSION",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "AMBIGUITY",
+      "recorded_failure_codes": [
+        "wrong ambiguity"
+      ],
+      "effective_failure_codes": [
+        "wrong ambiguity"
+      ],
+      "primary_root_cause": "RC-02_AMBIGUITY_OVERRIDDEN_BY_UNMATCHED_TOKEN_HEURISTIC",
+      "secondary_contributing_factors": [],
+      "data_answerable": "no",
+      "expected": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          "City"
+        ],
+        "values": [
+          "COIMBATORE"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "actual": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          {
+            "dimension_name": "city",
+            "business_name": "City",
+            "table_name": "PBI_OUTSTANDING_ENES_SUMMARY",
+            "column_name": "City"
+          }
+        ],
+        "values": [
+          "COIMBATORE"
+        ],
+        "status": "PARTIAL_MATCH",
+        "retrieval_status": "COMPLETE",
+        "followup_context_applied": false,
+        "dominant_candidate": "COIMBATORE"
+      }
+    },
+    {
+      "case_id": "E1-048",
+      "question": "Total sales for Madurai city",
+      "category": "EXPLICIT_DIMENSION",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "AMBIGUITY",
+      "recorded_failure_codes": [
+        "wrong ambiguity"
+      ],
+      "effective_failure_codes": [
+        "wrong ambiguity"
+      ],
+      "primary_root_cause": "RC-02_AMBIGUITY_OVERRIDDEN_BY_UNMATCHED_TOKEN_HEURISTIC",
+      "secondary_contributing_factors": [],
+      "data_answerable": "no",
+      "expected": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          "City"
+        ],
+        "values": [
+          "MADURAI"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "actual": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          {
+            "dimension_name": "city",
+            "business_name": "City",
+            "table_name": "PBI_OUTSTANDING_ENES_SUMMARY",
+            "column_name": "City"
+          }
+        ],
+        "values": [
+          "MADURAI"
+        ],
+        "status": "PARTIAL_MATCH",
+        "retrieval_status": "COMPLETE",
+        "followup_context_applied": false,
+        "dominant_candidate": "MADURAI"
+      }
+    },
+    {
+      "case_id": "E1-052",
+      "question": "Total sales for Chennai district",
+      "category": "EXPLICIT_DIMENSION",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "AMBIGUITY",
+      "recorded_failure_codes": [
+        "wrong ambiguity"
+      ],
+      "effective_failure_codes": [
+        "wrong ambiguity"
+      ],
+      "primary_root_cause": "RC-02_AMBIGUITY_OVERRIDDEN_BY_UNMATCHED_TOKEN_HEURISTIC",
+      "secondary_contributing_factors": [],
+      "data_answerable": "no",
+      "expected": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          "District"
+        ],
+        "values": [
+          "CHENNAI"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "actual": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          {
+            "dimension_name": "district",
+            "business_name": "District",
+            "table_name": "PBI_OUTSTANDING_ENES_SUMMARY",
+            "column_name": "District"
+          }
+        ],
+        "values": [
+          "CHENNAI"
+        ],
+        "status": "PARTIAL_MATCH",
+        "retrieval_status": "COMPLETE",
+        "followup_context_applied": false,
+        "dominant_candidate": "CHENNAI"
+      }
+    },
+    {
+      "case_id": "E1-053",
+      "question": "Total sales in Coimbatore district",
+      "category": "EXPLICIT_DIMENSION",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "AMBIGUITY",
+      "recorded_failure_codes": [
+        "wrong ambiguity"
+      ],
+      "effective_failure_codes": [
+        "wrong ambiguity"
+      ],
+      "primary_root_cause": "RC-02_AMBIGUITY_OVERRIDDEN_BY_UNMATCHED_TOKEN_HEURISTIC",
+      "secondary_contributing_factors": [],
+      "data_answerable": "no",
+      "expected": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          "District"
+        ],
+        "values": [
+          "COIMBATORE"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "actual": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          {
+            "dimension_name": "district",
+            "business_name": "District",
+            "table_name": "PBI_OUTSTANDING_ENES_SUMMARY",
+            "column_name": "District"
+          }
+        ],
+        "values": [
+          "COIMBATORE"
+        ],
+        "status": "PARTIAL_MATCH",
+        "retrieval_status": "COMPLETE",
+        "followup_context_applied": false,
+        "dominant_candidate": "COIMBATORE"
+      }
+    },
+    {
+      "case_id": "E1-054",
+      "question": "Total Qty for Madurai district",
+      "category": "EXPLICIT_DIMENSION",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "AMBIGUITY",
+      "recorded_failure_codes": [
+        "wrong ambiguity"
+      ],
+      "effective_failure_codes": [
+        "wrong ambiguity"
+      ],
+      "primary_root_cause": "RC-02_AMBIGUITY_OVERRIDDEN_BY_UNMATCHED_TOKEN_HEURISTIC",
+      "secondary_contributing_factors": [],
+      "data_answerable": "no",
+      "expected": {
+        "metrics": [
+          "Qty"
+        ],
+        "dimensions": [
+          "District"
+        ],
+        "values": [
+          "MADURAI"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "actual": {
+        "metrics": [
+          "Qty"
+        ],
+        "dimensions": [
+          {
+            "dimension_name": "district",
+            "business_name": "District",
+            "table_name": "PBI_OUTSTANDING_ENES_SUMMARY",
+            "column_name": "District"
+          }
+        ],
+        "values": [
+          "MADURAI"
+        ],
+        "status": "PARTIAL_MATCH",
+        "retrieval_status": "COMPLETE",
+        "followup_context_applied": false,
+        "dominant_candidate": "MADURAI"
+      }
+    },
+    {
+      "case_id": "E1-059",
+      "question": "Show sales of Marketing category",
+      "category": "EXPLICIT_DIMENSION",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "DIMENSION",
+      "recorded_failure_codes": [
+        "wrong ambiguity",
+        "wrong dimension",
+        "wrong value"
+      ],
+      "effective_failure_codes": [
+        "wrong ambiguity",
+        "wrong dimension",
+        "wrong value"
+      ],
+      "primary_root_cause": "RC-03_SYNONYM_SPECIFICITY_NOT_WEIGHTED",
+      "secondary_contributing_factors": [
+        "RC-09_SPAN_GREEDY_SELECTION"
+      ],
+      "data_answerable": "yes",
+      "expected": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          "Category"
+        ],
+        "values": [
+          "MARKETING",
+          "MARKETING",
+          "MARKETING"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "actual": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          {
+            "dimension_name": "category",
+            "business_name": "Category",
+            "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY",
+            "column_name": "Category"
+          },
+          {
+            "dimension_name": "prodgrp4",
+            "business_name": "Prod Grp4",
+            "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY",
+            "column_name": "ProdGrp4"
+          }
+        ],
+        "values": [
+          "MARKETING",
+          "MARKETING"
+        ],
+        "status": "STRONG_AMBIGUITY",
+        "retrieval_status": "COMPLETE",
+        "followup_context_applied": false,
+        "dominant_candidate": null
+      }
+    },
+    {
+      "case_id": "E1-061",
+      "question": "Show Qty for Marketing category",
+      "category": "EXPLICIT_DIMENSION",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "DIMENSION",
+      "recorded_failure_codes": [
+        "wrong ambiguity",
+        "wrong dimension",
+        "wrong value"
+      ],
+      "effective_failure_codes": [
+        "wrong ambiguity",
+        "wrong dimension",
+        "wrong value"
+      ],
+      "primary_root_cause": "RC-03_SYNONYM_SPECIFICITY_NOT_WEIGHTED",
+      "secondary_contributing_factors": [
+        "RC-09_SPAN_GREEDY_SELECTION"
+      ],
+      "data_answerable": "yes",
+      "expected": {
+        "metrics": [
+          "Qty"
+        ],
+        "dimensions": [
+          "Category"
+        ],
+        "values": [
+          "MARKETING",
+          "MARKETING",
+          "MARKETING"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "actual": {
+        "metrics": [
+          "Qty"
+        ],
+        "dimensions": [
+          {
+            "dimension_name": "category",
+            "business_name": "Category",
+            "table_name": "PBI_ENES_ORDER_PENDING_SUMMARY",
+            "column_name": "Category"
+          },
+          {
+            "dimension_name": "prodgrp4",
+            "business_name": "Prod Grp4",
+            "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY",
+            "column_name": "ProdGrp4"
+          }
+        ],
+        "values": [
+          "MARKETING",
+          "MARKETING"
+        ],
+        "status": "STRONG_AMBIGUITY",
+        "retrieval_status": "COMPLETE",
+        "followup_context_applied": false,
+        "dominant_candidate": null
+      }
+    },
+    {
+      "case_id": "E1-062",
+      "question": "Show sales for Others category",
+      "category": "EXPLICIT_DIMENSION",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "VALUE",
+      "recorded_failure_codes": [
+        "wrong ambiguity",
+        "wrong value"
+      ],
+      "effective_failure_codes": [
+        "wrong ambiguity",
+        "wrong value"
+      ],
+      "primary_root_cause": "RC-06_VALUE_MATCHER_ACCEPTS_WEAK_CANDIDATES",
+      "secondary_contributing_factors": [
+        "RC-07_NO_CONFIDENCE_MODEL"
+      ],
+      "data_answerable": "yes",
+      "expected": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          "Category"
+        ],
+        "values": [
+          "OTHERS",
+          "OTHERS",
+          "OTHERS"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "actual": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          {
+            "dimension_name": "category",
+            "business_name": "Category",
+            "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY",
+            "column_name": "Category"
+          }
+        ],
+        "values": [
+          "OTHERS",
+          "OTHERS"
+        ],
+        "status": "STRONG_AMBIGUITY",
+        "retrieval_status": "COMPLETE",
+        "followup_context_applied": false,
+        "dominant_candidate": null
+      }
+    },
+    {
+      "case_id": "E1-063",
+      "question": "Show sales for VT division",
+      "category": "EXPLICIT_DIMENSION",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "AMBIGUITY",
+      "recorded_failure_codes": [
+        "wrong ambiguity"
+      ],
+      "effective_failure_codes": [
+        "wrong ambiguity"
+      ],
+      "primary_root_cause": "RC-07_NO_CONFIDENCE_MODEL",
+      "secondary_contributing_factors": [
+        "RC-02_AMBIGUITY_OVERRIDDEN_BY_UNMATCHED_TOKEN_HEURISTIC"
+      ],
+      "data_answerable": "yes",
+      "expected": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          "Division"
+        ],
+        "values": [
+          "VT",
+          "VT",
+          "VT"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "actual": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          {
+            "dimension_name": "division",
+            "business_name": "Division",
+            "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY",
+            "column_name": "Division"
+          }
+        ],
+        "values": [
+          "VT",
+          "VT",
+          "VT"
+        ],
+        "status": "STRONG_AMBIGUITY",
+        "retrieval_status": "COMPLETE",
+        "followup_context_applied": false,
+        "dominant_candidate": null
+      }
+    },
+    {
+      "case_id": "E1-069",
+      "question": "Show sales for Chennai city and Marketing category",
+      "category": "MULTI_DIMENSION",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "DIMENSION",
+      "recorded_failure_codes": [
+        "wrong ambiguity",
+        "wrong dimension",
+        "wrong value"
+      ],
+      "effective_failure_codes": [
+        "wrong ambiguity",
+        "wrong dimension",
+        "wrong value"
+      ],
+      "primary_root_cause": "RC-03_SYNONYM_SPECIFICITY_NOT_WEIGHTED",
+      "secondary_contributing_factors": [
+        "RC-09_SPAN_GREEDY_SELECTION"
+      ],
+      "data_answerable": "no",
+      "expected": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          "Category",
+          "City"
+        ],
+        "values": [
+          "MARKETING",
+          "MARKETING",
+          "MARKETING",
+          "CHENNAI",
+          "AN",
+          "AN"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "actual": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          {
+            "dimension_name": "city",
+            "business_name": "City",
+            "table_name": "PBI_OUTSTANDING_ENES_SUMMARY",
+            "column_name": "City"
+          },
+          {
+            "dimension_name": "category",
+            "business_name": "Category",
+            "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY",
+            "column_name": "Category"
+          },
+          {
+            "dimension_name": "prodgrp4",
+            "business_name": "Prod Grp4",
+            "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY",
+            "column_name": "ProdGrp4"
+          }
+        ],
+        "values": [
+          "MARKETING",
+          "MARKETING",
+          "CHENNAI",
+          "ELECTRONIC CITY"
+        ],
+        "status": "STRONG_AMBIGUITY",
+        "retrieval_status": "COMPLETE",
+        "followup_context_applied": false,
+        "dominant_candidate": null
+      }
+    },
+    {
+      "case_id": "E1-070",
+      "question": "Marketing category sales in Coimbatore city",
+      "category": "MULTI_DIMENSION",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "DIMENSION",
+      "recorded_failure_codes": [
+        "wrong ambiguity",
+        "wrong dimension",
+        "wrong value"
+      ],
+      "effective_failure_codes": [
+        "wrong ambiguity",
+        "wrong dimension",
+        "wrong value"
+      ],
+      "primary_root_cause": "RC-03_SYNONYM_SPECIFICITY_NOT_WEIGHTED",
+      "secondary_contributing_factors": [
+        "RC-09_SPAN_GREEDY_SELECTION"
+      ],
+      "data_answerable": "no",
+      "expected": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          "Category",
+          "City"
+        ],
+        "values": [
+          "COIMBATORE",
+          "MARKETING",
+          "MARKETING",
+          "MARKETING",
+          "ELECTRONIC CITY"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "actual": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          {
+            "dimension_name": "city",
+            "business_name": "City",
+            "table_name": "PBI_OUTSTANDING_ENES_SUMMARY",
+            "column_name": "City"
+          },
+          {
+            "dimension_name": "category",
+            "business_name": "Category",
+            "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY",
+            "column_name": "Category"
+          },
+          {
+            "dimension_name": "prodgrp4",
+            "business_name": "Prod Grp4",
+            "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY",
+            "column_name": "ProdGrp4"
+          }
+        ],
+        "values": [
+          "COIMBATORE",
+          "MARKETING",
+          "MARKETING",
+          "ELECTRONIC CITY"
+        ],
+        "status": "STRONG_AMBIGUITY",
+        "retrieval_status": "COMPLETE",
+        "followup_context_applied": false,
+        "dominant_candidate": null
+      }
+    },
+    {
+      "case_id": "E1-071",
+      "question": "Show quantity for Chennai city and Marketing category",
+      "category": "MULTI_DIMENSION",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "DIMENSION",
+      "recorded_failure_codes": [
+        "wrong ambiguity",
+        "wrong dimension",
+        "wrong value"
+      ],
+      "effective_failure_codes": [
+        "wrong ambiguity",
+        "wrong dimension",
+        "wrong value"
+      ],
+      "primary_root_cause": "RC-03_SYNONYM_SPECIFICITY_NOT_WEIGHTED",
+      "secondary_contributing_factors": [
+        "RC-09_SPAN_GREEDY_SELECTION"
+      ],
+      "data_answerable": "no",
+      "expected": {
+        "metrics": [
+          "Qty"
+        ],
+        "dimensions": [
+          "Category",
+          "City"
+        ],
+        "values": [
+          "MARKETING",
+          "MARKETING",
+          "MARKETING",
+          "CHENNAI",
+          "AN",
+          "AN"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "actual": {
+        "metrics": [
+          "Qty"
+        ],
+        "dimensions": [
+          {
+            "dimension_name": "city",
+            "business_name": "City",
+            "table_name": "PBI_OUTSTANDING_ENES_SUMMARY",
+            "column_name": "City"
+          },
+          {
+            "dimension_name": "category",
+            "business_name": "Category",
+            "table_name": "PBI_ENES_ORDER_PENDING_SUMMARY",
+            "column_name": "Category"
+          },
+          {
+            "dimension_name": "prodgrp4",
+            "business_name": "Prod Grp4",
+            "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY",
+            "column_name": "ProdGrp4"
+          }
+        ],
+        "values": [
+          "MARKETING",
+          "MARKETING",
+          "CHENNAI",
+          "ELECTRONIC CITY"
+        ],
+        "status": "STRONG_AMBIGUITY",
+        "retrieval_status": "COMPLETE",
+        "followup_context_applied": false,
+        "dominant_candidate": null
+      }
+    },
+    {
+      "case_id": "E1-074",
+      "question": "Show sales for Coimbatore district and Marketing category",
+      "category": "MULTI_DIMENSION",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "DIMENSION",
+      "recorded_failure_codes": [
+        "wrong ambiguity",
+        "wrong dimension",
+        "wrong value"
+      ],
+      "effective_failure_codes": [
+        "wrong ambiguity",
+        "wrong dimension",
+        "wrong value"
+      ],
+      "primary_root_cause": "RC-03_SYNONYM_SPECIFICITY_NOT_WEIGHTED",
+      "secondary_contributing_factors": [
+        "RC-09_SPAN_GREEDY_SELECTION"
+      ],
+      "data_answerable": "no",
+      "expected": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          "Category",
+          "District"
+        ],
+        "values": [
+          "COIMBATORE",
+          "MARKETING",
+          "MARKETING",
+          "MARKETING",
+          "AN",
+          "AN",
+          "AN"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "actual": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          {
+            "dimension_name": "district",
+            "business_name": "District",
+            "table_name": "PBI_OUTSTANDING_ENES_SUMMARY",
+            "column_name": "District"
+          },
+          {
+            "dimension_name": "category",
+            "business_name": "Category",
+            "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY",
+            "column_name": "Category"
+          },
+          {
+            "dimension_name": "prodgrp4",
+            "business_name": "Prod Grp4",
+            "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY",
+            "column_name": "ProdGrp4"
+          }
+        ],
+        "values": [
+          "COIMBATORE",
+          "MARKETING",
+          "MARKETING"
+        ],
+        "status": "STRONG_AMBIGUITY",
+        "retrieval_status": "COMPLETE",
+        "followup_context_applied": false,
+        "dominant_candidate": null
+      }
+    },
+    {
+      "case_id": "E1-078",
+      "question": "Show sales for Chennai city and VT division",
+      "category": "MULTI_DIMENSION",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "VALUE",
+      "recorded_failure_codes": [
+        "wrong ambiguity",
+        "wrong value"
+      ],
+      "effective_failure_codes": [
+        "wrong ambiguity",
+        "wrong value"
+      ],
+      "primary_root_cause": "RC-06_VALUE_MATCHER_ACCEPTS_WEAK_CANDIDATES",
+      "secondary_contributing_factors": [
+        "RC-07_NO_CONFIDENCE_MODEL"
+      ],
+      "data_answerable": "no",
+      "expected": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          "Division",
+          "City"
+        ],
+        "values": [
+          "CHENNAI",
+          "VT",
+          "VT",
+          "VT",
+          "AN",
+          "AN"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "actual": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          {
+            "dimension_name": "division",
+            "business_name": "Division",
+            "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY",
+            "column_name": "Division"
+          },
+          {
+            "dimension_name": "city",
+            "business_name": "City",
+            "table_name": "PBI_OUTSTANDING_ENES_SUMMARY",
+            "column_name": "City"
+          }
+        ],
+        "values": [
+          "CHENNAI",
+          "VT",
+          "VT",
+          "VT",
+          "ELECTRONIC CITY"
+        ],
+        "status": "STRONG_AMBIGUITY",
+        "retrieval_status": "COMPLETE",
+        "followup_context_applied": false,
+        "dominant_candidate": null
+      }
+    },
+    {
+      "case_id": "E1-079",
+      "question": "Show sales for Coimbatore city and VT division",
+      "category": "MULTI_DIMENSION",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "VALUE",
+      "recorded_failure_codes": [
+        "wrong ambiguity",
+        "wrong value"
+      ],
+      "effective_failure_codes": [
+        "wrong ambiguity",
+        "wrong value"
+      ],
+      "primary_root_cause": "RC-06_VALUE_MATCHER_ACCEPTS_WEAK_CANDIDATES",
+      "secondary_contributing_factors": [
+        "RC-07_NO_CONFIDENCE_MODEL"
+      ],
+      "data_answerable": "no",
+      "expected": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          "Division",
+          "City"
+        ],
+        "values": [
+          "COIMBATORE",
+          "VT",
+          "VT",
+          "VT",
+          "AN",
+          "AN",
+          "AN"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "actual": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          {
+            "dimension_name": "division",
+            "business_name": "Division",
+            "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY",
+            "column_name": "Division"
+          },
+          {
+            "dimension_name": "city",
+            "business_name": "City",
+            "table_name": "PBI_OUTSTANDING_ENES_SUMMARY",
+            "column_name": "City"
+          }
+        ],
+        "values": [
+          "COIMBATORE",
+          "VT",
+          "VT",
+          "VT",
+          "ELECTRONIC CITY"
+        ],
+        "status": "STRONG_AMBIGUITY",
+        "retrieval_status": "COMPLETE",
+        "followup_context_applied": false,
+        "dominant_candidate": null
+      }
+    },
+    {
+      "case_id": "E1-084",
+      "question": "sales amount for Chennai",
+      "category": "AMBIGUOUS_VALUES",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "METRIC",
+      "recorded_failure_codes": [
+        "wrong metric"
+      ],
+      "effective_failure_codes": [
+        "wrong metric"
+      ],
+      "primary_root_cause": "RC-03_SYNONYM_SPECIFICITY_NOT_WEIGHTED",
+      "secondary_contributing_factors": [],
+      "data_answerable": "yes",
+      "expected": {
+        "metrics": [
+          "Amt"
+        ],
+        "dimensions": [],
+        "values": [
+          "CHENNAI",
+          "CHENNAI"
+        ],
+        "status": "STRONG_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "actual": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [],
+        "values": [
+          "CHENNAI",
+          "CHENNAI"
+        ],
+        "status": "STRONG_AMBIGUITY",
+        "retrieval_status": "COMPLETE",
+        "followup_context_applied": false,
+        "dominant_candidate": null
+      }
+    },
+    {
+      "case_id": "E1-086",
+      "question": "Show pending amount for Chennai",
+      "category": "AMBIGUOUS_VALUES",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "NONE",
+      "recorded_failure_codes": [
+        "wrong metric"
+      ],
+      "effective_failure_codes": [],
+      "primary_root_cause": "RC-08_UNRESOLVED_STALE_DIAGNOSTIC",
+      "secondary_contributing_factors": [],
+      "data_answerable": "yes",
+      "expected": {
+        "metrics": [
+          "P A M T"
+        ],
+        "dimensions": [],
+        "values": [
+          "CHENNAI",
+          "CHENNAI"
+        ],
+        "status": "STRONG_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "actual": {
+        "metrics": [
+          "P A M T"
+        ],
+        "dimensions": [],
+        "values": [
+          "CHENNAI",
+          "CHENNAI"
+        ],
+        "status": "STRONG_AMBIGUITY",
+        "retrieval_status": "COMPLETE",
+        "followup_context_applied": false,
+        "dominant_candidate": null
+      }
+    },
+    {
+      "case_id": "E1-090",
+      "question": "Show pending amount for Coimbatore",
+      "category": "AMBIGUOUS_VALUES",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "NONE",
+      "recorded_failure_codes": [
+        "wrong metric"
+      ],
+      "effective_failure_codes": [],
+      "primary_root_cause": "RC-08_UNRESOLVED_STALE_DIAGNOSTIC",
+      "secondary_contributing_factors": [],
+      "data_answerable": "yes",
+      "expected": {
+        "metrics": [
+          "P A M T"
+        ],
+        "dimensions": [],
+        "values": [
+          "COIMBATORE",
+          "COIMBATORE"
+        ],
+        "status": "STRONG_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "actual": {
+        "metrics": [
+          "P A M T"
+        ],
+        "dimensions": [],
+        "values": [
+          "COIMBATORE",
+          "COIMBATORE"
+        ],
+        "status": "STRONG_AMBIGUITY",
+        "retrieval_status": "COMPLETE",
+        "followup_context_applied": false,
+        "dominant_candidate": null
+      }
+    },
+    {
+      "case_id": "E1-101",
+      "question": "Total sales for children wear",
+      "category": "PARTIAL_COVERAGE",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "AMBIGUITY",
+      "recorded_failure_codes": [
+        "wrong ambiguity"
+      ],
+      "effective_failure_codes": [
+        "wrong ambiguity"
+      ],
+      "primary_root_cause": "RC-07_NO_CONFIDENCE_MODEL",
+      "secondary_contributing_factors": [
+        "RC-02_AMBIGUITY_OVERRIDDEN_BY_UNMATCHED_TOKEN_HEURISTIC"
+      ],
+      "data_answerable": "yes",
+      "expected": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [],
+        "values": [
+          "N--NIGHT WEARS",
+          "ETHNIC WEAR"
+        ],
+        "status": "PARTIAL_MATCH",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "actual": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [],
+        "values": [
+          "N--NIGHT WEARS",
+          "ETHNIC WEAR"
+        ],
+        "status": "STRONG_AMBIGUITY",
+        "retrieval_status": "COMPLETE",
+        "followup_context_applied": false,
+        "dominant_candidate": null
+      }
+    },
+    {
+      "case_id": "E1-104",
+      "question": "Total sales for women wear",
+      "category": "PARTIAL_COVERAGE",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "AMBIGUITY",
+      "recorded_failure_codes": [
+        "wrong ambiguity"
+      ],
+      "effective_failure_codes": [
+        "wrong ambiguity"
+      ],
+      "primary_root_cause": "RC-07_NO_CONFIDENCE_MODEL",
+      "secondary_contributing_factors": [
+        "RC-02_AMBIGUITY_OVERRIDDEN_BY_UNMATCHED_TOKEN_HEURISTIC"
+      ],
+      "data_answerable": "yes",
+      "expected": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [],
+        "values": [
+          "N--NIGHT WEARS",
+          "ETHNIC WEAR"
+        ],
+        "status": "PARTIAL_MATCH",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "actual": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [],
+        "values": [
+          "N--NIGHT WEARS",
+          "ETHNIC WEAR"
+        ],
+        "status": "STRONG_AMBIGUITY",
+        "retrieval_status": "COMPLETE",
+        "followup_context_applied": false,
+        "dominant_candidate": null
+      }
+    },
+    {
+      "case_id": "E1-109",
+      "question": "Show pending amount for footwear",
+      "category": "PARTIAL_COVERAGE",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "NONE",
+      "recorded_failure_codes": [
+        "wrong metric"
+      ],
+      "effective_failure_codes": [],
+      "primary_root_cause": "RC-08_UNRESOLVED_STALE_DIAGNOSTIC",
+      "secondary_contributing_factors": [],
+      "data_answerable": "yes",
+      "expected": {
+        "metrics": [
+          "P A M T"
+        ],
+        "dimensions": [],
+        "values": [],
+        "status": "NO_MATCH",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "PARTIAL"
+      },
+      "actual": {
+        "metrics": [
+          "P A M T"
+        ],
+        "dimensions": [],
+        "values": [],
+        "status": "NO_MATCH",
+        "retrieval_status": "PARTIAL",
+        "followup_context_applied": false,
+        "dominant_candidate": null
+      }
+    },
+    {
+      "case_id": "E1-110",
+      "question": "Show sales for children wear in Chennai city",
+      "category": "PARTIAL_COVERAGE",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "AMBIGUITY",
+      "recorded_failure_codes": [
+        "wrong ambiguity"
+      ],
+      "effective_failure_codes": [
+        "wrong ambiguity"
+      ],
+      "primary_root_cause": "RC-02_AMBIGUITY_OVERRIDDEN_BY_UNMATCHED_TOKEN_HEURISTIC",
+      "secondary_contributing_factors": [],
+      "data_answerable": "no",
+      "expected": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          "City"
+        ],
+        "values": [
+          "CHENNAI"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "actual": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          {
+            "dimension_name": "city",
+            "business_name": "City",
+            "table_name": "PBI_OUTSTANDING_ENES_SUMMARY",
+            "column_name": "City"
+          }
+        ],
+        "values": [
+          "CHENNAI"
+        ],
+        "status": "PARTIAL_MATCH",
+        "retrieval_status": "COMPLETE",
+        "followup_context_applied": false,
+        "dominant_candidate": "CHENNAI"
+      }
+    },
+    {
+      "case_id": "E1-111",
+      "question": "Show sales for women wear in Coimbatore city",
+      "category": "PARTIAL_COVERAGE",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "AMBIGUITY",
+      "recorded_failure_codes": [
+        "wrong ambiguity"
+      ],
+      "effective_failure_codes": [
+        "wrong ambiguity"
+      ],
+      "primary_root_cause": "RC-02_AMBIGUITY_OVERRIDDEN_BY_UNMATCHED_TOKEN_HEURISTIC",
+      "secondary_contributing_factors": [],
+      "data_answerable": "no",
+      "expected": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          "City"
+        ],
+        "values": [
+          "COIMBATORE"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "actual": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          {
+            "dimension_name": "city",
+            "business_name": "City",
+            "table_name": "PBI_OUTSTANDING_ENES_SUMMARY",
+            "column_name": "City"
+          }
+        ],
+        "values": [
+          "COIMBATORE"
+        ],
+        "status": "PARTIAL_MATCH",
+        "retrieval_status": "COMPLETE",
+        "followup_context_applied": false,
+        "dominant_candidate": "COIMBATORE"
+      }
+    },
+    {
+      "case_id": "E1-112",
+      "question": "Show quantity for children wear in Madurai city",
+      "category": "PARTIAL_COVERAGE",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "AMBIGUITY",
+      "recorded_failure_codes": [
+        "wrong ambiguity"
+      ],
+      "effective_failure_codes": [
+        "wrong ambiguity"
+      ],
+      "primary_root_cause": "RC-02_AMBIGUITY_OVERRIDDEN_BY_UNMATCHED_TOKEN_HEURISTIC",
+      "secondary_contributing_factors": [],
+      "data_answerable": "no",
+      "expected": {
+        "metrics": [
+          "Qty"
+        ],
+        "dimensions": [
+          "City"
+        ],
+        "values": [
+          "MADURAI"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "actual": {
+        "metrics": [
+          "Qty"
+        ],
+        "dimensions": [
+          {
+            "dimension_name": "city",
+            "business_name": "City",
+            "table_name": "PBI_OUTSTANDING_ENES_SUMMARY",
+            "column_name": "City"
+          }
+        ],
+        "values": [
+          "MADURAI"
+        ],
+        "status": "PARTIAL_MATCH",
+        "retrieval_status": "COMPLETE",
+        "followup_context_applied": false,
+        "dominant_candidate": "MADURAI"
+      }
+    },
+    {
+      "case_id": "E1-115",
+      "question": "Show sales for export market",
+      "category": "PARTIAL_COVERAGE",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "VALUE",
+      "recorded_failure_codes": [
+        "wrong value"
+      ],
+      "effective_failure_codes": [
+        "wrong value"
+      ],
+      "primary_root_cause": "RC-06_VALUE_MATCHER_ACCEPTS_WEAK_CANDIDATES",
+      "secondary_contributing_factors": [
+        "RC-07_NO_CONFIDENCE_MODEL"
+      ],
+      "data_answerable": "yes",
+      "expected": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [],
+        "values": [
+          "MONDAY MARKET"
+        ],
+        "status": "PARTIAL_MATCH",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "actual": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [],
+        "values": [
+          "KR MARKET"
+        ],
+        "status": "PARTIAL_MATCH",
+        "retrieval_status": "COMPLETE",
+        "followup_context_applied": false,
+        "dominant_candidate": "KR MARKET"
+      }
+    },
+    {
+      "case_id": "E1-117",
+      "question": "Show sales for international division",
+      "category": "PARTIAL_COVERAGE",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "RETRIEVAL_STATUS",
+      "recorded_failure_codes": [
+        "wrong retrieval status"
+      ],
+      "effective_failure_codes": [
+        "wrong retrieval status"
+      ],
+      "primary_root_cause": "RC-05_RETRIEVAL_STATUS_IS_BUCKET_COUNT",
+      "secondary_contributing_factors": [
+        "RC-06_VALUE_MATCHER_ACCEPTS_WEAK_CANDIDATES"
+      ],
+      "data_answerable": "yes",
+      "expected": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          "Division"
+        ],
+        "values": [],
+        "status": "NO_MATCH",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "PARTIAL"
+      },
+      "actual": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          {
+            "dimension_name": "division",
+            "business_name": "Division",
+            "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY",
+            "column_name": "Division"
+          }
+        ],
+        "values": [],
+        "status": "NO_MATCH",
+        "retrieval_status": "COMPLETE",
+        "followup_context_applied": false,
+        "dominant_candidate": null
+      }
+    },
+    {
+      "case_id": "E1-125",
+      "question": "Show sales for Others categories",
+      "category": "SINGULAR_PLURAL",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "AMBIGUITY",
+      "recorded_failure_codes": [
+        "wrong ambiguity"
+      ],
+      "effective_failure_codes": [
+        "wrong ambiguity"
+      ],
+      "primary_root_cause": "RC-07_NO_CONFIDENCE_MODEL",
+      "secondary_contributing_factors": [
+        "RC-02_AMBIGUITY_OVERRIDDEN_BY_UNMATCHED_TOKEN_HEURISTIC"
+      ],
+      "data_answerable": "yes",
+      "expected": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          "Category"
+        ],
+        "values": [
+          "OTHERS",
+          "OTHERS",
+          "OTHERS",
+          "OTHERS",
+          "OTHERS",
+          "OTHERS",
+          "GN : GENXT OTHERS"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "actual": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          {
+            "dimension_name": "category",
+            "business_name": "Category",
+            "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY",
+            "column_name": "Category"
+          }
+        ],
+        "values": [
+          "OTHERS",
+          "OTHERS",
+          "OTHERS",
+          "OTHERS",
+          "OTHERS",
+          "OTHERS",
+          "GN : GENXT OTHERS"
+        ],
+        "status": "STRONG_AMBIGUITY",
+        "retrieval_status": "COMPLETE",
+        "followup_context_applied": false,
+        "dominant_candidate": null
+      }
+    },
+    {
+      "case_id": "E1-126",
+      "question": "Show sales for VT divisions",
+      "category": "SINGULAR_PLURAL",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "DIMENSION",
+      "recorded_failure_codes": [
+        "wrong ambiguity",
+        "wrong dimension"
+      ],
+      "effective_failure_codes": [
+        "wrong ambiguity",
+        "wrong dimension"
+      ],
+      "primary_root_cause": "RC-04_NAME_MATCHER_HAS_NO_MORPHOLOGY",
+      "secondary_contributing_factors": [],
+      "data_answerable": "yes",
+      "expected": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          "Division"
+        ],
+        "values": [
+          "VT",
+          "VT",
+          "VT",
+          "VT"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "actual": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [],
+        "values": [
+          "VT",
+          "VT",
+          "VT",
+          "VT"
+        ],
+        "status": "STRONG_AMBIGUITY",
+        "retrieval_status": "COMPLETE",
+        "followup_context_applied": false,
+        "dominant_candidate": null
+      }
+    },
+    {
+      "case_id": "E1-127",
+      "question": "Show sales for Chennai cities",
+      "category": "SINGULAR_PLURAL",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "DIMENSION",
+      "recorded_failure_codes": [
+        "wrong ambiguity",
+        "wrong dimension"
+      ],
+      "effective_failure_codes": [
+        "wrong ambiguity",
+        "wrong dimension"
+      ],
+      "primary_root_cause": "RC-04_NAME_MATCHER_HAS_NO_MORPHOLOGY",
+      "secondary_contributing_factors": [],
+      "data_answerable": "no",
+      "expected": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          "City"
+        ],
+        "values": [
+          "CHENNAI",
+          "CHENNAI"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "actual": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [],
+        "values": [
+          "CHENNAI",
+          "CHENNAI"
+        ],
+        "status": "STRONG_AMBIGUITY",
+        "retrieval_status": "COMPLETE",
+        "followup_context_applied": false,
+        "dominant_candidate": null
+      }
+    },
+    {
+      "case_id": "E1-128",
+      "question": "Show sales for Coimbatore cities",
+      "category": "SINGULAR_PLURAL",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "DIMENSION",
+      "recorded_failure_codes": [
+        "wrong ambiguity",
+        "wrong dimension"
+      ],
+      "effective_failure_codes": [
+        "wrong ambiguity",
+        "wrong dimension"
+      ],
+      "primary_root_cause": "RC-04_NAME_MATCHER_HAS_NO_MORPHOLOGY",
+      "secondary_contributing_factors": [],
+      "data_answerable": "no",
+      "expected": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          "City"
+        ],
+        "values": [
+          "COIMBATORE",
+          "COIMBATORE"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "actual": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [],
+        "values": [
+          "COIMBATORE",
+          "COIMBATORE"
+        ],
+        "status": "STRONG_AMBIGUITY",
+        "retrieval_status": "COMPLETE",
+        "followup_context_applied": false,
+        "dominant_candidate": null
+      }
+    },
+    {
+      "case_id": "E1-129",
+      "question": "Show sales for Madurai cities",
+      "category": "SINGULAR_PLURAL",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "DIMENSION",
+      "recorded_failure_codes": [
+        "wrong ambiguity",
+        "wrong dimension"
+      ],
+      "effective_failure_codes": [
+        "wrong ambiguity",
+        "wrong dimension"
+      ],
+      "primary_root_cause": "RC-04_NAME_MATCHER_HAS_NO_MORPHOLOGY",
+      "secondary_contributing_factors": [],
+      "data_answerable": "no",
+      "expected": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          "City"
+        ],
+        "values": [
+          "MADURAI",
+          "MADURAI"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "actual": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [],
+        "values": [
+          "MADURAI",
+          "MADURAI"
+        ],
+        "status": "STRONG_AMBIGUITY",
+        "retrieval_status": "COMPLETE",
+        "followup_context_applied": false,
+        "dominant_candidate": null
+      }
+    },
+    {
+      "case_id": "E1-130",
+      "question": "Show sales for Chennai districts",
+      "category": "SINGULAR_PLURAL",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "DIMENSION",
+      "recorded_failure_codes": [
+        "wrong ambiguity",
+        "wrong dimension"
+      ],
+      "effective_failure_codes": [
+        "wrong ambiguity",
+        "wrong dimension"
+      ],
+      "primary_root_cause": "RC-04_NAME_MATCHER_HAS_NO_MORPHOLOGY",
+      "secondary_contributing_factors": [],
+      "data_answerable": "no",
+      "expected": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          "District"
+        ],
+        "values": [
+          "CHENNAI",
+          "CHENNAI"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "actual": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [],
+        "values": [
+          "CHENNAI",
+          "CHENNAI"
+        ],
+        "status": "STRONG_AMBIGUITY",
+        "retrieval_status": "COMPLETE",
+        "followup_context_applied": false,
+        "dominant_candidate": null
+      }
+    },
+    {
+      "case_id": "E1-131",
+      "question": "Show sales for Coimbatore districts",
+      "category": "SINGULAR_PLURAL",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "DIMENSION",
+      "recorded_failure_codes": [
+        "wrong ambiguity",
+        "wrong dimension"
+      ],
+      "effective_failure_codes": [
+        "wrong ambiguity",
+        "wrong dimension"
+      ],
+      "primary_root_cause": "RC-04_NAME_MATCHER_HAS_NO_MORPHOLOGY",
+      "secondary_contributing_factors": [],
+      "data_answerable": "no",
+      "expected": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          "District"
+        ],
+        "values": [
+          "COIMBATORE",
+          "COIMBATORE"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "actual": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [],
+        "values": [
+          "COIMBATORE",
+          "COIMBATORE"
+        ],
+        "status": "STRONG_AMBIGUITY",
+        "retrieval_status": "COMPLETE",
+        "followup_context_applied": false,
+        "dominant_candidate": null
+      }
+    },
+    {
+      "case_id": "E1-132",
+      "question": "Show sales for Madurai districts",
+      "category": "SINGULAR_PLURAL",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "DIMENSION",
+      "recorded_failure_codes": [
+        "wrong ambiguity",
+        "wrong dimension"
+      ],
+      "effective_failure_codes": [
+        "wrong ambiguity",
+        "wrong dimension"
+      ],
+      "primary_root_cause": "RC-04_NAME_MATCHER_HAS_NO_MORPHOLOGY",
+      "secondary_contributing_factors": [],
+      "data_answerable": "no",
+      "expected": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          "District"
+        ],
+        "values": [
+          "MADURAI",
+          "MADURAI"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "actual": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [],
+        "values": [
+          "MADURAI",
+          "MADURAI"
+        ],
+        "status": "STRONG_AMBIGUITY",
+        "retrieval_status": "COMPLETE",
+        "followup_context_applied": false,
+        "dominant_candidate": null
+      }
+    },
+    {
+      "case_id": "E1-133",
+      "question": "Show quantity for Erode cities",
+      "category": "SINGULAR_PLURAL",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "DIMENSION",
+      "recorded_failure_codes": [
+        "wrong ambiguity",
+        "wrong dimension"
+      ],
+      "effective_failure_codes": [
+        "wrong ambiguity",
+        "wrong dimension"
+      ],
+      "primary_root_cause": "RC-04_NAME_MATCHER_HAS_NO_MORPHOLOGY",
+      "secondary_contributing_factors": [],
+      "data_answerable": "no",
+      "expected": {
+        "metrics": [
+          "Qty"
+        ],
+        "dimensions": [
+          "City"
+        ],
+        "values": [
+          "ERODE",
+          "ERODE"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "actual": {
+        "metrics": [
+          "Qty"
+        ],
+        "dimensions": [],
+        "values": [
+          "ERODE",
+          "ERODE"
+        ],
+        "status": "STRONG_AMBIGUITY",
+        "retrieval_status": "COMPLETE",
+        "followup_context_applied": false,
+        "dominant_candidate": null
+      }
+    },
+    {
+      "case_id": "E1-134",
+      "question": "Show quantity for Salem cities",
+      "category": "SINGULAR_PLURAL",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "DIMENSION",
+      "recorded_failure_codes": [
+        "wrong ambiguity",
+        "wrong dimension"
+      ],
+      "effective_failure_codes": [
+        "wrong ambiguity",
+        "wrong dimension"
+      ],
+      "primary_root_cause": "RC-04_NAME_MATCHER_HAS_NO_MORPHOLOGY",
+      "secondary_contributing_factors": [],
+      "data_answerable": "no",
+      "expected": {
+        "metrics": [
+          "Qty"
+        ],
+        "dimensions": [
+          "City"
+        ],
+        "values": [
+          "SALEM",
+          "SALEM"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "actual": {
+        "metrics": [
+          "Qty"
+        ],
+        "dimensions": [],
+        "values": [
+          "SALEM",
+          "SALEM"
+        ],
+        "status": "STRONG_AMBIGUITY",
+        "retrieval_status": "COMPLETE",
+        "followup_context_applied": false,
+        "dominant_candidate": null
+      }
+    },
+    {
+      "case_id": "E1-135",
+      "question": "Show quantity for Tirunelveli cities",
+      "category": "SINGULAR_PLURAL",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "DIMENSION",
+      "recorded_failure_codes": [
+        "wrong ambiguity",
+        "wrong dimension"
+      ],
+      "effective_failure_codes": [
+        "wrong ambiguity",
+        "wrong dimension"
+      ],
+      "primary_root_cause": "RC-04_NAME_MATCHER_HAS_NO_MORPHOLOGY",
+      "secondary_contributing_factors": [],
+      "data_answerable": "no",
+      "expected": {
+        "metrics": [
+          "Qty"
+        ],
+        "dimensions": [
+          "City"
+        ],
+        "values": [
+          "TIRUNELVELI",
+          "TIRUNELVELI"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "actual": {
+        "metrics": [
+          "Qty"
+        ],
+        "dimensions": [],
+        "values": [
+          "TIRUNELVELI",
+          "TIRUNELVELI"
+        ],
+        "status": "STRONG_AMBIGUITY",
+        "retrieval_status": "COMPLETE",
+        "followup_context_applied": false,
+        "dominant_candidate": null
+      }
+    },
+    {
+      "case_id": "E1-137",
+      "question": "Show sales for coimbator city",
+      "category": "TYPO_FUZZY",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "AMBIGUITY",
+      "recorded_failure_codes": [
+        "wrong ambiguity"
+      ],
+      "effective_failure_codes": [
+        "wrong ambiguity"
+      ],
+      "primary_root_cause": "RC-02_AMBIGUITY_OVERRIDDEN_BY_UNMATCHED_TOKEN_HEURISTIC",
+      "secondary_contributing_factors": [],
+      "data_answerable": "no",
+      "expected": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          "City"
+        ],
+        "values": [
+          "ELECTRONIC CITY"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "actual": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          {
+            "dimension_name": "city",
+            "business_name": "City",
+            "table_name": "PBI_OUTSTANDING_ENES_SUMMARY",
+            "column_name": "City"
+          }
+        ],
+        "values": [
+          "ELECTRONIC CITY"
+        ],
+        "status": "PARTIAL_MATCH",
+        "retrieval_status": "COMPLETE",
+        "followup_context_applied": false,
+        "dominant_candidate": "ELECTRONIC CITY"
+      }
+    },
+    {
+      "case_id": "E1-138",
+      "question": "Show sales for chenai city",
+      "category": "TYPO_FUZZY",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "AMBIGUITY",
+      "recorded_failure_codes": [
+        "wrong ambiguity"
+      ],
+      "effective_failure_codes": [
+        "wrong ambiguity"
+      ],
+      "primary_root_cause": "RC-02_AMBIGUITY_OVERRIDDEN_BY_UNMATCHED_TOKEN_HEURISTIC",
+      "secondary_contributing_factors": [],
+      "data_answerable": "no",
+      "expected": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          "City"
+        ],
+        "values": [
+          "ELECTRONIC CITY"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "actual": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          {
+            "dimension_name": "city",
+            "business_name": "City",
+            "table_name": "PBI_OUTSTANDING_ENES_SUMMARY",
+            "column_name": "City"
+          }
+        ],
+        "values": [
+          "ELECTRONIC CITY"
+        ],
+        "status": "PARTIAL_MATCH",
+        "retrieval_status": "COMPLETE",
+        "followup_context_applied": false,
+        "dominant_candidate": "ELECTRONIC CITY"
+      }
+    },
+    {
+      "case_id": "E1-139",
+      "question": "Show sales for maduray city",
+      "category": "TYPO_FUZZY",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "AMBIGUITY",
+      "recorded_failure_codes": [
+        "wrong ambiguity"
+      ],
+      "effective_failure_codes": [
+        "wrong ambiguity"
+      ],
+      "primary_root_cause": "RC-02_AMBIGUITY_OVERRIDDEN_BY_UNMATCHED_TOKEN_HEURISTIC",
+      "secondary_contributing_factors": [],
+      "data_answerable": "no",
+      "expected": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          "City"
+        ],
+        "values": [
+          "ELECTRONIC CITY"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "actual": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          {
+            "dimension_name": "city",
+            "business_name": "City",
+            "table_name": "PBI_OUTSTANDING_ENES_SUMMARY",
+            "column_name": "City"
+          }
+        ],
+        "values": [
+          "ELECTRONIC CITY"
+        ],
+        "status": "PARTIAL_MATCH",
+        "retrieval_status": "COMPLETE",
+        "followup_context_applied": false,
+        "dominant_candidate": "ELECTRONIC CITY"
+      }
+    },
+    {
+      "case_id": "E1-140",
+      "question": "Show sales for erod city",
+      "category": "TYPO_FUZZY",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "AMBIGUITY",
+      "recorded_failure_codes": [
+        "wrong ambiguity"
+      ],
+      "effective_failure_codes": [
+        "wrong ambiguity"
+      ],
+      "primary_root_cause": "RC-02_AMBIGUITY_OVERRIDDEN_BY_UNMATCHED_TOKEN_HEURISTIC",
+      "secondary_contributing_factors": [],
+      "data_answerable": "no",
+      "expected": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          "City"
+        ],
+        "values": [
+          "ELECTRONIC CITY"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "actual": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          {
+            "dimension_name": "city",
+            "business_name": "City",
+            "table_name": "PBI_OUTSTANDING_ENES_SUMMARY",
+            "column_name": "City"
+          }
+        ],
+        "values": [
+          "ELECTRONIC CITY"
+        ],
+        "status": "PARTIAL_MATCH",
+        "retrieval_status": "COMPLETE",
+        "followup_context_applied": false,
+        "dominant_candidate": "ELECTRONIC CITY"
+      }
+    },
+    {
+      "case_id": "E1-141",
+      "question": "Show sales for salm city",
+      "category": "TYPO_FUZZY",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "AMBIGUITY",
+      "recorded_failure_codes": [
+        "wrong ambiguity"
+      ],
+      "effective_failure_codes": [
+        "wrong ambiguity"
+      ],
+      "primary_root_cause": "RC-02_AMBIGUITY_OVERRIDDEN_BY_UNMATCHED_TOKEN_HEURISTIC",
+      "secondary_contributing_factors": [],
+      "data_answerable": "no",
+      "expected": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          "City"
+        ],
+        "values": [
+          "ELECTRONIC CITY"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "actual": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          {
+            "dimension_name": "city",
+            "business_name": "City",
+            "table_name": "PBI_OUTSTANDING_ENES_SUMMARY",
+            "column_name": "City"
+          }
+        ],
+        "values": [
+          "ELECTRONIC CITY"
+        ],
+        "status": "PARTIAL_MATCH",
+        "retrieval_status": "COMPLETE",
+        "followup_context_applied": false,
+        "dominant_candidate": "ELECTRONIC CITY"
+      }
+    },
+    {
+      "case_id": "E1-142",
+      "question": "Show sales for tirunelvely city",
+      "category": "TYPO_FUZZY",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "AMBIGUITY",
+      "recorded_failure_codes": [
+        "wrong ambiguity"
+      ],
+      "effective_failure_codes": [
+        "wrong ambiguity"
+      ],
+      "primary_root_cause": "RC-02_AMBIGUITY_OVERRIDDEN_BY_UNMATCHED_TOKEN_HEURISTIC",
+      "secondary_contributing_factors": [],
+      "data_answerable": "no",
+      "expected": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          "City"
+        ],
+        "values": [
+          "ELECTRONIC CITY"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "actual": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          {
+            "dimension_name": "city",
+            "business_name": "City",
+            "table_name": "PBI_OUTSTANDING_ENES_SUMMARY",
+            "column_name": "City"
+          }
+        ],
+        "values": [
+          "ELECTRONIC CITY"
+        ],
+        "status": "PARTIAL_MATCH",
+        "retrieval_status": "COMPLETE",
+        "followup_context_applied": false,
+        "dominant_candidate": "ELECTRONIC CITY"
+      }
+    },
+    {
+      "case_id": "E1-143",
+      "question": "Show sales for ramrj brand",
+      "category": "TYPO_FUZZY",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "RETRIEVAL_STATUS",
+      "recorded_failure_codes": [
+        "wrong retrieval status"
+      ],
+      "effective_failure_codes": [
+        "wrong retrieval status"
+      ],
+      "primary_root_cause": "RC-05_RETRIEVAL_STATUS_IS_BUCKET_COUNT",
+      "secondary_contributing_factors": [
+        "RC-06_VALUE_MATCHER_ACCEPTS_WEAK_CANDIDATES"
+      ],
+      "data_answerable": "no",
+      "expected": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          "Brand"
+        ],
+        "values": [],
+        "status": "NO_MATCH",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "PARTIAL"
+      },
+      "actual": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          {
+            "dimension_name": "brand",
+            "business_name": "Brand",
+            "table_name": "PBI_ENES_ORDER_PENDING_SUMMARY",
+            "column_name": "Brand"
+          }
+        ],
+        "values": [],
+        "status": "NO_MATCH",
+        "retrieval_status": "COMPLETE",
+        "followup_context_applied": false,
+        "dominant_candidate": null
+      }
+    },
+    {
+      "case_id": "E1-144",
+      "question": "Show sales for vivegham brand",
+      "category": "TYPO_FUZZY",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "RETRIEVAL_STATUS",
+      "recorded_failure_codes": [
+        "wrong retrieval status"
+      ],
+      "effective_failure_codes": [
+        "wrong retrieval status"
+      ],
+      "primary_root_cause": "RC-05_RETRIEVAL_STATUS_IS_BUCKET_COUNT",
+      "secondary_contributing_factors": [
+        "RC-06_VALUE_MATCHER_ACCEPTS_WEAK_CANDIDATES"
+      ],
+      "data_answerable": "no",
+      "expected": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          "Brand"
+        ],
+        "values": [],
+        "status": "NO_MATCH",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "PARTIAL"
+      },
+      "actual": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          {
+            "dimension_name": "brand",
+            "business_name": "Brand",
+            "table_name": "PBI_ENES_ORDER_PENDING_SUMMARY",
+            "column_name": "Brand"
+          }
+        ],
+        "values": [],
+        "status": "NO_MATCH",
+        "retrieval_status": "COMPLETE",
+        "followup_context_applied": false,
+        "dominant_candidate": null
+      }
+    },
+    {
+      "case_id": "E1-145",
+      "question": "Show sales for marketin category",
+      "category": "TYPO_FUZZY",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "AMBIGUITY",
+      "recorded_failure_codes": [
+        "wrong ambiguity"
+      ],
+      "effective_failure_codes": [
+        "wrong ambiguity"
+      ],
+      "primary_root_cause": "RC-07_NO_CONFIDENCE_MODEL",
+      "secondary_contributing_factors": [
+        "RC-02_AMBIGUITY_OVERRIDDEN_BY_UNMATCHED_TOKEN_HEURISTIC"
+      ],
+      "data_answerable": "yes",
+      "expected": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          "Category"
+        ],
+        "values": [
+          "MARKETING",
+          "MARKETING",
+          "MARKETING",
+          "Marketing",
+          "Marketing"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "actual": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          {
+            "dimension_name": "category",
+            "business_name": "Category",
+            "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY",
+            "column_name": "Category"
+          }
+        ],
+        "values": [
+          "MARKETING",
+          "MARKETING",
+          "MARKETING",
+          "Marketing",
+          "Marketing"
+        ],
+        "status": "STRONG_AMBIGUITY",
+        "retrieval_status": "COMPLETE",
+        "followup_context_applied": false,
+        "dominant_candidate": null
+      }
+    },
+    {
+      "case_id": "E1-146",
+      "question": "Show sales for franchis category",
+      "category": "TYPO_FUZZY",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "VALUE",
+      "recorded_failure_codes": [
+        "wrong ambiguity",
+        "wrong value"
+      ],
+      "effective_failure_codes": [
+        "wrong ambiguity",
+        "wrong value"
+      ],
+      "primary_root_cause": "RC-06_VALUE_MATCHER_ACCEPTS_WEAK_CANDIDATES",
+      "secondary_contributing_factors": [
+        "RC-07_NO_CONFIDENCE_MODEL"
+      ],
+      "data_answerable": "yes",
+      "expected": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          "Category"
+        ],
+        "values": [
+          "Franchise",
+          "Franchise",
+          "Franchise",
+          "Franchise",
+          "Franchise",
+          "RANCHI",
+          "RANCHI"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "actual": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          {
+            "dimension_name": "category",
+            "business_name": "Category",
+            "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY",
+            "column_name": "Category"
+          }
+        ],
+        "values": [
+          "Franchise",
+          "Franchise",
+          "Franchise",
+          "Franchise",
+          "RANCHI",
+          "RANCHI"
+        ],
+        "status": "STRONG_AMBIGUITY",
+        "retrieval_status": "COMPLETE",
+        "followup_context_applied": false,
+        "dominant_candidate": null
+      }
+    },
+    {
+      "case_id": "E1-147",
+      "question": "Show sales for other category",
+      "category": "TYPO_FUZZY",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "VALUE",
+      "recorded_failure_codes": [
+        "wrong ambiguity",
+        "wrong value"
+      ],
+      "effective_failure_codes": [
+        "wrong ambiguity",
+        "wrong value"
+      ],
+      "primary_root_cause": "RC-06_VALUE_MATCHER_ACCEPTS_WEAK_CANDIDATES",
+      "secondary_contributing_factors": [
+        "RC-07_NO_CONFIDENCE_MODEL"
+      ],
+      "data_answerable": "yes",
+      "expected": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          "Category"
+        ],
+        "values": [
+          "OTHERS",
+          "OTHERS",
+          "OTHERS"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "actual": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          {
+            "dimension_name": "category",
+            "business_name": "Category",
+            "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY",
+            "column_name": "Category"
+          }
+        ],
+        "values": [
+          "OTHERS",
+          "OTHERS"
+        ],
+        "status": "STRONG_AMBIGUITY",
+        "retrieval_status": "COMPLETE",
+        "followup_context_applied": false,
+        "dominant_candidate": null
+      }
+    },
+    {
+      "case_id": "E1-151",
+      "question": "Show sales for Raman brand",
+      "category": "TYPO_FUZZY",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "RETRIEVAL_STATUS",
+      "recorded_failure_codes": [
+        "wrong retrieval status"
+      ],
+      "effective_failure_codes": [
+        "wrong retrieval status"
+      ],
+      "primary_root_cause": "RC-05_RETRIEVAL_STATUS_IS_BUCKET_COUNT",
+      "secondary_contributing_factors": [
+        "RC-06_VALUE_MATCHER_ACCEPTS_WEAK_CANDIDATES"
+      ],
+      "data_answerable": "no",
+      "expected": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          "Brand"
+        ],
+        "values": [],
+        "status": "NO_MATCH",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "PARTIAL"
+      },
+      "actual": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          {
+            "dimension_name": "brand",
+            "business_name": "Brand",
+            "table_name": "PBI_ENES_ORDER_PENDING_SUMMARY",
+            "column_name": "Brand"
+          }
+        ],
+        "values": [],
+        "status": "NO_MATCH",
+        "retrieval_status": "COMPLETE",
+        "followup_context_applied": false,
+        "dominant_candidate": null
+      }
+    },
+    {
+      "case_id": "E1-153",
+      "question": "Show sales for Coimby city",
+      "category": "TYPO_FUZZY",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "AMBIGUITY",
+      "recorded_failure_codes": [
+        "wrong ambiguity"
+      ],
+      "effective_failure_codes": [
+        "wrong ambiguity"
+      ],
+      "primary_root_cause": "RC-02_AMBIGUITY_OVERRIDDEN_BY_UNMATCHED_TOKEN_HEURISTIC",
+      "secondary_contributing_factors": [],
+      "data_answerable": "no",
+      "expected": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          "City"
+        ],
+        "values": [
+          "ELECTRONIC CITY"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "actual": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          {
+            "dimension_name": "city",
+            "business_name": "City",
+            "table_name": "PBI_OUTSTANDING_ENES_SUMMARY",
+            "column_name": "City"
+          }
+        ],
+        "values": [
+          "ELECTRONIC CITY"
+        ],
+        "status": "PARTIAL_MATCH",
+        "retrieval_status": "COMPLETE",
+        "followup_context_applied": false,
+        "dominant_candidate": "ELECTRONIC CITY"
+      }
+    },
+    {
+      "case_id": "E1-164",
+      "question": "Show amount for Coimbatore city",
+      "category": "METRIC_SHIFT",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "METRIC",
+      "recorded_failure_codes": [
+        "wrong metric"
+      ],
+      "effective_failure_codes": [
+        "wrong metric"
+      ],
+      "primary_root_cause": "RC-03_SYNONYM_SPECIFICITY_NOT_WEIGHTED",
+      "secondary_contributing_factors": [],
+      "data_answerable": "no",
+      "expected": {
+        "metrics": [
+          "Amt"
+        ],
+        "dimensions": [
+          "City"
+        ],
+        "values": [
+          "COIMBATORE"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "actual": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          {
+            "dimension_name": "city",
+            "business_name": "City",
+            "table_name": "PBI_OUTSTANDING_ENES_SUMMARY",
+            "column_name": "City"
+          }
+        ],
+        "values": [
+          "COIMBATORE"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "retrieval_status": "COMPLETE",
+        "followup_context_applied": false,
+        "dominant_candidate": "COIMBATORE"
+      }
+    },
+    {
+      "case_id": "E1-165",
+      "question": "Now show Qty for Chennai city",
+      "category": "METRIC_SHIFT",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "AMBIGUITY",
+      "recorded_failure_codes": [
+        "wrong ambiguity"
+      ],
+      "effective_failure_codes": [
+        "wrong ambiguity"
+      ],
+      "primary_root_cause": "RC-02_AMBIGUITY_OVERRIDDEN_BY_UNMATCHED_TOKEN_HEURISTIC",
+      "secondary_contributing_factors": [],
+      "data_answerable": "no",
+      "expected": {
+        "metrics": [
+          "Qty"
+        ],
+        "dimensions": [
+          "City"
+        ],
+        "values": [
+          "CHENNAI"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "actual": {
+        "metrics": [
+          "Qty"
+        ],
+        "dimensions": [
+          {
+            "dimension_name": "city",
+            "business_name": "City",
+            "table_name": "PBI_OUTSTANDING_ENES_SUMMARY",
+            "column_name": "City"
+          }
+        ],
+        "values": [
+          "CHENNAI"
+        ],
+        "status": "PARTIAL_MATCH",
+        "retrieval_status": "COMPLETE",
+        "followup_context_applied": false,
+        "dominant_candidate": "CHENNAI"
+      }
+    },
+    {
+      "case_id": "E1-167",
+      "question": "Now show sales for Marketing category",
+      "category": "METRIC_SHIFT",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "DIMENSION",
+      "recorded_failure_codes": [
+        "wrong ambiguity",
+        "wrong dimension",
+        "wrong value"
+      ],
+      "effective_failure_codes": [
+        "wrong ambiguity",
+        "wrong dimension",
+        "wrong value"
+      ],
+      "primary_root_cause": "RC-03_SYNONYM_SPECIFICITY_NOT_WEIGHTED",
+      "secondary_contributing_factors": [
+        "RC-09_SPAN_GREEDY_SELECTION"
+      ],
+      "data_answerable": "yes",
+      "expected": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          "Category"
+        ],
+        "values": [
+          "MARKETING",
+          "MARKETING",
+          "MARKETING"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "actual": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          {
+            "dimension_name": "category",
+            "business_name": "Category",
+            "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY",
+            "column_name": "Category"
+          },
+          {
+            "dimension_name": "prodgrp4",
+            "business_name": "Prod Grp4",
+            "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY",
+            "column_name": "ProdGrp4"
+          }
+        ],
+        "values": [
+          "MARKETING",
+          "MARKETING"
+        ],
+        "status": "STRONG_AMBIGUITY",
+        "retrieval_status": "COMPLETE",
+        "followup_context_applied": false,
+        "dominant_candidate": null
+      }
+    },
+    {
+      "case_id": "E1-169",
+      "question": "Show pending amount for Erode city",
+      "category": "METRIC_SHIFT",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "AMBIGUITY",
+      "recorded_failure_codes": [
+        "wrong ambiguity",
+        "wrong metric"
+      ],
+      "effective_failure_codes": [
+        "wrong ambiguity"
+      ],
+      "primary_root_cause": "RC-02_AMBIGUITY_OVERRIDDEN_BY_UNMATCHED_TOKEN_HEURISTIC",
+      "secondary_contributing_factors": [],
+      "data_answerable": "yes",
+      "expected": {
+        "metrics": [
+          "P A M T"
+        ],
+        "dimensions": [
+          "City"
+        ],
+        "values": [
+          "ERODE"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "actual": {
+        "metrics": [
+          "P A M T"
+        ],
+        "dimensions": [
+          {
+            "dimension_name": "city",
+            "business_name": "City",
+            "table_name": "PBI_OUTSTANDING_ENES_SUMMARY",
+            "column_name": "City"
+          }
+        ],
+        "values": [
+          "ERODE"
+        ],
+        "status": "PARTIAL_MATCH",
+        "retrieval_status": "COMPLETE",
+        "followup_context_applied": false,
+        "dominant_candidate": "ERODE"
+      }
+    },
+    {
+      "case_id": "E1-170",
+      "question": "Now show sales for VT division",
+      "category": "METRIC_SHIFT",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "AMBIGUITY",
+      "recorded_failure_codes": [
+        "wrong ambiguity"
+      ],
+      "effective_failure_codes": [
+        "wrong ambiguity"
+      ],
+      "primary_root_cause": "RC-07_NO_CONFIDENCE_MODEL",
+      "secondary_contributing_factors": [
+        "RC-02_AMBIGUITY_OVERRIDDEN_BY_UNMATCHED_TOKEN_HEURISTIC"
+      ],
+      "data_answerable": "yes",
+      "expected": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          "Division"
+        ],
+        "values": [
+          "VT",
+          "VT",
+          "VT"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "actual": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          {
+            "dimension_name": "division",
+            "business_name": "Division",
+            "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY",
+            "column_name": "Division"
+          }
+        ],
+        "values": [
+          "VT",
+          "VT",
+          "VT"
+        ],
+        "status": "STRONG_AMBIGUITY",
+        "retrieval_status": "COMPLETE",
+        "followup_context_applied": false,
+        "dominant_candidate": null
+      }
+    },
+    {
+      "case_id": "E1-171",
+      "question": "Now show quantity for Chennai city",
+      "category": "METRIC_SHIFT",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "AMBIGUITY",
+      "recorded_failure_codes": [
+        "wrong ambiguity"
+      ],
+      "effective_failure_codes": [
+        "wrong ambiguity"
+      ],
+      "primary_root_cause": "RC-02_AMBIGUITY_OVERRIDDEN_BY_UNMATCHED_TOKEN_HEURISTIC",
+      "secondary_contributing_factors": [],
+      "data_answerable": "no",
+      "expected": {
+        "metrics": [
+          "Qty"
+        ],
+        "dimensions": [
+          "City"
+        ],
+        "values": [
+          "CHENNAI"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "actual": {
+        "metrics": [
+          "Qty"
+        ],
+        "dimensions": [
+          {
+            "dimension_name": "city",
+            "business_name": "City",
+            "table_name": "PBI_OUTSTANDING_ENES_SUMMARY",
+            "column_name": "City"
+          }
+        ],
+        "values": [
+          "CHENNAI"
+        ],
+        "status": "PARTIAL_MATCH",
+        "retrieval_status": "COMPLETE",
+        "followup_context_applied": false,
+        "dominant_candidate": "CHENNAI"
+      }
+    },
+    {
+      "case_id": "E1-174",
+      "question": "Show sales for Chennai city instead",
+      "category": "ENTITY_TOPIC_SHIFT",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "AMBIGUITY",
+      "recorded_failure_codes": [
+        "wrong ambiguity"
+      ],
+      "effective_failure_codes": [
+        "wrong ambiguity"
+      ],
+      "primary_root_cause": "RC-02_AMBIGUITY_OVERRIDDEN_BY_UNMATCHED_TOKEN_HEURISTIC",
+      "secondary_contributing_factors": [],
+      "data_answerable": "no",
+      "expected": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          "City"
+        ],
+        "values": [
+          "CHENNAI"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "actual": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          {
+            "dimension_name": "city",
+            "business_name": "City",
+            "table_name": "PBI_OUTSTANDING_ENES_SUMMARY",
+            "column_name": "City"
+          }
+        ],
+        "values": [
+          "CHENNAI"
+        ],
+        "status": "PARTIAL_MATCH",
+        "retrieval_status": "COMPLETE",
+        "followup_context_applied": false,
+        "dominant_candidate": "CHENNAI"
+      }
+    },
+    {
+      "case_id": "E1-175",
+      "question": "Show quantity for Chennai city instead",
+      "category": "ENTITY_TOPIC_SHIFT",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "AMBIGUITY",
+      "recorded_failure_codes": [
+        "wrong ambiguity"
+      ],
+      "effective_failure_codes": [
+        "wrong ambiguity"
+      ],
+      "primary_root_cause": "RC-02_AMBIGUITY_OVERRIDDEN_BY_UNMATCHED_TOKEN_HEURISTIC",
+      "secondary_contributing_factors": [],
+      "data_answerable": "no",
+      "expected": {
+        "metrics": [
+          "Qty"
+        ],
+        "dimensions": [
+          "City"
+        ],
+        "values": [
+          "CHENNAI"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "actual": {
+        "metrics": [
+          "Qty"
+        ],
+        "dimensions": [
+          {
+            "dimension_name": "city",
+            "business_name": "City",
+            "table_name": "PBI_OUTSTANDING_ENES_SUMMARY",
+            "column_name": "City"
+          }
+        ],
+        "values": [
+          "CHENNAI"
+        ],
+        "status": "PARTIAL_MATCH",
+        "retrieval_status": "COMPLETE",
+        "followup_context_applied": false,
+        "dominant_candidate": "CHENNAI"
+      }
+    },
+    {
+      "case_id": "E1-179",
+      "question": "Marketing category instead",
+      "category": "ENTITY_TOPIC_SHIFT",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "METRIC",
+      "recorded_failure_codes": [
+        "wrong ambiguity",
+        "wrong dimension",
+        "wrong metric",
+        "wrong value"
+      ],
+      "effective_failure_codes": [
+        "wrong ambiguity",
+        "wrong dimension",
+        "wrong metric",
+        "wrong value"
+      ],
+      "primary_root_cause": "RC-03_SYNONYM_SPECIFICITY_NOT_WEIGHTED",
+      "secondary_contributing_factors": [
+        "RC-09_SPAN_GREEDY_SELECTION"
+      ],
+      "data_answerable": "no",
+      "expected": {
+        "metrics": [
+          "P A M T"
+        ],
+        "dimensions": [
+          "Category"
+        ],
+        "values": [
+          "MARKETING",
+          "MARKETING",
+          "MARKETING"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "actual": {
+        "metrics": [],
+        "dimensions": [
+          {
+            "dimension_name": "category",
+            "business_name": "Category",
+            "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY",
+            "column_name": "Category"
+          },
+          {
+            "dimension_name": "prodgrp4",
+            "business_name": "Prod Grp4",
+            "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY",
+            "column_name": "ProdGrp4"
+          }
+        ],
+        "values": [
+          "MARKETING",
+          "MARKETING"
+        ],
+        "status": "STRONG_AMBIGUITY",
+        "retrieval_status": "COMPLETE",
+        "followup_context_applied": false,
+        "dominant_candidate": null
+      }
+    },
+    {
+      "case_id": "E1-180",
+      "question": "Show sales for xyzabc",
+      "category": "NO_MATCH_ADVERSARIAL",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "METRIC",
+      "recorded_failure_codes": [
+        "wrong metric",
+        "wrong retrieval status"
+      ],
+      "effective_failure_codes": [
+        "wrong metric",
+        "wrong retrieval status"
+      ],
+      "primary_root_cause": "RC-01_NO_MATCH_NOT_ENFORCED",
+      "secondary_contributing_factors": [
+        "RC-05_RETRIEVAL_STATUS_IS_BUCKET_COUNT"
+      ],
+      "data_answerable": "yes",
+      "expected": {
+        "metrics": [],
+        "dimensions": [],
+        "values": [],
+        "status": "NO_MATCH",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "INSUFFICIENT"
+      },
+      "actual": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [],
+        "values": [],
+        "status": "NO_MATCH",
+        "retrieval_status": "PARTIAL",
+        "followup_context_applied": false,
+        "dominant_candidate": null
+      }
+    },
+    {
+      "case_id": "E1-181",
+      "question": "Show sales for smartphone",
+      "category": "NO_MATCH_ADVERSARIAL",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "METRIC",
+      "recorded_failure_codes": [
+        "wrong metric",
+        "wrong retrieval status"
+      ],
+      "effective_failure_codes": [
+        "wrong metric",
+        "wrong retrieval status"
+      ],
+      "primary_root_cause": "RC-01_NO_MATCH_NOT_ENFORCED",
+      "secondary_contributing_factors": [
+        "RC-05_RETRIEVAL_STATUS_IS_BUCKET_COUNT"
+      ],
+      "data_answerable": "yes",
+      "expected": {
+        "metrics": [],
+        "dimensions": [],
+        "values": [],
+        "status": "NO_MATCH",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "INSUFFICIENT"
+      },
+      "actual": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [],
+        "values": [],
+        "status": "NO_MATCH",
+        "retrieval_status": "PARTIAL",
+        "followup_context_applied": false,
+        "dominant_candidate": null
+      }
+    },
+    {
+      "case_id": "E1-182",
+      "question": "Show sales for mobile phone",
+      "category": "NO_MATCH_ADVERSARIAL",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "METRIC",
+      "recorded_failure_codes": [
+        "wrong metric",
+        "wrong retrieval status"
+      ],
+      "effective_failure_codes": [
+        "wrong metric",
+        "wrong retrieval status"
+      ],
+      "primary_root_cause": "RC-01_NO_MATCH_NOT_ENFORCED",
+      "secondary_contributing_factors": [
+        "RC-05_RETRIEVAL_STATUS_IS_BUCKET_COUNT"
+      ],
+      "data_answerable": "yes",
+      "expected": {
+        "metrics": [],
+        "dimensions": [],
+        "values": [],
+        "status": "NO_MATCH",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "INSUFFICIENT"
+      },
+      "actual": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [],
+        "values": [],
+        "status": "NO_MATCH",
+        "retrieval_status": "PARTIAL",
+        "followup_context_applied": false,
+        "dominant_candidate": null
+      }
+    },
+    {
+      "case_id": "E1-183",
+      "question": "Show sales for qwert",
+      "category": "NO_MATCH_ADVERSARIAL",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "METRIC",
+      "recorded_failure_codes": [
+        "wrong metric",
+        "wrong retrieval status"
+      ],
+      "effective_failure_codes": [
+        "wrong metric",
+        "wrong retrieval status"
+      ],
+      "primary_root_cause": "RC-01_NO_MATCH_NOT_ENFORCED",
+      "secondary_contributing_factors": [
+        "RC-05_RETRIEVAL_STATUS_IS_BUCKET_COUNT"
+      ],
+      "data_answerable": "yes",
+      "expected": {
+        "metrics": [],
+        "dimensions": [],
+        "values": [],
+        "status": "NO_MATCH",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "INSUFFICIENT"
+      },
+      "actual": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [],
+        "values": [],
+        "status": "NO_MATCH",
+        "retrieval_status": "PARTIAL",
+        "followup_context_applied": false,
+        "dominant_candidate": null
+      }
+    },
+    {
+      "case_id": "E1-184",
+      "question": "Show sales for asdfgh",
+      "category": "NO_MATCH_ADVERSARIAL",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "METRIC",
+      "recorded_failure_codes": [
+        "wrong metric",
+        "wrong retrieval status"
+      ],
+      "effective_failure_codes": [
+        "wrong metric",
+        "wrong retrieval status"
+      ],
+      "primary_root_cause": "RC-01_NO_MATCH_NOT_ENFORCED",
+      "secondary_contributing_factors": [
+        "RC-05_RETRIEVAL_STATUS_IS_BUCKET_COUNT"
+      ],
+      "data_answerable": "yes",
+      "expected": {
+        "metrics": [],
+        "dimensions": [],
+        "values": [],
+        "status": "NO_MATCH",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "INSUFFICIENT"
+      },
+      "actual": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [],
+        "values": [],
+        "status": "NO_MATCH",
+        "retrieval_status": "PARTIAL",
+        "followup_context_applied": false,
+        "dominant_candidate": null
+      }
+    },
+    {
+      "case_id": "E1-185",
+      "question": "Show sales for Bangalore",
+      "category": "NO_MATCH_ADVERSARIAL",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "METRIC",
+      "recorded_failure_codes": [
+        "wrong ambiguity",
+        "wrong metric",
+        "wrong retrieval status",
+        "wrong value"
+      ],
+      "effective_failure_codes": [
+        "wrong ambiguity",
+        "wrong metric",
+        "wrong retrieval status",
+        "wrong value"
+      ],
+      "primary_root_cause": "RC-01_NO_MATCH_NOT_ENFORCED",
+      "secondary_contributing_factors": [
+        "RC-05_RETRIEVAL_STATUS_IS_BUCKET_COUNT"
+      ],
+      "data_answerable": "yes",
+      "expected": {
+        "metrics": [],
+        "dimensions": [],
+        "values": [],
+        "status": "NO_MATCH",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "INSUFFICIENT"
+      },
+      "actual": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [],
+        "values": [
+          "BANGALORE",
+          "BANGALORE"
+        ],
+        "status": "STRONG_AMBIGUITY",
+        "retrieval_status": "COMPLETE",
+        "followup_context_applied": false,
+        "dominant_candidate": null
+      }
+    },
+    {
+      "case_id": "E1-186",
+      "question": "Show sales for Mumbai",
+      "category": "NO_MATCH_ADVERSARIAL",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "METRIC",
+      "recorded_failure_codes": [
+        "wrong ambiguity",
+        "wrong metric",
+        "wrong retrieval status",
+        "wrong value"
+      ],
+      "effective_failure_codes": [
+        "wrong ambiguity",
+        "wrong metric",
+        "wrong retrieval status",
+        "wrong value"
+      ],
+      "primary_root_cause": "RC-01_NO_MATCH_NOT_ENFORCED",
+      "secondary_contributing_factors": [
+        "RC-05_RETRIEVAL_STATUS_IS_BUCKET_COUNT"
+      ],
+      "data_answerable": "yes",
+      "expected": {
+        "metrics": [],
+        "dimensions": [],
+        "values": [],
+        "status": "NO_MATCH",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "INSUFFICIENT"
+      },
+      "actual": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [],
+        "values": [
+          "MUMBAI",
+          "MUMBAI",
+          "NAVI MUMBAI",
+          "MUMBAI SUBURBAN"
+        ],
+        "status": "STRONG_AMBIGUITY",
+        "retrieval_status": "COMPLETE",
+        "followup_context_applied": false,
+        "dominant_candidate": null
+      }
+    },
+    {
+      "case_id": "E1-187",
+      "question": "Show sales for Ramrajj",
+      "category": "NO_MATCH_ADVERSARIAL",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "METRIC",
+      "recorded_failure_codes": [
+        "wrong metric",
+        "wrong retrieval status"
+      ],
+      "effective_failure_codes": [
+        "wrong metric",
+        "wrong retrieval status"
+      ],
+      "primary_root_cause": "RC-01_NO_MATCH_NOT_ENFORCED",
+      "secondary_contributing_factors": [
+        "RC-05_RETRIEVAL_STATUS_IS_BUCKET_COUNT"
+      ],
+      "data_answerable": "yes",
+      "expected": {
+        "metrics": [],
+        "dimensions": [],
+        "values": [],
+        "status": "NO_MATCH",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "INSUFFICIENT"
+      },
+      "actual": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [],
+        "values": [],
+        "status": "NO_MATCH",
+        "retrieval_status": "PARTIAL",
+        "followup_context_applied": false,
+        "dominant_candidate": null
+      }
+    },
+    {
+      "case_id": "E1-188",
+      "question": "Show quantity for Banianist",
+      "category": "NO_MATCH_ADVERSARIAL",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "METRIC",
+      "recorded_failure_codes": [
+        "wrong ambiguity",
+        "wrong metric",
+        "wrong retrieval status",
+        "wrong value"
+      ],
+      "effective_failure_codes": [
+        "wrong ambiguity",
+        "wrong metric",
+        "wrong retrieval status",
+        "wrong value"
+      ],
+      "primary_root_cause": "RC-01_NO_MATCH_NOT_ENFORCED",
+      "secondary_contributing_factors": [
+        "RC-05_RETRIEVAL_STATUS_IS_BUCKET_COUNT"
+      ],
+      "data_answerable": "yes",
+      "expected": {
+        "metrics": [],
+        "dimensions": [],
+        "values": [],
+        "status": "NO_MATCH",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "INSUFFICIENT"
+      },
+      "actual": {
+        "metrics": [
+          "Qty"
+        ],
+        "dimensions": [],
+        "values": [
+          "BANIANS"
+        ],
+        "status": "PARTIAL_MATCH",
+        "retrieval_status": "COMPLETE",
+        "followup_context_applied": false,
+        "dominant_candidate": "BANIANS"
+      }
+    },
+    {
+      "case_id": "E1-189",
+      "question": "Show sales for Chennaipet",
+      "category": "NO_MATCH_ADVERSARIAL",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "METRIC",
+      "recorded_failure_codes": [
+        "wrong metric",
+        "wrong retrieval status"
+      ],
+      "effective_failure_codes": [
+        "wrong metric",
+        "wrong retrieval status"
+      ],
+      "primary_root_cause": "RC-01_NO_MATCH_NOT_ENFORCED",
+      "secondary_contributing_factors": [
+        "RC-05_RETRIEVAL_STATUS_IS_BUCKET_COUNT"
+      ],
+      "data_answerable": "yes",
+      "expected": {
+        "metrics": [],
+        "dimensions": [],
+        "values": [],
+        "status": "NO_MATCH",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "INSUFFICIENT"
+      },
+      "actual": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [],
+        "values": [],
+        "status": "NO_MATCH",
+        "retrieval_status": "PARTIAL",
+        "followup_context_applied": false,
+        "dominant_candidate": null
+      }
+    },
+    {
+      "case_id": "E1-193",
+      "question": "Show quantity this month",
+      "category": "TEMPORAL_QUESTIONS",
+      "benchmark_verdict": "A",
+      "first_failing_stage": "RETRIEVAL_STATUS",
+      "recorded_failure_codes": [
+        "wrong retrieval status"
+      ],
+      "effective_failure_codes": [
+        "wrong retrieval status"
+      ],
+      "primary_root_cause": "RC-05_RETRIEVAL_STATUS_IS_BUCKET_COUNT",
+      "secondary_contributing_factors": [
+        "RC-06_VALUE_MATCHER_ACCEPTS_WEAK_CANDIDATES"
+      ],
+      "data_answerable": "yes",
+      "expected": {
+        "metrics": [
+          "Qty"
+        ],
+        "dimensions": [
+          "Doc Month"
+        ],
+        "values": [],
+        "status": "NO_MATCH",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "PARTIAL"
+      },
+      "actual": {
+        "metrics": [
+          "Qty"
+        ],
+        "dimensions": [
+          {
+            "dimension_name": "docmonth",
+            "business_name": "Doc Month",
+            "table_name": "PBI_ENES_ORDER_PENDING_SUMMARY",
+            "column_name": "DocMonth"
+          }
+        ],
+        "values": [],
+        "status": "NO_MATCH",
+        "retrieval_status": "COMPLETE",
+        "followup_context_applied": false,
+        "dominant_candidate": null
+      }
+    }
+  ]
+}

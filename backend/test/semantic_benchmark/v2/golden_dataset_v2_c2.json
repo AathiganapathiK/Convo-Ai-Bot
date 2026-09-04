@@ -1,0 +1,5301 @@
+[
+  {
+    "case_id": "E1-046",
+    "category": "EXPLICIT_DIMENSION",
+    "source": "REAL_BUSINESS",
+    "severity": "CRITICAL",
+    "question": "Total sales for Chennai city",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "City"
+      ],
+      "values": [
+        "CHENNAI"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Explicit 'city' qualifier disambiguates Chennai to City dimension.",
+    "expectation_review": {
+      "verdict": "A",
+      "verdict_meaning": "Software defect - expectation is achievable under current configuration",
+      "rationale": "Every metric, dimension and value expected is present and usable, so the expectation is achievable and the failure lies in the software.",
+      "evidence": {
+        "config_problems": [],
+        "diagnostic_run": {
+          "pass_fail": "FAIL",
+          "failure_codes": [
+            "wrong ambiguity"
+          ]
+        },
+        "evidence_source": "live connection F82C2F8D-0BD6-40E2-8C8B-FF1D69E317D5, semantic_metrics / semantic_dimensions / dimension_value_index",
+        "answerability": {
+          "metric_tables": [
+            "QB_MDJMD_SALES_5YRS_SUMMARY"
+          ],
+          "dimension_tables": [
+            "PBI_OUTSTANDING_ENES_SUMMARY"
+          ],
+          "cross_table_without_verified_join": true,
+          "verified_joins_for_connection": 0,
+          "note": "Physical answerability only. This never influences the verdict."
+        }
+      },
+      "original_expected": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          "City"
+        ],
+        "values": [
+          "CHENNAI"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "recommended_expected": null,
+      "requires_human_review": false,
+      "expectation_changed_in_v2": false
+    },
+    "expected_identity": {
+      "metrics": [
+        {
+          "business_name": "C Y",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY",
+              "column_name": "CY"
+            }
+          ],
+          "ambiguous_across_tables": false
+        }
+      ],
+      "dimensions": [
+        {
+          "business_name": "City",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "PBI_OUTSTANDING_ENES_SUMMARY",
+              "column_name": "City"
+            }
+          ],
+          "ambiguous_across_tables": false
+        }
+      ]
+    },
+    "data_answerable": "no",
+    "missing_data": [
+      "City on QB_MDJMD_SALES_5YRS_SUMMARY, or a verified join path from QB_MDJMD_SALES_5YRS_SUMMARY to PBI_OUTSTANDING_ENES_SUMMARY"
+    ]
+  },
+  {
+    "case_id": "E1-047",
+    "category": "EXPLICIT_DIMENSION",
+    "source": "REAL_BUSINESS",
+    "severity": "CRITICAL",
+    "question": "Total sales in Coimbatore city",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "City"
+      ],
+      "values": [
+        "COIMBATORE"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Explicit 'city' qualifier disambiguates Coimbatore to City dimension.",
+    "expectation_review": {
+      "verdict": "A",
+      "verdict_meaning": "Software defect - expectation is achievable under current configuration",
+      "rationale": "Every metric, dimension and value expected is present and usable, so the expectation is achievable and the failure lies in the software.",
+      "evidence": {
+        "config_problems": [],
+        "diagnostic_run": {
+          "pass_fail": "FAIL",
+          "failure_codes": [
+            "wrong ambiguity"
+          ]
+        },
+        "evidence_source": "live connection F82C2F8D-0BD6-40E2-8C8B-FF1D69E317D5, semantic_metrics / semantic_dimensions / dimension_value_index",
+        "answerability": {
+          "metric_tables": [
+            "QB_MDJMD_SALES_5YRS_SUMMARY"
+          ],
+          "dimension_tables": [
+            "PBI_OUTSTANDING_ENES_SUMMARY"
+          ],
+          "cross_table_without_verified_join": true,
+          "verified_joins_for_connection": 0,
+          "note": "Physical answerability only. This never influences the verdict."
+        }
+      },
+      "original_expected": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          "City"
+        ],
+        "values": [
+          "COIMBATORE"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "recommended_expected": null,
+      "requires_human_review": false,
+      "expectation_changed_in_v2": false
+    },
+    "expected_identity": {
+      "metrics": [
+        {
+          "business_name": "C Y",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY",
+              "column_name": "CY"
+            }
+          ],
+          "ambiguous_across_tables": false
+        }
+      ],
+      "dimensions": [
+        {
+          "business_name": "City",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "PBI_OUTSTANDING_ENES_SUMMARY",
+              "column_name": "City"
+            }
+          ],
+          "ambiguous_across_tables": false
+        }
+      ]
+    },
+    "data_answerable": "no",
+    "missing_data": [
+      "City on QB_MDJMD_SALES_5YRS_SUMMARY, or a verified join path from QB_MDJMD_SALES_5YRS_SUMMARY to PBI_OUTSTANDING_ENES_SUMMARY"
+    ]
+  },
+  {
+    "case_id": "E1-048",
+    "category": "EXPLICIT_DIMENSION",
+    "source": "REAL_BUSINESS",
+    "severity": "CRITICAL",
+    "question": "Total sales for Madurai city",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "City"
+      ],
+      "values": [
+        "MADURAI"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Explicit 'city' qualifier disambiguates Madurai to City dimension.",
+    "expectation_review": {
+      "verdict": "A",
+      "verdict_meaning": "Software defect - expectation is achievable under current configuration",
+      "rationale": "Every metric, dimension and value expected is present and usable, so the expectation is achievable and the failure lies in the software.",
+      "evidence": {
+        "config_problems": [],
+        "diagnostic_run": {
+          "pass_fail": "FAIL",
+          "failure_codes": [
+            "wrong ambiguity"
+          ]
+        },
+        "evidence_source": "live connection F82C2F8D-0BD6-40E2-8C8B-FF1D69E317D5, semantic_metrics / semantic_dimensions / dimension_value_index",
+        "answerability": {
+          "metric_tables": [
+            "QB_MDJMD_SALES_5YRS_SUMMARY"
+          ],
+          "dimension_tables": [
+            "PBI_OUTSTANDING_ENES_SUMMARY"
+          ],
+          "cross_table_without_verified_join": true,
+          "verified_joins_for_connection": 0,
+          "note": "Physical answerability only. This never influences the verdict."
+        }
+      },
+      "original_expected": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          "City"
+        ],
+        "values": [
+          "MADURAI"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "recommended_expected": null,
+      "requires_human_review": false,
+      "expectation_changed_in_v2": false
+    },
+    "expected_identity": {
+      "metrics": [
+        {
+          "business_name": "C Y",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY",
+              "column_name": "CY"
+            }
+          ],
+          "ambiguous_across_tables": false
+        }
+      ],
+      "dimensions": [
+        {
+          "business_name": "City",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "PBI_OUTSTANDING_ENES_SUMMARY",
+              "column_name": "City"
+            }
+          ],
+          "ambiguous_across_tables": false
+        }
+      ]
+    },
+    "data_answerable": "no",
+    "missing_data": [
+      "City on QB_MDJMD_SALES_5YRS_SUMMARY, or a verified join path from QB_MDJMD_SALES_5YRS_SUMMARY to PBI_OUTSTANDING_ENES_SUMMARY"
+    ]
+  },
+  {
+    "case_id": "E1-049",
+    "category": "EXPLICIT_DIMENSION",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show sales for Erode city",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "City"
+      ],
+      "values": [
+        "ERODE"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Explicit 'city' qualifier disambiguates Erode to City dimension.",
+    "expectation_review": {
+      "verdict": "VALID",
+      "verdict_meaning": "Expectation verified against live configuration and currently met",
+      "rationale": "Expectation verified against live configuration and met by the resolver.",
+      "evidence": {
+        "config_problems": [],
+        "diagnostic_run": {
+          "pass_fail": "PASS",
+          "failure_codes": []
+        },
+        "evidence_source": "live connection F82C2F8D-0BD6-40E2-8C8B-FF1D69E317D5, semantic_metrics / semantic_dimensions / dimension_value_index",
+        "answerability": {
+          "metric_tables": [
+            "QB_MDJMD_SALES_5YRS_SUMMARY"
+          ],
+          "dimension_tables": [
+            "PBI_OUTSTANDING_ENES_SUMMARY"
+          ],
+          "cross_table_without_verified_join": true,
+          "verified_joins_for_connection": 0,
+          "note": "Physical answerability only. This never influences the verdict."
+        }
+      },
+      "original_expected": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          "City"
+        ],
+        "values": [
+          "ERODE"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "recommended_expected": null,
+      "requires_human_review": false,
+      "expectation_changed_in_v2": false
+    },
+    "expected_identity": {
+      "metrics": [
+        {
+          "business_name": "C Y",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY",
+              "column_name": "CY"
+            }
+          ],
+          "ambiguous_across_tables": false
+        }
+      ],
+      "dimensions": [
+        {
+          "business_name": "City",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "PBI_OUTSTANDING_ENES_SUMMARY",
+              "column_name": "City"
+            }
+          ],
+          "ambiguous_across_tables": false
+        }
+      ]
+    },
+    "data_answerable": "no",
+    "missing_data": [
+      "City on QB_MDJMD_SALES_5YRS_SUMMARY, or a verified join path from QB_MDJMD_SALES_5YRS_SUMMARY to PBI_OUTSTANDING_ENES_SUMMARY"
+    ]
+  },
+  {
+    "case_id": "E1-050",
+    "category": "EXPLICIT_DIMENSION",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Qty in Salem city",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "Qty"
+      ],
+      "dimensions": [
+        "City"
+      ],
+      "values": [
+        "SALEM"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Explicit 'city' qualifier disambiguates Salem to City dimension.",
+    "expectation_review": {
+      "verdict": "VALID",
+      "verdict_meaning": "Expectation verified against live configuration and currently met",
+      "rationale": "Expectation verified against live configuration and met by the resolver.",
+      "evidence": {
+        "config_problems": [],
+        "diagnostic_run": {
+          "pass_fail": "PASS",
+          "failure_codes": []
+        },
+        "evidence_source": "live connection F82C2F8D-0BD6-40E2-8C8B-FF1D69E317D5, semantic_metrics / semantic_dimensions / dimension_value_index",
+        "answerability": {
+          "metric_tables": [
+            "PBI_ENES_ORDER_PENDING_SUMMARY"
+          ],
+          "dimension_tables": [
+            "PBI_OUTSTANDING_ENES_SUMMARY"
+          ],
+          "cross_table_without_verified_join": true,
+          "verified_joins_for_connection": 0,
+          "note": "Physical answerability only. This never influences the verdict."
+        }
+      },
+      "original_expected": {
+        "metrics": [
+          "Qty"
+        ],
+        "dimensions": [
+          "City"
+        ],
+        "values": [
+          "SALEM"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "recommended_expected": null,
+      "requires_human_review": false,
+      "expectation_changed_in_v2": false
+    },
+    "expected_identity": {
+      "metrics": [
+        {
+          "business_name": "Qty",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "PBI_ENES_ORDER_PENDING_SUMMARY",
+              "column_name": "Qty"
+            }
+          ],
+          "ambiguous_across_tables": false
+        }
+      ],
+      "dimensions": [
+        {
+          "business_name": "City",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "PBI_OUTSTANDING_ENES_SUMMARY",
+              "column_name": "City"
+            }
+          ],
+          "ambiguous_across_tables": false
+        }
+      ]
+    },
+    "data_answerable": "no",
+    "missing_data": [
+      "City on PBI_ENES_ORDER_PENDING_SUMMARY, or a verified join path from PBI_ENES_ORDER_PENDING_SUMMARY to PBI_OUTSTANDING_ENES_SUMMARY"
+    ]
+  },
+  {
+    "case_id": "E1-051",
+    "category": "EXPLICIT_DIMENSION",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show Qty for Tirunelveli city",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "Qty"
+      ],
+      "dimensions": [
+        "City"
+      ],
+      "values": [
+        "TIRUNELVELI"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Explicit 'city' qualifier disambiguates Tirunelveli to City dimension.",
+    "expectation_review": {
+      "verdict": "VALID",
+      "verdict_meaning": "Expectation verified against live configuration and currently met",
+      "rationale": "Expectation verified against live configuration and met by the resolver.",
+      "evidence": {
+        "config_problems": [],
+        "diagnostic_run": {
+          "pass_fail": "PASS",
+          "failure_codes": []
+        },
+        "evidence_source": "live connection F82C2F8D-0BD6-40E2-8C8B-FF1D69E317D5, semantic_metrics / semantic_dimensions / dimension_value_index",
+        "answerability": {
+          "metric_tables": [
+            "PBI_ENES_ORDER_PENDING_SUMMARY"
+          ],
+          "dimension_tables": [
+            "PBI_OUTSTANDING_ENES_SUMMARY"
+          ],
+          "cross_table_without_verified_join": true,
+          "verified_joins_for_connection": 0,
+          "note": "Physical answerability only. This never influences the verdict."
+        }
+      },
+      "original_expected": {
+        "metrics": [
+          "Qty"
+        ],
+        "dimensions": [
+          "City"
+        ],
+        "values": [
+          "TIRUNELVELI"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "recommended_expected": null,
+      "requires_human_review": false,
+      "expectation_changed_in_v2": false
+    },
+    "expected_identity": {
+      "metrics": [
+        {
+          "business_name": "Qty",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "PBI_ENES_ORDER_PENDING_SUMMARY",
+              "column_name": "Qty"
+            }
+          ],
+          "ambiguous_across_tables": false
+        }
+      ],
+      "dimensions": [
+        {
+          "business_name": "City",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "PBI_OUTSTANDING_ENES_SUMMARY",
+              "column_name": "City"
+            }
+          ],
+          "ambiguous_across_tables": false
+        }
+      ]
+    },
+    "data_answerable": "no",
+    "missing_data": [
+      "City on PBI_ENES_ORDER_PENDING_SUMMARY, or a verified join path from PBI_ENES_ORDER_PENDING_SUMMARY to PBI_OUTSTANDING_ENES_SUMMARY"
+    ]
+  },
+  {
+    "case_id": "E1-052",
+    "category": "EXPLICIT_DIMENSION",
+    "source": "REAL_BUSINESS",
+    "severity": "CRITICAL",
+    "question": "Total sales for Chennai district",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "District"
+      ],
+      "values": [
+        "CHENNAI"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Explicit 'district' qualifier disambiguates Chennai to District dimension.",
+    "expectation_review": {
+      "verdict": "A",
+      "verdict_meaning": "Software defect - expectation is achievable under current configuration",
+      "rationale": "Every metric, dimension and value expected is present and usable, so the expectation is achievable and the failure lies in the software.",
+      "evidence": {
+        "config_problems": [],
+        "diagnostic_run": {
+          "pass_fail": "FAIL",
+          "failure_codes": [
+            "wrong ambiguity"
+          ]
+        },
+        "evidence_source": "live connection F82C2F8D-0BD6-40E2-8C8B-FF1D69E317D5, semantic_metrics / semantic_dimensions / dimension_value_index",
+        "answerability": {
+          "metric_tables": [
+            "QB_MDJMD_SALES_5YRS_SUMMARY"
+          ],
+          "dimension_tables": [
+            "PBI_OUTSTANDING_ENES_SUMMARY"
+          ],
+          "cross_table_without_verified_join": true,
+          "verified_joins_for_connection": 0,
+          "note": "Physical answerability only. This never influences the verdict."
+        }
+      },
+      "original_expected": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          "District"
+        ],
+        "values": [
+          "CHENNAI"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "recommended_expected": null,
+      "requires_human_review": false,
+      "expectation_changed_in_v2": false
+    },
+    "expected_identity": {
+      "metrics": [
+        {
+          "business_name": "C Y",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY",
+              "column_name": "CY"
+            }
+          ],
+          "ambiguous_across_tables": false
+        }
+      ],
+      "dimensions": [
+        {
+          "business_name": "District",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "PBI_OUTSTANDING_ENES_SUMMARY",
+              "column_name": "District"
+            }
+          ],
+          "ambiguous_across_tables": false
+        }
+      ]
+    },
+    "data_answerable": "no",
+    "missing_data": [
+      "District on QB_MDJMD_SALES_5YRS_SUMMARY, or a verified join path from QB_MDJMD_SALES_5YRS_SUMMARY to PBI_OUTSTANDING_ENES_SUMMARY"
+    ]
+  },
+  {
+    "case_id": "E1-053",
+    "category": "EXPLICIT_DIMENSION",
+    "source": "REAL_BUSINESS",
+    "severity": "CRITICAL",
+    "question": "Total sales in Coimbatore district",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "District"
+      ],
+      "values": [
+        "COIMBATORE"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Explicit 'district' qualifier disambiguates Coimbatore to District dimension.",
+    "expectation_review": {
+      "verdict": "A",
+      "verdict_meaning": "Software defect - expectation is achievable under current configuration",
+      "rationale": "Every metric, dimension and value expected is present and usable, so the expectation is achievable and the failure lies in the software.",
+      "evidence": {
+        "config_problems": [],
+        "diagnostic_run": {
+          "pass_fail": "FAIL",
+          "failure_codes": [
+            "wrong ambiguity"
+          ]
+        },
+        "evidence_source": "live connection F82C2F8D-0BD6-40E2-8C8B-FF1D69E317D5, semantic_metrics / semantic_dimensions / dimension_value_index",
+        "answerability": {
+          "metric_tables": [
+            "QB_MDJMD_SALES_5YRS_SUMMARY"
+          ],
+          "dimension_tables": [
+            "PBI_OUTSTANDING_ENES_SUMMARY"
+          ],
+          "cross_table_without_verified_join": true,
+          "verified_joins_for_connection": 0,
+          "note": "Physical answerability only. This never influences the verdict."
+        }
+      },
+      "original_expected": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          "District"
+        ],
+        "values": [
+          "COIMBATORE"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "recommended_expected": null,
+      "requires_human_review": false,
+      "expectation_changed_in_v2": false
+    },
+    "expected_identity": {
+      "metrics": [
+        {
+          "business_name": "C Y",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY",
+              "column_name": "CY"
+            }
+          ],
+          "ambiguous_across_tables": false
+        }
+      ],
+      "dimensions": [
+        {
+          "business_name": "District",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "PBI_OUTSTANDING_ENES_SUMMARY",
+              "column_name": "District"
+            }
+          ],
+          "ambiguous_across_tables": false
+        }
+      ]
+    },
+    "data_answerable": "no",
+    "missing_data": [
+      "District on QB_MDJMD_SALES_5YRS_SUMMARY, or a verified join path from QB_MDJMD_SALES_5YRS_SUMMARY to PBI_OUTSTANDING_ENES_SUMMARY"
+    ]
+  },
+  {
+    "case_id": "E1-054",
+    "category": "EXPLICIT_DIMENSION",
+    "source": "REAL_BUSINESS",
+    "severity": "CRITICAL",
+    "question": "Total Qty for Madurai district",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "Qty"
+      ],
+      "dimensions": [
+        "District"
+      ],
+      "values": [
+        "MADURAI"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Explicit 'district' qualifier disambiguates Madurai to District dimension.",
+    "expectation_review": {
+      "verdict": "A",
+      "verdict_meaning": "Software defect - expectation is achievable under current configuration",
+      "rationale": "Every metric, dimension and value expected is present and usable, so the expectation is achievable and the failure lies in the software.",
+      "evidence": {
+        "config_problems": [],
+        "diagnostic_run": {
+          "pass_fail": "FAIL",
+          "failure_codes": [
+            "wrong ambiguity"
+          ]
+        },
+        "evidence_source": "live connection F82C2F8D-0BD6-40E2-8C8B-FF1D69E317D5, semantic_metrics / semantic_dimensions / dimension_value_index",
+        "answerability": {
+          "metric_tables": [
+            "PBI_ENES_ORDER_PENDING_SUMMARY"
+          ],
+          "dimension_tables": [
+            "PBI_OUTSTANDING_ENES_SUMMARY"
+          ],
+          "cross_table_without_verified_join": true,
+          "verified_joins_for_connection": 0,
+          "note": "Physical answerability only. This never influences the verdict."
+        }
+      },
+      "original_expected": {
+        "metrics": [
+          "Qty"
+        ],
+        "dimensions": [
+          "District"
+        ],
+        "values": [
+          "MADURAI"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "recommended_expected": null,
+      "requires_human_review": false,
+      "expectation_changed_in_v2": false
+    },
+    "expected_identity": {
+      "metrics": [
+        {
+          "business_name": "Qty",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "PBI_ENES_ORDER_PENDING_SUMMARY",
+              "column_name": "Qty"
+            }
+          ],
+          "ambiguous_across_tables": false
+        }
+      ],
+      "dimensions": [
+        {
+          "business_name": "District",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "PBI_OUTSTANDING_ENES_SUMMARY",
+              "column_name": "District"
+            }
+          ],
+          "ambiguous_across_tables": false
+        }
+      ]
+    },
+    "data_answerable": "no",
+    "missing_data": [
+      "District on PBI_ENES_ORDER_PENDING_SUMMARY, or a verified join path from PBI_ENES_ORDER_PENDING_SUMMARY to PBI_OUTSTANDING_ENES_SUMMARY"
+    ]
+  },
+  {
+    "case_id": "E1-055",
+    "category": "EXPLICIT_DIMENSION",
+    "source": "REAL_BUSINESS",
+    "severity": "CRITICAL",
+    "question": "Show sales for Ramraj brand",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "Brand"
+      ],
+      "values": [
+        "RAMRAJ"
+      ],
+      "status": "SINGLE_MATCH",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Explicit 'brand' qualifier disambiguates Ramraj to Brand dimension.",
+    "expectation_review": {
+      "verdict": "E",
+      "verdict_meaning": "Genuine ambiguity - requires a human/business decision",
+      "rationale": "The expected value is not a value in the data. A family of real values shares its wording, so what it should resolve to is an undefined business meaning, not a mechanical fix.",
+      "evidence": {
+        "config_problems": [
+          {
+            "field": "values",
+            "name": "RAMRAJ",
+            "issue": "NOT_IN_INDEX",
+            "detail": "This exact value does not exist in the index.",
+            "candidates": [
+              "RAMRAJ DEVOTIONAL",
+              "RAMRAJ DHOTI",
+              "RAMRAJ DHOTISET",
+              "RAMRAJ FABRIC",
+              "RAMRAJ HANKEYS",
+              "RAMRAJ HOSIERY",
+              "RAMRAJ KALYAAN",
+              "RAMRAJ LAGNAA"
+            ],
+            "candidate_count": 15,
+            "confident_replacement": null
+          }
+        ],
+        "diagnostic_run": {
+          "pass_fail": "FAIL",
+          "failure_codes": [
+            "wrong value",
+            "wrong ambiguity"
+          ]
+        },
+        "evidence_source": "live connection F82C2F8D-0BD6-40E2-8C8B-FF1D69E317D5, semantic_metrics / semantic_dimensions / dimension_value_index",
+        "ramraj_values": {
+          "exact_value_RAMRAJ_exists": false,
+          "values_on_metric_table": {
+            "QB_MDJMD_SALES_5YRS_SUMMARY": [
+              "RAMRAJ KALYAAN",
+              "RAMRAJ LAGNAA",
+              "RAMRAJ LITTLESTARS",
+              "RAMRAJ MASK",
+              "RAMRAJ MUHURTH",
+              "RAMRAJ PANT",
+              "RAMRAJ SHIRT",
+              "RAMRAJ VAIBHAV SET",
+              "RAMRAJ WEDDING SET"
+            ]
+          },
+          "brand_column_shape": "Prod Grp1 (QB_MDJMD_SALES_5YRS_SUMMARY.ProdGrp1) was evaluated as the replacement dimension for 'brand' on Sales questions and rejected. Its 55 values mix product types (DHOTI, BANIANS, TOWEL, ACCESSORIES, FABRIC), standalone brands (CULTURE CLUB, PRIMA CLUB, LINEN PARK, GENISTAA) and brand-product lines (RAMRAJ PANT, RAMRAJ SHIRT, VIVEAGHAM DHOTI), plus non-product entries (LOT, SCRAP ITEM, COMBO). It is a product-line dimension, not a brand dimension, and it holds no value 'RAMRAJ'. Brand on PBI_ENES_ORDER_PENDING_SUMMARY has the same shape (RAMRAJ DHOTI, RAMRAJ HANKEYS...). Neither table represents brand as its own field."
+        },
+        "joinability": {
+          "metric_tables": [
+            "QB_MDJMD_SALES_5YRS_SUMMARY"
+          ],
+          "dimension_tables": [
+            "PBI_ENES_ORDER_PENDING_SUMMARY"
+          ],
+          "relationships_defined_for_connection": 0,
+          "dimensions_not_on_metric_table": [
+            "Brand"
+          ],
+          "single_table_answerable": false
+        },
+        "prodgrp1_evaluation": "Prod Grp1 (QB_MDJMD_SALES_5YRS_SUMMARY.ProdGrp1) was evaluated as the replacement dimension for 'brand' on Sales questions and rejected. Its 55 values mix product types (DHOTI, BANIANS, TOWEL, ACCESSORIES, FABRIC), standalone brands (CULTURE CLUB, PRIMA CLUB, LINEN PARK, GENISTAA) and brand-product lines (RAMRAJ PANT, RAMRAJ SHIRT, VIVEAGHAM DHOTI), plus non-product entries (LOT, SCRAP ITEM, COMBO). It is a product-line dimension, not a brand dimension, and it holds no value 'RAMRAJ'. Brand on PBI_ENES_ORDER_PENDING_SUMMARY has the same shape (RAMRAJ DHOTI, RAMRAJ HANKEYS...). Neither table represents brand as its own field.",
+        "answerability": {
+          "metric_tables": [
+            "QB_MDJMD_SALES_5YRS_SUMMARY"
+          ],
+          "dimension_tables": [
+            "PBI_ENES_ORDER_PENDING_SUMMARY"
+          ],
+          "cross_table_without_verified_join": true,
+          "verified_joins_for_connection": 0,
+          "note": "Physical answerability only. This never influences the verdict."
+        }
+      },
+      "original_expected": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          "Brand"
+        ],
+        "values": [
+          "RAMRAJ"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "recommended_expected": null,
+      "requires_human_review": true,
+      "expectation_changed_in_v2": false,
+      "resolution_notes": [],
+      "verdict_history": [
+        {
+          "from": "C",
+          "to": "E",
+          "reason": "Step 16 consistency pass: verdict and data_answerable separated onto independent axes. The expected value is not a value in the data. A family of real values shares its wording, so what it should resolve to is an undefined business meaning, not a mechanical fix.",
+          "evidence": {
+            "metric_tables": [
+              "QB_MDJMD_SALES_5YRS_SUMMARY"
+            ],
+            "dimension_tables": [
+              "PBI_ENES_ORDER_PENDING_SUMMARY"
+            ],
+            "cross_table_without_verified_join": true,
+            "verified_joins_for_connection": 0,
+            "diagnostic_run": "FAIL"
+          }
+        }
+      ]
+    },
+    "expected_identity": {
+      "metrics": [
+        {
+          "business_name": "C Y",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY",
+              "column_name": "CY"
+            }
+          ],
+          "ambiguous_across_tables": false
+        }
+      ],
+      "dimensions": [
+        {
+          "business_name": "Brand",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "PBI_ENES_ORDER_PENDING_SUMMARY",
+              "column_name": "Brand"
+            }
+          ],
+          "ambiguous_across_tables": false
+        }
+      ]
+    },
+    "data_answerable": "no",
+    "missing_data": [
+      "Brand on QB_MDJMD_SALES_5YRS_SUMMARY, or a verified join path from QB_MDJMD_SALES_5YRS_SUMMARY to PBI_ENES_ORDER_PENDING_SUMMARY"
+    ]
+  },
+  {
+    "case_id": "E1-056",
+    "category": "EXPLICIT_DIMENSION",
+    "source": "REAL_BUSINESS",
+    "severity": "CRITICAL",
+    "question": "Qty for brand Ramraj",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "Qty"
+      ],
+      "dimensions": [
+        "Brand"
+      ],
+      "values": [
+        "RAMRAJ"
+      ],
+      "status": "SINGLE_MATCH",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Explicit 'brand' prefix qualifier disambiguates Ramraj to Brand dimension.",
+    "expectation_review": {
+      "verdict": "E",
+      "verdict_meaning": "Genuine ambiguity - requires a human/business decision",
+      "rationale": "The expected value is not a value in the data. A family of real values shares its wording, so what it should resolve to is an undefined business meaning, not a mechanical fix.",
+      "evidence": {
+        "config_problems": [
+          {
+            "field": "values",
+            "name": "RAMRAJ",
+            "issue": "NOT_IN_INDEX",
+            "detail": "This exact value does not exist in the index.",
+            "candidates": [
+              "RAMRAJ DEVOTIONAL",
+              "RAMRAJ DHOTI",
+              "RAMRAJ DHOTISET",
+              "RAMRAJ FABRIC",
+              "RAMRAJ HANKEYS",
+              "RAMRAJ HOSIERY",
+              "RAMRAJ KALYAAN",
+              "RAMRAJ LAGNAA"
+            ],
+            "candidate_count": 15,
+            "confident_replacement": null
+          }
+        ],
+        "diagnostic_run": {
+          "pass_fail": "FAIL",
+          "failure_codes": [
+            "wrong value",
+            "wrong ambiguity"
+          ]
+        },
+        "evidence_source": "live connection F82C2F8D-0BD6-40E2-8C8B-FF1D69E317D5, semantic_metrics / semantic_dimensions / dimension_value_index",
+        "ramraj_values": {
+          "exact_value_RAMRAJ_exists": false,
+          "values_on_metric_table": {
+            "PBI_ENES_ORDER_PENDING_SUMMARY": [
+              "RAMRAJ DEVOTIONAL",
+              "RAMRAJ DHOTI",
+              "RAMRAJ DHOTISET",
+              "RAMRAJ FABRIC",
+              "RAMRAJ HANKEYS",
+              "RAMRAJ HOSIERY",
+              "RAMRAJ KALYAAN",
+              "RAMRAJ LAGNAA",
+              "RAMRAJ LITTLESTARS",
+              "RAMRAJ MUHURTH",
+              "RAMRAJ PANT",
+              "RAMRAJ SHIRT"
+            ]
+          },
+          "brand_column_shape": "Prod Grp1 (QB_MDJMD_SALES_5YRS_SUMMARY.ProdGrp1) was evaluated as the replacement dimension for 'brand' on Sales questions and rejected. Its 55 values mix product types (DHOTI, BANIANS, TOWEL, ACCESSORIES, FABRIC), standalone brands (CULTURE CLUB, PRIMA CLUB, LINEN PARK, GENISTAA) and brand-product lines (RAMRAJ PANT, RAMRAJ SHIRT, VIVEAGHAM DHOTI), plus non-product entries (LOT, SCRAP ITEM, COMBO). It is a product-line dimension, not a brand dimension, and it holds no value 'RAMRAJ'. Brand on PBI_ENES_ORDER_PENDING_SUMMARY has the same shape (RAMRAJ DHOTI, RAMRAJ HANKEYS...). Neither table represents brand as its own field."
+        },
+        "joinability": {
+          "metric_tables": [
+            "PBI_ENES_ORDER_PENDING_SUMMARY"
+          ],
+          "dimension_tables": [
+            "PBI_ENES_ORDER_PENDING_SUMMARY"
+          ],
+          "relationships_defined_for_connection": 0,
+          "dimensions_not_on_metric_table": [],
+          "single_table_answerable": true
+        },
+        "prodgrp1_evaluation": "Prod Grp1 (QB_MDJMD_SALES_5YRS_SUMMARY.ProdGrp1) was evaluated as the replacement dimension for 'brand' on Sales questions and rejected. Its 55 values mix product types (DHOTI, BANIANS, TOWEL, ACCESSORIES, FABRIC), standalone brands (CULTURE CLUB, PRIMA CLUB, LINEN PARK, GENISTAA) and brand-product lines (RAMRAJ PANT, RAMRAJ SHIRT, VIVEAGHAM DHOTI), plus non-product entries (LOT, SCRAP ITEM, COMBO). It is a product-line dimension, not a brand dimension, and it holds no value 'RAMRAJ'. Brand on PBI_ENES_ORDER_PENDING_SUMMARY has the same shape (RAMRAJ DHOTI, RAMRAJ HANKEYS...). Neither table represents brand as its own field.",
+        "answerability": {
+          "metric_tables": [
+            "PBI_ENES_ORDER_PENDING_SUMMARY"
+          ],
+          "dimension_tables": [
+            "PBI_ENES_ORDER_PENDING_SUMMARY"
+          ],
+          "cross_table_without_verified_join": false,
+          "verified_joins_for_connection": 0,
+          "note": "Physical answerability only. This never influences the verdict."
+        }
+      },
+      "original_expected": {
+        "metrics": [
+          "Qty"
+        ],
+        "dimensions": [
+          "Brand"
+        ],
+        "values": [
+          "RAMRAJ"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "recommended_expected": null,
+      "requires_human_review": true,
+      "expectation_changed_in_v2": false,
+      "resolution_notes": []
+    },
+    "expected_identity": {
+      "metrics": [
+        {
+          "business_name": "Qty",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "PBI_ENES_ORDER_PENDING_SUMMARY",
+              "column_name": "Qty"
+            }
+          ],
+          "ambiguous_across_tables": false
+        }
+      ],
+      "dimensions": [
+        {
+          "business_name": "Brand",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "PBI_ENES_ORDER_PENDING_SUMMARY",
+              "column_name": "Brand"
+            }
+          ],
+          "ambiguous_across_tables": false
+        }
+      ]
+    },
+    "data_answerable": "partial",
+    "missing_data": [
+      "The expected value is not a stored value; only a family of related values exists. A field holding it directly, or a business ruling on what it means, is required."
+    ]
+  },
+  {
+    "case_id": "E1-057",
+    "category": "EXPLICIT_DIMENSION",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show quantity for Ramraj brand",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "Qty"
+      ],
+      "dimensions": [
+        "Brand"
+      ],
+      "values": [
+        "RAMRAJ"
+      ],
+      "status": "SINGLE_MATCH",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Explicit 'brand' qualifier with Qty metric.",
+    "expectation_review": {
+      "verdict": "E",
+      "verdict_meaning": "Genuine ambiguity - requires a human/business decision",
+      "rationale": "The expected value is not a value in the data. A family of real values shares its wording, so what it should resolve to is an undefined business meaning, not a mechanical fix.",
+      "evidence": {
+        "config_problems": [
+          {
+            "field": "values",
+            "name": "RAMRAJ",
+            "issue": "NOT_IN_INDEX",
+            "detail": "This exact value does not exist in the index.",
+            "candidates": [
+              "RAMRAJ DEVOTIONAL",
+              "RAMRAJ DHOTI",
+              "RAMRAJ DHOTISET",
+              "RAMRAJ FABRIC",
+              "RAMRAJ HANKEYS",
+              "RAMRAJ HOSIERY",
+              "RAMRAJ KALYAAN",
+              "RAMRAJ LAGNAA"
+            ],
+            "candidate_count": 15,
+            "confident_replacement": null
+          }
+        ],
+        "diagnostic_run": {
+          "pass_fail": "FAIL",
+          "failure_codes": [
+            "wrong value",
+            "wrong ambiguity"
+          ]
+        },
+        "evidence_source": "live connection F82C2F8D-0BD6-40E2-8C8B-FF1D69E317D5, semantic_metrics / semantic_dimensions / dimension_value_index",
+        "ramraj_values": {
+          "exact_value_RAMRAJ_exists": false,
+          "values_on_metric_table": {
+            "PBI_ENES_ORDER_PENDING_SUMMARY": [
+              "RAMRAJ DEVOTIONAL",
+              "RAMRAJ DHOTI",
+              "RAMRAJ DHOTISET",
+              "RAMRAJ FABRIC",
+              "RAMRAJ HANKEYS",
+              "RAMRAJ HOSIERY",
+              "RAMRAJ KALYAAN",
+              "RAMRAJ LAGNAA",
+              "RAMRAJ LITTLESTARS",
+              "RAMRAJ MUHURTH",
+              "RAMRAJ PANT",
+              "RAMRAJ SHIRT"
+            ]
+          },
+          "brand_column_shape": "Prod Grp1 (QB_MDJMD_SALES_5YRS_SUMMARY.ProdGrp1) was evaluated as the replacement dimension for 'brand' on Sales questions and rejected. Its 55 values mix product types (DHOTI, BANIANS, TOWEL, ACCESSORIES, FABRIC), standalone brands (CULTURE CLUB, PRIMA CLUB, LINEN PARK, GENISTAA) and brand-product lines (RAMRAJ PANT, RAMRAJ SHIRT, VIVEAGHAM DHOTI), plus non-product entries (LOT, SCRAP ITEM, COMBO). It is a product-line dimension, not a brand dimension, and it holds no value 'RAMRAJ'. Brand on PBI_ENES_ORDER_PENDING_SUMMARY has the same shape (RAMRAJ DHOTI, RAMRAJ HANKEYS...). Neither table represents brand as its own field."
+        },
+        "joinability": {
+          "metric_tables": [
+            "PBI_ENES_ORDER_PENDING_SUMMARY"
+          ],
+          "dimension_tables": [
+            "PBI_ENES_ORDER_PENDING_SUMMARY"
+          ],
+          "relationships_defined_for_connection": 0,
+          "dimensions_not_on_metric_table": [],
+          "single_table_answerable": true
+        },
+        "prodgrp1_evaluation": "Prod Grp1 (QB_MDJMD_SALES_5YRS_SUMMARY.ProdGrp1) was evaluated as the replacement dimension for 'brand' on Sales questions and rejected. Its 55 values mix product types (DHOTI, BANIANS, TOWEL, ACCESSORIES, FABRIC), standalone brands (CULTURE CLUB, PRIMA CLUB, LINEN PARK, GENISTAA) and brand-product lines (RAMRAJ PANT, RAMRAJ SHIRT, VIVEAGHAM DHOTI), plus non-product entries (LOT, SCRAP ITEM, COMBO). It is a product-line dimension, not a brand dimension, and it holds no value 'RAMRAJ'. Brand on PBI_ENES_ORDER_PENDING_SUMMARY has the same shape (RAMRAJ DHOTI, RAMRAJ HANKEYS...). Neither table represents brand as its own field.",
+        "answerability": {
+          "metric_tables": [
+            "PBI_ENES_ORDER_PENDING_SUMMARY"
+          ],
+          "dimension_tables": [
+            "PBI_ENES_ORDER_PENDING_SUMMARY"
+          ],
+          "cross_table_without_verified_join": false,
+          "verified_joins_for_connection": 0,
+          "note": "Physical answerability only. This never influences the verdict."
+        }
+      },
+      "original_expected": {
+        "metrics": [
+          "Qty"
+        ],
+        "dimensions": [
+          "Brand"
+        ],
+        "values": [
+          "RAMRAJ"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "recommended_expected": null,
+      "requires_human_review": true,
+      "expectation_changed_in_v2": false,
+      "resolution_notes": []
+    },
+    "expected_identity": {
+      "metrics": [
+        {
+          "business_name": "Qty",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "PBI_ENES_ORDER_PENDING_SUMMARY",
+              "column_name": "Qty"
+            }
+          ],
+          "ambiguous_across_tables": false
+        }
+      ],
+      "dimensions": [
+        {
+          "business_name": "Brand",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "PBI_ENES_ORDER_PENDING_SUMMARY",
+              "column_name": "Brand"
+            }
+          ],
+          "ambiguous_across_tables": false
+        }
+      ]
+    },
+    "data_answerable": "partial",
+    "missing_data": [
+      "The expected value is not a stored value; only a family of related values exists. A field holding it directly, or a business ruling on what it means, is required."
+    ]
+  },
+  {
+    "case_id": "E1-058",
+    "category": "EXPLICIT_DIMENSION",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show sales for Viveagham brand",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "Brand"
+      ],
+      "values": [
+        "VIVEAGHAM"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Explicit 'brand' qualifier disambiguates Viveagham to Brand dimension.",
+    "expectation_review": {
+      "verdict": "B",
+      "verdict_meaning": "Outdated or incorrect benchmark expectation",
+      "rationale": "The expectation names configuration that does not exist or is switched off, so it can never be met regardless of resolver behaviour.",
+      "evidence": {
+        "config_problems": [
+          {
+            "field": "values",
+            "name": "VIVEAGHAM",
+            "issue": "NOT_IN_INDEX",
+            "detail": "This exact value does not exist in the index.",
+            "candidates": [
+              "VIVEAGHAM COLOUR SHIRT",
+              "VIVEAGHAM DHOTI",
+              "VIVEAGHAM DHOTISET",
+              "VIVEAGHAM FABRIC",
+              "VIVEAGHAM HOSIERY",
+              "VIVEAGHAM KIDS",
+              "VIVEAGHAM SHIRT",
+              "VIVEAGHAM SILK"
+            ],
+            "candidate_count": 10,
+            "confident_replacement": "VIVEGHAM"
+          }
+        ],
+        "diagnostic_run": {
+          "pass_fail": "FAIL",
+          "failure_codes": [
+            "wrong value",
+            "wrong ambiguity"
+          ]
+        },
+        "evidence_source": "live connection F82C2F8D-0BD6-40E2-8C8B-FF1D69E317D5, semantic_metrics / semantic_dimensions / dimension_value_index",
+        "answerability": {
+          "metric_tables": [
+            "QB_MDJMD_SALES_5YRS_SUMMARY"
+          ],
+          "dimension_tables": [
+            "PBI_ENES_ORDER_PENDING_SUMMARY"
+          ],
+          "cross_table_without_verified_join": true,
+          "verified_joins_for_connection": 0,
+          "note": "Physical answerability only. This never influences the verdict."
+        }
+      },
+      "original_expected": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          "Brand"
+        ],
+        "values": [
+          "VIVEAGHAM"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "recommended_expected": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          "Brand"
+        ],
+        "values": [
+          "VIVEGHAM"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "requires_human_review": false,
+      "expectation_changed_in_v2": false
+    },
+    "expected_identity": {
+      "metrics": [
+        {
+          "business_name": "C Y",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY",
+              "column_name": "CY"
+            }
+          ],
+          "ambiguous_across_tables": false
+        }
+      ],
+      "dimensions": [
+        {
+          "business_name": "Brand",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "PBI_ENES_ORDER_PENDING_SUMMARY",
+              "column_name": "Brand"
+            }
+          ],
+          "ambiguous_across_tables": false
+        }
+      ]
+    },
+    "data_answerable": "no",
+    "missing_data": [
+      "Brand on QB_MDJMD_SALES_5YRS_SUMMARY, or a verified join path from QB_MDJMD_SALES_5YRS_SUMMARY to PBI_ENES_ORDER_PENDING_SUMMARY"
+    ]
+  },
+  {
+    "case_id": "E1-059",
+    "category": "EXPLICIT_DIMENSION",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show sales of Marketing category",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "Category"
+      ],
+      "values": [
+        "MARKETING",
+        "MARKETING",
+        "MARKETING"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Explicit 'category' qualifier for Marketing category.",
+    "expectation_review": {
+      "verdict": "A",
+      "verdict_meaning": "Software defect - expectation is achievable under current configuration",
+      "rationale": "Every metric, dimension and value expected is present and usable, so the expectation is achievable and the failure lies in the software.",
+      "evidence": {
+        "config_problems": [],
+        "diagnostic_run": {
+          "pass_fail": "FAIL",
+          "failure_codes": [
+            "wrong dimension",
+            "wrong value",
+            "wrong ambiguity"
+          ]
+        },
+        "evidence_source": "live connection F82C2F8D-0BD6-40E2-8C8B-FF1D69E317D5, semantic_metrics / semantic_dimensions / dimension_value_index",
+        "answerability": {
+          "metric_tables": [
+            "QB_MDJMD_SALES_5YRS_SUMMARY"
+          ],
+          "dimension_tables": [
+            "PBI_ENES_ORDER_PENDING_SUMMARY",
+            "QB_MDJMD_SALES_5YRS_SUMMARY"
+          ],
+          "cross_table_without_verified_join": false,
+          "verified_joins_for_connection": 0,
+          "note": "Physical answerability only. This never influences the verdict."
+        }
+      },
+      "original_expected": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          "Category"
+        ],
+        "values": [
+          "MARKETING",
+          "MARKETING",
+          "MARKETING"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "recommended_expected": null,
+      "requires_human_review": false,
+      "expectation_changed_in_v2": false
+    },
+    "expected_identity": {
+      "metrics": [
+        {
+          "business_name": "C Y",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY",
+              "column_name": "CY"
+            }
+          ],
+          "ambiguous_across_tables": false
+        }
+      ],
+      "dimensions": [
+        {
+          "business_name": "Category",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY",
+              "column_name": "Category"
+            },
+            {
+              "table_name": "PBI_ENES_ORDER_PENDING_SUMMARY",
+              "column_name": "Category"
+            }
+          ],
+          "ambiguous_across_tables": true
+        }
+      ]
+    },
+    "data_answerable": "yes",
+    "missing_data": []
+  },
+  {
+    "case_id": "E1-060",
+    "category": "EXPLICIT_DIMENSION",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Pending amount for Franchise category",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "Pending Amount"
+      ],
+      "dimensions": [
+        "Category"
+      ],
+      "values": [
+        "FRANCHISEE",
+        "FRANCHISEE",
+        "FRANCHISEE"
+      ],
+      "status": "STRONG_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Explicit 'category' qualifier with pendamt metric.",
+    "expectation_review": {
+      "verdict": "B",
+      "verdict_meaning": "Outdated or incorrect benchmark expectation",
+      "rationale": "The expectation names configuration that does not exist or is switched off, so it can never be met regardless of resolver behaviour.",
+      "evidence": {
+        "config_problems": [
+          {
+            "field": "values",
+            "name": "FRANCHISEE",
+            "issue": "NOT_IN_INDEX",
+            "detail": "This exact value does not exist in the index.",
+            "candidates": [],
+            "candidate_count": 0,
+            "confident_replacement": "Franchise"
+          },
+          {
+            "field": "values",
+            "name": "FRANCHISEE",
+            "issue": "NOT_IN_INDEX",
+            "detail": "This exact value does not exist in the index.",
+            "candidates": [],
+            "candidate_count": 0,
+            "confident_replacement": "Franchise"
+          },
+          {
+            "field": "values",
+            "name": "FRANCHISEE",
+            "issue": "NOT_IN_INDEX",
+            "detail": "This exact value does not exist in the index.",
+            "candidates": [],
+            "candidate_count": 0,
+            "confident_replacement": "Franchise"
+          }
+        ],
+        "diagnostic_run": {
+          "pass_fail": "FAIL",
+          "failure_codes": [
+            "wrong metric",
+            "wrong dimension",
+            "wrong value"
+          ]
+        },
+        "evidence_source": "live connection F82C2F8D-0BD6-40E2-8C8B-FF1D69E317D5, semantic_metrics / semantic_dimensions / dimension_value_index",
+        "pending_amount_decision": {
+          "ruling": "P A M T is the correct Pending Amount metric.",
+          "pendamt": "PBI_OUTSTANDING_ENES_SUMMARY.pendamt, is_excluded=1 - stays excluded, not re-enabled",
+          "replacement_identity": {
+            "business_name": "P A M T",
+            "table_name": "PBI_OUTSTANDING_ENES_SUMMARY",
+            "column_name": "PAMT"
+          }
+        },
+        "joinability": {
+          "metric_tables": [
+            "PBI_OUTSTANDING_ENES_SUMMARY"
+          ],
+          "dimension_tables": [
+            "PBI_ENES_ORDER_PENDING_SUMMARY",
+            "QB_MDJMD_SALES_5YRS_SUMMARY"
+          ],
+          "relationships_defined_for_connection": 0,
+          "dimensions_not_on_metric_table": [
+            "Category"
+          ],
+          "single_table_answerable": false
+        },
+        "prodgrp1_evaluation": "Prod Grp1 (QB_MDJMD_SALES_5YRS_SUMMARY.ProdGrp1) was evaluated as the replacement dimension for 'brand' on Sales questions and rejected. Its 55 values mix product types (DHOTI, BANIANS, TOWEL, ACCESSORIES, FABRIC), standalone brands (CULTURE CLUB, PRIMA CLUB, LINEN PARK, GENISTAA) and brand-product lines (RAMRAJ PANT, RAMRAJ SHIRT, VIVEAGHAM DHOTI), plus non-product entries (LOT, SCRAP ITEM, COMBO). It is a product-line dimension, not a brand dimension, and it holds no value 'RAMRAJ'. Brand on PBI_ENES_ORDER_PENDING_SUMMARY has the same shape (RAMRAJ DHOTI, RAMRAJ HANKEYS...). Neither table represents brand as its own field.",
+        "answerability": {
+          "metric_tables": [
+            "PBI_OUTSTANDING_ENES_SUMMARY"
+          ],
+          "dimension_tables": [
+            "PBI_ENES_ORDER_PENDING_SUMMARY",
+            "QB_MDJMD_SALES_5YRS_SUMMARY"
+          ],
+          "cross_table_without_verified_join": true,
+          "verified_joins_for_connection": 0,
+          "note": "Physical answerability only. This never influences the verdict."
+        }
+      },
+      "original_expected": {
+        "metrics": [
+          "pendamt"
+        ],
+        "dimensions": [
+          "Category"
+        ],
+        "values": [
+          "FRANCHISEE",
+          "FRANCHISEE",
+          "FRANCHISEE"
+        ],
+        "status": "STRONG_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "recommended_expected": {
+        "metrics": [
+          "P A M T"
+        ],
+        "dimensions": [
+          "Category"
+        ],
+        "values": [
+          "FRANCHISEE",
+          "FRANCHISEE",
+          "FRANCHISEE"
+        ],
+        "status": "STRONG_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "requires_human_review": false,
+      "expectation_changed_in_v2": true,
+      "resolution_notes": [
+        "Expected metric 'pendamt' replaced by 'P A M T' (PBI_OUTSTANDING_ENES_SUMMARY.PAMT), the metric ruled correct for Pending Amount. pendamt remains excluded."
+      ],
+      "change_log": [
+        "Expected metric 'pendamt' replaced by 'P A M T' (PBI_OUTSTANDING_ENES_SUMMARY.PAMT), the metric ruled correct for Pending Amount. pendamt remains excluded.",
+        "metrics ['P A M T'] -> ['Pending Amount']. Display-name drift only: the metric was renamed in configuration and still binds to the same physical column. Corrected so the case compares on identity."
+      ],
+      "verdict_history": [
+        {
+          "from": "C",
+          "to": "B",
+          "reason": "Step 16 consistency pass: verdict and data_answerable separated onto independent axes. The expectation names configuration that does not exist or is switched off, so it can never be met regardless of resolver behaviour.",
+          "evidence": {
+            "metric_tables": [
+              "PBI_OUTSTANDING_ENES_SUMMARY"
+            ],
+            "dimension_tables": [
+              "PBI_ENES_ORDER_PENDING_SUMMARY",
+              "QB_MDJMD_SALES_5YRS_SUMMARY"
+            ],
+            "cross_table_without_verified_join": true,
+            "verified_joins_for_connection": 0,
+            "diagnostic_run": "FAIL"
+          }
+        }
+      ]
+    },
+    "expected_identity": {
+      "metrics": [
+        {
+          "business_name": "Pending Amount",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "PBI_OUTSTANDING_ENES_SUMMARY",
+              "column_name": "PAMT"
+            }
+          ],
+          "ambiguous_across_tables": false
+        }
+      ],
+      "dimensions": [
+        {
+          "business_name": "Category",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY",
+              "column_name": "Category"
+            },
+            {
+              "table_name": "PBI_ENES_ORDER_PENDING_SUMMARY",
+              "column_name": "Category"
+            }
+          ],
+          "ambiguous_across_tables": true
+        }
+      ]
+    },
+    "data_answerable": "no",
+    "missing_data": [
+      "Category on PBI_OUTSTANDING_ENES_SUMMARY, or a verified join path from PBI_OUTSTANDING_ENES_SUMMARY to PBI_ENES_ORDER_PENDING_SUMMARY/QB_MDJMD_SALES_5YRS_SUMMARY"
+    ]
+  },
+  {
+    "case_id": "E1-061",
+    "category": "EXPLICIT_DIMENSION",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show Qty for Marketing category",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "Qty"
+      ],
+      "dimensions": [
+        "Category"
+      ],
+      "values": [
+        "MARKETING",
+        "MARKETING",
+        "MARKETING"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Explicit 'category' qualifier for Franchise category.",
+    "expectation_review": {
+      "verdict": "A",
+      "verdict_meaning": "Software defect - expectation is achievable under current configuration",
+      "rationale": "Every metric, dimension and value expected is present and usable, so the expectation is achievable and the failure lies in the software.",
+      "evidence": {
+        "config_problems": [],
+        "diagnostic_run": {
+          "pass_fail": "FAIL",
+          "failure_codes": [
+            "wrong dimension",
+            "wrong value",
+            "wrong ambiguity"
+          ]
+        },
+        "evidence_source": "live connection F82C2F8D-0BD6-40E2-8C8B-FF1D69E317D5, semantic_metrics / semantic_dimensions / dimension_value_index",
+        "answerability": {
+          "metric_tables": [
+            "PBI_ENES_ORDER_PENDING_SUMMARY"
+          ],
+          "dimension_tables": [
+            "PBI_ENES_ORDER_PENDING_SUMMARY",
+            "QB_MDJMD_SALES_5YRS_SUMMARY"
+          ],
+          "cross_table_without_verified_join": false,
+          "verified_joins_for_connection": 0,
+          "note": "Physical answerability only. This never influences the verdict."
+        }
+      },
+      "original_expected": {
+        "metrics": [
+          "Qty"
+        ],
+        "dimensions": [
+          "Category"
+        ],
+        "values": [
+          "MARKETING",
+          "MARKETING",
+          "MARKETING"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "recommended_expected": null,
+      "requires_human_review": false,
+      "expectation_changed_in_v2": false
+    },
+    "expected_identity": {
+      "metrics": [
+        {
+          "business_name": "Qty",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "PBI_ENES_ORDER_PENDING_SUMMARY",
+              "column_name": "Qty"
+            }
+          ],
+          "ambiguous_across_tables": false
+        }
+      ],
+      "dimensions": [
+        {
+          "business_name": "Category",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY",
+              "column_name": "Category"
+            },
+            {
+              "table_name": "PBI_ENES_ORDER_PENDING_SUMMARY",
+              "column_name": "Category"
+            }
+          ],
+          "ambiguous_across_tables": true
+        }
+      ]
+    },
+    "data_answerable": "yes",
+    "missing_data": []
+  },
+  {
+    "case_id": "E1-062",
+    "category": "EXPLICIT_DIMENSION",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show sales for Others category",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "Category"
+      ],
+      "values": [
+        "OTHERS",
+        "OTHERS",
+        "OTHERS"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Explicit 'category' qualifier for Others category.",
+    "expectation_review": {
+      "verdict": "A",
+      "verdict_meaning": "Software defect - expectation is achievable under current configuration",
+      "rationale": "Every metric, dimension and value expected is present and usable, so the expectation is achievable and the failure lies in the software.",
+      "evidence": {
+        "config_problems": [],
+        "diagnostic_run": {
+          "pass_fail": "FAIL",
+          "failure_codes": [
+            "wrong value",
+            "wrong ambiguity"
+          ]
+        },
+        "evidence_source": "live connection F82C2F8D-0BD6-40E2-8C8B-FF1D69E317D5, semantic_metrics / semantic_dimensions / dimension_value_index",
+        "answerability": {
+          "metric_tables": [
+            "QB_MDJMD_SALES_5YRS_SUMMARY"
+          ],
+          "dimension_tables": [
+            "PBI_ENES_ORDER_PENDING_SUMMARY",
+            "QB_MDJMD_SALES_5YRS_SUMMARY"
+          ],
+          "cross_table_without_verified_join": false,
+          "verified_joins_for_connection": 0,
+          "note": "Physical answerability only. This never influences the verdict."
+        }
+      },
+      "original_expected": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          "Category"
+        ],
+        "values": [
+          "OTHERS",
+          "OTHERS",
+          "OTHERS"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "recommended_expected": null,
+      "requires_human_review": false,
+      "expectation_changed_in_v2": false
+    },
+    "expected_identity": {
+      "metrics": [
+        {
+          "business_name": "C Y",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY",
+              "column_name": "CY"
+            }
+          ],
+          "ambiguous_across_tables": false
+        }
+      ],
+      "dimensions": [
+        {
+          "business_name": "Category",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY",
+              "column_name": "Category"
+            },
+            {
+              "table_name": "PBI_ENES_ORDER_PENDING_SUMMARY",
+              "column_name": "Category"
+            }
+          ],
+          "ambiguous_across_tables": true
+        }
+      ]
+    },
+    "data_answerable": "yes",
+    "missing_data": []
+  },
+  {
+    "case_id": "E1-063",
+    "category": "EXPLICIT_DIMENSION",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show sales for VT division",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "Division"
+      ],
+      "values": [
+        "VT",
+        "VT",
+        "VT"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Explicit 'division' qualifier disambiguates VT to Division dimension.",
+    "expectation_review": {
+      "verdict": "A",
+      "verdict_meaning": "Software defect - expectation is achievable under current configuration",
+      "rationale": "Every metric, dimension and value expected is present and usable, so the expectation is achievable and the failure lies in the software.",
+      "evidence": {
+        "config_problems": [],
+        "diagnostic_run": {
+          "pass_fail": "FAIL",
+          "failure_codes": [
+            "wrong ambiguity"
+          ]
+        },
+        "evidence_source": "live connection F82C2F8D-0BD6-40E2-8C8B-FF1D69E317D5, semantic_metrics / semantic_dimensions / dimension_value_index",
+        "answerability": {
+          "metric_tables": [
+            "QB_MDJMD_SALES_5YRS_SUMMARY"
+          ],
+          "dimension_tables": [
+            "PBI_ENES_ORDER_PENDING_SUMMARY",
+            "PBI_OUTSTANDING_ENES_SUMMARY",
+            "QB_MDJMD_SALES_5YRS_SUMMARY"
+          ],
+          "cross_table_without_verified_join": false,
+          "verified_joins_for_connection": 0,
+          "note": "Physical answerability only. This never influences the verdict."
+        }
+      },
+      "original_expected": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          "Division"
+        ],
+        "values": [
+          "VT",
+          "VT",
+          "VT"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "recommended_expected": null,
+      "requires_human_review": false,
+      "expectation_changed_in_v2": false
+    },
+    "expected_identity": {
+      "metrics": [
+        {
+          "business_name": "C Y",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY",
+              "column_name": "CY"
+            }
+          ],
+          "ambiguous_across_tables": false
+        }
+      ],
+      "dimensions": [
+        {
+          "business_name": "Division",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY",
+              "column_name": "Division"
+            },
+            {
+              "table_name": "PBI_OUTSTANDING_ENES_SUMMARY",
+              "column_name": "Division"
+            },
+            {
+              "table_name": "PBI_ENES_ORDER_PENDING_SUMMARY",
+              "column_name": "Division"
+            }
+          ],
+          "ambiguous_across_tables": true
+        }
+      ]
+    },
+    "data_answerable": "yes",
+    "missing_data": []
+  },
+  {
+    "case_id": "E1-064",
+    "category": "MULTI_DIMENSION",
+    "source": "REAL_BUSINESS",
+    "severity": "CRITICAL",
+    "question": "Show sales for Chennai city and Ramraj brand",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "Brand",
+        "City"
+      ],
+      "values": [
+        "RAMRAJ"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Multi-dimension query combining City (Chennai) and Brand (Ramraj).",
+    "expectation_review": {
+      "verdict": "E",
+      "verdict_meaning": "Genuine ambiguity - requires a human/business decision",
+      "rationale": "The expected value is not a value in the data. A family of real values shares its wording, so what it should resolve to is an undefined business meaning, not a mechanical fix.",
+      "evidence": {
+        "config_problems": [
+          {
+            "field": "values",
+            "name": "RAMRAJ",
+            "issue": "NOT_IN_INDEX",
+            "detail": "This exact value does not exist in the index.",
+            "candidates": [
+              "RAMRAJ DEVOTIONAL",
+              "RAMRAJ DHOTI",
+              "RAMRAJ DHOTISET",
+              "RAMRAJ FABRIC",
+              "RAMRAJ HANKEYS",
+              "RAMRAJ HOSIERY",
+              "RAMRAJ KALYAAN",
+              "RAMRAJ LAGNAA"
+            ],
+            "candidate_count": 15,
+            "confident_replacement": null
+          }
+        ],
+        "diagnostic_run": {
+          "pass_fail": "FAIL",
+          "failure_codes": [
+            "wrong value",
+            "wrong ambiguity"
+          ]
+        },
+        "evidence_source": "live connection F82C2F8D-0BD6-40E2-8C8B-FF1D69E317D5, semantic_metrics / semantic_dimensions / dimension_value_index",
+        "ramraj_values": {
+          "exact_value_RAMRAJ_exists": false,
+          "values_on_metric_table": {
+            "QB_MDJMD_SALES_5YRS_SUMMARY": [
+              "RAMRAJ KALYAAN",
+              "RAMRAJ LAGNAA",
+              "RAMRAJ LITTLESTARS",
+              "RAMRAJ MASK",
+              "RAMRAJ MUHURTH",
+              "RAMRAJ PANT",
+              "RAMRAJ SHIRT",
+              "RAMRAJ VAIBHAV SET",
+              "RAMRAJ WEDDING SET"
+            ]
+          },
+          "brand_column_shape": "Prod Grp1 (QB_MDJMD_SALES_5YRS_SUMMARY.ProdGrp1) was evaluated as the replacement dimension for 'brand' on Sales questions and rejected. Its 55 values mix product types (DHOTI, BANIANS, TOWEL, ACCESSORIES, FABRIC), standalone brands (CULTURE CLUB, PRIMA CLUB, LINEN PARK, GENISTAA) and brand-product lines (RAMRAJ PANT, RAMRAJ SHIRT, VIVEAGHAM DHOTI), plus non-product entries (LOT, SCRAP ITEM, COMBO). It is a product-line dimension, not a brand dimension, and it holds no value 'RAMRAJ'. Brand on PBI_ENES_ORDER_PENDING_SUMMARY has the same shape (RAMRAJ DHOTI, RAMRAJ HANKEYS...). Neither table represents brand as its own field."
+        },
+        "joinability": {
+          "metric_tables": [
+            "QB_MDJMD_SALES_5YRS_SUMMARY"
+          ],
+          "dimension_tables": [
+            "PBI_ENES_ORDER_PENDING_SUMMARY",
+            "PBI_OUTSTANDING_ENES_SUMMARY"
+          ],
+          "relationships_defined_for_connection": 0,
+          "dimensions_not_on_metric_table": [
+            "Brand",
+            "City"
+          ],
+          "single_table_answerable": false
+        },
+        "prodgrp1_evaluation": "Prod Grp1 (QB_MDJMD_SALES_5YRS_SUMMARY.ProdGrp1) was evaluated as the replacement dimension for 'brand' on Sales questions and rejected. Its 55 values mix product types (DHOTI, BANIANS, TOWEL, ACCESSORIES, FABRIC), standalone brands (CULTURE CLUB, PRIMA CLUB, LINEN PARK, GENISTAA) and brand-product lines (RAMRAJ PANT, RAMRAJ SHIRT, VIVEAGHAM DHOTI), plus non-product entries (LOT, SCRAP ITEM, COMBO). It is a product-line dimension, not a brand dimension, and it holds no value 'RAMRAJ'. Brand on PBI_ENES_ORDER_PENDING_SUMMARY has the same shape (RAMRAJ DHOTI, RAMRAJ HANKEYS...). Neither table represents brand as its own field.",
+        "answerability": {
+          "metric_tables": [
+            "QB_MDJMD_SALES_5YRS_SUMMARY"
+          ],
+          "dimension_tables": [
+            "PBI_ENES_ORDER_PENDING_SUMMARY",
+            "PBI_OUTSTANDING_ENES_SUMMARY"
+          ],
+          "cross_table_without_verified_join": true,
+          "verified_joins_for_connection": 0,
+          "note": "Physical answerability only. This never influences the verdict."
+        }
+      },
+      "original_expected": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          "Brand",
+          "City"
+        ],
+        "values": [
+          "RAMRAJ"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "recommended_expected": null,
+      "requires_human_review": true,
+      "expectation_changed_in_v2": false,
+      "resolution_notes": [],
+      "verdict_history": [
+        {
+          "from": "C",
+          "to": "E",
+          "reason": "Step 16 consistency pass: verdict and data_answerable separated onto independent axes. The expected value is not a value in the data. A family of real values shares its wording, so what it should resolve to is an undefined business meaning, not a mechanical fix.",
+          "evidence": {
+            "metric_tables": [
+              "QB_MDJMD_SALES_5YRS_SUMMARY"
+            ],
+            "dimension_tables": [
+              "PBI_ENES_ORDER_PENDING_SUMMARY",
+              "PBI_OUTSTANDING_ENES_SUMMARY"
+            ],
+            "cross_table_without_verified_join": true,
+            "verified_joins_for_connection": 0,
+            "diagnostic_run": "FAIL"
+          }
+        }
+      ]
+    },
+    "expected_identity": {
+      "metrics": [
+        {
+          "business_name": "C Y",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY",
+              "column_name": "CY"
+            }
+          ],
+          "ambiguous_across_tables": false
+        }
+      ],
+      "dimensions": [
+        {
+          "business_name": "Brand",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "PBI_ENES_ORDER_PENDING_SUMMARY",
+              "column_name": "Brand"
+            }
+          ],
+          "ambiguous_across_tables": false
+        },
+        {
+          "business_name": "City",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "PBI_OUTSTANDING_ENES_SUMMARY",
+              "column_name": "City"
+            }
+          ],
+          "ambiguous_across_tables": false
+        }
+      ]
+    },
+    "data_answerable": "no",
+    "missing_data": [
+      "Brand on QB_MDJMD_SALES_5YRS_SUMMARY, or a verified join path from QB_MDJMD_SALES_5YRS_SUMMARY to PBI_ENES_ORDER_PENDING_SUMMARY",
+      "City on QB_MDJMD_SALES_5YRS_SUMMARY, or a verified join path from QB_MDJMD_SALES_5YRS_SUMMARY to PBI_OUTSTANDING_ENES_SUMMARY"
+    ]
+  },
+  {
+    "case_id": "E1-065",
+    "category": "MULTI_DIMENSION",
+    "source": "REAL_BUSINESS",
+    "severity": "CRITICAL",
+    "question": "Ramraj brand sales in Chennai city",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "Brand",
+        "City"
+      ],
+      "values": [
+        "RAMRAJ"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Multi-dimension query with Brand prefix and City location.",
+    "expectation_review": {
+      "verdict": "E",
+      "verdict_meaning": "Genuine ambiguity - requires a human/business decision",
+      "rationale": "The expected value is not a value in the data. A family of real values shares its wording, so what it should resolve to is an undefined business meaning, not a mechanical fix.",
+      "evidence": {
+        "config_problems": [
+          {
+            "field": "values",
+            "name": "RAMRAJ",
+            "issue": "NOT_IN_INDEX",
+            "detail": "This exact value does not exist in the index.",
+            "candidates": [
+              "RAMRAJ DEVOTIONAL",
+              "RAMRAJ DHOTI",
+              "RAMRAJ DHOTISET",
+              "RAMRAJ FABRIC",
+              "RAMRAJ HANKEYS",
+              "RAMRAJ HOSIERY",
+              "RAMRAJ KALYAAN",
+              "RAMRAJ LAGNAA"
+            ],
+            "candidate_count": 15,
+            "confident_replacement": null
+          }
+        ],
+        "diagnostic_run": {
+          "pass_fail": "FAIL",
+          "failure_codes": [
+            "wrong value",
+            "wrong ambiguity"
+          ]
+        },
+        "evidence_source": "live connection F82C2F8D-0BD6-40E2-8C8B-FF1D69E317D5, semantic_metrics / semantic_dimensions / dimension_value_index",
+        "ramraj_values": {
+          "exact_value_RAMRAJ_exists": false,
+          "values_on_metric_table": {
+            "QB_MDJMD_SALES_5YRS_SUMMARY": [
+              "RAMRAJ KALYAAN",
+              "RAMRAJ LAGNAA",
+              "RAMRAJ LITTLESTARS",
+              "RAMRAJ MASK",
+              "RAMRAJ MUHURTH",
+              "RAMRAJ PANT",
+              "RAMRAJ SHIRT",
+              "RAMRAJ VAIBHAV SET",
+              "RAMRAJ WEDDING SET"
+            ]
+          },
+          "brand_column_shape": "Prod Grp1 (QB_MDJMD_SALES_5YRS_SUMMARY.ProdGrp1) was evaluated as the replacement dimension for 'brand' on Sales questions and rejected. Its 55 values mix product types (DHOTI, BANIANS, TOWEL, ACCESSORIES, FABRIC), standalone brands (CULTURE CLUB, PRIMA CLUB, LINEN PARK, GENISTAA) and brand-product lines (RAMRAJ PANT, RAMRAJ SHIRT, VIVEAGHAM DHOTI), plus non-product entries (LOT, SCRAP ITEM, COMBO). It is a product-line dimension, not a brand dimension, and it holds no value 'RAMRAJ'. Brand on PBI_ENES_ORDER_PENDING_SUMMARY has the same shape (RAMRAJ DHOTI, RAMRAJ HANKEYS...). Neither table represents brand as its own field."
+        },
+        "joinability": {
+          "metric_tables": [
+            "QB_MDJMD_SALES_5YRS_SUMMARY"
+          ],
+          "dimension_tables": [
+            "PBI_ENES_ORDER_PENDING_SUMMARY",
+            "PBI_OUTSTANDING_ENES_SUMMARY"
+          ],
+          "relationships_defined_for_connection": 0,
+          "dimensions_not_on_metric_table": [
+            "Brand",
+            "City"
+          ],
+          "single_table_answerable": false
+        },
+        "prodgrp1_evaluation": "Prod Grp1 (QB_MDJMD_SALES_5YRS_SUMMARY.ProdGrp1) was evaluated as the replacement dimension for 'brand' on Sales questions and rejected. Its 55 values mix product types (DHOTI, BANIANS, TOWEL, ACCESSORIES, FABRIC), standalone brands (CULTURE CLUB, PRIMA CLUB, LINEN PARK, GENISTAA) and brand-product lines (RAMRAJ PANT, RAMRAJ SHIRT, VIVEAGHAM DHOTI), plus non-product entries (LOT, SCRAP ITEM, COMBO). It is a product-line dimension, not a brand dimension, and it holds no value 'RAMRAJ'. Brand on PBI_ENES_ORDER_PENDING_SUMMARY has the same shape (RAMRAJ DHOTI, RAMRAJ HANKEYS...). Neither table represents brand as its own field.",
+        "answerability": {
+          "metric_tables": [
+            "QB_MDJMD_SALES_5YRS_SUMMARY"
+          ],
+          "dimension_tables": [
+            "PBI_ENES_ORDER_PENDING_SUMMARY",
+            "PBI_OUTSTANDING_ENES_SUMMARY"
+          ],
+          "cross_table_without_verified_join": true,
+          "verified_joins_for_connection": 0,
+          "note": "Physical answerability only. This never influences the verdict."
+        }
+      },
+      "original_expected": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          "Brand",
+          "City"
+        ],
+        "values": [
+          "RAMRAJ"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "recommended_expected": null,
+      "requires_human_review": true,
+      "expectation_changed_in_v2": false,
+      "resolution_notes": [],
+      "verdict_history": [
+        {
+          "from": "C",
+          "to": "E",
+          "reason": "Step 16 consistency pass: verdict and data_answerable separated onto independent axes. The expected value is not a value in the data. A family of real values shares its wording, so what it should resolve to is an undefined business meaning, not a mechanical fix.",
+          "evidence": {
+            "metric_tables": [
+              "QB_MDJMD_SALES_5YRS_SUMMARY"
+            ],
+            "dimension_tables": [
+              "PBI_ENES_ORDER_PENDING_SUMMARY",
+              "PBI_OUTSTANDING_ENES_SUMMARY"
+            ],
+            "cross_table_without_verified_join": true,
+            "verified_joins_for_connection": 0,
+            "diagnostic_run": "FAIL"
+          }
+        }
+      ]
+    },
+    "expected_identity": {
+      "metrics": [
+        {
+          "business_name": "C Y",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY",
+              "column_name": "CY"
+            }
+          ],
+          "ambiguous_across_tables": false
+        }
+      ],
+      "dimensions": [
+        {
+          "business_name": "Brand",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "PBI_ENES_ORDER_PENDING_SUMMARY",
+              "column_name": "Brand"
+            }
+          ],
+          "ambiguous_across_tables": false
+        },
+        {
+          "business_name": "City",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "PBI_OUTSTANDING_ENES_SUMMARY",
+              "column_name": "City"
+            }
+          ],
+          "ambiguous_across_tables": false
+        }
+      ]
+    },
+    "data_answerable": "no",
+    "missing_data": [
+      "Brand on QB_MDJMD_SALES_5YRS_SUMMARY, or a verified join path from QB_MDJMD_SALES_5YRS_SUMMARY to PBI_ENES_ORDER_PENDING_SUMMARY",
+      "City on QB_MDJMD_SALES_5YRS_SUMMARY, or a verified join path from QB_MDJMD_SALES_5YRS_SUMMARY to PBI_OUTSTANDING_ENES_SUMMARY"
+    ]
+  },
+  {
+    "case_id": "E1-066",
+    "category": "MULTI_DIMENSION",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show quantity for Chennai city and Ramraj brand",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "Qty"
+      ],
+      "dimensions": [
+        "Brand",
+        "City"
+      ],
+      "values": [
+        "RAMRAJ"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Multi-dimension query for Quantity with City and Brand.",
+    "expectation_review": {
+      "verdict": "E",
+      "verdict_meaning": "Genuine ambiguity - requires a human/business decision",
+      "rationale": "The expected value is not a value in the data. A family of real values shares its wording, so what it should resolve to is an undefined business meaning, not a mechanical fix.",
+      "evidence": {
+        "config_problems": [
+          {
+            "field": "values",
+            "name": "RAMRAJ",
+            "issue": "NOT_IN_INDEX",
+            "detail": "This exact value does not exist in the index.",
+            "candidates": [
+              "RAMRAJ DEVOTIONAL",
+              "RAMRAJ DHOTI",
+              "RAMRAJ DHOTISET",
+              "RAMRAJ FABRIC",
+              "RAMRAJ HANKEYS",
+              "RAMRAJ HOSIERY",
+              "RAMRAJ KALYAAN",
+              "RAMRAJ LAGNAA"
+            ],
+            "candidate_count": 15,
+            "confident_replacement": null
+          }
+        ],
+        "diagnostic_run": {
+          "pass_fail": "FAIL",
+          "failure_codes": [
+            "wrong value",
+            "wrong ambiguity"
+          ]
+        },
+        "evidence_source": "live connection F82C2F8D-0BD6-40E2-8C8B-FF1D69E317D5, semantic_metrics / semantic_dimensions / dimension_value_index",
+        "ramraj_values": {
+          "exact_value_RAMRAJ_exists": false,
+          "values_on_metric_table": {
+            "PBI_ENES_ORDER_PENDING_SUMMARY": [
+              "RAMRAJ DEVOTIONAL",
+              "RAMRAJ DHOTI",
+              "RAMRAJ DHOTISET",
+              "RAMRAJ FABRIC",
+              "RAMRAJ HANKEYS",
+              "RAMRAJ HOSIERY",
+              "RAMRAJ KALYAAN",
+              "RAMRAJ LAGNAA",
+              "RAMRAJ LITTLESTARS",
+              "RAMRAJ MUHURTH",
+              "RAMRAJ PANT",
+              "RAMRAJ SHIRT"
+            ]
+          },
+          "brand_column_shape": "Prod Grp1 (QB_MDJMD_SALES_5YRS_SUMMARY.ProdGrp1) was evaluated as the replacement dimension for 'brand' on Sales questions and rejected. Its 55 values mix product types (DHOTI, BANIANS, TOWEL, ACCESSORIES, FABRIC), standalone brands (CULTURE CLUB, PRIMA CLUB, LINEN PARK, GENISTAA) and brand-product lines (RAMRAJ PANT, RAMRAJ SHIRT, VIVEAGHAM DHOTI), plus non-product entries (LOT, SCRAP ITEM, COMBO). It is a product-line dimension, not a brand dimension, and it holds no value 'RAMRAJ'. Brand on PBI_ENES_ORDER_PENDING_SUMMARY has the same shape (RAMRAJ DHOTI, RAMRAJ HANKEYS...). Neither table represents brand as its own field."
+        },
+        "joinability": {
+          "metric_tables": [
+            "PBI_ENES_ORDER_PENDING_SUMMARY"
+          ],
+          "dimension_tables": [
+            "PBI_ENES_ORDER_PENDING_SUMMARY",
+            "PBI_OUTSTANDING_ENES_SUMMARY"
+          ],
+          "relationships_defined_for_connection": 0,
+          "dimensions_not_on_metric_table": [
+            "City"
+          ],
+          "single_table_answerable": false
+        },
+        "prodgrp1_evaluation": "Prod Grp1 (QB_MDJMD_SALES_5YRS_SUMMARY.ProdGrp1) was evaluated as the replacement dimension for 'brand' on Sales questions and rejected. Its 55 values mix product types (DHOTI, BANIANS, TOWEL, ACCESSORIES, FABRIC), standalone brands (CULTURE CLUB, PRIMA CLUB, LINEN PARK, GENISTAA) and brand-product lines (RAMRAJ PANT, RAMRAJ SHIRT, VIVEAGHAM DHOTI), plus non-product entries (LOT, SCRAP ITEM, COMBO). It is a product-line dimension, not a brand dimension, and it holds no value 'RAMRAJ'. Brand on PBI_ENES_ORDER_PENDING_SUMMARY has the same shape (RAMRAJ DHOTI, RAMRAJ HANKEYS...). Neither table represents brand as its own field.",
+        "answerability": {
+          "metric_tables": [
+            "PBI_ENES_ORDER_PENDING_SUMMARY"
+          ],
+          "dimension_tables": [
+            "PBI_ENES_ORDER_PENDING_SUMMARY",
+            "PBI_OUTSTANDING_ENES_SUMMARY"
+          ],
+          "cross_table_without_verified_join": true,
+          "verified_joins_for_connection": 0,
+          "note": "Physical answerability only. This never influences the verdict."
+        }
+      },
+      "original_expected": {
+        "metrics": [
+          "Qty"
+        ],
+        "dimensions": [
+          "Brand",
+          "City"
+        ],
+        "values": [
+          "RAMRAJ"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "recommended_expected": null,
+      "requires_human_review": true,
+      "expectation_changed_in_v2": false,
+      "resolution_notes": [],
+      "verdict_history": [
+        {
+          "from": "C",
+          "to": "E",
+          "reason": "Step 16 consistency pass: verdict and data_answerable separated onto independent axes. The expected value is not a value in the data. A family of real values shares its wording, so what it should resolve to is an undefined business meaning, not a mechanical fix.",
+          "evidence": {
+            "metric_tables": [
+              "PBI_ENES_ORDER_PENDING_SUMMARY"
+            ],
+            "dimension_tables": [
+              "PBI_ENES_ORDER_PENDING_SUMMARY",
+              "PBI_OUTSTANDING_ENES_SUMMARY"
+            ],
+            "cross_table_without_verified_join": true,
+            "verified_joins_for_connection": 0,
+            "diagnostic_run": "FAIL"
+          }
+        }
+      ]
+    },
+    "expected_identity": {
+      "metrics": [
+        {
+          "business_name": "Qty",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "PBI_ENES_ORDER_PENDING_SUMMARY",
+              "column_name": "Qty"
+            }
+          ],
+          "ambiguous_across_tables": false
+        }
+      ],
+      "dimensions": [
+        {
+          "business_name": "Brand",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "PBI_ENES_ORDER_PENDING_SUMMARY",
+              "column_name": "Brand"
+            }
+          ],
+          "ambiguous_across_tables": false
+        },
+        {
+          "business_name": "City",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "PBI_OUTSTANDING_ENES_SUMMARY",
+              "column_name": "City"
+            }
+          ],
+          "ambiguous_across_tables": false
+        }
+      ]
+    },
+    "data_answerable": "no",
+    "missing_data": [
+      "City on PBI_ENES_ORDER_PENDING_SUMMARY, or a verified join path from PBI_ENES_ORDER_PENDING_SUMMARY to PBI_OUTSTANDING_ENES_SUMMARY"
+    ]
+  },
+  {
+    "case_id": "E1-067",
+    "category": "MULTI_DIMENSION",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show sales for Coimbatore city and Ramraj brand",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "Brand",
+        "City"
+      ],
+      "values": [
+        "RAMRAJ"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Multi-dimension query combining City (Coimbatore) and Brand (Ramraj).",
+    "expectation_review": {
+      "verdict": "E",
+      "verdict_meaning": "Genuine ambiguity - requires a human/business decision",
+      "rationale": "The expected value is not a value in the data. A family of real values shares its wording, so what it should resolve to is an undefined business meaning, not a mechanical fix.",
+      "evidence": {
+        "config_problems": [
+          {
+            "field": "values",
+            "name": "RAMRAJ",
+            "issue": "NOT_IN_INDEX",
+            "detail": "This exact value does not exist in the index.",
+            "candidates": [
+              "RAMRAJ DEVOTIONAL",
+              "RAMRAJ DHOTI",
+              "RAMRAJ DHOTISET",
+              "RAMRAJ FABRIC",
+              "RAMRAJ HANKEYS",
+              "RAMRAJ HOSIERY",
+              "RAMRAJ KALYAAN",
+              "RAMRAJ LAGNAA"
+            ],
+            "candidate_count": 15,
+            "confident_replacement": null
+          }
+        ],
+        "diagnostic_run": {
+          "pass_fail": "FAIL",
+          "failure_codes": [
+            "wrong value",
+            "wrong ambiguity"
+          ]
+        },
+        "evidence_source": "live connection F82C2F8D-0BD6-40E2-8C8B-FF1D69E317D5, semantic_metrics / semantic_dimensions / dimension_value_index",
+        "ramraj_values": {
+          "exact_value_RAMRAJ_exists": false,
+          "values_on_metric_table": {
+            "QB_MDJMD_SALES_5YRS_SUMMARY": [
+              "RAMRAJ KALYAAN",
+              "RAMRAJ LAGNAA",
+              "RAMRAJ LITTLESTARS",
+              "RAMRAJ MASK",
+              "RAMRAJ MUHURTH",
+              "RAMRAJ PANT",
+              "RAMRAJ SHIRT",
+              "RAMRAJ VAIBHAV SET",
+              "RAMRAJ WEDDING SET"
+            ]
+          },
+          "brand_column_shape": "Prod Grp1 (QB_MDJMD_SALES_5YRS_SUMMARY.ProdGrp1) was evaluated as the replacement dimension for 'brand' on Sales questions and rejected. Its 55 values mix product types (DHOTI, BANIANS, TOWEL, ACCESSORIES, FABRIC), standalone brands (CULTURE CLUB, PRIMA CLUB, LINEN PARK, GENISTAA) and brand-product lines (RAMRAJ PANT, RAMRAJ SHIRT, VIVEAGHAM DHOTI), plus non-product entries (LOT, SCRAP ITEM, COMBO). It is a product-line dimension, not a brand dimension, and it holds no value 'RAMRAJ'. Brand on PBI_ENES_ORDER_PENDING_SUMMARY has the same shape (RAMRAJ DHOTI, RAMRAJ HANKEYS...). Neither table represents brand as its own field."
+        },
+        "joinability": {
+          "metric_tables": [
+            "QB_MDJMD_SALES_5YRS_SUMMARY"
+          ],
+          "dimension_tables": [
+            "PBI_ENES_ORDER_PENDING_SUMMARY",
+            "PBI_OUTSTANDING_ENES_SUMMARY"
+          ],
+          "relationships_defined_for_connection": 0,
+          "dimensions_not_on_metric_table": [
+            "Brand",
+            "City"
+          ],
+          "single_table_answerable": false
+        },
+        "prodgrp1_evaluation": "Prod Grp1 (QB_MDJMD_SALES_5YRS_SUMMARY.ProdGrp1) was evaluated as the replacement dimension for 'brand' on Sales questions and rejected. Its 55 values mix product types (DHOTI, BANIANS, TOWEL, ACCESSORIES, FABRIC), standalone brands (CULTURE CLUB, PRIMA CLUB, LINEN PARK, GENISTAA) and brand-product lines (RAMRAJ PANT, RAMRAJ SHIRT, VIVEAGHAM DHOTI), plus non-product entries (LOT, SCRAP ITEM, COMBO). It is a product-line dimension, not a brand dimension, and it holds no value 'RAMRAJ'. Brand on PBI_ENES_ORDER_PENDING_SUMMARY has the same shape (RAMRAJ DHOTI, RAMRAJ HANKEYS...). Neither table represents brand as its own field.",
+        "answerability": {
+          "metric_tables": [
+            "QB_MDJMD_SALES_5YRS_SUMMARY"
+          ],
+          "dimension_tables": [
+            "PBI_ENES_ORDER_PENDING_SUMMARY",
+            "PBI_OUTSTANDING_ENES_SUMMARY"
+          ],
+          "cross_table_without_verified_join": true,
+          "verified_joins_for_connection": 0,
+          "note": "Physical answerability only. This never influences the verdict."
+        }
+      },
+      "original_expected": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          "Brand",
+          "City"
+        ],
+        "values": [
+          "RAMRAJ"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "recommended_expected": null,
+      "requires_human_review": true,
+      "expectation_changed_in_v2": false,
+      "resolution_notes": [],
+      "verdict_history": [
+        {
+          "from": "C",
+          "to": "E",
+          "reason": "Step 16 consistency pass: verdict and data_answerable separated onto independent axes. The expected value is not a value in the data. A family of real values shares its wording, so what it should resolve to is an undefined business meaning, not a mechanical fix.",
+          "evidence": {
+            "metric_tables": [
+              "QB_MDJMD_SALES_5YRS_SUMMARY"
+            ],
+            "dimension_tables": [
+              "PBI_ENES_ORDER_PENDING_SUMMARY",
+              "PBI_OUTSTANDING_ENES_SUMMARY"
+            ],
+            "cross_table_without_verified_join": true,
+            "verified_joins_for_connection": 0,
+            "diagnostic_run": "FAIL"
+          }
+        }
+      ]
+    },
+    "expected_identity": {
+      "metrics": [
+        {
+          "business_name": "C Y",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY",
+              "column_name": "CY"
+            }
+          ],
+          "ambiguous_across_tables": false
+        }
+      ],
+      "dimensions": [
+        {
+          "business_name": "Brand",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "PBI_ENES_ORDER_PENDING_SUMMARY",
+              "column_name": "Brand"
+            }
+          ],
+          "ambiguous_across_tables": false
+        },
+        {
+          "business_name": "City",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "PBI_OUTSTANDING_ENES_SUMMARY",
+              "column_name": "City"
+            }
+          ],
+          "ambiguous_across_tables": false
+        }
+      ]
+    },
+    "data_answerable": "no",
+    "missing_data": [
+      "Brand on QB_MDJMD_SALES_5YRS_SUMMARY, or a verified join path from QB_MDJMD_SALES_5YRS_SUMMARY to PBI_ENES_ORDER_PENDING_SUMMARY",
+      "City on QB_MDJMD_SALES_5YRS_SUMMARY, or a verified join path from QB_MDJMD_SALES_5YRS_SUMMARY to PBI_OUTSTANDING_ENES_SUMMARY"
+    ]
+  },
+  {
+    "case_id": "E1-068",
+    "category": "MULTI_DIMENSION",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show sales for Madurai city and Ramraj brand",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "Brand",
+        "City"
+      ],
+      "values": [
+        "RAMRAJ"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Multi-dimension query combining City (Madurai) and Brand (Ramraj).",
+    "expectation_review": {
+      "verdict": "E",
+      "verdict_meaning": "Genuine ambiguity - requires a human/business decision",
+      "rationale": "The expected value is not a value in the data. A family of real values shares its wording, so what it should resolve to is an undefined business meaning, not a mechanical fix.",
+      "evidence": {
+        "config_problems": [
+          {
+            "field": "values",
+            "name": "RAMRAJ",
+            "issue": "NOT_IN_INDEX",
+            "detail": "This exact value does not exist in the index.",
+            "candidates": [
+              "RAMRAJ DEVOTIONAL",
+              "RAMRAJ DHOTI",
+              "RAMRAJ DHOTISET",
+              "RAMRAJ FABRIC",
+              "RAMRAJ HANKEYS",
+              "RAMRAJ HOSIERY",
+              "RAMRAJ KALYAAN",
+              "RAMRAJ LAGNAA"
+            ],
+            "candidate_count": 15,
+            "confident_replacement": null
+          }
+        ],
+        "diagnostic_run": {
+          "pass_fail": "FAIL",
+          "failure_codes": [
+            "wrong value",
+            "wrong ambiguity"
+          ]
+        },
+        "evidence_source": "live connection F82C2F8D-0BD6-40E2-8C8B-FF1D69E317D5, semantic_metrics / semantic_dimensions / dimension_value_index",
+        "ramraj_values": {
+          "exact_value_RAMRAJ_exists": false,
+          "values_on_metric_table": {
+            "QB_MDJMD_SALES_5YRS_SUMMARY": [
+              "RAMRAJ KALYAAN",
+              "RAMRAJ LAGNAA",
+              "RAMRAJ LITTLESTARS",
+              "RAMRAJ MASK",
+              "RAMRAJ MUHURTH",
+              "RAMRAJ PANT",
+              "RAMRAJ SHIRT",
+              "RAMRAJ VAIBHAV SET",
+              "RAMRAJ WEDDING SET"
+            ]
+          },
+          "brand_column_shape": "Prod Grp1 (QB_MDJMD_SALES_5YRS_SUMMARY.ProdGrp1) was evaluated as the replacement dimension for 'brand' on Sales questions and rejected. Its 55 values mix product types (DHOTI, BANIANS, TOWEL, ACCESSORIES, FABRIC), standalone brands (CULTURE CLUB, PRIMA CLUB, LINEN PARK, GENISTAA) and brand-product lines (RAMRAJ PANT, RAMRAJ SHIRT, VIVEAGHAM DHOTI), plus non-product entries (LOT, SCRAP ITEM, COMBO). It is a product-line dimension, not a brand dimension, and it holds no value 'RAMRAJ'. Brand on PBI_ENES_ORDER_PENDING_SUMMARY has the same shape (RAMRAJ DHOTI, RAMRAJ HANKEYS...). Neither table represents brand as its own field."
+        },
+        "joinability": {
+          "metric_tables": [
+            "QB_MDJMD_SALES_5YRS_SUMMARY"
+          ],
+          "dimension_tables": [
+            "PBI_ENES_ORDER_PENDING_SUMMARY",
+            "PBI_OUTSTANDING_ENES_SUMMARY"
+          ],
+          "relationships_defined_for_connection": 0,
+          "dimensions_not_on_metric_table": [
+            "Brand",
+            "City"
+          ],
+          "single_table_answerable": false
+        },
+        "prodgrp1_evaluation": "Prod Grp1 (QB_MDJMD_SALES_5YRS_SUMMARY.ProdGrp1) was evaluated as the replacement dimension for 'brand' on Sales questions and rejected. Its 55 values mix product types (DHOTI, BANIANS, TOWEL, ACCESSORIES, FABRIC), standalone brands (CULTURE CLUB, PRIMA CLUB, LINEN PARK, GENISTAA) and brand-product lines (RAMRAJ PANT, RAMRAJ SHIRT, VIVEAGHAM DHOTI), plus non-product entries (LOT, SCRAP ITEM, COMBO). It is a product-line dimension, not a brand dimension, and it holds no value 'RAMRAJ'. Brand on PBI_ENES_ORDER_PENDING_SUMMARY has the same shape (RAMRAJ DHOTI, RAMRAJ HANKEYS...). Neither table represents brand as its own field.",
+        "answerability": {
+          "metric_tables": [
+            "QB_MDJMD_SALES_5YRS_SUMMARY"
+          ],
+          "dimension_tables": [
+            "PBI_ENES_ORDER_PENDING_SUMMARY",
+            "PBI_OUTSTANDING_ENES_SUMMARY"
+          ],
+          "cross_table_without_verified_join": true,
+          "verified_joins_for_connection": 0,
+          "note": "Physical answerability only. This never influences the verdict."
+        }
+      },
+      "original_expected": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          "Brand",
+          "City"
+        ],
+        "values": [
+          "RAMRAJ"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "recommended_expected": null,
+      "requires_human_review": true,
+      "expectation_changed_in_v2": false,
+      "resolution_notes": [],
+      "verdict_history": [
+        {
+          "from": "C",
+          "to": "E",
+          "reason": "Step 16 consistency pass: verdict and data_answerable separated onto independent axes. The expected value is not a value in the data. A family of real values shares its wording, so what it should resolve to is an undefined business meaning, not a mechanical fix.",
+          "evidence": {
+            "metric_tables": [
+              "QB_MDJMD_SALES_5YRS_SUMMARY"
+            ],
+            "dimension_tables": [
+              "PBI_ENES_ORDER_PENDING_SUMMARY",
+              "PBI_OUTSTANDING_ENES_SUMMARY"
+            ],
+            "cross_table_without_verified_join": true,
+            "verified_joins_for_connection": 0,
+            "diagnostic_run": "FAIL"
+          }
+        }
+      ]
+    },
+    "expected_identity": {
+      "metrics": [
+        {
+          "business_name": "C Y",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY",
+              "column_name": "CY"
+            }
+          ],
+          "ambiguous_across_tables": false
+        }
+      ],
+      "dimensions": [
+        {
+          "business_name": "Brand",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "PBI_ENES_ORDER_PENDING_SUMMARY",
+              "column_name": "Brand"
+            }
+          ],
+          "ambiguous_across_tables": false
+        },
+        {
+          "business_name": "City",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "PBI_OUTSTANDING_ENES_SUMMARY",
+              "column_name": "City"
+            }
+          ],
+          "ambiguous_across_tables": false
+        }
+      ]
+    },
+    "data_answerable": "no",
+    "missing_data": [
+      "Brand on QB_MDJMD_SALES_5YRS_SUMMARY, or a verified join path from QB_MDJMD_SALES_5YRS_SUMMARY to PBI_ENES_ORDER_PENDING_SUMMARY",
+      "City on QB_MDJMD_SALES_5YRS_SUMMARY, or a verified join path from QB_MDJMD_SALES_5YRS_SUMMARY to PBI_OUTSTANDING_ENES_SUMMARY"
+    ]
+  },
+  {
+    "case_id": "E1-069",
+    "category": "MULTI_DIMENSION",
+    "source": "REAL_BUSINESS",
+    "severity": "CRITICAL",
+    "question": "Show sales for Chennai city and Marketing category",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "Category",
+        "City"
+      ],
+      "values": [
+        "MARKETING",
+        "MARKETING",
+        "MARKETING",
+        "CHENNAI",
+        "AN",
+        "AN"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Multi-dimension query combining City (Chennai) and Category (Marketing).",
+    "expectation_review": {
+      "verdict": "A",
+      "verdict_meaning": "Software defect - expectation is achievable under current configuration",
+      "rationale": "Every metric, dimension and value expected is present and usable, so the expectation is achievable and the failure lies in the software.",
+      "evidence": {
+        "config_problems": [],
+        "diagnostic_run": {
+          "pass_fail": "FAIL",
+          "failure_codes": [
+            "wrong dimension",
+            "wrong value",
+            "wrong ambiguity"
+          ]
+        },
+        "evidence_source": "live connection F82C2F8D-0BD6-40E2-8C8B-FF1D69E317D5, semantic_metrics / semantic_dimensions / dimension_value_index",
+        "answerability": {
+          "metric_tables": [
+            "QB_MDJMD_SALES_5YRS_SUMMARY"
+          ],
+          "dimension_tables": [
+            "PBI_ENES_ORDER_PENDING_SUMMARY",
+            "PBI_OUTSTANDING_ENES_SUMMARY",
+            "QB_MDJMD_SALES_5YRS_SUMMARY"
+          ],
+          "cross_table_without_verified_join": true,
+          "verified_joins_for_connection": 0,
+          "note": "Physical answerability only. This never influences the verdict."
+        }
+      },
+      "original_expected": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          "Category",
+          "City"
+        ],
+        "values": [
+          "MARKETING",
+          "MARKETING",
+          "MARKETING",
+          "CHENNAI",
+          "AN",
+          "AN"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "recommended_expected": null,
+      "requires_human_review": false,
+      "expectation_changed_in_v2": false
+    },
+    "expected_identity": {
+      "metrics": [
+        {
+          "business_name": "C Y",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY",
+              "column_name": "CY"
+            }
+          ],
+          "ambiguous_across_tables": false
+        }
+      ],
+      "dimensions": [
+        {
+          "business_name": "Category",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY",
+              "column_name": "Category"
+            },
+            {
+              "table_name": "PBI_ENES_ORDER_PENDING_SUMMARY",
+              "column_name": "Category"
+            }
+          ],
+          "ambiguous_across_tables": true
+        },
+        {
+          "business_name": "City",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "PBI_OUTSTANDING_ENES_SUMMARY",
+              "column_name": "City"
+            }
+          ],
+          "ambiguous_across_tables": false
+        }
+      ]
+    },
+    "data_answerable": "no",
+    "missing_data": [
+      "City on QB_MDJMD_SALES_5YRS_SUMMARY, or a verified join path from QB_MDJMD_SALES_5YRS_SUMMARY to PBI_OUTSTANDING_ENES_SUMMARY"
+    ]
+  },
+  {
+    "case_id": "E1-070",
+    "category": "MULTI_DIMENSION",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Marketing category sales in Coimbatore city",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "Category",
+        "City"
+      ],
+      "values": [
+        "COIMBATORE",
+        "MARKETING",
+        "MARKETING",
+        "MARKETING",
+        "ELECTRONIC CITY"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Multi-dimension query combining Category (Marketing) and City (Coimbatore).",
+    "expectation_review": {
+      "verdict": "A",
+      "verdict_meaning": "Software defect - expectation is achievable under current configuration",
+      "rationale": "Every metric, dimension and value expected is present and usable, so the expectation is achievable and the failure lies in the software.",
+      "evidence": {
+        "config_problems": [],
+        "diagnostic_run": {
+          "pass_fail": "FAIL",
+          "failure_codes": [
+            "wrong dimension",
+            "wrong value",
+            "wrong ambiguity"
+          ]
+        },
+        "evidence_source": "live connection F82C2F8D-0BD6-40E2-8C8B-FF1D69E317D5, semantic_metrics / semantic_dimensions / dimension_value_index",
+        "answerability": {
+          "metric_tables": [
+            "QB_MDJMD_SALES_5YRS_SUMMARY"
+          ],
+          "dimension_tables": [
+            "PBI_ENES_ORDER_PENDING_SUMMARY",
+            "PBI_OUTSTANDING_ENES_SUMMARY",
+            "QB_MDJMD_SALES_5YRS_SUMMARY"
+          ],
+          "cross_table_without_verified_join": true,
+          "verified_joins_for_connection": 0,
+          "note": "Physical answerability only. This never influences the verdict."
+        }
+      },
+      "original_expected": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          "Category",
+          "City"
+        ],
+        "values": [
+          "COIMBATORE",
+          "MARKETING",
+          "MARKETING",
+          "MARKETING",
+          "ELECTRONIC CITY"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "recommended_expected": null,
+      "requires_human_review": false,
+      "expectation_changed_in_v2": false
+    },
+    "expected_identity": {
+      "metrics": [
+        {
+          "business_name": "C Y",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY",
+              "column_name": "CY"
+            }
+          ],
+          "ambiguous_across_tables": false
+        }
+      ],
+      "dimensions": [
+        {
+          "business_name": "Category",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY",
+              "column_name": "Category"
+            },
+            {
+              "table_name": "PBI_ENES_ORDER_PENDING_SUMMARY",
+              "column_name": "Category"
+            }
+          ],
+          "ambiguous_across_tables": true
+        },
+        {
+          "business_name": "City",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "PBI_OUTSTANDING_ENES_SUMMARY",
+              "column_name": "City"
+            }
+          ],
+          "ambiguous_across_tables": false
+        }
+      ]
+    },
+    "data_answerable": "no",
+    "missing_data": [
+      "City on QB_MDJMD_SALES_5YRS_SUMMARY, or a verified join path from QB_MDJMD_SALES_5YRS_SUMMARY to PBI_OUTSTANDING_ENES_SUMMARY"
+    ]
+  },
+  {
+    "case_id": "E1-071",
+    "category": "MULTI_DIMENSION",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show quantity for Chennai city and Marketing category",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "Qty"
+      ],
+      "dimensions": [
+        "Category",
+        "City"
+      ],
+      "values": [
+        "MARKETING",
+        "MARKETING",
+        "MARKETING",
+        "CHENNAI",
+        "AN",
+        "AN"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Multi-dimension query for Quantity with City and Category.",
+    "expectation_review": {
+      "verdict": "A",
+      "verdict_meaning": "Software defect - expectation is achievable under current configuration",
+      "rationale": "Every metric, dimension and value expected is present and usable, so the expectation is achievable and the failure lies in the software.",
+      "evidence": {
+        "config_problems": [],
+        "diagnostic_run": {
+          "pass_fail": "FAIL",
+          "failure_codes": [
+            "wrong dimension",
+            "wrong value",
+            "wrong ambiguity"
+          ]
+        },
+        "evidence_source": "live connection F82C2F8D-0BD6-40E2-8C8B-FF1D69E317D5, semantic_metrics / semantic_dimensions / dimension_value_index",
+        "answerability": {
+          "metric_tables": [
+            "PBI_ENES_ORDER_PENDING_SUMMARY"
+          ],
+          "dimension_tables": [
+            "PBI_ENES_ORDER_PENDING_SUMMARY",
+            "PBI_OUTSTANDING_ENES_SUMMARY",
+            "QB_MDJMD_SALES_5YRS_SUMMARY"
+          ],
+          "cross_table_without_verified_join": true,
+          "verified_joins_for_connection": 0,
+          "note": "Physical answerability only. This never influences the verdict."
+        }
+      },
+      "original_expected": {
+        "metrics": [
+          "Qty"
+        ],
+        "dimensions": [
+          "Category",
+          "City"
+        ],
+        "values": [
+          "MARKETING",
+          "MARKETING",
+          "MARKETING",
+          "CHENNAI",
+          "AN",
+          "AN"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "recommended_expected": null,
+      "requires_human_review": false,
+      "expectation_changed_in_v2": false
+    },
+    "expected_identity": {
+      "metrics": [
+        {
+          "business_name": "Qty",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "PBI_ENES_ORDER_PENDING_SUMMARY",
+              "column_name": "Qty"
+            }
+          ],
+          "ambiguous_across_tables": false
+        }
+      ],
+      "dimensions": [
+        {
+          "business_name": "Category",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY",
+              "column_name": "Category"
+            },
+            {
+              "table_name": "PBI_ENES_ORDER_PENDING_SUMMARY",
+              "column_name": "Category"
+            }
+          ],
+          "ambiguous_across_tables": true
+        },
+        {
+          "business_name": "City",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "PBI_OUTSTANDING_ENES_SUMMARY",
+              "column_name": "City"
+            }
+          ],
+          "ambiguous_across_tables": false
+        }
+      ]
+    },
+    "data_answerable": "no",
+    "missing_data": [
+      "City on PBI_ENES_ORDER_PENDING_SUMMARY, or a verified join path from PBI_ENES_ORDER_PENDING_SUMMARY to PBI_OUTSTANDING_ENES_SUMMARY"
+    ]
+  },
+  {
+    "case_id": "E1-072",
+    "category": "MULTI_DIMENSION",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show pending amount for Chennai city and Franchise category",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "Pending Amount"
+      ],
+      "dimensions": [
+        "Category",
+        "City"
+      ],
+      "values": [
+        "FRANCHISEE",
+        "FRANCHISEE",
+        "FRANCHISEE",
+        "CHENNAI",
+        "AN",
+        "AN"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Multi-dimension query for Pending Amount with City and Category.",
+    "expectation_review": {
+      "verdict": "B",
+      "verdict_meaning": "Outdated or incorrect benchmark expectation",
+      "rationale": "The expectation names configuration that does not exist or is switched off, so it can never be met regardless of resolver behaviour.",
+      "evidence": {
+        "config_problems": [
+          {
+            "field": "values",
+            "name": "FRANCHISEE",
+            "issue": "NOT_IN_INDEX",
+            "detail": "This exact value does not exist in the index.",
+            "candidates": [],
+            "candidate_count": 0,
+            "confident_replacement": "Franchise"
+          },
+          {
+            "field": "values",
+            "name": "FRANCHISEE",
+            "issue": "NOT_IN_INDEX",
+            "detail": "This exact value does not exist in the index.",
+            "candidates": [],
+            "candidate_count": 0,
+            "confident_replacement": "Franchise"
+          },
+          {
+            "field": "values",
+            "name": "FRANCHISEE",
+            "issue": "NOT_IN_INDEX",
+            "detail": "This exact value does not exist in the index.",
+            "candidates": [],
+            "candidate_count": 0,
+            "confident_replacement": "Franchise"
+          }
+        ],
+        "diagnostic_run": {
+          "pass_fail": "FAIL",
+          "failure_codes": [
+            "wrong metric",
+            "wrong dimension",
+            "wrong value",
+            "wrong ambiguity"
+          ]
+        },
+        "evidence_source": "live connection F82C2F8D-0BD6-40E2-8C8B-FF1D69E317D5, semantic_metrics / semantic_dimensions / dimension_value_index",
+        "pending_amount_decision": {
+          "ruling": "P A M T is the correct Pending Amount metric.",
+          "pendamt": "PBI_OUTSTANDING_ENES_SUMMARY.pendamt, is_excluded=1 - stays excluded, not re-enabled",
+          "replacement_identity": {
+            "business_name": "P A M T",
+            "table_name": "PBI_OUTSTANDING_ENES_SUMMARY",
+            "column_name": "PAMT"
+          }
+        },
+        "joinability": {
+          "metric_tables": [
+            "PBI_OUTSTANDING_ENES_SUMMARY"
+          ],
+          "dimension_tables": [
+            "PBI_ENES_ORDER_PENDING_SUMMARY",
+            "PBI_OUTSTANDING_ENES_SUMMARY",
+            "QB_MDJMD_SALES_5YRS_SUMMARY"
+          ],
+          "relationships_defined_for_connection": 0,
+          "dimensions_not_on_metric_table": [
+            "Category"
+          ],
+          "single_table_answerable": false
+        },
+        "prodgrp1_evaluation": "Prod Grp1 (QB_MDJMD_SALES_5YRS_SUMMARY.ProdGrp1) was evaluated as the replacement dimension for 'brand' on Sales questions and rejected. Its 55 values mix product types (DHOTI, BANIANS, TOWEL, ACCESSORIES, FABRIC), standalone brands (CULTURE CLUB, PRIMA CLUB, LINEN PARK, GENISTAA) and brand-product lines (RAMRAJ PANT, RAMRAJ SHIRT, VIVEAGHAM DHOTI), plus non-product entries (LOT, SCRAP ITEM, COMBO). It is a product-line dimension, not a brand dimension, and it holds no value 'RAMRAJ'. Brand on PBI_ENES_ORDER_PENDING_SUMMARY has the same shape (RAMRAJ DHOTI, RAMRAJ HANKEYS...). Neither table represents brand as its own field.",
+        "answerability": {
+          "metric_tables": [
+            "PBI_OUTSTANDING_ENES_SUMMARY"
+          ],
+          "dimension_tables": [
+            "PBI_ENES_ORDER_PENDING_SUMMARY",
+            "PBI_OUTSTANDING_ENES_SUMMARY",
+            "QB_MDJMD_SALES_5YRS_SUMMARY"
+          ],
+          "cross_table_without_verified_join": true,
+          "verified_joins_for_connection": 0,
+          "note": "Physical answerability only. This never influences the verdict."
+        }
+      },
+      "original_expected": {
+        "metrics": [
+          "pendamt"
+        ],
+        "dimensions": [
+          "Category",
+          "City"
+        ],
+        "values": [
+          "FRANCHISEE",
+          "FRANCHISEE",
+          "FRANCHISEE",
+          "CHENNAI",
+          "AN",
+          "AN"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "recommended_expected": {
+        "metrics": [
+          "P A M T"
+        ],
+        "dimensions": [
+          "Category",
+          "City"
+        ],
+        "values": [
+          "FRANCHISEE",
+          "FRANCHISEE",
+          "FRANCHISEE",
+          "CHENNAI",
+          "AN",
+          "AN"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "requires_human_review": false,
+      "expectation_changed_in_v2": true,
+      "resolution_notes": [
+        "Expected metric 'pendamt' replaced by 'P A M T' (PBI_OUTSTANDING_ENES_SUMMARY.PAMT), the metric ruled correct for Pending Amount. pendamt remains excluded."
+      ],
+      "change_log": [
+        "Expected metric 'pendamt' replaced by 'P A M T' (PBI_OUTSTANDING_ENES_SUMMARY.PAMT), the metric ruled correct for Pending Amount. pendamt remains excluded.",
+        "metrics ['P A M T'] -> ['Pending Amount']. Display-name drift only: the metric was renamed in configuration and still binds to the same physical column. Corrected so the case compares on identity."
+      ],
+      "verdict_history": [
+        {
+          "from": "C",
+          "to": "B",
+          "reason": "Step 16 consistency pass: verdict and data_answerable separated onto independent axes. The expectation names configuration that does not exist or is switched off, so it can never be met regardless of resolver behaviour.",
+          "evidence": {
+            "metric_tables": [
+              "PBI_OUTSTANDING_ENES_SUMMARY"
+            ],
+            "dimension_tables": [
+              "PBI_ENES_ORDER_PENDING_SUMMARY",
+              "PBI_OUTSTANDING_ENES_SUMMARY",
+              "QB_MDJMD_SALES_5YRS_SUMMARY"
+            ],
+            "cross_table_without_verified_join": true,
+            "verified_joins_for_connection": 0,
+            "diagnostic_run": "FAIL"
+          }
+        }
+      ]
+    },
+    "expected_identity": {
+      "metrics": [
+        {
+          "business_name": "Pending Amount",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "PBI_OUTSTANDING_ENES_SUMMARY",
+              "column_name": "PAMT"
+            }
+          ],
+          "ambiguous_across_tables": false
+        }
+      ],
+      "dimensions": [
+        {
+          "business_name": "Category",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY",
+              "column_name": "Category"
+            },
+            {
+              "table_name": "PBI_ENES_ORDER_PENDING_SUMMARY",
+              "column_name": "Category"
+            }
+          ],
+          "ambiguous_across_tables": true
+        },
+        {
+          "business_name": "City",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "PBI_OUTSTANDING_ENES_SUMMARY",
+              "column_name": "City"
+            }
+          ],
+          "ambiguous_across_tables": false
+        }
+      ]
+    },
+    "data_answerable": "no",
+    "missing_data": [
+      "Category on PBI_OUTSTANDING_ENES_SUMMARY, or a verified join path from PBI_OUTSTANDING_ENES_SUMMARY to PBI_ENES_ORDER_PENDING_SUMMARY/QB_MDJMD_SALES_5YRS_SUMMARY"
+    ]
+  },
+  {
+    "case_id": "E1-073",
+    "category": "MULTI_DIMENSION",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show sales for Chennai district and Ramraj brand",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "Brand",
+        "District"
+      ],
+      "values": [
+        "RAMRAJ"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Multi-dimension query combining District (Chennai) and Brand (Ramraj).",
+    "expectation_review": {
+      "verdict": "E",
+      "verdict_meaning": "Genuine ambiguity - requires a human/business decision",
+      "rationale": "The expected value is not a value in the data. A family of real values shares its wording, so what it should resolve to is an undefined business meaning, not a mechanical fix.",
+      "evidence": {
+        "config_problems": [
+          {
+            "field": "values",
+            "name": "RAMRAJ",
+            "issue": "NOT_IN_INDEX",
+            "detail": "This exact value does not exist in the index.",
+            "candidates": [
+              "RAMRAJ DEVOTIONAL",
+              "RAMRAJ DHOTI",
+              "RAMRAJ DHOTISET",
+              "RAMRAJ FABRIC",
+              "RAMRAJ HANKEYS",
+              "RAMRAJ HOSIERY",
+              "RAMRAJ KALYAAN",
+              "RAMRAJ LAGNAA"
+            ],
+            "candidate_count": 15,
+            "confident_replacement": null
+          }
+        ],
+        "diagnostic_run": {
+          "pass_fail": "FAIL",
+          "failure_codes": [
+            "wrong value",
+            "wrong ambiguity"
+          ]
+        },
+        "evidence_source": "live connection F82C2F8D-0BD6-40E2-8C8B-FF1D69E317D5, semantic_metrics / semantic_dimensions / dimension_value_index",
+        "ramraj_values": {
+          "exact_value_RAMRAJ_exists": false,
+          "values_on_metric_table": {
+            "QB_MDJMD_SALES_5YRS_SUMMARY": [
+              "RAMRAJ KALYAAN",
+              "RAMRAJ LAGNAA",
+              "RAMRAJ LITTLESTARS",
+              "RAMRAJ MASK",
+              "RAMRAJ MUHURTH",
+              "RAMRAJ PANT",
+              "RAMRAJ SHIRT",
+              "RAMRAJ VAIBHAV SET",
+              "RAMRAJ WEDDING SET"
+            ]
+          },
+          "brand_column_shape": "Prod Grp1 (QB_MDJMD_SALES_5YRS_SUMMARY.ProdGrp1) was evaluated as the replacement dimension for 'brand' on Sales questions and rejected. Its 55 values mix product types (DHOTI, BANIANS, TOWEL, ACCESSORIES, FABRIC), standalone brands (CULTURE CLUB, PRIMA CLUB, LINEN PARK, GENISTAA) and brand-product lines (RAMRAJ PANT, RAMRAJ SHIRT, VIVEAGHAM DHOTI), plus non-product entries (LOT, SCRAP ITEM, COMBO). It is a product-line dimension, not a brand dimension, and it holds no value 'RAMRAJ'. Brand on PBI_ENES_ORDER_PENDING_SUMMARY has the same shape (RAMRAJ DHOTI, RAMRAJ HANKEYS...). Neither table represents brand as its own field."
+        },
+        "joinability": {
+          "metric_tables": [
+            "QB_MDJMD_SALES_5YRS_SUMMARY"
+          ],
+          "dimension_tables": [
+            "PBI_ENES_ORDER_PENDING_SUMMARY",
+            "PBI_OUTSTANDING_ENES_SUMMARY"
+          ],
+          "relationships_defined_for_connection": 0,
+          "dimensions_not_on_metric_table": [
+            "Brand",
+            "District"
+          ],
+          "single_table_answerable": false
+        },
+        "prodgrp1_evaluation": "Prod Grp1 (QB_MDJMD_SALES_5YRS_SUMMARY.ProdGrp1) was evaluated as the replacement dimension for 'brand' on Sales questions and rejected. Its 55 values mix product types (DHOTI, BANIANS, TOWEL, ACCESSORIES, FABRIC), standalone brands (CULTURE CLUB, PRIMA CLUB, LINEN PARK, GENISTAA) and brand-product lines (RAMRAJ PANT, RAMRAJ SHIRT, VIVEAGHAM DHOTI), plus non-product entries (LOT, SCRAP ITEM, COMBO). It is a product-line dimension, not a brand dimension, and it holds no value 'RAMRAJ'. Brand on PBI_ENES_ORDER_PENDING_SUMMARY has the same shape (RAMRAJ DHOTI, RAMRAJ HANKEYS...). Neither table represents brand as its own field.",
+        "answerability": {
+          "metric_tables": [
+            "QB_MDJMD_SALES_5YRS_SUMMARY"
+          ],
+          "dimension_tables": [
+            "PBI_ENES_ORDER_PENDING_SUMMARY",
+            "PBI_OUTSTANDING_ENES_SUMMARY"
+          ],
+          "cross_table_without_verified_join": true,
+          "verified_joins_for_connection": 0,
+          "note": "Physical answerability only. This never influences the verdict."
+        }
+      },
+      "original_expected": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          "Brand",
+          "District"
+        ],
+        "values": [
+          "RAMRAJ"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "recommended_expected": null,
+      "requires_human_review": true,
+      "expectation_changed_in_v2": false,
+      "resolution_notes": [],
+      "verdict_history": [
+        {
+          "from": "C",
+          "to": "E",
+          "reason": "Step 16 consistency pass: verdict and data_answerable separated onto independent axes. The expected value is not a value in the data. A family of real values shares its wording, so what it should resolve to is an undefined business meaning, not a mechanical fix.",
+          "evidence": {
+            "metric_tables": [
+              "QB_MDJMD_SALES_5YRS_SUMMARY"
+            ],
+            "dimension_tables": [
+              "PBI_ENES_ORDER_PENDING_SUMMARY",
+              "PBI_OUTSTANDING_ENES_SUMMARY"
+            ],
+            "cross_table_without_verified_join": true,
+            "verified_joins_for_connection": 0,
+            "diagnostic_run": "FAIL"
+          }
+        }
+      ]
+    },
+    "expected_identity": {
+      "metrics": [
+        {
+          "business_name": "C Y",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY",
+              "column_name": "CY"
+            }
+          ],
+          "ambiguous_across_tables": false
+        }
+      ],
+      "dimensions": [
+        {
+          "business_name": "Brand",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "PBI_ENES_ORDER_PENDING_SUMMARY",
+              "column_name": "Brand"
+            }
+          ],
+          "ambiguous_across_tables": false
+        },
+        {
+          "business_name": "District",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "PBI_OUTSTANDING_ENES_SUMMARY",
+              "column_name": "District"
+            }
+          ],
+          "ambiguous_across_tables": false
+        }
+      ]
+    },
+    "data_answerable": "no",
+    "missing_data": [
+      "Brand on QB_MDJMD_SALES_5YRS_SUMMARY, or a verified join path from QB_MDJMD_SALES_5YRS_SUMMARY to PBI_ENES_ORDER_PENDING_SUMMARY",
+      "District on QB_MDJMD_SALES_5YRS_SUMMARY, or a verified join path from QB_MDJMD_SALES_5YRS_SUMMARY to PBI_OUTSTANDING_ENES_SUMMARY"
+    ]
+  },
+  {
+    "case_id": "E1-074",
+    "category": "MULTI_DIMENSION",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show sales for Coimbatore district and Marketing category",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "Category",
+        "District"
+      ],
+      "values": [
+        "COIMBATORE",
+        "MARKETING",
+        "MARKETING",
+        "MARKETING",
+        "AN",
+        "AN",
+        "AN"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Multi-dimension query combining District (Coimbatore) and Category (Marketing).",
+    "expectation_review": {
+      "verdict": "A",
+      "verdict_meaning": "Software defect - expectation is achievable under current configuration",
+      "rationale": "Every metric, dimension and value expected is present and usable, so the expectation is achievable and the failure lies in the software.",
+      "evidence": {
+        "config_problems": [],
+        "diagnostic_run": {
+          "pass_fail": "FAIL",
+          "failure_codes": [
+            "wrong dimension",
+            "wrong value",
+            "wrong ambiguity"
+          ]
+        },
+        "evidence_source": "live connection F82C2F8D-0BD6-40E2-8C8B-FF1D69E317D5, semantic_metrics / semantic_dimensions / dimension_value_index",
+        "answerability": {
+          "metric_tables": [
+            "QB_MDJMD_SALES_5YRS_SUMMARY"
+          ],
+          "dimension_tables": [
+            "PBI_ENES_ORDER_PENDING_SUMMARY",
+            "PBI_OUTSTANDING_ENES_SUMMARY",
+            "QB_MDJMD_SALES_5YRS_SUMMARY"
+          ],
+          "cross_table_without_verified_join": true,
+          "verified_joins_for_connection": 0,
+          "note": "Physical answerability only. This never influences the verdict."
+        }
+      },
+      "original_expected": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          "Category",
+          "District"
+        ],
+        "values": [
+          "COIMBATORE",
+          "MARKETING",
+          "MARKETING",
+          "MARKETING",
+          "AN",
+          "AN",
+          "AN"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "recommended_expected": null,
+      "requires_human_review": false,
+      "expectation_changed_in_v2": false
+    },
+    "expected_identity": {
+      "metrics": [
+        {
+          "business_name": "C Y",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY",
+              "column_name": "CY"
+            }
+          ],
+          "ambiguous_across_tables": false
+        }
+      ],
+      "dimensions": [
+        {
+          "business_name": "Category",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY",
+              "column_name": "Category"
+            },
+            {
+              "table_name": "PBI_ENES_ORDER_PENDING_SUMMARY",
+              "column_name": "Category"
+            }
+          ],
+          "ambiguous_across_tables": true
+        },
+        {
+          "business_name": "District",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "PBI_OUTSTANDING_ENES_SUMMARY",
+              "column_name": "District"
+            }
+          ],
+          "ambiguous_across_tables": false
+        }
+      ]
+    },
+    "data_answerable": "no",
+    "missing_data": [
+      "District on QB_MDJMD_SALES_5YRS_SUMMARY, or a verified join path from QB_MDJMD_SALES_5YRS_SUMMARY to PBI_OUTSTANDING_ENES_SUMMARY"
+    ]
+  },
+  {
+    "case_id": "E1-075",
+    "category": "MULTI_DIMENSION",
+    "source": "REAL_BUSINESS",
+    "severity": "CRITICAL",
+    "question": "Show sales for Ramraj brand and Franchise category",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "Category",
+        "Brand"
+      ],
+      "values": [
+        "RAMRAJ"
+      ],
+      "status": "PARTIAL_MATCH",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Multi-dimension query combining Brand (Ramraj) and Category (Marketing).",
+    "expectation_review": {
+      "verdict": "E",
+      "verdict_meaning": "Genuine ambiguity - requires a human/business decision",
+      "rationale": "The expected value is not a value in the data. A family of real values shares its wording, so what it should resolve to is an undefined business meaning, not a mechanical fix.",
+      "evidence": {
+        "config_problems": [
+          {
+            "field": "values",
+            "name": "RAMRAJ",
+            "issue": "NOT_IN_INDEX",
+            "detail": "This exact value does not exist in the index.",
+            "candidates": [
+              "RAMRAJ DEVOTIONAL",
+              "RAMRAJ DHOTI",
+              "RAMRAJ DHOTISET",
+              "RAMRAJ FABRIC",
+              "RAMRAJ HANKEYS",
+              "RAMRAJ HOSIERY",
+              "RAMRAJ KALYAAN",
+              "RAMRAJ LAGNAA"
+            ],
+            "candidate_count": 15,
+            "confident_replacement": null
+          }
+        ],
+        "diagnostic_run": {
+          "pass_fail": "FAIL",
+          "failure_codes": [
+            "wrong dimension",
+            "wrong value",
+            "wrong ambiguity"
+          ]
+        },
+        "evidence_source": "live connection F82C2F8D-0BD6-40E2-8C8B-FF1D69E317D5, semantic_metrics / semantic_dimensions / dimension_value_index",
+        "ramraj_values": {
+          "exact_value_RAMRAJ_exists": false,
+          "values_on_metric_table": {
+            "QB_MDJMD_SALES_5YRS_SUMMARY": [
+              "RAMRAJ KALYAAN",
+              "RAMRAJ LAGNAA",
+              "RAMRAJ LITTLESTARS",
+              "RAMRAJ MASK",
+              "RAMRAJ MUHURTH",
+              "RAMRAJ PANT",
+              "RAMRAJ SHIRT",
+              "RAMRAJ VAIBHAV SET",
+              "RAMRAJ WEDDING SET"
+            ]
+          },
+          "brand_column_shape": "Prod Grp1 (QB_MDJMD_SALES_5YRS_SUMMARY.ProdGrp1) was evaluated as the replacement dimension for 'brand' on Sales questions and rejected. Its 55 values mix product types (DHOTI, BANIANS, TOWEL, ACCESSORIES, FABRIC), standalone brands (CULTURE CLUB, PRIMA CLUB, LINEN PARK, GENISTAA) and brand-product lines (RAMRAJ PANT, RAMRAJ SHIRT, VIVEAGHAM DHOTI), plus non-product entries (LOT, SCRAP ITEM, COMBO). It is a product-line dimension, not a brand dimension, and it holds no value 'RAMRAJ'. Brand on PBI_ENES_ORDER_PENDING_SUMMARY has the same shape (RAMRAJ DHOTI, RAMRAJ HANKEYS...). Neither table represents brand as its own field."
+        },
+        "joinability": {
+          "metric_tables": [
+            "QB_MDJMD_SALES_5YRS_SUMMARY"
+          ],
+          "dimension_tables": [
+            "PBI_ENES_ORDER_PENDING_SUMMARY",
+            "QB_MDJMD_SALES_5YRS_SUMMARY"
+          ],
+          "relationships_defined_for_connection": 0,
+          "dimensions_not_on_metric_table": [
+            "Brand"
+          ],
+          "single_table_answerable": false
+        },
+        "prodgrp1_evaluation": "Prod Grp1 (QB_MDJMD_SALES_5YRS_SUMMARY.ProdGrp1) was evaluated as the replacement dimension for 'brand' on Sales questions and rejected. Its 55 values mix product types (DHOTI, BANIANS, TOWEL, ACCESSORIES, FABRIC), standalone brands (CULTURE CLUB, PRIMA CLUB, LINEN PARK, GENISTAA) and brand-product lines (RAMRAJ PANT, RAMRAJ SHIRT, VIVEAGHAM DHOTI), plus non-product entries (LOT, SCRAP ITEM, COMBO). It is a product-line dimension, not a brand dimension, and it holds no value 'RAMRAJ'. Brand on PBI_ENES_ORDER_PENDING_SUMMARY has the same shape (RAMRAJ DHOTI, RAMRAJ HANKEYS...). Neither table represents brand as its own field.",
+        "answerability": {
+          "metric_tables": [
+            "QB_MDJMD_SALES_5YRS_SUMMARY"
+          ],
+          "dimension_tables": [
+            "PBI_ENES_ORDER_PENDING_SUMMARY",
+            "QB_MDJMD_SALES_5YRS_SUMMARY"
+          ],
+          "cross_table_without_verified_join": true,
+          "verified_joins_for_connection": 0,
+          "note": "Physical answerability only. This never influences the verdict."
+        }
+      },
+      "original_expected": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          "Category",
+          "Brand"
+        ],
+        "values": [
+          "RAMRAJ"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "recommended_expected": null,
+      "requires_human_review": true,
+      "expectation_changed_in_v2": false,
+      "resolution_notes": [],
+      "verdict_history": [
+        {
+          "from": "C",
+          "to": "E",
+          "reason": "Step 16 consistency pass: verdict and data_answerable separated onto independent axes. The expected value is not a value in the data. A family of real values shares its wording, so what it should resolve to is an undefined business meaning, not a mechanical fix.",
+          "evidence": {
+            "metric_tables": [
+              "QB_MDJMD_SALES_5YRS_SUMMARY"
+            ],
+            "dimension_tables": [
+              "PBI_ENES_ORDER_PENDING_SUMMARY",
+              "QB_MDJMD_SALES_5YRS_SUMMARY"
+            ],
+            "cross_table_without_verified_join": true,
+            "verified_joins_for_connection": 0,
+            "diagnostic_run": "FAIL"
+          }
+        }
+      ]
+    },
+    "expected_identity": {
+      "metrics": [
+        {
+          "business_name": "C Y",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY",
+              "column_name": "CY"
+            }
+          ],
+          "ambiguous_across_tables": false
+        }
+      ],
+      "dimensions": [
+        {
+          "business_name": "Category",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY",
+              "column_name": "Category"
+            },
+            {
+              "table_name": "PBI_ENES_ORDER_PENDING_SUMMARY",
+              "column_name": "Category"
+            }
+          ],
+          "ambiguous_across_tables": true
+        },
+        {
+          "business_name": "Brand",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "PBI_ENES_ORDER_PENDING_SUMMARY",
+              "column_name": "Brand"
+            }
+          ],
+          "ambiguous_across_tables": false
+        }
+      ]
+    },
+    "data_answerable": "no",
+    "missing_data": [
+      "Brand on QB_MDJMD_SALES_5YRS_SUMMARY, or a verified join path from QB_MDJMD_SALES_5YRS_SUMMARY to PBI_ENES_ORDER_PENDING_SUMMARY"
+    ]
+  },
+  {
+    "case_id": "E1-076",
+    "category": "MULTI_DIMENSION",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Franchise category sales for Ramraj brand",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "Category",
+        "Brand"
+      ],
+      "values": [
+        "RAMRAJ"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Multi-dimension query combining Category prefix and Brand suffix.",
+    "expectation_review": {
+      "verdict": "E",
+      "verdict_meaning": "Genuine ambiguity - requires a human/business decision",
+      "rationale": "The expected value is not a value in the data. A family of real values shares its wording, so what it should resolve to is an undefined business meaning, not a mechanical fix.",
+      "evidence": {
+        "config_problems": [
+          {
+            "field": "values",
+            "name": "RAMRAJ",
+            "issue": "NOT_IN_INDEX",
+            "detail": "This exact value does not exist in the index.",
+            "candidates": [
+              "RAMRAJ DEVOTIONAL",
+              "RAMRAJ DHOTI",
+              "RAMRAJ DHOTISET",
+              "RAMRAJ FABRIC",
+              "RAMRAJ HANKEYS",
+              "RAMRAJ HOSIERY",
+              "RAMRAJ KALYAAN",
+              "RAMRAJ LAGNAA"
+            ],
+            "candidate_count": 15,
+            "confident_replacement": null
+          }
+        ],
+        "diagnostic_run": {
+          "pass_fail": "FAIL",
+          "failure_codes": [
+            "wrong dimension",
+            "wrong value",
+            "wrong ambiguity"
+          ]
+        },
+        "evidence_source": "live connection F82C2F8D-0BD6-40E2-8C8B-FF1D69E317D5, semantic_metrics / semantic_dimensions / dimension_value_index",
+        "ramraj_values": {
+          "exact_value_RAMRAJ_exists": false,
+          "values_on_metric_table": {
+            "QB_MDJMD_SALES_5YRS_SUMMARY": [
+              "RAMRAJ KALYAAN",
+              "RAMRAJ LAGNAA",
+              "RAMRAJ LITTLESTARS",
+              "RAMRAJ MASK",
+              "RAMRAJ MUHURTH",
+              "RAMRAJ PANT",
+              "RAMRAJ SHIRT",
+              "RAMRAJ VAIBHAV SET",
+              "RAMRAJ WEDDING SET"
+            ]
+          },
+          "brand_column_shape": "Prod Grp1 (QB_MDJMD_SALES_5YRS_SUMMARY.ProdGrp1) was evaluated as the replacement dimension for 'brand' on Sales questions and rejected. Its 55 values mix product types (DHOTI, BANIANS, TOWEL, ACCESSORIES, FABRIC), standalone brands (CULTURE CLUB, PRIMA CLUB, LINEN PARK, GENISTAA) and brand-product lines (RAMRAJ PANT, RAMRAJ SHIRT, VIVEAGHAM DHOTI), plus non-product entries (LOT, SCRAP ITEM, COMBO). It is a product-line dimension, not a brand dimension, and it holds no value 'RAMRAJ'. Brand on PBI_ENES_ORDER_PENDING_SUMMARY has the same shape (RAMRAJ DHOTI, RAMRAJ HANKEYS...). Neither table represents brand as its own field."
+        },
+        "joinability": {
+          "metric_tables": [
+            "QB_MDJMD_SALES_5YRS_SUMMARY"
+          ],
+          "dimension_tables": [
+            "PBI_ENES_ORDER_PENDING_SUMMARY",
+            "QB_MDJMD_SALES_5YRS_SUMMARY"
+          ],
+          "relationships_defined_for_connection": 0,
+          "dimensions_not_on_metric_table": [
+            "Brand"
+          ],
+          "single_table_answerable": false
+        },
+        "prodgrp1_evaluation": "Prod Grp1 (QB_MDJMD_SALES_5YRS_SUMMARY.ProdGrp1) was evaluated as the replacement dimension for 'brand' on Sales questions and rejected. Its 55 values mix product types (DHOTI, BANIANS, TOWEL, ACCESSORIES, FABRIC), standalone brands (CULTURE CLUB, PRIMA CLUB, LINEN PARK, GENISTAA) and brand-product lines (RAMRAJ PANT, RAMRAJ SHIRT, VIVEAGHAM DHOTI), plus non-product entries (LOT, SCRAP ITEM, COMBO). It is a product-line dimension, not a brand dimension, and it holds no value 'RAMRAJ'. Brand on PBI_ENES_ORDER_PENDING_SUMMARY has the same shape (RAMRAJ DHOTI, RAMRAJ HANKEYS...). Neither table represents brand as its own field.",
+        "answerability": {
+          "metric_tables": [
+            "QB_MDJMD_SALES_5YRS_SUMMARY"
+          ],
+          "dimension_tables": [
+            "PBI_ENES_ORDER_PENDING_SUMMARY",
+            "QB_MDJMD_SALES_5YRS_SUMMARY"
+          ],
+          "cross_table_without_verified_join": true,
+          "verified_joins_for_connection": 0,
+          "note": "Physical answerability only. This never influences the verdict."
+        }
+      },
+      "original_expected": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          "Category",
+          "Brand"
+        ],
+        "values": [
+          "RAMRAJ"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "recommended_expected": null,
+      "requires_human_review": true,
+      "expectation_changed_in_v2": false,
+      "resolution_notes": [],
+      "verdict_history": [
+        {
+          "from": "C",
+          "to": "E",
+          "reason": "Step 16 consistency pass: verdict and data_answerable separated onto independent axes. The expected value is not a value in the data. A family of real values shares its wording, so what it should resolve to is an undefined business meaning, not a mechanical fix.",
+          "evidence": {
+            "metric_tables": [
+              "QB_MDJMD_SALES_5YRS_SUMMARY"
+            ],
+            "dimension_tables": [
+              "PBI_ENES_ORDER_PENDING_SUMMARY",
+              "QB_MDJMD_SALES_5YRS_SUMMARY"
+            ],
+            "cross_table_without_verified_join": true,
+            "verified_joins_for_connection": 0,
+            "diagnostic_run": "FAIL"
+          }
+        }
+      ]
+    },
+    "expected_identity": {
+      "metrics": [
+        {
+          "business_name": "C Y",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY",
+              "column_name": "CY"
+            }
+          ],
+          "ambiguous_across_tables": false
+        }
+      ],
+      "dimensions": [
+        {
+          "business_name": "Category",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY",
+              "column_name": "Category"
+            },
+            {
+              "table_name": "PBI_ENES_ORDER_PENDING_SUMMARY",
+              "column_name": "Category"
+            }
+          ],
+          "ambiguous_across_tables": true
+        },
+        {
+          "business_name": "Brand",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "PBI_ENES_ORDER_PENDING_SUMMARY",
+              "column_name": "Brand"
+            }
+          ],
+          "ambiguous_across_tables": false
+        }
+      ]
+    },
+    "data_answerable": "no",
+    "missing_data": [
+      "Brand on QB_MDJMD_SALES_5YRS_SUMMARY, or a verified join path from QB_MDJMD_SALES_5YRS_SUMMARY to PBI_ENES_ORDER_PENDING_SUMMARY"
+    ]
+  },
+  {
+    "case_id": "E1-077",
+    "category": "MULTI_DIMENSION",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show quantity for Ramraj brand and Franchise category",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "Qty"
+      ],
+      "dimensions": [
+        "Category",
+        "Brand"
+      ],
+      "values": [
+        "RAMRAJ"
+      ],
+      "status": "PARTIAL_MATCH",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Multi-dimension query for Quantity with Brand and Franchise category.",
+    "expectation_review": {
+      "verdict": "E",
+      "verdict_meaning": "Genuine ambiguity - requires a human/business decision",
+      "rationale": "The expected value is not a value in the data. A family of real values shares its wording, so what it should resolve to is an undefined business meaning, not a mechanical fix.",
+      "evidence": {
+        "config_problems": [
+          {
+            "field": "values",
+            "name": "RAMRAJ",
+            "issue": "NOT_IN_INDEX",
+            "detail": "This exact value does not exist in the index.",
+            "candidates": [
+              "RAMRAJ DEVOTIONAL",
+              "RAMRAJ DHOTI",
+              "RAMRAJ DHOTISET",
+              "RAMRAJ FABRIC",
+              "RAMRAJ HANKEYS",
+              "RAMRAJ HOSIERY",
+              "RAMRAJ KALYAAN",
+              "RAMRAJ LAGNAA"
+            ],
+            "candidate_count": 15,
+            "confident_replacement": null
+          }
+        ],
+        "diagnostic_run": {
+          "pass_fail": "FAIL",
+          "failure_codes": [
+            "wrong dimension",
+            "wrong value",
+            "wrong ambiguity"
+          ]
+        },
+        "evidence_source": "live connection F82C2F8D-0BD6-40E2-8C8B-FF1D69E317D5, semantic_metrics / semantic_dimensions / dimension_value_index",
+        "ramraj_values": {
+          "exact_value_RAMRAJ_exists": false,
+          "values_on_metric_table": {
+            "PBI_ENES_ORDER_PENDING_SUMMARY": [
+              "RAMRAJ DEVOTIONAL",
+              "RAMRAJ DHOTI",
+              "RAMRAJ DHOTISET",
+              "RAMRAJ FABRIC",
+              "RAMRAJ HANKEYS",
+              "RAMRAJ HOSIERY",
+              "RAMRAJ KALYAAN",
+              "RAMRAJ LAGNAA",
+              "RAMRAJ LITTLESTARS",
+              "RAMRAJ MUHURTH",
+              "RAMRAJ PANT",
+              "RAMRAJ SHIRT"
+            ]
+          },
+          "brand_column_shape": "Prod Grp1 (QB_MDJMD_SALES_5YRS_SUMMARY.ProdGrp1) was evaluated as the replacement dimension for 'brand' on Sales questions and rejected. Its 55 values mix product types (DHOTI, BANIANS, TOWEL, ACCESSORIES, FABRIC), standalone brands (CULTURE CLUB, PRIMA CLUB, LINEN PARK, GENISTAA) and brand-product lines (RAMRAJ PANT, RAMRAJ SHIRT, VIVEAGHAM DHOTI), plus non-product entries (LOT, SCRAP ITEM, COMBO). It is a product-line dimension, not a brand dimension, and it holds no value 'RAMRAJ'. Brand on PBI_ENES_ORDER_PENDING_SUMMARY has the same shape (RAMRAJ DHOTI, RAMRAJ HANKEYS...). Neither table represents brand as its own field."
+        },
+        "joinability": {
+          "metric_tables": [
+            "PBI_ENES_ORDER_PENDING_SUMMARY"
+          ],
+          "dimension_tables": [
+            "PBI_ENES_ORDER_PENDING_SUMMARY",
+            "QB_MDJMD_SALES_5YRS_SUMMARY"
+          ],
+          "relationships_defined_for_connection": 0,
+          "dimensions_not_on_metric_table": [],
+          "single_table_answerable": true
+        },
+        "prodgrp1_evaluation": "Prod Grp1 (QB_MDJMD_SALES_5YRS_SUMMARY.ProdGrp1) was evaluated as the replacement dimension for 'brand' on Sales questions and rejected. Its 55 values mix product types (DHOTI, BANIANS, TOWEL, ACCESSORIES, FABRIC), standalone brands (CULTURE CLUB, PRIMA CLUB, LINEN PARK, GENISTAA) and brand-product lines (RAMRAJ PANT, RAMRAJ SHIRT, VIVEAGHAM DHOTI), plus non-product entries (LOT, SCRAP ITEM, COMBO). It is a product-line dimension, not a brand dimension, and it holds no value 'RAMRAJ'. Brand on PBI_ENES_ORDER_PENDING_SUMMARY has the same shape (RAMRAJ DHOTI, RAMRAJ HANKEYS...). Neither table represents brand as its own field.",
+        "answerability": {
+          "metric_tables": [
+            "PBI_ENES_ORDER_PENDING_SUMMARY"
+          ],
+          "dimension_tables": [
+            "PBI_ENES_ORDER_PENDING_SUMMARY",
+            "QB_MDJMD_SALES_5YRS_SUMMARY"
+          ],
+          "cross_table_without_verified_join": false,
+          "verified_joins_for_connection": 0,
+          "note": "Physical answerability only. This never influences the verdict."
+        }
+      },
+      "original_expected": {
+        "metrics": [
+          "Qty"
+        ],
+        "dimensions": [
+          "Category",
+          "Brand"
+        ],
+        "values": [
+          "RAMRAJ"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "recommended_expected": null,
+      "requires_human_review": true,
+      "expectation_changed_in_v2": false,
+      "resolution_notes": []
+    },
+    "expected_identity": {
+      "metrics": [
+        {
+          "business_name": "Qty",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "PBI_ENES_ORDER_PENDING_SUMMARY",
+              "column_name": "Qty"
+            }
+          ],
+          "ambiguous_across_tables": false
+        }
+      ],
+      "dimensions": [
+        {
+          "business_name": "Category",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY",
+              "column_name": "Category"
+            },
+            {
+              "table_name": "PBI_ENES_ORDER_PENDING_SUMMARY",
+              "column_name": "Category"
+            }
+          ],
+          "ambiguous_across_tables": true
+        },
+        {
+          "business_name": "Brand",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "PBI_ENES_ORDER_PENDING_SUMMARY",
+              "column_name": "Brand"
+            }
+          ],
+          "ambiguous_across_tables": false
+        }
+      ]
+    },
+    "data_answerable": "partial",
+    "missing_data": [
+      "The expected value is not a stored value; only a family of related values exists. A field holding it directly, or a business ruling on what it means, is required."
+    ]
+  },
+  {
+    "case_id": "E1-078",
+    "category": "MULTI_DIMENSION",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show sales for Chennai city and VT division",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "Division",
+        "City"
+      ],
+      "values": [
+        "CHENNAI",
+        "VT",
+        "VT",
+        "VT",
+        "AN",
+        "AN"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Multi-dimension query combining City (Chennai) and Division (VT).",
+    "expectation_review": {
+      "verdict": "A",
+      "verdict_meaning": "Software defect - expectation is achievable under current configuration",
+      "rationale": "Every metric, dimension and value expected is present and usable, so the expectation is achievable and the failure lies in the software.",
+      "evidence": {
+        "config_problems": [],
+        "diagnostic_run": {
+          "pass_fail": "FAIL",
+          "failure_codes": [
+            "wrong value",
+            "wrong ambiguity"
+          ]
+        },
+        "evidence_source": "live connection F82C2F8D-0BD6-40E2-8C8B-FF1D69E317D5, semantic_metrics / semantic_dimensions / dimension_value_index",
+        "answerability": {
+          "metric_tables": [
+            "QB_MDJMD_SALES_5YRS_SUMMARY"
+          ],
+          "dimension_tables": [
+            "PBI_ENES_ORDER_PENDING_SUMMARY",
+            "PBI_OUTSTANDING_ENES_SUMMARY",
+            "QB_MDJMD_SALES_5YRS_SUMMARY"
+          ],
+          "cross_table_without_verified_join": true,
+          "verified_joins_for_connection": 0,
+          "note": "Physical answerability only. This never influences the verdict."
+        }
+      },
+      "original_expected": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          "Division",
+          "City"
+        ],
+        "values": [
+          "CHENNAI",
+          "VT",
+          "VT",
+          "VT",
+          "AN",
+          "AN"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "recommended_expected": null,
+      "requires_human_review": false,
+      "expectation_changed_in_v2": false
+    },
+    "expected_identity": {
+      "metrics": [
+        {
+          "business_name": "C Y",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY",
+              "column_name": "CY"
+            }
+          ],
+          "ambiguous_across_tables": false
+        }
+      ],
+      "dimensions": [
+        {
+          "business_name": "Division",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY",
+              "column_name": "Division"
+            },
+            {
+              "table_name": "PBI_OUTSTANDING_ENES_SUMMARY",
+              "column_name": "Division"
+            },
+            {
+              "table_name": "PBI_ENES_ORDER_PENDING_SUMMARY",
+              "column_name": "Division"
+            }
+          ],
+          "ambiguous_across_tables": true
+        },
+        {
+          "business_name": "City",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "PBI_OUTSTANDING_ENES_SUMMARY",
+              "column_name": "City"
+            }
+          ],
+          "ambiguous_across_tables": false
+        }
+      ]
+    },
+    "data_answerable": "no",
+    "missing_data": [
+      "City on QB_MDJMD_SALES_5YRS_SUMMARY, or a verified join path from QB_MDJMD_SALES_5YRS_SUMMARY to PBI_OUTSTANDING_ENES_SUMMARY"
+    ]
+  },
+  {
+    "case_id": "E1-079",
+    "category": "MULTI_DIMENSION",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show sales for Coimbatore city and VT division",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "Division",
+        "City"
+      ],
+      "values": [
+        "COIMBATORE",
+        "VT",
+        "VT",
+        "VT",
+        "AN",
+        "AN",
+        "AN"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Multi-dimension query combining City (Coimbatore) and Division (VT).",
+    "expectation_review": {
+      "verdict": "A",
+      "verdict_meaning": "Software defect - expectation is achievable under current configuration",
+      "rationale": "Every metric, dimension and value expected is present and usable, so the expectation is achievable and the failure lies in the software.",
+      "evidence": {
+        "config_problems": [],
+        "diagnostic_run": {
+          "pass_fail": "FAIL",
+          "failure_codes": [
+            "wrong value",
+            "wrong ambiguity"
+          ]
+        },
+        "evidence_source": "live connection F82C2F8D-0BD6-40E2-8C8B-FF1D69E317D5, semantic_metrics / semantic_dimensions / dimension_value_index",
+        "answerability": {
+          "metric_tables": [
+            "QB_MDJMD_SALES_5YRS_SUMMARY"
+          ],
+          "dimension_tables": [
+            "PBI_ENES_ORDER_PENDING_SUMMARY",
+            "PBI_OUTSTANDING_ENES_SUMMARY",
+            "QB_MDJMD_SALES_5YRS_SUMMARY"
+          ],
+          "cross_table_without_verified_join": true,
+          "verified_joins_for_connection": 0,
+          "note": "Physical answerability only. This never influences the verdict."
+        }
+      },
+      "original_expected": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          "Division",
+          "City"
+        ],
+        "values": [
+          "COIMBATORE",
+          "VT",
+          "VT",
+          "VT",
+          "AN",
+          "AN",
+          "AN"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "recommended_expected": null,
+      "requires_human_review": false,
+      "expectation_changed_in_v2": false
+    },
+    "expected_identity": {
+      "metrics": [
+        {
+          "business_name": "C Y",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY",
+              "column_name": "CY"
+            }
+          ],
+          "ambiguous_across_tables": false
+        }
+      ],
+      "dimensions": [
+        {
+          "business_name": "Division",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY",
+              "column_name": "Division"
+            },
+            {
+              "table_name": "PBI_OUTSTANDING_ENES_SUMMARY",
+              "column_name": "Division"
+            },
+            {
+              "table_name": "PBI_ENES_ORDER_PENDING_SUMMARY",
+              "column_name": "Division"
+            }
+          ],
+          "ambiguous_across_tables": true
+        },
+        {
+          "business_name": "City",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "PBI_OUTSTANDING_ENES_SUMMARY",
+              "column_name": "City"
+            }
+          ],
+          "ambiguous_across_tables": false
+        }
+      ]
+    },
+    "data_answerable": "no",
+    "missing_data": [
+      "City on QB_MDJMD_SALES_5YRS_SUMMARY, or a verified join path from QB_MDJMD_SALES_5YRS_SUMMARY to PBI_OUTSTANDING_ENES_SUMMARY"
+    ]
+  },
+  {
+    "case_id": "E1-080",
+    "category": "MULTI_DIMENSION",
+    "source": "REAL_BUSINESS",
+    "severity": "HIGH",
+    "question": "Show sales for Ramraj brand and VT division",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "Division",
+        "Brand"
+      ],
+      "values": [
+        "RAMRAJ"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Multi-dimension query combining Brand (Ramraj) and Division (VT).",
+    "expectation_review": {
+      "verdict": "E",
+      "verdict_meaning": "Genuine ambiguity - requires a human/business decision",
+      "rationale": "The expected value is not a value in the data. A family of real values shares its wording, so what it should resolve to is an undefined business meaning, not a mechanical fix.",
+      "evidence": {
+        "config_problems": [
+          {
+            "field": "values",
+            "name": "RAMRAJ",
+            "issue": "NOT_IN_INDEX",
+            "detail": "This exact value does not exist in the index.",
+            "candidates": [
+              "RAMRAJ DEVOTIONAL",
+              "RAMRAJ DHOTI",
+              "RAMRAJ DHOTISET",
+              "RAMRAJ FABRIC",
+              "RAMRAJ HANKEYS",
+              "RAMRAJ HOSIERY",
+              "RAMRAJ KALYAAN",
+              "RAMRAJ LAGNAA"
+            ],
+            "candidate_count": 15,
+            "confident_replacement": null
+          }
+        ],
+        "diagnostic_run": {
+          "pass_fail": "FAIL",
+          "failure_codes": [
+            "wrong value",
+            "wrong ambiguity"
+          ]
+        },
+        "evidence_source": "live connection F82C2F8D-0BD6-40E2-8C8B-FF1D69E317D5, semantic_metrics / semantic_dimensions / dimension_value_index",
+        "ramraj_values": {
+          "exact_value_RAMRAJ_exists": false,
+          "values_on_metric_table": {
+            "QB_MDJMD_SALES_5YRS_SUMMARY": [
+              "RAMRAJ KALYAAN",
+              "RAMRAJ LAGNAA",
+              "RAMRAJ LITTLESTARS",
+              "RAMRAJ MASK",
+              "RAMRAJ MUHURTH",
+              "RAMRAJ PANT",
+              "RAMRAJ SHIRT",
+              "RAMRAJ VAIBHAV SET",
+              "RAMRAJ WEDDING SET"
+            ]
+          },
+          "brand_column_shape": "Prod Grp1 (QB_MDJMD_SALES_5YRS_SUMMARY.ProdGrp1) was evaluated as the replacement dimension for 'brand' on Sales questions and rejected. Its 55 values mix product types (DHOTI, BANIANS, TOWEL, ACCESSORIES, FABRIC), standalone brands (CULTURE CLUB, PRIMA CLUB, LINEN PARK, GENISTAA) and brand-product lines (RAMRAJ PANT, RAMRAJ SHIRT, VIVEAGHAM DHOTI), plus non-product entries (LOT, SCRAP ITEM, COMBO). It is a product-line dimension, not a brand dimension, and it holds no value 'RAMRAJ'. Brand on PBI_ENES_ORDER_PENDING_SUMMARY has the same shape (RAMRAJ DHOTI, RAMRAJ HANKEYS...). Neither table represents brand as its own field."
+        },
+        "joinability": {
+          "metric_tables": [
+            "QB_MDJMD_SALES_5YRS_SUMMARY"
+          ],
+          "dimension_tables": [
+            "PBI_ENES_ORDER_PENDING_SUMMARY",
+            "PBI_OUTSTANDING_ENES_SUMMARY",
+            "QB_MDJMD_SALES_5YRS_SUMMARY"
+          ],
+          "relationships_defined_for_connection": 0,
+          "dimensions_not_on_metric_table": [
+            "Brand"
+          ],
+          "single_table_answerable": false
+        },
+        "prodgrp1_evaluation": "Prod Grp1 (QB_MDJMD_SALES_5YRS_SUMMARY.ProdGrp1) was evaluated as the replacement dimension for 'brand' on Sales questions and rejected. Its 55 values mix product types (DHOTI, BANIANS, TOWEL, ACCESSORIES, FABRIC), standalone brands (CULTURE CLUB, PRIMA CLUB, LINEN PARK, GENISTAA) and brand-product lines (RAMRAJ PANT, RAMRAJ SHIRT, VIVEAGHAM DHOTI), plus non-product entries (LOT, SCRAP ITEM, COMBO). It is a product-line dimension, not a brand dimension, and it holds no value 'RAMRAJ'. Brand on PBI_ENES_ORDER_PENDING_SUMMARY has the same shape (RAMRAJ DHOTI, RAMRAJ HANKEYS...). Neither table represents brand as its own field.",
+        "answerability": {
+          "metric_tables": [
+            "QB_MDJMD_SALES_5YRS_SUMMARY"
+          ],
+          "dimension_tables": [
+            "PBI_ENES_ORDER_PENDING_SUMMARY",
+            "PBI_OUTSTANDING_ENES_SUMMARY",
+            "QB_MDJMD_SALES_5YRS_SUMMARY"
+          ],
+          "cross_table_without_verified_join": true,
+          "verified_joins_for_connection": 0,
+          "note": "Physical answerability only. This never influences the verdict."
+        }
+      },
+      "original_expected": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          "Division",
+          "Brand"
+        ],
+        "values": [
+          "RAMRAJ"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "recommended_expected": null,
+      "requires_human_review": true,
+      "expectation_changed_in_v2": false,
+      "resolution_notes": [],
+      "verdict_history": [
+        {
+          "from": "C",
+          "to": "E",
+          "reason": "Step 16 consistency pass: verdict and data_answerable separated onto independent axes. The expected value is not a value in the data. A family of real values shares its wording, so what it should resolve to is an undefined business meaning, not a mechanical fix.",
+          "evidence": {
+            "metric_tables": [
+              "QB_MDJMD_SALES_5YRS_SUMMARY"
+            ],
+            "dimension_tables": [
+              "PBI_ENES_ORDER_PENDING_SUMMARY",
+              "PBI_OUTSTANDING_ENES_SUMMARY",
+              "QB_MDJMD_SALES_5YRS_SUMMARY"
+            ],
+            "cross_table_without_verified_join": true,
+            "verified_joins_for_connection": 0,
+            "diagnostic_run": "FAIL"
+          }
+        }
+      ]
+    },
+    "expected_identity": {
+      "metrics": [
+        {
+          "business_name": "C Y",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY",
+              "column_name": "CY"
+            }
+          ],
+          "ambiguous_across_tables": false
+        }
+      ],
+      "dimensions": [
+        {
+          "business_name": "Division",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY",
+              "column_name": "Division"
+            },
+            {
+              "table_name": "PBI_OUTSTANDING_ENES_SUMMARY",
+              "column_name": "Division"
+            },
+            {
+              "table_name": "PBI_ENES_ORDER_PENDING_SUMMARY",
+              "column_name": "Division"
+            }
+          ],
+          "ambiguous_across_tables": true
+        },
+        {
+          "business_name": "Brand",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "PBI_ENES_ORDER_PENDING_SUMMARY",
+              "column_name": "Brand"
+            }
+          ],
+          "ambiguous_across_tables": false
+        }
+      ]
+    },
+    "data_answerable": "no",
+    "missing_data": [
+      "Brand on QB_MDJMD_SALES_5YRS_SUMMARY, or a verified join path from QB_MDJMD_SALES_5YRS_SUMMARY to PBI_ENES_ORDER_PENDING_SUMMARY"
+    ]
+  },
+  {
+    "case_id": "E1-081",
+    "category": "MULTI_DIMENSION",
+    "source": "REAL_BUSINESS",
+    "severity": "CRITICAL",
+    "question": "Show sales for Chennai city, Ramraj brand and Franchise category",
+    "conversation": [],
+    "datasource_ref": "Chatbot",
+    "expected": {
+      "metrics": [
+        "C Y"
+      ],
+      "dimensions": [
+        "Category",
+        "Brand",
+        "City"
+      ],
+      "values": [
+        "RAMRAJ"
+      ],
+      "status": "WEAK_AMBIGUITY",
+      "followup_context_applied": false,
+      "dominant_candidate": null,
+      "retrieval_status": "COMPLETE"
+    },
+    "notes": "Triple-dimension query combining City (Chennai), Brand (Ramraj), and Category (Marketing).",
+    "expectation_review": {
+      "verdict": "E",
+      "verdict_meaning": "Genuine ambiguity - requires a human/business decision",
+      "rationale": "The expected value is not a value in the data. A family of real values shares its wording, so what it should resolve to is an undefined business meaning, not a mechanical fix.",
+      "evidence": {
+        "config_problems": [
+          {
+            "field": "values",
+            "name": "RAMRAJ",
+            "issue": "NOT_IN_INDEX",
+            "detail": "This exact value does not exist in the index.",
+            "candidates": [
+              "RAMRAJ DEVOTIONAL",
+              "RAMRAJ DHOTI",
+              "RAMRAJ DHOTISET",
+              "RAMRAJ FABRIC",
+              "RAMRAJ HANKEYS",
+              "RAMRAJ HOSIERY",
+              "RAMRAJ KALYAAN",
+              "RAMRAJ LAGNAA"
+            ],
+            "candidate_count": 15,
+            "confident_replacement": null
+          }
+        ],
+        "diagnostic_run": {
+          "pass_fail": "FAIL",
+          "failure_codes": [
+            "wrong dimension",
+            "wrong value",
+            "wrong ambiguity"
+          ]
+        },
+        "evidence_source": "live connection F82C2F8D-0BD6-40E2-8C8B-FF1D69E317D5, semantic_metrics / semantic_dimensions / dimension_value_index",
+        "ramraj_values": {
+          "exact_value_RAMRAJ_exists": false,
+          "values_on_metric_table": {
+            "QB_MDJMD_SALES_5YRS_SUMMARY": [
+              "RAMRAJ KALYAAN",
+              "RAMRAJ LAGNAA",
+              "RAMRAJ LITTLESTARS",
+              "RAMRAJ MASK",
+              "RAMRAJ MUHURTH",
+              "RAMRAJ PANT",
+              "RAMRAJ SHIRT",
+              "RAMRAJ VAIBHAV SET",
+              "RAMRAJ WEDDING SET"
+            ]
+          },
+          "brand_column_shape": "Prod Grp1 (QB_MDJMD_SALES_5YRS_SUMMARY.ProdGrp1) was evaluated as the replacement dimension for 'brand' on Sales questions and rejected. Its 55 values mix product types (DHOTI, BANIANS, TOWEL, ACCESSORIES, FABRIC), standalone brands (CULTURE CLUB, PRIMA CLUB, LINEN PARK, GENISTAA) and brand-product lines (RAMRAJ PANT, RAMRAJ SHIRT, VIVEAGHAM DHOTI), plus non-product entries (LOT, SCRAP ITEM, COMBO). It is a product-line dimension, not a brand dimension, and it holds no value 'RAMRAJ'. Brand on PBI_ENES_ORDER_PENDING_SUMMARY has the same shape (RAMRAJ DHOTI, RAMRAJ HANKEYS...). Neither table represents brand as its own field."
+        },
+        "joinability": {
+          "metric_tables": [
+            "QB_MDJMD_SALES_5YRS_SUMMARY"
+          ],
+          "dimension_tables": [
+            "PBI_ENES_ORDER_PENDING_SUMMARY",
+            "PBI_OUTSTANDING_ENES_SUMMARY",
+            "QB_MDJMD_SALES_5YRS_SUMMARY"
+          ],
+          "relationships_defined_for_connection": 0,
+          "dimensions_not_on_metric_table": [
+            "Brand",
+            "City"
+          ],
+          "single_table_answerable": false
+        },
+        "prodgrp1_evaluation": "Prod Grp1 (QB_MDJMD_SALES_5YRS_SUMMARY.ProdGrp1) was evaluated as the replacement dimension for 'brand' on Sales questions and rejected. Its 55 values mix product types (DHOTI, BANIANS, TOWEL, ACCESSORIES, FABRIC), standalone brands (CULTURE CLUB, PRIMA CLUB, LINEN PARK, GENISTAA) and brand-product lines (RAMRAJ PANT, RAMRAJ SHIRT, VIVEAGHAM DHOTI), plus non-product entries (LOT, SCRAP ITEM, COMBO). It is a product-line dimension, not a brand dimension, and it holds no value 'RAMRAJ'. Brand on PBI_ENES_ORDER_PENDING_SUMMARY has the same shape (RAMRAJ DHOTI, RAMRAJ HANKEYS...). Neither table represents brand as its own field.",
+        "answerability": {
+          "metric_tables": [
+            "QB_MDJMD_SALES_5YRS_SUMMARY"
+          ],
+          "dimension_tables": [
+            "PBI_ENES_ORDER_PENDING_SUMMARY",
+            "PBI_OUTSTANDING_ENES_SUMMARY",
+            "QB_MDJMD_SALES_5YRS_SUMMARY"
+          ],
+          "cross_table_without_verified_join": true,
+          "verified_joins_for_connection": 0,
+          "note": "Physical answerability only. This never influences the verdict."
+        }
+      },
+      "original_expected": {
+        "metrics": [
+          "C Y"
+        ],
+        "dimensions": [
+          "Category",
+          "Brand",
+          "City"
+        ],
+        "values": [
+          "RAMRAJ"
+        ],
+        "status": "WEAK_AMBIGUITY",
+        "followup_context_applied": false,
+        "dominant_candidate": null,
+        "retrieval_status": "COMPLETE"
+      },
+      "recommended_expected": null,
+      "requires_human_review": true,
+      "expectation_changed_in_v2": false,
+      "resolution_notes": [],
+      "verdict_history": [
+        {
+          "from": "C",
+          "to": "E",
+          "reason": "Step 16 consistency pass: verdict and data_answerable separated onto independent axes. The expected value is not a value in the data. A family of real values shares its wording, so what it should resolve to is an undefined business meaning, not a mechanical fix.",
+          "evidence": {
+            "metric_tables": [
+              "QB_MDJMD_SALES_5YRS_SUMMARY"
+            ],
+            "dimension_tables": [
+              "PBI_ENES_ORDER_PENDING_SUMMARY",
+              "PBI_OUTSTANDING_ENES_SUMMARY",
+              "QB_MDJMD_SALES_5YRS_SUMMARY"
+            ],
+            "cross_table_without_verified_join": true,
+            "verified_joins_for_connection": 0,
+            "diagnostic_run": "FAIL"
+          }
+        }
+      ]
+    },
+    "expected_identity": {
+      "metrics": [
+        {
+          "business_name": "C Y",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY",
+              "column_name": "CY"
+            }
+          ],
+          "ambiguous_across_tables": false
+        }
+      ],
+      "dimensions": [
+        {
+          "business_name": "Category",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY",
+              "column_name": "Category"
+            },
+            {
+              "table_name": "PBI_ENES_ORDER_PENDING_SUMMARY",
+              "column_name": "Category"
+            }
+          ],
+          "ambiguous_across_tables": true
+        },
+        {
+          "business_name": "Brand",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "PBI_ENES_ORDER_PENDING_SUMMARY",
+              "column_name": "Brand"
+            }
+          ],
+          "ambiguous_across_tables": false
+        },
+        {
+          "business_name": "City",
+          "resolved": true,
+          "physical": [
+            {
+              "table_name": "PBI_OUTSTANDING_ENES_SUMMARY",
+              "column_name": "City"
+            }
+          ],
+          "ambiguous_across_tables": false
+        }
+      ]
+    },
+    "data_answerable": "no",
+    "missing_data": [
+      "Brand on QB_MDJMD_SALES_5YRS_SUMMARY, or a verified join path from QB_MDJMD_SALES_5YRS_SUMMARY to PBI_ENES_ORDER_PENDING_SUMMARY",
+      "City on QB_MDJMD_SALES_5YRS_SUMMARY, or a verified join path from QB_MDJMD_SALES_5YRS_SUMMARY to PBI_OUTSTANDING_ENES_SUMMARY"
+    ]
+  }
+]

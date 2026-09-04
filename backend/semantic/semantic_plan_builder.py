@@ -65,6 +65,164 @@ class SemanticPlanBuilder:
             
         return False
 
+    # Gate 3 Step 7b - the registered dimension for one physical column,
+    # cached per process. Used to validate a configured month_column before it
+    # is allowed to replace a matched dimension: semantic_table_config is
+    # administrator-entered free text and can name something that is not a
+    # column at all. One row on this connection does exactly that
+    # (month_column = "Docdate (YYYY-MM-DD)"), and it is is_confirmed = 1, so
+    # confirmation is no protection. A configured column that is not a
+    # registered dimension is ignored rather than planned.
+    _month_dimension_cache: dict = {}
+
+    @classmethod
+    def _registered_dimension(cls, connection_id, table_name, column_name):
+        """The registered dimension for one column, or None if there is none."""
+        if not connection_id or not table_name or not column_name:
+            return None
+
+        key = (connection_id, table_name.lower(), column_name.lower())
+        if key in cls._month_dimension_cache:
+            return cls._month_dimension_cache[key]
+
+        row = None
+        try:
+            from sqlalchemy import text
+            from database import engine
+            from semantic import runtime_config_filter
+
+            with engine.connect() as conn:
+                row = conn.execute(text(f"""
+                    SELECT dimension_name, business_name, table_name,
+                           column_name, semantic_category,
+                           {runtime_config_filter.dimension_role_column()}
+                    FROM semantic_dimensions
+                    WHERE connection_id = :connection_id
+                      AND LOWER(table_name) = :table_name
+                      AND LOWER(column_name) = :column_name
+                      AND is_active = 1
+                      {runtime_config_filter.dimension_filter()}
+                """), {
+                    "connection_id": connection_id,
+                    "table_name": table_name.lower(),
+                    "column_name": column_name.lower(),
+                }).fetchone()
+        except Exception:
+            # Never fail a plan over this. An unreadable registry means the
+            # configured column cannot be validated, so it is not used.
+            row = None
+
+        resolved = None
+        if row is not None:
+            resolved = {
+                "dimension_name": row[0],
+                "business_name": row[1],
+                "table_name": row[2],
+                "column_name": row[3],
+                "semantic_category": row[4],
+                "dimension_role": row[5] if len(row) > 5 else None,
+            }
+
+        cls._month_dimension_cache[key] = resolved
+        return resolved
+
+    @classmethod
+    def _apply_configured_month(cls, dim: dict, connection_id, assumptions: list):
+        """
+        Gate 3 Step 7b - swap a matched month dimension for the configured one.
+
+        Returns (dimension, order_by_column). The dimension is returned
+        unchanged, and order_by_column is None, unless ALL of the following
+        hold, because each one is a way the configuration can be wrong:
+
+          * the dimension's own table is configured SNAPSHOT and confirmed
+            (Step 7a's per-table loader, Step 7c's is_confirmed predicate);
+          * a month_column is configured for it;
+          * that column is a registered, active, non-excluded dimension - the
+            administrator can type anything into this field, and on this
+            connection one row holds "Docdate (YYYY-MM-DD)", which is a display
+            format rather than a column;
+          * the fiscal year does not start in January, OR a month_sort_column
+            is configured. A calendar year sorts correctly on any month column,
+            so there is nothing to correct and no reason to override a matcher
+            that already found a usable one.
+
+        A substitution is recorded as a plan assumption. Replacing the column a
+        question resolved to is a decision made on the user's behalf, and Gate 1
+        Step 6's rule is that those are stated rather than made silently.
+        """
+        table_name = dim.get("table_name")
+        if not table_name:
+            return dim, None
+
+        from semantic.temporal.snapshot_config import SnapshotConfigLoader
+
+        config = SnapshotConfigLoader.for_table(connection_id, table_name)
+        if not config.is_configured or not config.month_column:
+            return dim, None
+
+        # A January fiscal year needs no ordering correction, and without a
+        # sort column there is nothing to carry either.
+        if config.fiscal_year_start_month == 1 and not config.month_sort_column:
+            return dim, None
+
+        order_by_column = None
+        if config.month_sort_column:
+            sort_dimension = cls._registered_dimension(
+                connection_id, table_name, config.month_sort_column
+            )
+            if sort_dimension:
+                order_by_column = sort_dimension["column_name"]
+
+        current_column = (dim.get("column_name") or "").lower()
+        if current_column == config.month_column.lower():
+            return dim, order_by_column
+
+        configured = cls._registered_dimension(
+            connection_id, table_name, config.month_column
+        )
+        if not configured:
+            # Configured, confirmed, and not a real dimension. Left alone
+            # rather than planned onto a column that may not exist.
+            return dim, order_by_column
+
+        assumptions.append(
+            "Month was resolved to %s, but %s is the configured month column "
+            "for %s, so it was used instead."
+            % (
+                dim.get("business_name") or dim.get("column_name"),
+                configured["business_name"] or configured["column_name"],
+                table_name,
+            )
+        )
+
+        substituted = dict(dim)
+        substituted.update({
+            "dimension_name": configured["dimension_name"],
+            "business_name": configured["business_name"],
+            "table_name": configured["table_name"],
+            "column_name": configured["column_name"],
+            "semantic_category": configured["semantic_category"],
+            "dimension_role": configured["dimension_role"],
+        })
+        return substituted, order_by_column
+
+    @staticmethod
+    def _is_month_dimension(dim: Any) -> bool:
+        """A dimension whose grain is the month, as opposed to any time column."""
+        if isinstance(dim, dict):
+            category = (dim.get("semantic_category") or "").upper()
+            col = (dim.get("column_name") or "").lower()
+            bname = (dim.get("business_name") or dim.get("dimension_name") or "").lower()
+        else:
+            category = (dim.semantic_category or "").upper()
+            col = (dim.column_name or "").lower()
+            bname = (dim.business_name or dim.dimension_name or "").lower()
+
+        if category == "TIME_MONTH":
+            return True
+        return "month" in bname or "month" in col
+
     @staticmethod
     def _is_temporal_dimension(dim: Any) -> bool:
         if isinstance(dim, dict):
@@ -161,22 +319,58 @@ class SemanticPlanBuilder:
 
         # Which table holds period-per-column measures, and which columns they
         # are, both come from configuration now.
-        from semantic.temporal.snapshot_config import SnapshotConfigLoader
+        #
+        # Gate 3 Step 7a - resolved for the table this plan's own metric sits
+        # on. The previous call asked for_connection(), whose loader settles the
+        # question with SELECT TOP 1 ... ORDER BY table_name, so one SNAPSHOT
+        # table per connection won alphabetically and a metric on any other one
+        # was measured against the wrong table's period columns.
+        #
+        # A table that is not configured SNAPSHOT comes back unconfigured, which
+        # leaves sales_table None and sales_columns empty, so the snapshot
+        # branch below is skipped entirely - correct for a table whose periods
+        # are rows rather than columns.
+        from semantic.temporal.snapshot_config import SnapshotConfig, SnapshotConfigLoader
 
-        snapshot_config = SnapshotConfigLoader.for_connection(connection_id)
+        snapshot_config = SnapshotConfig()
+        sales_table = None
+
+        for m in metric_objs:
+            if not isinstance(m, dict):
+                continue
+            candidate_table = m.get("table_name")
+            if not candidate_table or candidate_table == sales_table:
+                continue
+            candidate_config = SnapshotConfigLoader.for_table(
+                connection_id, candidate_table
+            )
+            if candidate_config.is_configured:
+                snapshot_config = candidate_config
+                sales_table = candidate_table
+                break
+
+        if sales_table is None:
+            # No metric sits on a configured snapshot table - which is also the
+            # case when there is no connection at all, or the connection has
+            # never been configured. Fall back to the connection-wide answer,
+            # exactly as this code did before Step 7a, so an unconfigured
+            # environment keeps working and the fallback stays visible on the
+            # plan. Where a metric DID resolve per table, that precise
+            # configuration is used and this branch never runs.
+            snapshot_config = SnapshotConfigLoader.for_connection(connection_id)
+            sales_table = snapshot_config.table_name
+
+            if not snapshot_config.is_configured:
+                # Said out loud rather than assumed. A plan built on the
+                # fallback bindings is built on one customer's column names,
+                # and a reviewer reading the plan should be able to see that.
+                assumptions.append(
+                    "No snapshot configuration was found for this connection, "
+                    "so the pre-configuration column bindings were used."
+                )
 
         has_sales = False
-        sales_table = snapshot_config.table_name
         sales_columns = snapshot_config.resolvable_columns
-
-        if not snapshot_config.is_configured:
-            # Said out loud rather than assumed. A plan built on the fallback
-            # bindings is built on one customer's column names, and a reviewer
-            # reading the plan should be able to see that.
-            assumptions.append(
-                "No snapshot configuration was found for this connection, so "
-                "the pre-configuration column bindings were used."
-            )
 
         # Collect non-sales metrics normally
         other_metrics = []
@@ -303,6 +497,27 @@ class SemanticPlanBuilder:
                         d.get("business_name") or d.get("dimension_name") or "a time dimension"
                     )
                     continue
+                # Gate 3 Step 7b - a table's configured month_column is
+                # authoritative for its month grain.
+                #
+                # The sales table registers three month dimensions - DocMonth,
+                # InvMonth and InvMonthS - and two of them carry the synonym
+                # "Month", so "sales by month" was answered by whichever the
+                # matcher happened to rank first. The administrator has already
+                # settled which one is meant: month_column = InvMonth, with
+                # month_sort_column = InvMonth because its leading letter
+                # encodes fiscal order (A April ... L March) while DocMonth is
+                # a calendar number that would place January first - wrong for
+                # an April-March year.
+                #
+                # Only SNAPSHOT tables are consulted, through the Step 7a
+                # per-table loader, so DATE_COLUMN capability is untouched.
+                order_by_column = None
+                if cls._is_month_dimension(d):
+                    d, order_by_column = cls._apply_configured_month(
+                        d, connection_id, assumptions
+                    )
+
                 plan_dims.append(SemanticDimension(
                     dimension_name=d.get("dimension_name") or d.get("business_name") or "",
                     business_name=d.get("business_name") or d.get("dimension_name") or "",
@@ -310,7 +525,8 @@ class SemanticPlanBuilder:
                     column_name=d.get("column_name") or "",
                     semantic_category=d.get("semantic_category"),
                     connection_id=connection_id,
-                    dimension_role=d.get("dimension_role")
+                    dimension_role=d.get("dimension_role"),
+                    order_by_column=order_by_column
                 ))
 
         if dropped_time_dims:
@@ -331,12 +547,34 @@ class SemanticPlanBuilder:
                     operator = FilterOperator.EQUAL
 
                 dim_name = v.get("business_name") or v.get("dimension") or v.get("dimension_name") or ""
+
+                # A curated value family (semantic_value_family) names a group
+                # of stored values rather than one of them - "Ramraj" is not a
+                # row in Brand; its twelve product lines are. Filtering on the
+                # family name would match nothing, so the filter is the members
+                # it stands for. Ordinary values carry no members and keep the
+                # single-value equality filter they always had.
+                family_members = v.get("family_members") or []
+                if family_members:
+                    filter_values = list(family_members)
+                    filter_operator = (
+                        FilterOperator.IN if len(filter_values) > 1 else operator
+                    )
+                    assumptions.append(
+                        "'%s' is a configured %s family, so it was expanded to "
+                        "its %d members."
+                        % (v.get("value"), dim_name or "value", len(filter_values))
+                    )
+                else:
+                    filter_values = [v.get("value")]
+                    filter_operator = operator
+
                 plan_filters.append(SemanticFilter(
                     dimension_name=dim_name,
                     table_name=v.get("table_name") or "",
                     column_name=v.get("column_name") or "",
-                    operator=operator,
-                    values=[v.get("value")]
+                    operator=filter_operator,
+                    values=filter_values
                 ))
 
         # 4. Build tables

@@ -6,7 +6,12 @@ import unittest
 from unittest.mock import MagicMock, patch
 from semantic.matching import MatchResult
 from semantic.matching.singular_plural_matcher import SingularPluralMatcher
-from semantic.matching.models import MatchType
+from semantic.matching.models import (
+    MatchType,
+    AmbiguityChoice,
+    SemanticResolutionResult,
+    ResolutionStatus,
+)
 from semantic.dimension_value_resolver import DimensionValueResolver, ResolvedDimensionValue
 
 
@@ -1561,6 +1566,318 @@ class TestFuzzyCoverageRankingFix(unittest.TestCase):
         # Candidate A (0.90 conf) must rank first since coverage is equal (2/2)
         self.assertEqual(ranked[0].value, "Cotton Pants")
         self.assertEqual(ranked[1].value, "Formal Shirts")
+
+
+class TestCandidateListPreservationByStatus(unittest.TestCase):
+    """
+    Fix verified here: the candidate-list collapse in DimensionValueResolver
+    (backend/semantic/dimension_value_resolver.py, the block returning
+    ResolutionResultList after AmbiguityClassifier.classify) must depend on
+    the classified status, not merely on whether a dominant_match exists.
+
+    SINGLE_MATCH: only one real candidate ever existed - collapsing to it is
+    correct and must not regress.
+
+    WEAK_AMBIGUITY: 21b's confidence model chose a preferred candidate, and
+    the level exists specifically to say "alternatives remain" - but only
+    genuine ones. An alternative is retained when it competes with the
+    dominant candidate on the same column, matched through at least one of
+    the same question tokens; otherwise it is a match on an unrelated word or
+    an unrelated column and is dropped, exactly as if it never mattered.
+
+    AmbiguityClassifier.classify is patched directly so these tests are
+    scoped to the resolver's response-shaping logic - they do not exercise or
+    depend on the 21b scoring, DOMINANCE_MARGIN, or table_affinity, none of
+    which changed.
+    """
+
+    def setUp(self):
+        DimensionValueResolver.clear_cache()
+
+    def _choice(self, value, business_name, table_name, column_name, dimension_id):
+        result = MatchResult(
+            matched=True,
+            value=value,
+            normalized_value=value.lower(),
+            confidence=0.90,
+            match_type=MatchType.EXACT,
+            matched_question_tokens=["vt"],
+            matched_value_tokens=[value.lower()],
+            reason="exact",
+            dimension_id=dimension_id,
+            business_name=business_name,
+            table_name=table_name,
+            column_name=column_name
+        )
+        return AmbiguityChoice(result=result, matched_query_tokens=["vt"])
+
+    @patch("semantic.dimension_value_resolver.AmbiguityClassifier")
+    @patch("semantic.dimension_value_resolver.engine")
+    def test_single_match_returns_only_the_one_candidate(self, mock_engine, mock_classifier):
+        mock_conn = MagicMock()
+        mock_engine.connect.return_value.__enter__.return_value = mock_conn
+        mock_row = MagicMock()
+        mock_row._mapping = {
+            "semantic_dimension_id": 1,
+            "business_name": "Division",
+            "table_name": "Sales",
+            "column_name": "Division",
+            "value": "VT",
+            "normalized_value": "vt"
+        }
+        mock_conn.execute.return_value.fetchall.return_value = [mock_row]
+
+        dominant = self._choice("VT", "Division", "Sales", "Division", 1)
+        mock_classifier.classify.return_value = SemanticResolutionResult(
+            status=ResolutionStatus.SINGLE_MATCH,
+            candidates=[dominant],
+            dominant_match=dominant
+        )
+
+        results = DimensionValueResolver.resolve("test-conn", "Show sales for VT")
+
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0]["value"], "VT")
+        self.assertEqual(results[0]["table_name"], "Sales")
+
+    def _choice_with_tokens(self, value, business_name, table_name, column_name,
+                             dimension_id, matched_query_tokens, matched_value_tokens,
+                             match_type=MatchType.EXACT, confidence=0.90):
+        result = MatchResult(
+            matched=True,
+            value=value,
+            normalized_value=value.lower(),
+            confidence=confidence,
+            match_type=match_type,
+            matched_question_tokens=matched_query_tokens,
+            matched_value_tokens=matched_value_tokens,
+            reason="test",
+            dimension_id=dimension_id,
+            business_name=business_name,
+            table_name=table_name,
+            column_name=column_name
+        )
+        return AmbiguityChoice(result=result, matched_query_tokens=matched_query_tokens)
+
+    @patch("semantic.dimension_value_resolver.AmbiguityClassifier")
+    @patch("semantic.dimension_value_resolver.engine")
+    def test_weak_ambiguity_genuine_competitor_on_same_column_and_token_is_retained(
+        self, mock_engine, mock_classifier
+    ):
+        """
+        "children wear" -> ETHNIC WEAR (dominant) and N--NIGHT WEARS
+        (alternative). Both are on the same column and both were matched
+        through the same question token ("wear"), so both are genuine
+        competing answers - the existing clarification flow must still be
+        able to offer both.
+        """
+        mock_conn = MagicMock()
+        mock_engine.connect.return_value.__enter__.return_value = mock_conn
+        mock_row = MagicMock()
+        mock_row._mapping = {
+            "semantic_dimension_id": 1,
+            "business_name": "Prod Grp2",
+            "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY",
+            "column_name": "ProdGrp2",
+            "value": "ETHNIC WEAR",
+            "normalized_value": "ethnic wear"
+        }
+        mock_conn.execute.return_value.fetchall.return_value = [mock_row]
+
+        dominant = self._choice_with_tokens(
+            "ETHNIC WEAR", "Prod Grp2", "QB_MDJMD_SALES_5YRS_SUMMARY", "ProdGrp2", 1,
+            matched_query_tokens=["wear"], matched_value_tokens=["ethnic", "wear"],
+            match_type=MatchType.FUZZY
+        )
+        alt = self._choice_with_tokens(
+            "N--NIGHT WEARS", "Prod Grp2", "QB_MDJMD_SALES_5YRS_SUMMARY", "ProdGrp2", 1,
+            matched_query_tokens=["wear"], matched_value_tokens=["n", "night", "wears"],
+            match_type=MatchType.FUZZY
+        )
+        mock_classifier.classify.return_value = SemanticResolutionResult(
+            status=ResolutionStatus.WEAK_AMBIGUITY,
+            candidates=[alt, dominant],
+            dominant_match=dominant
+        )
+
+        results = DimensionValueResolver.resolve("test-conn", "Total sales for children wear")
+
+        self.assertEqual(len(results), 2)
+        self.assertEqual(results[0]["value"], "ETHNIC WEAR")  # dominant first
+        self.assertEqual({r["value"] for r in results}, {"ETHNIC WEAR", "N--NIGHT WEARS"})
+
+    @patch("semantic.dimension_value_resolver.AmbiguityClassifier")
+    @patch("semantic.dimension_value_resolver.engine")
+    def test_weak_ambiguity_discards_alternative_matched_on_a_different_token(
+        self, mock_engine, mock_classifier
+    ):
+        """
+        "Chennai city" -> CHENNAI (dominant, matched via "chennai") and
+        ELECTRONIC CITY (matched only via the generic trailing word "city").
+        Same column, but the alternative shares no matched token with the
+        dominant candidate - it is an accidental match on a word that isn't
+        what the user was asking about, not a competing city.
+        """
+        mock_conn = MagicMock()
+        mock_engine.connect.return_value.__enter__.return_value = mock_conn
+        mock_row = MagicMock()
+        mock_row._mapping = {
+            "semantic_dimension_id": 1,
+            "business_name": "City",
+            "table_name": "PBI_OUTSTANDING_ENES_SUMMARY",
+            "column_name": "City",
+            "value": "CHENNAI",
+            "normalized_value": "chennai"
+        }
+        mock_conn.execute.return_value.fetchall.return_value = [mock_row]
+
+        dominant = self._choice_with_tokens(
+            "CHENNAI", "City", "PBI_OUTSTANDING_ENES_SUMMARY", "City", 1,
+            matched_query_tokens=["chennai"], matched_value_tokens=["chennai"],
+            match_type=MatchType.EXACT, confidence=1.0
+        )
+        accidental = self._choice_with_tokens(
+            "ELECTRONIC CITY", "City", "PBI_OUTSTANDING_ENES_SUMMARY", "City", 1,
+            matched_query_tokens=["city"], matched_value_tokens=["electronic", "city"],
+            match_type=MatchType.FUZZY, confidence=0.9
+        )
+        mock_classifier.classify.return_value = SemanticResolutionResult(
+            status=ResolutionStatus.WEAK_AMBIGUITY,
+            candidates=[dominant, accidental],
+            dominant_match=dominant
+        )
+
+        results = DimensionValueResolver.resolve("test-conn", "Show sales for Chennai city")
+
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0]["value"], "CHENNAI")
+
+    @patch("semantic.dimension_value_resolver.AmbiguityClassifier")
+    @patch("semantic.dimension_value_resolver.engine")
+    def test_weak_ambiguity_discards_alternative_on_a_different_column(
+        self, mock_engine, mock_classifier
+    ):
+        """
+        "Banians" -> BANIANS (dominant, on ProdGrp1) and SECONDS_ RN BANIAN
+        (matched via the same token "banians" through singular/plural
+        normalization, but on ProdGrp3 - an unrelated internal product code
+        that merely contains the substring). Sharing the matched token is not
+        enough when the candidates are not even competing on the same column.
+        """
+        mock_conn = MagicMock()
+        mock_engine.connect.return_value.__enter__.return_value = mock_conn
+        mock_row = MagicMock()
+        mock_row._mapping = {
+            "semantic_dimension_id": 1,
+            "business_name": "Prod Grp1",
+            "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY",
+            "column_name": "ProdGrp1",
+            "value": "BANIANS",
+            "normalized_value": "banians"
+        }
+        mock_conn.execute.return_value.fetchall.return_value = [mock_row]
+
+        dominant = self._choice_with_tokens(
+            "BANIANS", "Prod Grp1", "QB_MDJMD_SALES_5YRS_SUMMARY", "ProdGrp1", 1,
+            matched_query_tokens=["banians"], matched_value_tokens=["banians"],
+            match_type=MatchType.EXACT, confidence=1.0
+        )
+        unrelated_code = self._choice_with_tokens(
+            "SECONDS_ RN BANIAN", "Prod Grp3", "QB_MDJMD_SALES_5YRS_SUMMARY", "ProdGrp3", 2,
+            matched_query_tokens=["banians"], matched_value_tokens=["seconds", "rn", "banian"],
+            match_type=MatchType.SINGULAR_PLURAL, confidence=0.95
+        )
+        mock_classifier.classify.return_value = SemanticResolutionResult(
+            status=ResolutionStatus.WEAK_AMBIGUITY,
+            candidates=[dominant, unrelated_code],
+            dominant_match=dominant
+        )
+
+        results = DimensionValueResolver.resolve("test-conn", "Total sales for Banians")
+
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0]["value"], "BANIANS")
+
+    @patch("semantic.dimension_value_resolver.AmbiguityClassifier")
+    @patch("semantic.dimension_value_resolver.engine")
+    def test_weak_ambiguity_retained_alternatives_carry_clarification_fields(
+        self, mock_engine, mock_classifier
+    ):
+        """
+        The existing clarification flow builds its options from business_name,
+        table_name, column_name and value on each returned candidate. This
+        does not touch that flow, but confirms a genuine, retained alternative
+        still carries every field clarification depends on - i.e. the filter
+        added here only removes accidental candidates, it does not alter the
+        shape of the ones it keeps.
+        """
+        mock_conn = MagicMock()
+        mock_engine.connect.return_value.__enter__.return_value = mock_conn
+        mock_row = MagicMock()
+        mock_row._mapping = {
+            "semantic_dimension_id": 1,
+            "business_name": "Prod Grp2",
+            "table_name": "QB_MDJMD_SALES_5YRS_SUMMARY",
+            "column_name": "ProdGrp2",
+            "value": "ETHNIC WEAR",
+            "normalized_value": "ethnic wear"
+        }
+        mock_conn.execute.return_value.fetchall.return_value = [mock_row]
+
+        dominant = self._choice_with_tokens(
+            "ETHNIC WEAR", "Prod Grp2", "QB_MDJMD_SALES_5YRS_SUMMARY", "ProdGrp2", 1,
+            matched_query_tokens=["wear"], matched_value_tokens=["ethnic", "wear"],
+            match_type=MatchType.FUZZY
+        )
+        alt = self._choice_with_tokens(
+            "N--NIGHT WEARS", "Prod Grp2", "QB_MDJMD_SALES_5YRS_SUMMARY", "ProdGrp2", 1,
+            matched_query_tokens=["wear"], matched_value_tokens=["n", "night", "wears"],
+            match_type=MatchType.FUZZY
+        )
+        mock_classifier.classify.return_value = SemanticResolutionResult(
+            status=ResolutionStatus.WEAK_AMBIGUITY,
+            candidates=[dominant, alt],
+            dominant_match=dominant
+        )
+
+        results = DimensionValueResolver.resolve("test-conn", "Total sales for children wear")
+
+        required_fields = {"business_name", "table_name", "column_name", "value",
+                            "dimension_id", "match_type", "confidence"}
+        for r in results:
+            self.assertTrue(required_fields.issubset(r.keys()))
+            self.assertTrue(r["business_name"])
+            self.assertTrue(r["table_name"])
+            self.assertTrue(r["column_name"])
+            self.assertTrue(r["value"])
+
+    @patch("semantic.dimension_value_resolver.AmbiguityClassifier")
+    @patch("semantic.dimension_value_resolver.engine")
+    def test_strong_ambiguity_unaffected_returns_all_candidates(self, mock_engine, mock_classifier):
+        mock_conn = MagicMock()
+        mock_engine.connect.return_value.__enter__.return_value = mock_conn
+        mock_row = MagicMock()
+        mock_row._mapping = {
+            "semantic_dimension_id": 1,
+            "business_name": "Division",
+            "table_name": "Sales",
+            "column_name": "Division",
+            "value": "VT",
+            "normalized_value": "vt"
+        }
+        mock_conn.execute.return_value.fetchall.return_value = [mock_row]
+
+        c1 = self._choice("VT", "Division", "Sales", "Division", 1)
+        c2 = self._choice("VT", "Division", "OrderPending", "Division", 2)
+        mock_classifier.classify.return_value = SemanticResolutionResult(
+            status=ResolutionStatus.STRONG_AMBIGUITY,
+            candidates=[c1, c2],
+            dominant_match=None
+        )
+
+        results = DimensionValueResolver.resolve("test-conn", "Show sales for VT")
+
+        self.assertEqual(len(results), 2)
 
 
 if __name__ == "__main__":

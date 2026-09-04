@@ -180,6 +180,71 @@ class TimeStrategyResolver:
             snapshot_bindings=list(config.bindings),
         )
 
+    def discover_capability_for_table(
+        self, connection_id: str, table_name: str
+    ) -> TimeCapability:
+        """
+        Gate 3 - the table-aware counterpart to _discover_capability().
+
+        For a caller that already knows which table a question resolved
+        to - the same position semantic_resolver.py / semantic_plan_builder.py
+        are in once they know the metric table, and the reason
+        SnapshotConfigLoader.for_table() exists (Gate 3 Step 7a) - this
+        answers "what temporal capability does THIS table have?" rather than
+        the connection-wide question _discover_capability() answers.
+
+        Reads SNAPSHOT bindings from SnapshotConfigLoader.for_table() -
+        THIS table's own bindings, not _discover_capability()'s
+        connection-wide ones. That distinction matters: the connection-wide
+        capability always carries the connection's one SNAPSHOT table's
+        mapping regardless of which table a question's metric actually
+        landed on, and SNAPSHOT outranks DATE_COLUMN in
+        StrategyPriorityEngine (100 vs 70) - so a DATE_COLUMN table handed
+        an unrelated table's snapshot mapping had the strategy selector pick
+        SNAPSHOT anyway, which then failed outright for an intent SNAPSHOT
+        cannot express (no fallback to the next candidate exists, or is
+        added, here), instead of ever trying the DATE_COLUMN capability this
+        method exists to offer. Reading per-table bindings is what makes
+        this capability genuinely table-scoped: a DATE_COLUMN table gets
+        only date_columns, a SNAPSHOT table gets only its own bindings, and
+        existing snapshot-table behaviour (resolved through the unchanged
+        connection-wide _discover_capability() path every other caller still
+        uses) is untouched.
+
+        A table configured as neither comes back with an empty capability,
+        the same as calling TimeStrategyResolver.resolve() with no
+        capability at all today.
+
+        Does not read or write TimeResolutionCache (connection-scoped, and
+        holds _discover_capability()'s connection-wide result - mixing a
+        table-scoped one into it would leak across tables). A caller wanting
+        to reuse a table-scoped result across requests should cache it
+        itself, keyed on (connection_id, table_name).
+        """
+        if not connection_id or not table_name:
+            return TimeCapability()
+
+        from .snapshot_config import SnapshotConfigLoader
+        from .date_column_config import DateColumnConfigLoader
+
+        snapshot_config = SnapshotConfigLoader.for_table(connection_id, table_name)
+        capability = TimeCapability(
+            snapshot_mapping=(
+                snapshot_config.offset_to_column("VALUE")
+                if snapshot_config.is_configured else {}
+            ),
+            snapshot_bindings=(
+                list(snapshot_config.bindings) if snapshot_config.is_configured else []
+            ),
+        )
+
+        date_config = DateColumnConfigLoader.for_table(connection_id, table_name)
+        if date_config.is_configured and date_config.date_column:
+            capability.date_columns = [date_config.date_column]
+            capability.default_date_column = date_config.date_column
+
+        return capability
+
     def _resolve_with_strategy(
         self,
         strategy_type: TimeStrategyType,

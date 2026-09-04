@@ -1,3 +1,18 @@
+> ## ⚠ HISTORICAL — SUPERSEDED
+>
+> **This is not the current Gate 3 result. Do not quote 26.84%.**
+>
+> The authoritative Gate 3 measurement is
+> [`../v2/GATE_3_BASELINE.md`](../v2/GATE_3_BASELINE.md) —
+> **82/190 = 43.16%** (benchmark v2, run `20260903T122636`).
+>
+> This report was produced by `run_retrieval_benchmark.py` against the **v1**
+> datasets, which compare metrics and dimensions on business name. Gate 3
+> Step 16 replaced both the datasets and the contract: v2 compares on physical
+> identity `(table_name, column_name)` and carries reviewed expectations. The
+> figure below is a genuine historical measurement of the v1 benchmark and is
+> kept for the record, not deleted.
+
 # Phase 1E Golden Retrieval Benchmark Report
 
 ## 1. Performance Executive Summary

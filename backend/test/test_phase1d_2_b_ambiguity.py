@@ -403,15 +403,23 @@ class TestPhase1D2BAmbigutiy(unittest.TestCase):
 
     def test_resolver_filters_to_dominant_match_and_cleans_tokens(self):
         """
-        Verify that DimensionValueResolver.resolve_matches returns only the dominant match
-        and overrides the matched_question_tokens with clean intersected tokens.
+        Verify that DimensionValueResolver.resolve_matches puts the dominant
+        match first and overrides its matched_question_tokens with clean
+        intersected tokens.
+
+        Updated for the WEAK_AMBIGUITY candidate-list-preservation fix: this
+        scenario classifies as WEAK_AMBIGUITY (a dominant match exists, but it
+        is not the only candidate), and collapsing WEAK_AMBIGUITY to a single
+        candidate was the exact defect that fix corrects - retaining LINEN
+        PANT as a live alternative is required, not a regression. Only
+        SINGLE_MATCH collapses to one candidate now.
         """
         from semantic.dimension_value_resolver import DimensionValueResolver
         from semantic.matching.models import MatchResult, MatchType
         from unittest.mock import MagicMock
-        
+
         resolver = DimensionValueResolver(MagicMock())
-        
+
         # Mock pipeline execute to return two fuzzy matches (weak ambiguity)
         # Query is "cotton pant"
         c1 = MatchResult(
@@ -427,20 +435,23 @@ class TestPhase1D2BAmbigutiy(unittest.TestCase):
             matched_question_tokens=["cotton", "pant", "noise"], matched_value_tokens=["linen", "pant"],
             reason="test"
         )
-        
+
         resolver.pipeline.matches = [c1, c2]
         resolver._load_dimension_values = MagicMock(return_value=[])
         resolver.pipeline.execute = MagicMock(return_value=(resolver.pipeline.matches, None))
-        
+
         results = resolver.resolve_matches("dummy_conn", "cotton pant")
-        
+
         # Since c1 ("COTTON PANT") has coverage of 2 tokens vs c2 ("LINEN PANT")'s 1 token,
-        # and COTTON PANT has higher confidence, it dominates.
-        # Therefore, dominant_match should be COTTON PANT, and ONLY COTTON PANT should be returned.
-        self.assertEqual(len(results), 1)
+        # and COTTON PANT has higher confidence, it dominates - so it is the
+        # WEAK_AMBIGUITY dominant candidate. LINEN PANT remains a live
+        # alternative rather than being discarded.
+        self.assertEqual(len(results), 2)
         self.assertEqual(results[0]["value"], "COTTON PANT")
-        # Ensure matched_question_tokens is cleaned to ['cotton', 'pant'] (noise token removed)
+        # Ensure the dominant candidate's matched_question_tokens is cleaned
+        # to ['cotton', 'pant'] (noise token removed).
         self.assertCountEqual(results[0]["matched_question_tokens"], ["cotton", "pant"])
+        self.assertEqual({r["value"] for r in results}, {"COTTON PANT", "LINEN PANT"})
 
 if __name__ == "__main__":
     unittest.main()

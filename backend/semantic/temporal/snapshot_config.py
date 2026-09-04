@@ -285,16 +285,27 @@ class SnapshotConfigLoader:
     """Reads and caches the snapshot configuration for a connection."""
 
     _lock = threading.Lock()
-    _cache: Dict[str, tuple] = {}   # connection_id -> (loaded_at, SnapshotConfig)
+    # Keyed on (connection_id, table_name). table_name is None for the
+    # connection-wide entry that for_connection() serves, so the two never
+    # collide and invalidate() can clear both in one pass.
+    _cache: Dict[tuple, tuple] = {}   # (connection_id, table|None) -> (loaded_at, SnapshotConfig)
 
     @classmethod
     def invalidate(cls, connection_id: Optional[str] = None) -> None:
-        """Drop cached configuration. Called when an administrator saves."""
+        """
+        Drop cached configuration. Called when an administrator saves.
+
+        Clears every table entry for the connection as well as the
+        connection-wide one: a single admin save can change which tables are
+        SNAPSHOT at all, so leaving per-table entries behind would serve stale
+        bindings for a table whose strategy just changed.
+        """
         with cls._lock:
             if connection_id is None:
                 cls._cache.clear()
             else:
-                cls._cache.pop(connection_id, None)
+                for key in [k for k in cls._cache if k[0] == connection_id]:
+                    cls._cache.pop(key, None)
 
     @classmethod
     def for_connection(cls, connection_id: Optional[str]) -> SnapshotConfig:
@@ -308,8 +319,10 @@ class SnapshotConfigLoader:
         if not connection_id:
             return _legacy_config()
 
+        key = (connection_id, None)
+
         with cls._lock:
-            cached = cls._cache.get(connection_id)
+            cached = cls._cache.get(key)
             if cached and (time.time() - cached[0]) < CACHE_TTL_SECONDS:
                 return cached[1]
 
@@ -333,25 +346,122 @@ class SnapshotConfigLoader:
             config = _legacy_config()
 
         with cls._lock:
-            cls._cache[connection_id] = (time.time(), config)
+            cls._cache[key] = (time.time(), config)
 
         return config
 
     @classmethod
-    def _load(cls, connection_id: str) -> SnapshotConfig:
+    def for_table(
+        cls,
+        connection_id: Optional[str],
+        table_name: Optional[str],
+    ) -> SnapshotConfig:
+        """
+        Gate 3 Step 7a - the snapshot configuration of ONE named table.
+
+        WHY THIS EXISTS
+
+        `for_connection()` answers "what is the snapshot table on this
+        connection?", and its loader settles that with SELECT TOP 1 ... ORDER BY
+        table_name. One SNAPSHOT table per connection therefore wins
+        alphabetically and every other one is invisible. The configuration is
+        per table (semantic_table_config has a row per table); the question the
+        callers actually need answered is also per table - "is THIS metric's
+        table a snapshot table, and if so which columns hold its periods?" -
+        and the connection-wide answer cannot express that.
+
+        HOW THIS DIFFERS FROM for_connection()
+
+        There is no legacy fallback here, and that is the point. A table that is
+        not configured SNAPSHOT must come back UNCONFIGURED, so the caller
+        leaves it alone. Returning DEFAULT_BINDINGS - one customer's CY/PY/PPY
+        on the wrong table - would be strictly worse than knowing nothing:
+        the caller would rewrite a metric onto columns the table does not have.
+        `for_connection()` keeps its fallback because its callers have no table
+        to be wrong about.
+
+        CONFIRMATION (Step 7c)
+
+        Only is_confirmed = 1 rows are read, on both the table row and its
+        period mappings. Migration 004 states the contract - "0 = system
+        suggestion awaiting review... Nothing unconfirmed may be treated as
+        authoritative" - and the query did not honour it, so an unreviewed
+        machine suggestion could plan real SQL. An unconfirmed table now reads
+        as unconfigured, which is the safe direction: the caller leaves the
+        metric alone rather than binding it to columns nobody approved.
+
+        Never raises, for the same reason for_connection() does not: a planner
+        that cannot read its configuration must still produce a plan.
+        """
+        if not connection_id or not table_name:
+            return SnapshotConfig()
+
+        key = (connection_id, table_name)
+
+        with cls._lock:
+            cached = cls._cache.get(key)
+            if cached and (time.time() - cached[0]) < CACHE_TTL_SECONDS:
+                return cached[1]
+
+        try:
+            config = cls._load(connection_id, table_name)
+        except Exception as exc:
+            logger.warning(
+                "Could not read snapshot configuration for %s on %s (%s); "
+                "treating the table as unconfigured.",
+                table_name, connection_id, exc,
+            )
+            return SnapshotConfig()
+
+        with cls._lock:
+            cls._cache[key] = (time.time(), config)
+
+        return config
+
+    @classmethod
+    def _load(cls, connection_id: str, table_name: Optional[str] = None) -> SnapshotConfig:
+        """
+        Read one connection's snapshot configuration.
+
+        With `table_name` given, the row is looked up by name and TOP 1 is not
+        used - the caller has already said which table it means. Without it the
+        pre-Step-7a behaviour is preserved exactly, including the alphabetical
+        TOP 1, because for_connection()'s contract is "the snapshot table on
+        this connection" and its callers have no table to offer.
+        """
         # Imported here, not at module scope: this module is pulled in by the
         # temporal package, which the test suite imports without a database.
         from database import engine
 
         with engine.connect() as conn:
-            table_row = conn.execute(text("""
-                SELECT TOP 1 table_name, month_column, month_sort_column,
-                       fiscal_year_start_month
-                FROM semantic_table_config
-                WHERE connection_id = :connection_id
-                  AND temporal_strategy = 'SNAPSHOT'
-                ORDER BY table_name
-            """), {"connection_id": connection_id}).fetchone()
+            if table_name:
+                # Table-specific: no TOP 1, no ORDER BY. The unique constraint
+                # uq_semantic_table_config (connection_id, table_name) makes
+                # this at most one row, so there is nothing to disambiguate.
+                # A table that is not SNAPSHOT returns no row and therefore an
+                # unconfigured SnapshotConfig, which is the correct answer.
+                table_row = conn.execute(text("""
+                    SELECT table_name, month_column, month_sort_column,
+                           fiscal_year_start_month
+                    FROM semantic_table_config
+                    WHERE connection_id = :connection_id
+                      AND table_name = :table_name
+                      AND temporal_strategy = 'SNAPSHOT'
+                      AND is_confirmed = 1
+                """), {
+                    "connection_id": connection_id,
+                    "table_name": table_name,
+                }).fetchone()
+            else:
+                table_row = conn.execute(text("""
+                    SELECT TOP 1 table_name, month_column, month_sort_column,
+                           fiscal_year_start_month
+                    FROM semantic_table_config
+                    WHERE connection_id = :connection_id
+                      AND temporal_strategy = 'SNAPSHOT'
+                      AND is_confirmed = 1
+                    ORDER BY table_name
+                """), {"connection_id": connection_id}).fetchone()
 
             if not table_row:
                 return SnapshotConfig()
@@ -361,6 +471,7 @@ class SnapshotConfigLoader:
                 FROM semantic_snapshot_mapping
                 WHERE connection_id = :connection_id
                   AND table_name = :table_name
+                  AND is_confirmed = 1
                 ORDER BY period_offset, measure_kind, period_scope
             """), {
                 "connection_id": connection_id,
@@ -380,6 +491,14 @@ class SnapshotConfigLoader:
             ],
             month_column=table_row[1],
             month_sort_column=table_row[2],
-            fiscal_year_start_month=table_row[3] or 4,
+            # Gate 3 Step 7b - the configured value is authoritative. This read
+            # `table_row[3] or 4`, which silently replaced a configured 1 with
+            # April: `or` treats 1 as truthy, so January survived, but a NULL
+            # became April rather than the calendar default the column's own
+            # DEFAULT constraint specifies. Only a genuinely absent value now
+            # falls back, and it falls back to the dataclass default.
+            fiscal_year_start_month=(
+                table_row[3] if table_row[3] is not None else 4
+            ),
             is_configured=bool(mapping_rows),
         )

@@ -176,3 +176,18 @@ def dimension_role_column(alias: str = "", label: str = "dimension_role") -> str
 
     prefix = f"{alias}." if alias else ""
     return f"{prefix}dimension_role AS {label}"
+
+
+def dimension_confirmed_column(alias: str = "", label: str = "is_confirmed") -> str:
+    """
+    A SELECT-list expression for is_confirmed, safe on a database without the
+    column. Gate 3 Step 21b reads this as the config_trust signal: a dimension a
+    person reviewed and approved is stronger evidence than one nobody has looked
+    at. Absent, every dimension scores neutral and the other five signals still
+    separate candidates.
+    """
+    if not supports("dimension_is_confirmed"):
+        return f"0 AS {label}"
+
+    prefix = f"{alias}." if alias else ""
+    return f"{prefix}is_confirmed AS {label}"
