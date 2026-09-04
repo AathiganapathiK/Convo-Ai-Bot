@@ -536,6 +536,66 @@ class SemanticResolver:
                         "aggregation_type": candidate["aggregation_type"]
                     })
 
+        # Gate 3 Item #2 - carry the previous turn's metric into a follow-up
+        # that names no metric of its own.
+        #
+        # Metric resolution above runs on the CURRENT question's text only.
+        # "How about Ramraj brand?" matches the Brand dimension but no
+        # metric, so metric_objects came back empty even though a metric was
+        # clearly implied by the conversation - the plan built from this turn
+        # had no metric at all.
+        #
+        # Carried ONLY when every one of the following holds, each guarding
+        # against guessing (Gate 3's carry-forward-only-validated-context
+        # rule):
+        #   - metric_objects is empty: an explicit current-turn metric always
+        #     wins outright, because this block never runs otherwise.
+        #   - previous_semantic_context names EXACTLY ONE previous metric: a
+        #     multi-metric or absent previous turn is ambiguous and is left
+        #     alone rather than guessed from.
+        #   - the current question has at least one non-stopword token: guards
+        #     against carrying a metric into a turn with no usable content at
+        #     all (an empty or purely conversational message), using the same
+        #     STOPWORDS vocabulary already trusted elsewhere in this module
+        #     for "is this word meaningful" decisions - no new heuristic.
+        #
+        # Read only from previous_semantic_context's own structured fields
+        # (table_name/column_name/business_name/metric_name) - never from
+        # prior SQL or raw text. Nothing here names a metric, dimension, or
+        # phrase; it generalizes to any configured metric.
+        if not metric_objects and previous_semantic_context:
+            prev_metrics = previous_semantic_context.get("metrics") or []
+            if len(prev_metrics) == 1:
+                from semantic.matching.stopwords import STOPWORDS
+                question_has_content = any(
+                    w not in STOPWORDS for w in _get_words(question)
+                )
+                prev_metric = prev_metrics[0]
+                if (
+                    question_has_content
+                    and isinstance(prev_metric, dict)
+                    and prev_metric.get("table_name")
+                    and prev_metric.get("column_name")
+                ):
+                    carried_business_name = (
+                        prev_metric.get("business_name")
+                        or prev_metric.get("metric_name")
+                    )
+                    metric_objects.append({
+                        "metric_name": prev_metric.get("metric_name")
+                                       or carried_business_name,
+                        "business_name": carried_business_name,
+                        "table_name": prev_metric.get("table_name"),
+                        "column_name": prev_metric.get("column_name"),
+                        "aggregation_type": prev_metric.get("aggregation_type"),
+                    })
+                    # Keep the earlier business-name-only list (used for
+                    # display/logging) consistent with metric_objects, the
+                    # field every downstream consumer (plan builder, guard,
+                    # benchmark) actually reads.
+                    if carried_business_name and carried_business_name not in metrics:
+                        metrics.append(carried_business_name)
+
         # Apply temporal intent metric binding
         from semantic.temporal.detector import TemporalDetector
         from semantic.temporal.enums import TimeIntentType
