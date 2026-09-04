@@ -31,6 +31,7 @@ import database
 database.engine = mock_engine
 
 import app
+from ai.intent_classifier import Destination, RoutingDecision
 from services.conversation_memory import (
     set_pending_clarification,
     get_pending_clarification,
@@ -85,7 +86,7 @@ class TestPhase1D6D4ResumeSecurity(unittest.TestCase):
         self.conn_svc_patcher.stop()
         clear_pending_clarification("EMP001", "42")
 
-    @patch("app.classify_intent")
+    @patch("app.route_question")
     @patch("app.generate_sql_query")
     @patch("app.add_exchange")
     @patch("app.validate_sql_query")
@@ -95,7 +96,7 @@ class TestPhase1D6D4ResumeSecurity(unittest.TestCase):
     @patch("app.generate_kpis")
     def test_successful_resume_flow(self, mock_kpis, mock_chart, mock_summary, mock_cm_source, mock_val_sql, mock_add_exchange, mock_gen_sql, mock_classify):
         """Verify successful resume recovers candidate, restores question, clears state, and records history."""
-        mock_classify.return_value = "ANALYTICAL"
+        mock_classify.return_value = RoutingDecision(destination=Destination.ANALYTICAL, reason="test", method="keyword")
         mock_gen_sql.return_value = {
             "success": True, 
             "sql_query": "SELECT * FROM sales WHERE ProdGrp2 = 'LS ZARI COTTON'", 
@@ -159,10 +160,10 @@ class TestPhase1D6D4ResumeSecurity(unittest.TestCase):
         self.assertIn("resolved_values", kwargs["semantic_context"])
         self.assertEqual(kwargs["semantic_context"]["resolved_values"][0]["value"], "LS ZARI COTTON")
 
-    @patch("app.classify_intent")
+    @patch("app.route_question")
     def test_invalid_selection_retains_pending_state(self, mock_classify):
         """Verify that an invalid choice does not clear the pending clarification state."""
-        mock_classify.return_value = "ANALYTICAL"
+        mock_classify.return_value = RoutingDecision(destination=Destination.ANALYTICAL, reason="test", method="keyword")
         mock_conn.execute.side_effect = None
         
         response = app.ask_question(question="invalid_choice", session_id=42, request=self.mock_request, user=self.user)
@@ -173,10 +174,10 @@ class TestPhase1D6D4ResumeSecurity(unittest.TestCase):
         self.assertIsNotNone(state)
         self.assertEqual(state["original_question"], "Show cotton sales")
 
-    @patch("app.classify_intent")
+    @patch("app.route_question")
     def test_ambiguous_selection_retains_pending_state(self, mock_classify):
         """Verify that an ambiguous choice does not clear the pending clarification state."""
-        mock_classify.return_value = "ANALYTICAL"
+        mock_classify.return_value = RoutingDecision(destination=Destination.ANALYTICAL, reason="test", method="keyword")
         mock_conn.execute.side_effect = None
         
         response = app.ask_question(question="ls", session_id=42, request=self.mock_request, user=self.user)
@@ -187,10 +188,10 @@ class TestPhase1D6D4ResumeSecurity(unittest.TestCase):
         self.assertIsNotNone(state)
         self.assertEqual(state["original_question"], "Show cotton sales")
 
-    @patch("app.classify_intent")
+    @patch("app.route_question")
     def test_expired_state_cannot_resume(self, mock_classify):
         """Verify that an expired pending state (TTL > 300s) is rejected and cannot resume."""
-        mock_classify.return_value = "ANALYTICAL"
+        mock_classify.return_value = RoutingDecision(destination=Destination.ANALYTICAL, reason="test", method="keyword")
         mock_conn.execute.side_effect = None
         
         # Artificially set timestamp to 301 seconds ago
@@ -203,11 +204,11 @@ class TestPhase1D6D4ResumeSecurity(unittest.TestCase):
         # Should be treated as normal question and bypass resume because state expired
         self.assertIsNone(get_pending_clarification("EMP001", "42"))
 
-    @patch("app.classify_intent")
+    @patch("app.route_question")
     @patch("semantic.semantic_resolver.SemanticResolver.resolve")
     def test_intent_shift_clears_pending_state(self, mock_resolve, mock_classify):
         """Verify that a new question with semantic intent (intent shift) clears the pending state."""
-        mock_classify.return_value = "ANALYTICAL"
+        mock_classify.return_value = RoutingDecision(destination=Destination.ANALYTICAL, reason="test", method="keyword")
         mock_conn.execute.side_effect = None
         
         # Mock semantic resolver indicating that the query has dimension/metric entities
@@ -225,11 +226,11 @@ class TestPhase1D6D4ResumeSecurity(unittest.TestCase):
         # Pending state must be cleared
         self.assertIsNone(get_pending_clarification("EMP001", "42"))
 
-    @patch("app.classify_intent")
+    @patch("app.route_question")
     @patch("security.cls_engine.get_forbidden_columns")
     def test_security_revalidation_cls_blocks_continuation(self, mock_get_forbidden, mock_classify):
         """Verify that CLS security revalidation blocks continuation if candidate references forbidden column."""
-        mock_classify.return_value = "ANALYTICAL"
+        mock_classify.return_value = RoutingDecision(destination=Destination.ANALYTICAL, reason="test", method="keyword")
         mock_conn.execute.side_effect = None
         mock_get_forbidden.return_value = ["ProdGrp2"] # Restrict the column referenced in the option
         

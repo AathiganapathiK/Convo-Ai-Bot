@@ -208,6 +208,7 @@ class ExtractedIntent:
             "clarification": self.clarification.to_dict() if self.clarification else None,
             "unsupported": list(self.unsupported),
             "notes": list(self.notes),
+            "assumptions_made": list(self.assumptions_made),
         }
 
 

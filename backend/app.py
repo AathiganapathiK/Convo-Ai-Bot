@@ -37,7 +37,7 @@ from ai.sql_validator import validate_sql_query, enforce_row_limit
 from ai.guard.enforcement import guard_sql
 from ai.guard.grounding import ground_answer
 from ai.prompt_builder import build_summary_prompt
-from ai.intent_classifier import classify_intent
+from ai.intent_classifier import classify_intent, route_question, answer_metadata, Destination
 from ai.ai_service import generate_sql_query, generate_business_summary
 from ai.general_chat import generate_general_response
 from ai.chart_generator import generate_chart_metadata
@@ -643,10 +643,36 @@ def ask_question(
                 )
 
     if not is_clarification_resume:
-        # Classify intent
-        intent = classify_intent(question, company_id=user["company_id"])
+        # Gate 4 Step 22: three-way routing (SMALL_TALK / METADATA / ANALYTICAL),
+        # replacing the legacy two-valued classify_intent().
+        routing_decision = route_question(
+            question, connection_id=conn_id, company_id=user["company_id"]
+        )
 
-        if intent == "GENERAL":
+        if routing_decision.destination == Destination.METADATA:
+            # Gate 4 Step 24: answer from configuration alone, no resolver/SQL.
+            metadata_answer = answer_metadata(question, conn_id)
+            if metadata_answer is None:
+                # Nothing configured to describe - same fallback GENERAL used.
+                metadata_answer = generate_general_response(question)
+            _save_chat_message(
+                session_id=session_id,
+                role="ASSISTANT",
+                message_text=metadata_answer,
+            )
+            audit_log(
+                user_id=user["employee_id"],
+                action_type=AuditAction.CHAT_QUERY,
+                resource="/ask",
+                query_text=question,
+                status="SUCCESS",
+                ip_address=client_ip,
+                metadata={"intent": "METADATA"},
+            )
+            return {"type": "METADATA", "message": metadata_answer}
+
+        if routing_decision.destination != Destination.ANALYTICAL:
+            # SMALL_TALK - identical to the prior GENERAL behaviour.
             response_text: str = generate_general_response(question)
             _save_chat_message(
                 session_id=session_id,
@@ -1199,6 +1225,24 @@ def ask_question(
         except Exception:
             pass
 
+        # Gate 4 Steps 27/29: surface extraction/assumption outputs when present.
+        # Additive only - keys are omitted rather than sent empty/None, so
+        # existing consumers of this response are unaffected.
+        gate4_fields = {}
+        extracted_intent_data = (
+            semantic_result.get("extracted_intent")
+            if isinstance(semantic_result, dict) else None
+        )
+        if isinstance(extracted_intent_data, dict):
+            if extracted_intent_data.get("clarification"):
+                gate4_fields["clarification"] = extracted_intent_data["clarification"]
+            if extracted_intent_data.get("assumptions_made"):
+                gate4_fields["assumptions_made"] = extracted_intent_data["assumptions_made"]
+            if extracted_intent_data.get("unsupported"):
+                gate4_fields["unsupported"] = extracted_intent_data["unsupported"]
+            if extracted_intent_data.get("mode"):
+                gate4_fields["mode"] = extracted_intent_data["mode"]
+
         return {
             "sql_query":        sql_query,
             "data":             rows,
@@ -1206,7 +1250,8 @@ def ask_question(
             "business_summary": business_summary,
             "followup_questions":followup_questions,
             "chart":            chart_metadata,
-            "kpis":             kpis
+            "kpis":             kpis,
+            **gate4_fields,
         }
 
     except Exception as exc:

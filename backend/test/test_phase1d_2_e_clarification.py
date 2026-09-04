@@ -29,6 +29,7 @@ database.engine = mock_engine
 
 # Now import application modules
 import app
+from ai.intent_classifier import Destination, RoutingDecision
 import unittest
 from fastapi.responses import JSONResponse
 from services.conversation_memory import (
@@ -70,12 +71,12 @@ class TestPhase1D2EClarificationOffline(unittest.TestCase):
         self.conn_svc_patcher.stop()
         clear_pending_clarification("EMP001", "42")
 
-    @patch("app.classify_intent")
+    @patch("app.route_question")
     @patch("semantic.semantic_resolver.SemanticResolver.resolve")
     @patch("app.generate_sql_query")
     def test_pant_triggers_strong_ambiguity_clarification(self, mock_gen_sql, mock_resolve, mock_classify):
         """Verify that 'pant' triggers STRONG_AMBIGUITY and returns CLARIFICATION_REQUIRED response."""
-        mock_classify.return_value = "ANALYTICAL"
+        mock_classify.return_value = RoutingDecision(destination=Destination.ANALYTICAL, reason="test", method="keyword")
         
         # Construct two ambiguity candidates
         m1 = MatchResult(
@@ -181,11 +182,11 @@ class TestPhase1D2EClarificationOffline(unittest.TestCase):
         self.assertIn("1", state["options"])
         self.assertEqual(state["options"]["1"]["value"], "LINEN PANT")
 
-    @patch("app.classify_intent")
+    @patch("app.route_question")
     @patch("app.generate_sql_query")
     def test_option_selection_resolution(self, mock_gen_sql, mock_classify):
         """Verify selecting option '2' resumes query with selected candidate and clears pending state."""
-        mock_classify.return_value = "ANALYTICAL"
+        mock_classify.return_value = RoutingDecision(destination=Destination.ANALYTICAL, reason="test", method="keyword")
         
         mock_options = {
             "1": {
@@ -235,11 +236,11 @@ class TestPhase1D2EClarificationOffline(unittest.TestCase):
         # Pending state must be cleared
         self.assertIsNone(get_pending_clarification(self.user["employee_id"], "42"))
 
-    @patch("app.classify_intent")
+    @patch("app.route_question")
     @patch("app.generate_sql_query")
     def test_option_token_match_resolution(self, mock_gen_sql, mock_classify):
         """Verify selecting via unique value substring 'Ramraj' resolves successfully."""
-        mock_classify.return_value = "ANALYTICAL"
+        mock_classify.return_value = RoutingDecision(destination=Destination.ANALYTICAL, reason="test", method="keyword")
         
         mock_options = {
             "1": {
@@ -286,10 +287,10 @@ class TestPhase1D2EClarificationOffline(unittest.TestCase):
         )
         self.assertIsNone(get_pending_clarification(self.user["employee_id"], "42"))
 
-    @patch("app.classify_intent")
+    @patch("app.route_question")
     def test_ambiguous_selection_does_not_guess(self, mock_classify):
         """Verify that selecting ambiguous text like 'linen' returns clarification and does not execute SQL."""
-        mock_classify.return_value = "ANALYTICAL"
+        mock_classify.return_value = RoutingDecision(destination=Destination.ANALYTICAL, reason="test", method="keyword")
         
         mock_options = {
             "1": {
@@ -328,11 +329,11 @@ class TestPhase1D2EClarificationOffline(unittest.TestCase):
         # State must NOT be cleared
         self.assertIsNotNone(get_pending_clarification(self.user["employee_id"], "42"))
 
-    @patch("app.classify_intent")
+    @patch("app.route_question")
     @patch("semantic.semantic_resolver.SemanticResolver.resolve")
     def test_intent_shift_clears_clarification(self, mock_resolve, mock_classify):
         """Verify that typing an unrelated query (intent shift) clears clarification and processes the new question."""
-        mock_classify.return_value = "ANALYTICAL"
+        mock_classify.return_value = RoutingDecision(destination=Destination.ANALYTICAL, reason="test", method="keyword")
         
         mock_options = {
             "1": {
@@ -368,10 +369,10 @@ class TestPhase1D2EClarificationOffline(unittest.TestCase):
         # Pending state must be cleared because of intent shift
         self.assertIsNone(get_pending_clarification(self.user["employee_id"], "42"))
 
-    @patch("app.classify_intent")
+    @patch("app.route_question")
     def test_cls_block_on_resume(self, mock_classify):
         """Verify that selecting a candidate that references a forbidden column raises CLS block."""
-        mock_classify.return_value = "ANALYTICAL"
+        mock_classify.return_value = RoutingDecision(destination=Destination.ANALYTICAL, reason="test", method="keyword")
         
         # Let's mock a restricted column name for CLS check
         with patch("security.cls_engine.get_forbidden_columns", return_value=["Salary"]):
@@ -408,11 +409,11 @@ class TestPhase1D2EClarificationOffline(unittest.TestCase):
     # Phase 1D.6.D.2 — Selection Parsing + Public Payload
     # -------------------------------------------------------
 
-    @patch("app.classify_intent")
+    @patch("app.route_question")
     @patch("app.generate_sql_query")
     def test_exact_value_selection_resolves(self, mock_gen_sql, mock_classify):
         """Exact value 'MENS PYJAMA PANT' must resolve to exactly one option."""
-        mock_classify.return_value = "ANALYTICAL"
+        mock_classify.return_value = RoutingDecision(destination=Destination.ANALYTICAL, reason="test", method="keyword")
         mock_options = {
             "1": {"option_id": 1, "value": "LS ZARI COTTON", "dimension": "Prod Grp2", "dimension_id": "D1",
                   "table_name": "Products", "column_name": "ProdGrp2", "normalized_value": "ls zari cotton"},
@@ -435,11 +436,11 @@ class TestPhase1D2EClarificationOffline(unittest.TestCase):
         )
         self.assertIsNone(get_pending_clarification("EMP001", "42"))
 
-    @patch("app.classify_intent")
+    @patch("app.route_question")
     @patch("app.generate_sql_query")
     def test_single_quoted_exact_value_resolves(self, mock_gen_sql, mock_classify):
         """'MENS PYJAMA PANT' (with surrounding single quotes) must resolve correctly."""
-        mock_classify.return_value = "ANALYTICAL"
+        mock_classify.return_value = RoutingDecision(destination=Destination.ANALYTICAL, reason="test", method="keyword")
         mock_options = {
             "1": {"option_id": 1, "value": "LS ZARI COTTON", "dimension": "Prod Grp2", "dimension_id": "D1",
                   "table_name": "Products", "column_name": "ProdGrp2", "normalized_value": "ls zari cotton"},
@@ -460,11 +461,11 @@ class TestPhase1D2EClarificationOffline(unittest.TestCase):
         )
         self.assertIsNone(get_pending_clarification("EMP001", "42"))
 
-    @patch("app.classify_intent")
+    @patch("app.route_question")
     @patch("app.generate_sql_query")
     def test_double_quoted_exact_value_resolves(self, mock_gen_sql, mock_classify):
         """MENS PYJAMA PANT with surrounding double quotes must resolve correctly."""
-        mock_classify.return_value = "ANALYTICAL"
+        mock_classify.return_value = RoutingDecision(destination=Destination.ANALYTICAL, reason="test", method="keyword")
         mock_options = {
             "1": {"option_id": 1, "value": "LS ZARI COTTON", "dimension": "Prod Grp2", "dimension_id": "D1",
                   "table_name": "Products", "column_name": "ProdGrp2", "normalized_value": "ls zari cotton"},
@@ -486,11 +487,11 @@ class TestPhase1D2EClarificationOffline(unittest.TestCase):
         )
         self.assertIsNone(get_pending_clarification("EMP001", "42"))
 
-    @patch("app.classify_intent")
+    @patch("app.route_question")
     @patch("app.generate_sql_query")
     def test_embedded_value_with_dimension_label_resolves(self, mock_gen_sql, mock_classify):
         """'I meant Prod Grp2 MENS PYJAMA PANT' must resolve via Tier 3 substring match."""
-        mock_classify.return_value = "ANALYTICAL"
+        mock_classify.return_value = RoutingDecision(destination=Destination.ANALYTICAL, reason="test", method="keyword")
         mock_options = {
             "1": {"option_id": 1, "value": "LS ZARI COTTON", "dimension": "Prod Grp2", "dimension_id": "D1",
                   "table_name": "Products", "column_name": "ProdGrp2", "normalized_value": "ls zari cotton"},
@@ -516,11 +517,11 @@ class TestPhase1D2EClarificationOffline(unittest.TestCase):
         )
         self.assertIsNone(get_pending_clarification("EMP001", "42"))
 
-    @patch("app.classify_intent")
+    @patch("app.route_question")
     @patch("app.generate_sql_query")
     def test_server_side_state_retains_internal_metadata(self, mock_gen_sql, mock_classify):
         """Verify the server-side pending state retains all internal metadata for secure resumption."""
-        mock_classify.return_value = "ANALYTICAL"
+        mock_classify.return_value = RoutingDecision(destination=Destination.ANALYTICAL, reason="test", method="keyword")
         from core.exceptions import AmbiguityException
         ex = AmbiguityException(
             message="Multiple matches",

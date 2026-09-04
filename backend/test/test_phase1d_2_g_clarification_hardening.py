@@ -30,6 +30,7 @@ database.engine = mock_engine
 
 # Now import application modules
 import app
+from ai.intent_classifier import Destination, RoutingDecision
 import unittest
 from fastapi.responses import JSONResponse
 from fastapi import HTTPException
@@ -82,12 +83,12 @@ class TestPhase1D2GClarificationHardening(unittest.TestCase):
     # ----------------------------------------------------
     # 1. Response Contract & Metadata Leakage
     # ----------------------------------------------------
-    @patch("app.classify_intent")
+    @patch("app.route_question")
     @patch("semantic.semantic_resolver.SemanticResolver.resolve")
     @patch("app.generate_sql_query")
     def test_response_contract_and_metadata_leakage(self, mock_gen_sql, mock_resolve, mock_classify):
         """Verify that STRONG_AMBIGUITY response contract contains correct details and does not leak internal schema metadata."""
-        mock_classify.return_value = "ANALYTICAL"
+        mock_classify.return_value = RoutingDecision(destination=Destination.ANALYTICAL, reason="test", method="keyword")
         
         # Construct candidates
         m1 = MatchResult(
@@ -169,11 +170,11 @@ class TestPhase1D2GClarificationHardening(unittest.TestCase):
     # ----------------------------------------------------
     # 2. Option ID Integrity & Spoof Prevention
     # ----------------------------------------------------
-    @patch("app.classify_intent")
+    @patch("app.route_question")
     @patch("app.generate_sql_query")
     def test_option_id_integrity_and_spoof_prevention(self, mock_gen_sql, mock_classify):
         """Verify client cannot spoof candidate metadata by providing arbitrary values."""
-        mock_classify.return_value = "ANALYTICAL"
+        mock_classify.return_value = RoutingDecision(destination=Destination.ANALYTICAL, reason="test", method="keyword")
         
         # Store state on server
         mock_options = {
@@ -205,10 +206,10 @@ class TestPhase1D2GClarificationHardening(unittest.TestCase):
     # ----------------------------------------------------
     # 3. Session & User Isolation
     # ----------------------------------------------------
-    @patch("app.classify_intent")
+    @patch("app.route_question")
     def test_session_and_user_isolation(self, mock_classify):
         """Verify User B or Session B cannot resolve User A's pending clarification state."""
-        mock_classify.return_value = "ANALYTICAL"
+        mock_classify.return_value = RoutingDecision(destination=Destination.ANALYTICAL, reason="test", method="keyword")
         
         mock_options = {
             "1": {
@@ -257,11 +258,11 @@ class TestPhase1D2GClarificationHardening(unittest.TestCase):
     # ----------------------------------------------------
     # 4. State Lifecycle transitions
     # ----------------------------------------------------
-    @patch("app.classify_intent")
+    @patch("app.route_question")
     @patch("app.generate_sql_query")
     def test_state_lifecycle_valid_cleared(self, mock_gen_sql, mock_classify):
         """Verify: valid selection -> clears state."""
-        mock_classify.return_value = "ANALYTICAL"
+        mock_classify.return_value = RoutingDecision(destination=Destination.ANALYTICAL, reason="test", method="keyword")
         mock_options = {
             "1": {"option_id": 1, "value": "LINEN PANT", "dimension": "Brand", "dimension_id": 201,
                   "table_name": "Products", "column_name": "Brand", "normalized_value": "linen pant"}
@@ -272,10 +273,10 @@ class TestPhase1D2GClarificationHardening(unittest.TestCase):
         app.ask_question(question="1", session_id=42, request=self.mock_request, user=self.user)
         self.assertIsNone(get_pending_clarification("EMP001", "42"))
 
-    @patch("app.classify_intent")
+    @patch("app.route_question")
     def test_state_lifecycle_invalid_preserved(self, mock_classify):
         """Verify: invalid selection -> preserves state."""
-        mock_classify.return_value = "ANALYTICAL"
+        mock_classify.return_value = RoutingDecision(destination=Destination.ANALYTICAL, reason="test", method="keyword")
         mock_options = {
             "1": {"option_id": 1, "value": "LINEN PANT", "dimension": "Brand", "dimension_id": 201,
                   "table_name": "Products", "column_name": "Brand", "normalized_value": "linen pant"}
@@ -285,10 +286,10 @@ class TestPhase1D2GClarificationHardening(unittest.TestCase):
         app.ask_question(question="999", session_id=42, request=self.mock_request, user=self.user)
         self.assertIsNotNone(get_pending_clarification("EMP001", "42"))
 
-    @patch("app.classify_intent")
+    @patch("app.route_question")
     def test_state_lifecycle_ambiguous_preserved(self, mock_classify):
         """Verify: ambiguous selection -> preserves state."""
-        mock_classify.return_value = "ANALYTICAL"
+        mock_classify.return_value = RoutingDecision(destination=Destination.ANALYTICAL, reason="test", method="keyword")
         mock_options = {
             "1": {"option_id": 1, "value": "LINEN PANT", "dimension": "Brand", "dimension_id": 201,
                   "table_name": "Products", "column_name": "Brand", "normalized_value": "linen pant"},
@@ -300,11 +301,11 @@ class TestPhase1D2GClarificationHardening(unittest.TestCase):
         app.ask_question(question="linen pant", session_id=42, request=self.mock_request, user=self.user)
         self.assertIsNotNone(get_pending_clarification("EMP001", "42"))
 
-    @patch("app.classify_intent")
+    @patch("app.route_question")
     @patch("semantic.semantic_resolver.SemanticResolver.resolve")
     def test_state_lifecycle_intent_shift_cleared(self, mock_resolve, mock_classify):
         """Verify: intent shift -> clears state."""
-        mock_classify.return_value = "ANALYTICAL"
+        mock_classify.return_value = RoutingDecision(destination=Destination.ANALYTICAL, reason="test", method="keyword")
         mock_options = {
             "1": {"option_id": 1, "value": "LINEN PANT", "dimension": "Brand", "dimension_id": 201,
                   "table_name": "Products", "column_name": "Brand", "normalized_value": "linen pant"}
@@ -337,7 +338,7 @@ class TestPhase1D2GClarificationHardening(unittest.TestCase):
     # ----------------------------------------------------
     # 5. SQL Generation Boundary Proofs
     # ----------------------------------------------------
-    @patch("app.classify_intent")
+    @patch("app.route_question")
     @patch("semantic.semantic_resolver.SemanticResolver.resolve")
     @patch("app.generate_sql_query")
     def test_sql_generation_blocking_and_continuation(self, mock_gen_sql, mock_resolve, mock_classify):
@@ -346,7 +347,7 @@ class TestPhase1D2GClarificationHardening(unittest.TestCase):
         - Valid selection triggers generate_sql_query once.
         - Invalid/Ambiguous choice does NOT call generate_sql_query.
         """
-        mock_classify.return_value = "ANALYTICAL"
+        mock_classify.return_value = RoutingDecision(destination=Destination.ANALYTICAL, reason="test", method="keyword")
         
         # 1. STRONG_AMBIGUITY (via Mock resolver showing ambiguity)
         m1 = MatchResult(
@@ -420,10 +421,10 @@ class TestPhase1D2GClarificationHardening(unittest.TestCase):
         self.assertEqual(ctx.exception.status_code, 403)
         self.assertIn("chat session belongs to another company", ctx.exception.detail)
 
-    @patch("app.classify_intent")
+    @patch("app.route_question")
     def test_security_revalidation_cls(self, mock_classify):
         """Verify that selecting a candidate that references a forbidden column raises CLS block."""
-        mock_classify.return_value = "ANALYTICAL"
+        mock_classify.return_value = RoutingDecision(destination=Destination.ANALYTICAL, reason="test", method="keyword")
         
         # Mock a restricted column name for CLS check
         with patch("security.cls_engine.get_forbidden_columns", return_value=["Salary"]):
