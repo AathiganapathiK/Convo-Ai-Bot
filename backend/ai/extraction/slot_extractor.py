@@ -45,7 +45,9 @@ from ai.extraction.models import (
     EscalationTier,
     ExtractedIntent,
     LOW_CONFIDENCE,
+    MAX_VALUE_PHRASES,
     SlotName,
+    ValuePhrase,
     coerce_confidence,
     coerce_enum,
     coerce_top_n,
@@ -546,6 +548,118 @@ def _evidence_supported(evidence: Any, question: str) -> bool:
     return bool(quote) and quote in norm(question)
 
 
+def _normalize_words(text: str) -> List[str]:
+    """Alphanumeric words of a string, lowercased. Shared by the checks below."""
+    return re.sub(r"[^a-z0-9]+", " ", str(text).lower()).split()
+
+
+def _validate_value_phrases(
+    raw_phrases: Any,
+    question: str,
+    metric_terms: List[str],
+    dimension_names: List[str],
+    notes: List[str],
+) -> List[ValuePhrase]:
+    """
+    Keep only value spans the question actually contains.
+
+    Four independent reasons to drop a phrase, each of which has a matching
+    failure we have already seen in production:
+
+      not in the question   - the model paraphrased or invented a value.
+      names a metric        - "pending" is the Pending Amount metric, not a
+                              value; letting it be both is how one word ends up
+                              filtering on itself.
+      already seen          - the same span twice is one filter, not two.
+      over the cap          - MAX_VALUE_PHRASES; the rest are dropped loudly.
+
+    `dimension` survives only when it is a configured dimension name, and
+    `qualifier_explicit` is then computed HERE, from the question, by checking
+    the user actually wrote a word of that dimension's name. The model's own
+    opinion on that is not consulted - it proposes the binding, the question
+    decides whether the user really made it.
+
+    An unconfigured dimension does not discard the phrase: the user still named
+    a value, they just named it against something we cannot verify, so the
+    binding is dropped and the phrase continues unqualified.
+    """
+    if not isinstance(raw_phrases, list):
+        return []
+
+    question_words = set(_normalize_words(question))
+    metric_words = {w for term in metric_terms for w in _normalize_words(term)}
+
+    kept: List[ValuePhrase] = []
+    seen: set = set()
+
+    for raw in raw_phrases:
+        if isinstance(raw, str):
+            raw = {"phrase": raw}
+        if not isinstance(raw, dict):
+            continue
+
+        phrase = raw.get("phrase")
+        if not isinstance(phrase, str) or not phrase.strip():
+            continue
+        phrase = phrase.strip()
+
+        if not _evidence_supported(phrase, question):
+            notes.append(
+                f"Dropped value phrase '{phrase}': not present in the question."
+            )
+            continue
+
+        phrase_words = _normalize_words(phrase)
+        if phrase_words and all(w in metric_words for w in phrase_words):
+            notes.append(
+                f"Dropped value phrase '{phrase}': it names a metric, not a value."
+            )
+            continue
+
+        identity = " ".join(phrase_words)
+        if identity in seen:
+            continue
+
+        if len(kept) >= MAX_VALUE_PHRASES:
+            notes.append(
+                f"Dropped value phrase '{phrase}': more than "
+                f"{MAX_VALUE_PHRASES} value phrases were proposed."
+            )
+            continue
+
+        dimension = None
+        raw_dimension = raw.get("dimension")
+        if isinstance(raw_dimension, str) and raw_dimension.strip():
+            matched = _validate_terms(
+                [raw_dimension], dimension_names, "value-phrase dimension", notes
+            )
+            dimension = matched[0] if matched else None
+
+        # Deterministic, from the question - never from the model.
+        qualifier_explicit = bool(dimension) and any(
+            word in question_words
+            for word in _normalize_words(dimension)
+            if word not in phrase_words
+        )
+        if dimension and not qualifier_explicit:
+            notes.append(
+                f"Value phrase '{phrase}' was bound to '{dimension}', but the "
+                f"question does not name that dimension; treated as unqualified."
+            )
+
+        seen.add(identity)
+        kept.append(
+            ValuePhrase(
+                phrase=phrase,
+                dimension=dimension,
+                qualifier_explicit=qualifier_explicit,
+                confidence=coerce_confidence(raw.get("confidence")),
+            )
+        )
+
+    return kept
+
+
 def _parse_payload(
     payload: dict,
     question: str,
@@ -612,6 +726,19 @@ def _parse_payload(
     if intent.dimension_terms:
         intent.confidence[SlotName.DIMENSION.value] = coerce_confidence(
             confidence.get(SlotName.DIMENSION.value, confidence.get("dimension_terms"))
+        )
+
+    # After metric_terms, which the overlap check below reads.
+    intent.value_phrases = _validate_value_phrases(
+        payload.get("value_phrases"),
+        question,
+        intent.metric_terms,
+        dimension_names,
+        notes,
+    )
+    if intent.value_phrases:
+        intent.confidence[SlotName.VALUE_PHRASE.value] = min(
+            p.confidence for p in intent.value_phrases
         )
 
     unknown = payload.get("unknown_terms")
@@ -747,6 +874,8 @@ def _assign(intent: ExtractedIntent, slot: SlotName, value: Any) -> None:
         intent.time_period = value
     elif slot == SlotName.COMPARISON:
         intent.comparison_period = value
+    elif slot == SlotName.VALUE_PHRASE:
+        intent.value_phrases = list(value or [])
 
 
 def _apply_mode_consistency(intent: ExtractedIntent) -> None:
@@ -918,7 +1047,18 @@ def _escalate(
             )
             continue
 
-        if slot == SlotName.TOP_N:
+        if slot == SlotName.VALUE_PHRASE:
+            # Re-validated from scratch against the same question. The stronger
+            # model gets no more trust than the first one did - only a second
+            # attempt at the same checks.
+            value = _validate_value_phrases(
+                payload.get(slot.value),
+                question,
+                intent.metric_terms,
+                dimension_names,
+                intent.notes,
+            ) or None
+        elif slot == SlotName.TOP_N:
             value = coerce_top_n(payload.get(slot.value))
         elif slot in (SlotName.TIME_PERIOD, SlotName.COMPARISON):
             candidate = payload.get(slot.value)

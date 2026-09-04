@@ -162,6 +162,16 @@ RULES
 6. time_period is the period asked about ("last quarter"). comparison_period is
    any second period it is measured against ("vs the year before"). Copy the
    user's wording; do not convert to dates.
+7. "value_phrases" lists the specific things the question filters on - a place,
+   a brand, a customer, a product name. Copy each one from the question exactly
+   as written. Set its "dimension" ONLY when the user themselves named it
+   ("Chennai city" -> "City"), choosing from the configured dimension list; if
+   they only gave the bare value ("Chennai"), leave dimension null. A word that
+   names a metric or a dimension is not a value: "sales", "product categories"
+   and "pending" belong in metric_terms or dimension_terms, never here. Never
+   invent, correct, expand or translate a value - something later checks these
+   against the real data, and a phrase that is not in the question is worse
+   than no phrase at all. When the question filters on nothing, return [].
 
 SHAPE
 {{
@@ -173,12 +183,16 @@ SHAPE
   "output": null,
   "metric_terms": [],
   "dimension_terms": [],
+  "value_phrases": [],
   "unknown_terms": [],
   "time_period": null,
   "comparison_period": null,
   "evidence": {{}},
   "confidence": {{}}
 }}
+
+Each entry of "value_phrases" has this shape:
+{{"phrase": "Chennai", "dimension": null, "confidence": 0.0}}
 
 WORKED EXAMPLE
 Question: Top 5 products whose sales are reducing last quarter
@@ -191,6 +205,7 @@ Question: Top 5 products whose sales are reducing last quarter
   "output": null,
   "metric_terms": ["Sales"],
   "dimension_terms": ["Product"],
+  "value_phrases": [],
   "unknown_terms": [],
   "time_period": "last quarter",
   "comparison_period": null,

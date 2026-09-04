@@ -73,6 +73,7 @@ class SlotName(str, Enum):
     DIMENSION = "dimension"
     TIME_PERIOD = "time_period"
     COMPARISON = "comparison"
+    VALUE_PHRASE = "value_phrase"
 
 
 # Below this, a field is not trusted on its own and step 26 escalates it.
@@ -109,6 +110,45 @@ class Clarification:
         }
 
 
+# A question naming more than this many distinct values is not a filter, it is
+# a paste. Bounded so one runaway model response cannot enlarge every later
+# stage's work; the excess is dropped with a note rather than truncated in
+# silence.
+MAX_VALUE_PHRASES = 8
+
+
+@dataclass
+class ValuePhrase:
+    """
+    One span of the question the extractor believes names a VALUE to filter on.
+
+    A proposal, never an answer. `phrase` is the user's own wording and is only
+    kept when it genuinely occurs in the question; `dimension` is only kept when
+    it is a configured dimension name. Nothing here is a database value - the
+    real value, if any, is still decided later by matching this phrase against
+    what the database actually contains. That separation is the whole point:
+    the model may say where to look, never what is there.
+
+    `qualifier_explicit` records whether the user themselves named the dimension
+    ("Chennai city") rather than leaving it open ("Chennai"). It is computed
+    from the question in code and never read from the model, because it decides
+    how much benefit of the doubt a candidate gets and a model that simply
+    asserts "yes, they said city" would be deciding that for us.
+    """
+    phrase: str
+    dimension: Optional[str] = None
+    qualifier_explicit: bool = False
+    confidence: float = 0.0
+
+    def to_dict(self) -> dict:
+        return {
+            "phrase": self.phrase,
+            "dimension": self.dimension,
+            "qualifier_explicit": self.qualifier_explicit,
+            "confidence": self.confidence,
+        }
+
+
 @dataclass
 class ExtractedIntent:
     """
@@ -130,6 +170,10 @@ class ExtractedIntent:
 
     metric_terms: List[str] = field(default_factory=list)
     dimension_terms: List[str] = field(default_factory=list)
+
+    # Candidate value spans. Populated by extraction and carried for
+    # observation only - nothing downstream reads this yet.
+    value_phrases: List[ValuePhrase] = field(default_factory=list)
 
     time_period: Optional[str] = None
     comparison_period: Optional[str] = None
@@ -184,6 +228,7 @@ class ExtractedIntent:
             SlotName.DIMENSION: self.dimension_terms or None,
             SlotName.TIME_PERIOD: self.time_period,
             SlotName.COMPARISON: self.comparison_period,
+            SlotName.VALUE_PHRASE: self.value_phrases or None,
         }.get(slot)
 
     def low_confidence_slots(self) -> List[SlotName]:
@@ -200,6 +245,7 @@ class ExtractedIntent:
             "output": self.output.value if self.output else None,
             "metric_terms": list(self.metric_terms),
             "dimension_terms": list(self.dimension_terms),
+            "value_phrases": [p.to_dict() for p in self.value_phrases],
             "time_period": self.time_period,
             "comparison_period": self.comparison_period,
             "confidence": dict(self.confidence),

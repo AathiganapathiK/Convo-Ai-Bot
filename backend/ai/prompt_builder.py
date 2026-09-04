@@ -330,6 +330,7 @@ class PromptBuilder:
             print(f"Benchmark   : {extracted_intent.benchmark}")
             print(f"Period      : {extracted_intent.time_period} "
                   f"vs {extracted_intent.comparison_period}")
+            print(f"Values      : {[p.to_dict() for p in extracted_intent.value_phrases]}")
             print(f"Tier        : {extracted_intent.escalation_tier.value}")
             print(f"Assumptions : {extracted_intent.assumptions_made}")
             print(f"Unsupported : {extracted_intent.unsupported}")
@@ -357,6 +358,14 @@ class PromptBuilder:
         # diagnostic form is attached here, once semantic_result exists.
         if extracted_intent is not None and isinstance(semantic_result, dict):
             semantic_result["extracted_intent"] = extracted_intent.to_dict()
+
+            # Step 2 - OBSERVATION ONLY. Surfaced at the top level so the
+            # phrases the extractor proposes can be reviewed against what the
+            # deterministic resolver independently found, before anything is
+            # allowed to depend on them. Nothing reads this key yet.
+            semantic_result["value_phrases"] = [
+                p.to_dict() for p in extracted_intent.value_phrases
+            ]
 
         # TEMP_PIPELINE_TRACE_REMOVE_LATER
         try:
