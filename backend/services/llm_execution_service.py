@@ -49,7 +49,8 @@ class LLMExecutionService:
                         model_config[
                             "provider_type"
                         ],
-                        company_id=company_id
+                        company_id=company_id,
+                        provider_id=model_config.get("provider_id")
                     )
                 )
 
@@ -91,24 +92,34 @@ class LLMExecutionService:
                 except Exception:
                     pass
 
-                ProviderHealthService.mark_success(
-                    model_config[
-                        "provider_type"
-                    ],
-                    response_ms
-                )
+                # Recorded against the provider ROW, not the type. Health kept
+                # by type meant one account's rate limit marked every Groq
+                # provider failed, which is why the control centre showed a
+                # red badge on rows that were answering normally.
+                _provider_id = model_config.get("provider_id")
+                if _provider_id:
+                    ProviderHealthService.mark_success_by_id(
+                        str(_provider_id), response_ms
+                    )
+                else:
+                    ProviderHealthService.mark_success(
+                        model_config["provider_type"], response_ms
+                    )
 
                 return response
 
             except Exception as ex:
                 last_error = ex
 
-                ProviderHealthService.mark_failure(
-                    model_config[
-                        "provider_type"
-                    ],
-                    str(ex)
-                )
+                _provider_id = model_config.get("provider_id")
+                if _provider_id:
+                    ProviderHealthService.mark_failure_by_id(
+                        str(_provider_id), str(ex)
+                    )
+                else:
+                    ProviderHealthService.mark_failure(
+                        model_config["provider_type"], str(ex)
+                    )
 
                 
 

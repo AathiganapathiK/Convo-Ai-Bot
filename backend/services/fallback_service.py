@@ -13,6 +13,7 @@ class FallbackService:
 
         query = """
         SELECT
+            p.provider_id,
             p.provider_type,
             m.model_name,
             f.priority_order

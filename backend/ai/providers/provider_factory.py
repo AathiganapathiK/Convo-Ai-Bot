@@ -8,8 +8,19 @@ class ProviderFactory:
     @staticmethod
     def get_provider(
         provider_type: str,
-        company_id = None
+        company_id = None,
+        provider_id = None
     ):
+        """
+        Build a provider client for one CONFIGURED provider row.
+
+        `provider_id` matters when a company has several rows of the same
+        type. Resolving the credential by type alone made every Groq route
+        share one key, so three separately-registered Groq accounts drew on a
+        single daily quota and failover between them changed nothing. Passing
+        the id lets each row use its own key; omitting it keeps the old
+        by-type behaviour for callers that have no id to give.
+        """
 
         provider_type = (
             provider_type.lower()
@@ -17,7 +28,7 @@ class ProviderFactory:
 
         if provider_type == "groq":
 
-            return GroqProvider(company_id=company_id)
+            return GroqProvider(company_id=company_id, provider_id=provider_id)
 
         if provider_type == "ollama":
             from ai.providers.ollama_provider import OllamaProvider

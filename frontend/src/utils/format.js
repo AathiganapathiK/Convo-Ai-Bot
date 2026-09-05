@@ -106,3 +106,48 @@ export const getAxisLabel = (labelName, isYAxis = false) => {
 
   return `${cleanLabel}${unit}`;
 };
+
+export const formatAxisValue = (value, columnName = "") => {
+  if (value === null || value === undefined) return "";
+
+  const num = Number(value);
+  if (Number.isNaN(num)) return value;
+
+  if (isPercentageColumn(columnName)) {
+    const pct = num > 0 && num < 1 ? num * 100 : num;
+    return `${pct.toFixed(1)}%`;
+  }
+
+  const isCurr = isCurrencyColumn(columnName);
+  const prefix = isCurr ? "₹" : "";
+  const absNum = Math.abs(num);
+  const sign = num < 0 ? "-" : "";
+
+  if (absNum === 0) {
+    return `${prefix}0`;
+  }
+
+  if (absNum >= 10000000) {
+    const val = absNum / 10000000;
+    const formatted = val % 1 === 0 ? val.toString() : val.toFixed(2).replace(/\.?0+$/, "");
+    return `${sign}${prefix}${formatted} Cr`;
+  }
+
+  if (absNum >= 100000) {
+    const val = absNum / 100000;
+    const formatted = val % 1 === 0 ? val.toString() : val.toFixed(2).replace(/\.?0+$/, "");
+    return `${sign}${prefix}${formatted} L`;
+  }
+
+  if (absNum >= 1000) {
+    const val = absNum / 1000;
+    const formatted = val % 1 === 0 ? val.toString() : val.toFixed(2).replace(/\.?0+$/, "");
+    return `${sign}${prefix}${formatted} K`;
+  }
+
+  if (isCurr) {
+    return `${sign}${prefix}${absNum.toLocaleString("en-IN", { maximumFractionDigits: 2 })}`;
+  }
+
+  return formatNumber(num);
+};

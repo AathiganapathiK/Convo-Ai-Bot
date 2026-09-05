@@ -1,5 +1,6 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, replace as _dc_replace
 from sqlalchemy import text
+import os
 import re
 from database import engine
 
@@ -87,6 +88,10 @@ class DimensionValueResolver(metaclass=ThreadLocalMeta):
     
     default_cache = DimensionValueCache()
 
+    # Step 4 - full scorer output, kept beside the converted MatchResults so
+    # score/signals/provenance are not lost to a frozen dataclass.
+    last_phrase_resolutions = []
+
     def __init__(self, pipeline: MatchingPipeline = None, cache: DimensionValueCache = None, settings: dict = None):
         self.cache = cache or self.default_cache
         self.settings = settings or {}
@@ -104,6 +109,254 @@ class DimensionValueResolver(metaclass=ThreadLocalMeta):
         self.last_match_stats = None
         self.last_resolution_result = None
         self.followup_context = None
+
+    # ------------------------------------------------------------------
+    # Step 3 - phrase-scoped matching
+    # ------------------------------------------------------------------
+    # Off unless SEMANTIC_VALUE_MODE=enforce. The path is complete and
+    # tested either way; the flag decides whether production traffic uses
+    # it, on the same shadow-then-enforce pattern SQL_GUARD_MODE uses.
+
+    @staticmethod
+    def _value_mode() -> str:
+        return (os.getenv("SEMANTIC_VALUE_MODE", "legacy") or "").strip().lower()
+
+    @classmethod
+    def phrase_scoped_enabled(cls) -> bool:
+        return cls._value_mode() in ("enforce", "candidate_scoped")
+
+    @classmethod
+    def candidate_scoped_enabled(cls) -> bool:
+        """
+        Step 4 - provider-backed candidates with deterministic scoring.
+
+        A separate mode from `enforce` on purpose: `enforce` is bare
+        phrase-scoping, which is what produced the Ramraj widening. Anything
+        that opts into the new behaviour should opt into the scoring that
+        makes it safe, so the two are not independently selectable.
+        """
+        return cls._value_mode() == "candidate_scoped"
+
+    @classmethod
+    def resolve_value_phrases(
+        cls,
+        connection_id: str,
+        question: str,
+        value_phrases: list,
+        provider=None,
+        judge=None,
+    ):
+        """
+        Resolve each value phrase to real candidates, scored deterministically.
+
+        Returns one PhraseResolution per usable phrase, in order. Phrases are
+        resolved INDEPENDENTLY: each gets its own provider lookup and its own
+        decision, so one phrase's candidates can never enter another's
+        competitive set. Nothing here concatenates phrases.
+
+        `provider` is injectable so this is testable with no database. It
+        defaults to the real value index; whatever it is, candidates come from
+        it and never from the extractor - the phrase only says what to look up.
+        """
+        from semantic.candidate_judge import apply_judge
+        from semantic.candidate_scoring import resolve_phrase
+        from semantic.value_provider import DbDimensionValueProvider
+
+        if provider is None:
+            provider = DbDimensionValueProvider(connection_id=connection_id)
+
+        resolutions = []
+        for phrase in value_phrases or []:
+            text_value, dimension, qualifier_explicit = cls._phrase_fields(phrase)
+            if not isinstance(text_value, str) or not text_value.strip():
+                continue
+
+            # The model's dimension is only honoured when the deterministic
+            # qualifier check in Step 2 confirmed the user named it, AND the
+            # name is one this provider actually serves. An unconfigured
+            # dimension narrows nothing rather than narrowing to nothing.
+            search_dimension = None
+            if qualifier_explicit and isinstance(dimension, str) and dimension.strip():
+                configured = {d.strip().lower() for d in (provider.dimensions() or [])}
+                if dimension.strip().lower() in configured:
+                    search_dimension = dimension
+
+            candidates = provider.get_candidates(
+                search_dimension, text_value, {"question": question}
+            )
+            resolution = resolve_phrase(
+                candidates,
+                text_value,
+                question,
+                qualifier_explicit=bool(search_dimension),
+                phrase_dimension=search_dimension,
+            )
+
+            # The judge is consulted ONLY where deterministic ranking already
+            # said the choice is genuinely ambiguous. apply_judge enforces
+            # that, and enforces that the answer is one of these candidates,
+            # so a clear winner is never second-guessed and an invented value
+            # can never enter the plan.
+            resolution = apply_judge(resolution, question, judge)
+
+            resolutions.append(resolution)
+
+        return resolutions
+
+    @staticmethod
+    def _phrase_fields(phrase):
+        """
+        (text, dimension, qualifier_explicit) from a ValuePhrase or its dict.
+
+        Read structurally rather than by importing ai.extraction, so the
+        semantic layer keeps no dependency on the extraction layer above it.
+        """
+        if isinstance(phrase, dict):
+            return (
+                phrase.get("phrase"),
+                phrase.get("dimension"),
+                bool(phrase.get("qualifier_explicit")),
+            )
+        return (
+            getattr(phrase, "phrase", None),
+            getattr(phrase, "dimension", None),
+            bool(getattr(phrase, "qualifier_explicit", False)),
+        )
+
+    def _candidate_scoped_matches(self, value_phrases, connection_id, question, provider=None, judge=None):
+        """
+        Step 4 integration: provider -> scorer -> MatchResult.
+
+        Each phrase is resolved independently and converted separately, so a
+        phrase's candidates only ever carry that phrase's tokens and can never
+        compete with another phrase's downstream. The full PhraseResolution
+        objects are kept on the resolver as `last_phrase_resolutions` so the
+        score, the signals and the provenance survive a conversion that
+        MatchResult has no fields for.
+        """
+        from semantic.candidate_scoring import to_match_results
+        from semantic.matching import MatchStatistics
+
+        resolutions = self.resolve_value_phrases(
+            connection_id, question, value_phrases, provider=provider, judge=judge
+        )
+        self.last_phrase_resolutions = resolutions
+        type(self).last_phrase_resolutions = resolutions
+
+        if not resolutions:
+            return None, None
+
+        matches = []
+        for resolution in resolutions:
+            matches.extend(to_match_results(resolution))
+
+        exact = sum(1 for m in matches if m.match_type == MatchType.EXACT)
+        normalized = sum(1 for m in matches if m.match_type == MatchType.NORMALIZED)
+        fuzzy = sum(1 for m in matches if m.match_type == MatchType.FUZZY)
+
+        stats = MatchStatistics(
+            exact_attempted=True,
+            normalized_attempted=True,
+            plural_attempted=False,
+            fuzzy_attempted=True,
+            winning_match=None,
+            execution_time_ms=0.0,
+            exact_match_count=exact,
+            normalized_match_count=normalized,
+            plural_match_count=0,
+            fuzzy_match_count=fuzzy,
+            total_match_count=len(matches),
+        )
+        return matches, stats
+
+    def _phrase_scoped_matches(self, value_phrases, connection_id, indexed_values):
+        """
+        Run the existing matcher pipeline once per value phrase.
+
+        This is the whole of Step 3's behavioural change. Every matcher, the
+        cached value index, and all downstream ranking/ambiguity logic are
+        untouched - the only difference is WHAT the matchers are asked to
+        explain. Previously they were handed the entire question and generated
+        every 1-3 word n-gram of it; now they are handed one phrase the
+        extractor identified, so a verb or a metric word in some other part of
+        the sentence can no longer become a candidate database value.
+
+        Candidate values still come only from `indexed_values`, which is the
+        real configured value index. Nothing here can produce a value the
+        database does not contain.
+
+        Each phrase is matched against its own context, so one phrase's
+        candidates cannot contaminate another's: "Chennai city and Ramraj
+        brand" produces two independent candidate sets rather than one shared
+        pool that the downstream competition logic could bridge.
+        """
+        all_matches = []
+        merged = None
+
+        for phrase in value_phrases or []:
+            text_value, dimension, qualifier_explicit = self._phrase_fields(phrase)
+
+            if not isinstance(text_value, str) or not text_value.strip():
+                continue
+
+            sanitized = QuestionSanitizer.sanitize(text_value)
+            normalized = self._normalize_text(sanitized)
+            tokens = [t for t in normalized.split() if t not in STOPWORDS]
+            if not tokens:
+                continue
+
+            scoped_values = indexed_values
+
+            # An explicit qualifier the USER wrote ("Chennai city") narrows the
+            # search to that dimension. qualifier_explicit was computed
+            # deterministically from the question in Step 2, never taken from
+            # the model, so this is the user's own restriction being honoured.
+            # A bare value is deliberately left unrestricted, because its
+            # ambiguity across dimensions is real and belongs downstream.
+            if qualifier_explicit and isinstance(dimension, str) and dimension.strip():
+                wanted = dimension.strip().lower()
+                narrowed = [
+                    v for v in indexed_values
+                    if (v.business_name or "").strip().lower() == wanted
+                ]
+                # If the configured dimension indexes no values, fall back to
+                # the full set rather than manufacturing an unresolved phrase.
+                if narrowed:
+                    scoped_values = narrowed
+
+            context = MatchingContext(
+                question_context=QuestionContext(
+                    raw_question=sanitized,
+                    normalized_question=normalized,
+                    q_tokens=tokens,
+                    q_singulars=[SingularPluralMatcher._to_singular(t) for t in tokens],
+                ),
+                connection_id=connection_id,
+                indexed_values=scoped_values,
+                settings=self.settings,
+            )
+
+            matches, stats = self.pipeline.execute(context)
+            all_matches.extend(matches or [])
+
+            if merged is None:
+                merged = stats
+            else:
+                merged = _dc_replace(
+                    merged,
+                    exact_attempted=merged.exact_attempted or stats.exact_attempted,
+                    normalized_attempted=merged.normalized_attempted or stats.normalized_attempted,
+                    plural_attempted=merged.plural_attempted or stats.plural_attempted,
+                    fuzzy_attempted=merged.fuzzy_attempted or stats.fuzzy_attempted,
+                    execution_time_ms=merged.execution_time_ms + stats.execution_time_ms,
+                    exact_match_count=merged.exact_match_count + stats.exact_match_count,
+                    normalized_match_count=merged.normalized_match_count + stats.normalized_match_count,
+                    plural_match_count=merged.plural_match_count + stats.plural_match_count,
+                    fuzzy_match_count=merged.fuzzy_match_count + stats.fuzzy_match_count,
+                    total_match_count=merged.total_match_count + stats.total_match_count,
+                )
+
+        return all_matches, merged
 
     @classmethod
     def clear_cache(cls, connection_id: str = None):
@@ -135,7 +388,10 @@ class DimensionValueResolver(metaclass=ThreadLocalMeta):
         current_metrics: list = None,
         all_metrics: list = None,
         all_dimensions: list = None,
-        metric_claimed_tokens: set = None
+        metric_claimed_tokens: set = None,
+        value_phrases: list = None,
+        value_provider=None,
+        value_judge=None
     ):
         """
         Backward-compatible static entry point.
@@ -150,12 +406,28 @@ class DimensionValueResolver(metaclass=ThreadLocalMeta):
             current_metrics,
             all_metrics,
             all_dimensions,
-            metric_claimed_tokens
+            metric_claimed_tokens,
+            value_phrases,
+            value_provider,
+            value_judge
         )
         cls.last_match_stats = resolver.last_match_stats
         cls.last_resolution_result = resolver.last_resolution_result
         cls.last_followup_context = getattr(resolver, "followup_context", None)
         return results
+
+    @classmethod
+    def resolve_phrases(cls, connection_id: str, question: str, value_phrases: list, **kwargs):
+        """
+        Step 3's dedicated phrase-scoped entry point.
+
+        Identical to resolve() with value_phrases supplied; named separately so
+        a caller can state the intent explicitly and so the phrase path is
+        testable without going through the whole-question signature. Still
+        honours phrase_scoped_enabled(): with the flag off this behaves exactly
+        like resolve(), which is what keeps the rollout controlled.
+        """
+        return cls.resolve(connection_id, question, value_phrases=value_phrases, **kwargs)
 
     def resolve_matches(
         self,
@@ -167,11 +439,19 @@ class DimensionValueResolver(metaclass=ThreadLocalMeta):
         current_metrics: list = None,
         all_metrics: list = None,
         all_dimensions: list = None,
-        metric_claimed_tokens: set = None
+        metric_claimed_tokens: set = None,
+        value_phrases: list = None,
+        value_provider=None,
+        value_judge=None
     ):
 
         """
         Resolve matches using the injected matching pipeline.
+
+        `value_phrases` (Step 3, optional) are the spans the extractor
+        identified as values. When supplied and the phrase-scoped path is
+        enabled, the matchers are asked to explain those phrases instead of
+        the whole question. Everything else is unchanged.
         """
         if clarified_candidate:
             candidates_list = clarified_candidate if isinstance(clarified_candidate, list) else [clarified_candidate]
@@ -263,7 +543,34 @@ class DimensionValueResolver(metaclass=ThreadLocalMeta):
             settings=self.settings
         )
         
-        matches, stats = self.pipeline.execute(matching_context)
+        # Step 3. Phrase-scoped production replaces whole-question n-gram
+        # production when the extractor supplied phrases AND the path is
+        # enabled. Everything after this point is unchanged and still reads
+        # the whole question's tokens, so ranking, containment, competition
+        # and ambiguity classification behave exactly as before.
+        phrase_matches, phrase_stats = None, None
+        candidate_scoped_matches = False
+        if value_phrases and self.candidate_scoped_enabled():
+            candidate_scoped_matches = True
+            # Provider-backed candidates, deterministically scored, converted
+            # into the ordinary MatchResult representation. Everything below
+            # this line is the existing engine and does not know the difference.
+            phrase_matches, phrase_stats = self._candidate_scoped_matches(
+                value_phrases, connection_id, question, value_provider, value_judge
+            )
+        elif value_phrases and self.phrase_scoped_enabled():
+            phrase_matches, phrase_stats = self._phrase_scoped_matches(
+                value_phrases, connection_id, indexed_values
+            )
+
+        if phrase_stats is not None:
+            # At least one usable phrase ran. An empty match list here is a
+            # real answer - this question filters on something the database
+            # does not contain - and must not fall back to the whole question.
+            matches, stats = phrase_matches, phrase_stats
+        else:
+            # No phrases, or every phrase was malformed: legacy path, unchanged.
+            matches, stats = self.pipeline.execute(matching_context)
         self.last_match_stats = stats
 
         if matches:
@@ -274,7 +581,20 @@ class DimensionValueResolver(metaclass=ThreadLocalMeta):
 
             # Step 2:
             # Remove genuinely contained candidate values.
-            matches = self._remove_contained_matches(matches, q_tokens)
+            # Containment removal exists to undo whole-question n-gram
+            # over-generation: a longer value that explains no additional
+            # question token is noise the matchers produced, not a candidate a
+            # user could have meant. The candidate-scoped path does not
+            # over-generate - the scorer has already weighed each candidate
+            # against the phrase AND the question and decided which ones
+            # genuinely compete. Re-running this pass on its output silently
+            # discards that decision: "Show sales for Ramraj" went from an
+            # AMBIGUOUS four-way family to SINGLE_MATCH, losing the
+            # clarification the user needed. Every other pass - consolidation,
+            # metric subsumption, competition, the ambiguity classifier and
+            # reachability - still runs on both paths.
+            if not candidate_scoped_matches:
+                matches = self._remove_contained_matches(matches, q_tokens)
 
             # Step 2b - Gate 3. A configured multi-word METRIC phrase already
             # explained some of the question's tokens; a value candidate that
@@ -294,6 +614,20 @@ class DimensionValueResolver(metaclass=ThreadLocalMeta):
                 matches = self._drop_metric_subsumed_matches(
                     matches, q_tokens, metric_claimed_tokens
                 )
+
+            # A word the temporal layer already read as intent is not a value.
+            #
+            # Distinct from the metric filter above, which asks whether the
+            # VALUE's own words are all metric words. This asks the other
+            # question: which question token did this candidate actually get
+            # approved against? "Show sales trend" was resolved as a
+            # TrendIntent and then fuzzy-matched "trend" to the product value
+            # "CCB TRENDY" - whose own words are not metric words, so the
+            # filter above correctly let it through. The evidence that fails
+            # is the question side: the only token it explains was already
+            # spent on the intent.
+            if matches:
+                matches = self._drop_intent_claimed_matches(matches)
 
             # Apply explicit dimension context filtering if dimension_context or all_dimensions is provided
             if not dimension_context and all_dimensions:
@@ -976,6 +1310,40 @@ class DimensionValueResolver(metaclass=ThreadLocalMeta):
                     return q_tokens[i : i + width]
                     
         return []
+
+    @staticmethod
+    @staticmethod
+    def _drop_intent_claimed_matches(matches: list) -> list:
+        """
+        Drop value matches whose only question evidence was an intent word.
+
+        Reads `matched_question_tokens_precise` - the token a matcher actually
+        approved a candidate against, not the wider span it searched with -
+        so a candidate that explains anything the time expression did not is
+        untouched. With no temporal expression nothing is claimed and this is
+        a no-op, which is why it can run unconditionally.
+        """
+        try:
+            from semantic.temporal.detector import get_claimed_tokens
+            claimed = {t.lower() for t in (get_claimed_tokens() or set())}
+        except Exception:
+            claimed = set()
+
+        if not claimed:
+            return matches
+
+        survivors = []
+        for m in matches:
+            precise = {
+                str(t).lower()
+                for t in (getattr(m, "matched_question_tokens_precise", None) or [])
+                if str(t).strip()
+            }
+            if precise and precise <= claimed:
+                continue
+            survivors.append(m)
+
+        return survivors
 
     @staticmethod
     def _drop_metric_subsumed_matches(

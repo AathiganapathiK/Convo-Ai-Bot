@@ -553,6 +553,58 @@ def _normalize_words(text: str) -> List[str]:
     return re.sub(r"[^a-z0-9]+", " ", str(text).lower()).split()
 
 
+def _stems(words) -> List[str]:
+    """
+    Singular stems, using the matcher the resolution layer already uses.
+
+    Qualifiers arrive in whatever number the user typed - "Ramraj brand" and
+    "Ramraj brands" are the same request - so every qualifier comparison is made
+    on stems. Reusing SingularPluralMatcher rather than writing plural rules
+    here keeps one definition of "same word" across extraction and matching.
+    """
+    try:
+        from semantic.matching import SingularPluralMatcher
+        return [SingularPluralMatcher._to_singular(w) for w in words]
+    except Exception:
+        return list(words)
+
+
+def _strip_trailing_qualifier(phrase_words, dimension_names):
+    """
+    Split a phrase into (value words, configured dimension) when the user's
+    own dimension word is sitting on the end of it.
+
+    Real extractions do this inconsistently: "Show sales for Chennai city"
+    came back as phrase "Chennai city", while "Show sales for Ramraj brand"
+    came back as phrase "Ramraj". The value is the same kind of thing in both,
+    so the qualifier is removed here rather than left to chance.
+
+    Longest configured name first, so a two-word dimension is preferred over a
+    one-word one that happens to be its tail. Never strips the whole phrase: a
+    phrase that is ONLY a dimension name is not a value, and is left alone for
+    the caller's other checks to reject.
+    """
+    if not phrase_words or not dimension_names:
+        return phrase_words, None
+
+    stemmed_phrase = _stems(phrase_words)
+
+    candidates = sorted(
+        ((name, _stems(_normalize_words(name))) for name in dimension_names if name),
+        key=lambda item: len(item[1]),
+        reverse=True,
+    )
+
+    for name, name_stems in candidates:
+        size = len(name_stems)
+        if not size or size >= len(phrase_words):
+            continue
+        if stemmed_phrase[-size:] == name_stems:
+            return phrase_words[:-size], name
+
+    return phrase_words, None
+
+
 def _validate_value_phrases(
     raw_phrases: Any,
     question: str,
@@ -609,7 +661,21 @@ def _validate_value_phrases(
             )
             continue
 
-        phrase_words = _normalize_words(phrase)
+        # Qualifier handling, before every check below, so the metric-overlap
+        # test, the duplicate test and the stored phrase all see the VALUE
+        # rather than the value plus the user's dimension word.
+        raw_words = _normalize_words(phrase)
+        phrase_words, inside_dimension = _strip_trailing_qualifier(
+            raw_words, dimension_names
+        )
+        if inside_dimension:
+            phrase = " ".join(phrase_words)
+            notes.append(
+                "Value phrase '%s' carried the qualifier '%s'; bound to that "
+                "dimension and removed from the value." % (
+                    " ".join(raw_words), inside_dimension)
+            )
+
         if phrase_words and all(w in metric_words for w in phrase_words):
             notes.append(
                 f"Dropped value phrase '{phrase}': it names a metric, not a value."
@@ -627,25 +693,44 @@ def _validate_value_phrases(
             )
             continue
 
-        dimension = None
-        raw_dimension = raw.get("dimension")
-        if isinstance(raw_dimension, str) and raw_dimension.strip():
-            matched = _validate_terms(
-                [raw_dimension], dimension_names, "value-phrase dimension", notes
-            )
-            dimension = matched[0] if matched else None
+        # A qualifier found INSIDE the phrase is the user's own word and is
+        # authoritative. Otherwise fall back to the model's proposal, which is
+        # only ever a proposal.
+        dimension = inside_dimension
+        if dimension is None:
+            raw_dimension = raw.get("dimension")
+            if isinstance(raw_dimension, str) and raw_dimension.strip():
+                matched = _validate_terms(
+                    [raw_dimension], dimension_names, "value-phrase dimension", notes
+                )
+                dimension = matched[0] if matched else None
 
-        # Deterministic, from the question - never from the model.
-        qualifier_explicit = bool(dimension) and any(
-            word in question_words
-            for word in _normalize_words(dimension)
-            if word not in phrase_words
-        )
+        # Deterministic, from the question - never from the model's own flag.
+        # Stems on both sides so "brand" and "brands" are one word, which is
+        # what "Show sales for Ramraj brands" needed and did not get.
+        if inside_dimension:
+            qualifier_explicit = True
+        elif dimension:
+            phrase_stems = set(_stems(phrase_words))
+            question_stems = set(_stems(question_words))
+            qualifier_explicit = any(
+                stem in question_stems
+                for stem in _stems(_normalize_words(dimension))
+                if stem not in phrase_stems
+            )
+        else:
+            qualifier_explicit = False
+
         if dimension and not qualifier_explicit:
+            # The model proposed a dimension the user never named. Keeping it
+            # would hand downstream a binding nothing verified, which is the
+            # opposite of the rule that the model may say where to look and
+            # only the question decides. Dropped, not merely flagged.
             notes.append(
                 f"Value phrase '{phrase}' was bound to '{dimension}', but the "
-                f"question does not name that dimension; treated as unqualified."
+                f"question does not name that dimension; binding dropped."
             )
+            dimension = None
 
         seen.add(identity)
         kept.append(

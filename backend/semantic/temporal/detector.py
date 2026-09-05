@@ -1,5 +1,6 @@
 import datetime
-from typing import Optional, Dict, Any
+import threading
+from typing import Optional, Dict, Any, List, Set
 
 from .tokenizer import TimeTokenizer
 from .normalizer import TimeNormalizer
@@ -37,6 +38,38 @@ from .models import (
 )
 from .enums import TimeIntentType, Granularity
 
+# Words the temporal layer consumed for the request being handled on this
+# thread. Request-scoped like the rest of the temporal telemetry, and cleared
+# at the start of every detection so one question can never inherit another's.
+_claimed = threading.local()
+
+
+def _publish_claimed_tokens(expression) -> None:
+    tokens = [
+        str(t).strip().lower()
+        for t in (getattr(expression, "matched_tokens", None) or [])
+        if str(t).strip()
+    ]
+    if not tokens:
+        text = str(getattr(expression, "text", "") or "")
+        tokens = [w for w in text.lower().split() if w]
+    _claimed.tokens = set(tokens)
+
+
+def clear_claimed_tokens() -> None:
+    _claimed.tokens = set()
+
+
+def get_claimed_tokens() -> Set[str]:
+    """
+    The words already read as a time expression, or an empty set.
+
+    Empty is the safe default and means "claim nothing": a question with no
+    temporal expression must leave dimension resolution exactly as it was.
+    """
+    return set(getattr(_claimed, "tokens", set()) or set())
+
+
 class TemporalDetector:
     """
     Main orchestrator for detecting temporal intents from user queries.
@@ -48,6 +81,10 @@ class TemporalDetector:
         self.parser = TimeParser()
 
     def detect(self, question: str, reference_date: Optional[datetime.date] = None) -> Optional[BaseTimeIntent]:
+        # Cleared first so a question with no time expression cannot inherit
+        # the previous question's claimed words on this thread.
+        clear_claimed_tokens()
+
         if not question:
             return None
             
@@ -69,6 +106,17 @@ class TemporalDetector:
         expression = self.parser.parse(normalized_text, tokens)
         if not expression:
             return None
+
+        # Publish the words this expression consumed.
+        #
+        # Everything below converts the expression into an intent and throws
+        # the wording away, but a later stage needs to know WHICH words were
+        # read as time. "Show current year sales" had "year" matched as a
+        # synonym of a Docdate Year dimension on an unrelated table, and the
+        # cross-table guard then - correctly - refused the whole question.
+        # The guard was right; the resolver should never have been offered a
+        # word that time had already claimed.
+        _publish_claimed_tokens(expression)
             
         # 4. Map to TimeIntent subclass
         intent_type = expression.intent

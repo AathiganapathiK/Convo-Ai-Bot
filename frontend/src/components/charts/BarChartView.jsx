@@ -12,7 +12,8 @@ import {
 
 import {
   getAxisLabel,
-  formatValue
+  formatValue,
+  formatAxisValue
 } from "../../utils/format";
 
 
@@ -26,7 +27,7 @@ const BarChartView = ({ chart, data }) => {
       <BarChart 
         data={data}
         layout={isHorizontal ? "vertical" : "horizontal"}
-        margin={{ left: isHorizontal ? 20 : 15, right: 20, top: 20, bottom: 20 }}
+        margin={{ left: isHorizontal ? 20 : 25, right: 20, top: 20, bottom: 20 }}
       >
         <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
         {isHorizontal ? (
@@ -35,7 +36,7 @@ const BarChartView = ({ chart, data }) => {
               type="number"
               stroke="var(--text-muted)"
               tickFormatter={(value) =>
-                formatValue(value, chart.y_axis)
+                formatAxisValue(value, chart.y_axis)
               }
               label={{
                 value: getAxisLabel(chart.y_axis_label || chart.y_axis, true),
@@ -72,9 +73,10 @@ const BarChartView = ({ chart, data }) => {
               tick={{ fontSize: 12, fill: "var(--text-muted)" }} 
             />
             <YAxis
+              width={80}
               stroke="var(--text-muted)"
               tickFormatter={(value) =>
-                formatValue(value, chart.y_axis)
+                formatAxisValue(value, chart.y_axis)
               }
               label={{
                 value: getAxisLabel(chart.y_axis_label || chart.y_axis, true),

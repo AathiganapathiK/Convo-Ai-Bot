@@ -1,5 +1,5 @@
 import React from "react";
-import { getAxisLabel, formatValue } from "../../utils/format";
+import { getAxisLabel, formatValue, formatAxisValue } from "../../utils/format";
 import {
   ResponsiveContainer,
   LineChart,
@@ -19,7 +19,7 @@ const LineChartView = ({ chart, data }) => {
     <ResponsiveContainer width="100%" height={350}>
       <LineChart 
         data={data}
-        margin={{ left: 15, right: 20, top: 20, bottom: 20 }}
+        margin={{ left: 25, right: 20, top: 20, bottom: 20 }}
       >
         <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
         <XAxis
@@ -34,9 +34,10 @@ const LineChartView = ({ chart, data }) => {
           }}
         />
         <YAxis
+          width={80}
           stroke="var(--text-muted)"
           tickFormatter={(value) =>
-            formatValue(value, chart.y_axis)
+            formatAxisValue(value, chart.y_axis)
           }
           tick={{ fontSize: 12, fill: "var(--text-muted)" }}
           label={{  

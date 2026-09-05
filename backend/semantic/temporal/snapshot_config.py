@@ -97,6 +97,32 @@ class SnapshotConfig:
         """Every column bound to a period, of either measure kind."""
         return {b.column_name for b in self.bindings}
 
+    def column_for(self, period_offset: int, measure_kind: str = "VALUE",
+                   scope: Optional[str] = None) -> Optional[str]:
+        """
+        The single configured column for one period, or None.
+
+        `scope` may be given explicitly ("TO_DATE" for a till-date question).
+        Left unset, it takes the natural reading: the running period is always
+        to-date because it cannot be anything else, and a past period means the
+        complete year unless the question said otherwise. Falls back to the
+        other scope rather than returning nothing, since a configuration that
+        binds only one of the two still answers the question - the caller can
+        see which column came back and say what it covers.
+        """
+        candidates = [b for b in self.bindings
+                      if b.period_offset == period_offset
+                      and b.measure_kind == measure_kind]
+        if not candidates:
+            return None
+
+        wanted = scope or ("TO_DATE" if period_offset == 0 else "FULL")
+        for binding in candidates:
+            if binding.period_scope == wanted:
+                return binding.column_name
+
+        return candidates[0].column_name
+
     @property
     def resolvable_columns(self) -> Set[str]:
         """

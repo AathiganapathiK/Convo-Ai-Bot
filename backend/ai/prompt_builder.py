@@ -136,6 +136,194 @@ class PromptBuilder:
                 temporal_formatter=temporal_formatter
             )
 
+    # Words that turn "last year" into "last year to date". Kept here beside
+    # the only code that reads them; the periods themselves come from config.
+    _TO_DATE_MARKERS = ("till date", "til date", "to date", "todate",
+                        "ytd", "lytd", "pytd", "so far", "till now", "to now")
+
+    @staticmethod
+    def _fiscal_offset_for_year(target_year, target_month, fiscal_start_month, today=None):
+        """
+        How many fiscal years back a calendar month/year falls, or None.
+
+        A snapshot table has one column per fiscal year, so an explicit date
+        like "August 2025" has to become an offset before it can become a
+        column. With an April start, August 2025 belongs to FY 2025-26; if the
+        current fiscal year began April 2026 that is one year back, so PY.
+
+        Returns None for a future period or one further back than configured -
+        the caller then leaves the question alone rather than answering it
+        with the nearest column it happens to have.
+        """
+        import datetime
+
+        if not target_year:
+            return None
+
+        today = today or datetime.date.today()
+        start = int(fiscal_start_month or 1)
+
+        def fiscal_start_year(year, month):
+            return year if month >= start else year - 1
+
+        current = fiscal_start_year(today.year, today.month)
+        target = fiscal_start_year(int(target_year), int(target_month or start))
+
+        offset = current - target
+        return offset if offset >= 0 else None
+
+    @staticmethod
+    def _trend_year_offset(question):
+        """
+        Which year a trend question names, or None if it names none.
+
+        Normalized through the temporal normalizer so "current year" and
+        "this year" are one phrase, and so this reads the same vocabulary the
+        detector does rather than a second list that could drift from it.
+        """
+        try:
+            from semantic.temporal.normalizer import TimeNormalizer
+            from semantic.temporal.tokenizer import TimeTokenizer
+            text = TimeNormalizer().normalize(TimeTokenizer().tokenize(question or ""))
+        except Exception:
+            text = (question or "").lower()
+
+        text = text or ""
+        if "last year" in text or "previous year" in text:
+            return 1
+        if "this year" in text or "current year" in text:
+            return 0
+        return None
+
+    def _bind_snapshot_period(self, time_context, connection_id, table_names, question):
+        """
+        Attach the configured period column to a detected year intent.
+
+        Returns the context unchanged unless ALL of these hold: a year-level
+        intent was detected, no snapshot column is attached yet, and exactly
+        one selected table is snapshot-configured. Anything less ambiguous is
+        left alone - this fills a gap, it does not override a decision.
+        """
+        if time_context is not None and getattr(time_context, "snapshot_columns", None):
+            return time_context
+
+        # The intent and the context are published separately, and resolution
+        # can produce an intent with no context at all - which is exactly the
+        # state "Show current year sales" reached. Read the intent from
+        # whichever of the two actually carries it.
+        intent = getattr(time_context, "intent", None)
+        if intent is None:
+            try:
+                intent = self.temporal_pipeline.get_last_intent()
+            except Exception:
+                intent = None
+
+        name = type(intent).__name__ if intent is not None else ""
+        if name not in ("CurrentYearIntent", "PreviousYearIntent",
+                        "YearComparisonIntent", "TrendIntent",
+                        "YearRangeIntent", "MonthRangeIntent"):
+            return time_context
+
+        try:
+            from semantic.temporal.enums import TimeStrategyType
+            from semantic.temporal.snapshot_config import SnapshotConfigLoader
+
+            configured = []
+            for table in (table_names or []):
+                cfg = SnapshotConfigLoader.for_table(connection_id, table)
+                if cfg and cfg.is_configured and cfg.bindings:
+                    configured.append(cfg)
+
+            if len(configured) != 1:
+                return time_context
+
+            config = configured[0]
+            lowered = (question or "").lower()
+            scope = "TO_DATE" if any(m in lowered for m in self._TO_DATE_MARKERS) else None
+
+            if name == "YearComparisonIntent":
+                # comparison_columns already owns the like-for-like rule: with
+                # the running year in the comparison every other period
+                # resolves to-date, so this returns CY and PYTD rather than
+                # CY and a complete PY. That rule lives in one place and is
+                # not restated here.
+                columns, warns = config.comparison_columns([0, 1], "VALUE")
+                for warning in warns or []:
+                    print(f"[Temporal binding] {warning}")
+                if not columns:
+                    return time_context
+                column = columns[0]
+                extra_columns = list(columns)
+            elif name in ("YearRangeIntent", "MonthRangeIntent"):
+                # An explicit date the user gave - "August 2025". Turned into a
+                # fiscal offset and then into that year's column, so a question
+                # that already named its period is never asked for one.
+                offset = self._fiscal_offset_for_year(
+                    getattr(intent, "start_year", None),
+                    getattr(intent, "start_month", None),
+                    config.fiscal_year_start_month,
+                )
+                if offset is None:
+                    return time_context
+                column = config.column_for(offset, "VALUE", scope)
+                if not column:
+                    # The period is real but this table does not reach that far
+                    # back. Saying nothing is better than answering with the
+                    # oldest column we happen to have.
+                    print(f"[Temporal binding] {name} is {offset} fiscal years "
+                          f"back; {config.table_name} has no column for it")
+                    return time_context
+                extra_columns = [column]
+            elif name == "TrendIntent":
+                # "Show last year sales trend" is read as a trend, and the
+                # year inside it is then never resolved - so the plan asked
+                # which period a question that already said "last year".
+                # The year phrases come from the temporal normalizer's own
+                # vocabulary ("current year" normalizes to "this year"), so
+                # no new wording is invented here.
+                offset = self._trend_year_offset(question)
+                if offset is None:
+                    # Genuinely unspecified. Leave it: the period
+                    # clarification is the correct response, and the trend
+                    # survives it because the follow-up carries the question.
+                    return time_context
+                column = config.column_for(offset, "VALUE", scope)
+                if not column:
+                    return time_context
+                extra_columns = [column]
+            else:
+                offset = 0 if name == "CurrentYearIntent" else 1
+                column = config.column_for(offset, "VALUE", scope)
+                if not column:
+                    return time_context
+                extra_columns = [column]
+
+            # TimeContext is frozen, so this replaces rather than mutates.
+            from semantic.temporal.models import TimeContext
+
+            if time_context is None:
+                time_context = TimeContext(
+                    intent=intent,
+                    strategy=TimeStrategyType.SNAPSHOT,
+                    snapshot_columns=list(extra_columns),
+                )
+            else:
+                import dataclasses
+                time_context = dataclasses.replace(
+                    time_context,
+                    strategy=TimeStrategyType.SNAPSHOT,
+                    snapshot_columns=list(extra_columns),
+                )
+
+            self.temporal_pipeline._thread_local.last_time_context = time_context
+
+            print(f"\n[Temporal binding] {name} + scope={scope or 'natural'} "
+                  f"-> {column} on {config.table_name}")
+        except Exception as exc:
+            print(f"\n[Temporal binding] skipped: {exc}")
+
+        return time_context
+
     def build_sql_prompt(
         self,
         question: str,
@@ -345,7 +533,13 @@ class PromptBuilder:
                 active_connection["connection_id"],
                 question,
                 clarified_candidate=clarified_candidate,
-                previous_semantic_context=previous_semantic_context
+                previous_semantic_context=previous_semantic_context,
+                # Step 3 - the spans extraction identified as values. Consumed
+                # only when SEMANTIC_VALUE_MODE=enforce; otherwise carried and
+                # ignored, exactly as in Step 2.
+                value_phrases=(
+                    extracted_intent.value_phrases if extracted_intent is not None else None
+                )
             )
         )
         semantic_time = round(time.time() - semantic_start_time, 2)
@@ -840,6 +1034,27 @@ class PromptBuilder:
             from semantic.semantic_plan_builder import SemanticPlanBuilder
             from core.exceptions import EnterpriseException
             time_context = self.temporal_pipeline.get_last_time_context()
+
+            # Bind a detected year expression to this table's period column.
+            #
+            # The temporal pipeline runs before the metric table is known, and
+            # the connection-level capability it consults is empty for this
+            # deployment, so a perfectly good CurrentYearIntent arrived with no
+            # snapshot column attached. The plan then had a Sales metric it
+            # could not bind and asked "which time period?" about a question
+            # that had already said "current year".
+            #
+            # Now that the table IS known, the same TimeContext the clarified
+            # answer produces is built here from that table's configuration.
+            # Answering the clarification stays exactly as it was; this only
+            # removes the need to ask when the user already told us.
+            time_context = self._bind_snapshot_period(
+                time_context,
+                active_connection["connection_id"],
+                table_names,
+                question,
+            )
+
             semantic_plan = SemanticPlanBuilder.build(
                 question=question,
                 semantic_result=semantic_result,
@@ -1249,6 +1464,30 @@ class PromptBuilder:
 
         semantic_plan_context = "\n".join(semantic_plan_context_lines) if semantic_plan_context_lines else "None"
 
+        # Per-table semantic contract, for snapshot tables only.
+        #
+        # A pre-aggregated table cannot be understood from its schema: CY and
+        # PYTD look like ordinary numbers, and production proved the generator
+        # will date-filter them if nothing says otherwise. The contract is
+        # built from the same configuration the resolver uses, so the rules
+        # exist in exactly one place, and it is empty for tables that have a
+        # real business date and need none of it.
+        table_contract = ""
+        try:
+            from semantic.table_contract import build_table_contract
+            table_contract = build_table_contract(
+                active_connection["connection_id"], table_names
+            )
+        except Exception as exc:
+            print(f"\n[Table contract] skipped: {exc}")
+
+        table_contract_section = (
+            "===========================================================\n"
+            "TABLE SEMANTIC CONTRACT - AUTHORITATIVE, OVERRIDES INFERENCE\n"
+            "===========================================================\n\n"
+            f"{table_contract}\n"
+        ) if table_contract else ""
+
         prompt = f"""
 You are an expert Microsoft SQL Server SQL generator for an Enterprise Conversational Analytics Platform.
 
@@ -1280,6 +1519,7 @@ SEMANTIC PLAN
 
 {semantic_plan_context}
 
+{table_contract_section}
 ===========================================================
 SEMANTIC CONTEXT
 ===========================================================

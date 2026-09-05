@@ -432,7 +432,50 @@ class SemanticResolver:
         return survivors
 
     @staticmethod
-    def resolve(connection_id, question, clarified_candidate=None, previous_semantic_context=None):
+    def _drop_temporal_claimed_dimension_candidates(selected_candidates, temporal_tokens):
+        """
+        A word already read as time cannot also be a dimension.
+
+        "Show current year sales" matched "year" as a configured synonym of a
+        Docdate Year dimension on an unrelated table. The cross-table guard
+        then refused the question, which was the correct response to a filter
+        that should never have been proposed - the temporal layer had already
+        consumed that word, before this resolver ran.
+
+        The rule is deliberately narrow. A candidate is dropped only when the
+        text it actually matched on is ENTIRELY inside the words the temporal
+        layer claimed for this question. A dimension that explains anything
+        the time expression did not is untouched, and a question with no time
+        expression claims nothing and behaves exactly as before.
+        """
+        if not temporal_tokens:
+            return selected_candidates
+
+        claimed = {str(t).strip().lower() for t in temporal_tokens if str(t).strip()}
+        if not claimed:
+            return selected_candidates
+
+        survivors = []
+        for cand in selected_candidates:
+            if cand.get("type") == "dimension":
+                matched_words = {
+                    w.lower() for w in _get_words(cand.get("matched_text") or "")
+                }
+                if matched_words and matched_words <= claimed:
+                    print(
+                        "[Temporal priority] dropped dimension '%s' on %s: "
+                        "matched only on time word(s) %s"
+                        % (cand.get("business_name"), cand.get("table_name"),
+                           sorted(matched_words))
+                    )
+                    continue
+            survivors.append(cand)
+
+        return survivors
+
+    @staticmethod
+    def resolve(connection_id, question, clarified_candidate=None, previous_semantic_context=None,
+                value_phrases=None, temporal_claimed_tokens=None):
         print("Entered: resolve")
         print(f"connection_id = {connection_id}")
         """
@@ -502,6 +545,22 @@ class SemanticResolver:
         # explicit "Docdate" / "Doc Date" request keeps resolving normally.
         selected_candidates = SemanticResolver._drop_metric_subsumed_dimension_candidates(
             selected_candidates, metric_vocabulary, question
+        )
+
+        # Temporal precedence. The words a time expression consumed are read
+        # from the temporal layer that already ran for this request, so the
+        # caller does not have to thread them through; an explicit argument
+        # still wins, which is what makes this testable without the pipeline.
+        claimed = temporal_claimed_tokens
+        if claimed is None:
+            try:
+                from semantic.temporal.detector import get_claimed_tokens
+                claimed = get_claimed_tokens()
+            except Exception:
+                claimed = None
+
+        selected_candidates = SemanticResolver._drop_temporal_claimed_dimension_candidates(
+            selected_candidates, claimed
         )
 
         # Build selected dimension list
@@ -844,6 +903,17 @@ class SemanticResolver:
             if candidate.get("type") == "metric":
                 metric_claimed_tokens.update(_get_words(candidate.get("matched_text") or ""))
 
+        # Words the temporal layer consumed belong in the same set, for the
+        # same reason. "Show sales trend" was read as a TrendIntent and then
+        # ALSO fuzzy-matched "trend" against the product value "CCB TRENDY",
+        # turning an intent word into a product filter. A word that another
+        # concept has already explained is not independent value evidence,
+        # whether that concept was a metric or a time expression.
+        if claimed:
+            metric_claimed_tokens.update(
+                str(t).strip().lower() for t in claimed if str(t).strip()
+            )
+
         value_matches = DimensionValueResolver.resolve(
             connection_id,
             question,
@@ -853,7 +923,8 @@ class SemanticResolver:
             current_metrics=metric_objects,
             metric_claimed_tokens=metric_claimed_tokens,
             all_metrics=metric_rows,
-            all_dimensions=dimension_rows
+            all_dimensions=dimension_rows,
+            value_phrases=value_phrases
         )
 
         # --------------------------------------------------
@@ -963,6 +1034,15 @@ class SemanticResolver:
                     index + 1 < len(question_tokens)
                     and question_tokens[index + 1] in dimension_name_words
                 )
+
+                # A word the temporal layer consumed is not unresolved - it was
+                # resolved by time, not by value lookup. "Show sales in August
+                # 2025" reads "august" as part of a month range, so it is
+                # correctly absent from the value matches; counting it as an
+                # unmatched value made the gate refuse a question that had in
+                # fact been understood.
+                if claimed and token.lower() in claimed:
+                    continue
 
                 if after_preposition or before_dimension_word:
                     unresolved_terms.append(token)

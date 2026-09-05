@@ -100,10 +100,17 @@ class TestValuePhraseValidation(unittest.TestCase):
         self.assertTrue(any("names a metric" in n for n in notes))
 
     def test_partial_metric_overlap_is_still_a_value(self):
-        """Only a phrase made ENTIRELY of metric words is refused."""
+        """
+        Only a phrase made ENTIRELY of metric words is refused.
+
+        The example deliberately avoids any configured dimension name. It used
+        to read "Amount City", which now has its "City" qualifier stripped and
+        so reduces to the bare metric word "amount" - correctly refused, but no
+        longer a test of partial overlap.
+        """
         kept, _ = _validate(
-            [{"phrase": "Amount City", "confidence": 0.7}],
-            "Show sales for Amount City",
+            [{"phrase": "Amount Zone", "confidence": 0.7}],
+            "Show sales for Amount Zone",
             metric_terms=["Pending Amount"],
         )
         self.assertEqual(len(kept), 1)

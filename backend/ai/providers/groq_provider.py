@@ -22,20 +22,43 @@ class GroqProvider(
     BaseProvider
 ):
 
-    def __init__(self, company_id=None):
+    def __init__(self, company_id=None, provider_id=None):
 
-        api_key = (
-            ProviderCredentialService
-            .get_provider_key_by_type(
-                "groq",
-                company_id=company_id
-            )
-        )
+        # This provider row's own credential first.
+        #
+        # Several Groq rows can be registered for one company, each a separate
+        # account with its own daily quota. Resolving by type alone gave them
+        # all the same key, so routing from one to the next on a rate limit
+        # was routing to the same account. The by-type lookup remains as the
+        # fallback for callers with no provider_id.
+        api_key = None
         source = "database"
 
-        if api_key:
-            logger.info("Groq API key loaded from database.")
-        else:
+        if provider_id:
+            try:
+                api_key = ProviderCredentialService.get_api_key(provider_id)
+            except Exception as exc:
+                logger.warning(
+                    "Could not read the credential for provider %s (%s); "
+                    "falling back to the provider-type lookup.",
+                    provider_id, str(exc).splitlines()[0][:120],
+                )
+
+            if api_key:
+                logger.info("Groq API key loaded for provider %s.", provider_id)
+
+        if not api_key:
+            api_key = (
+                ProviderCredentialService
+                .get_provider_key_by_type(
+                    "groq",
+                    company_id=company_id
+                )
+            )
+            if api_key:
+                logger.info("Groq API key loaded from database (by type).")
+
+        if not api_key:
             logger.warning("Using fallback .env Groq key.")
             source = "env"
 
